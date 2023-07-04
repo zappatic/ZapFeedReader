@@ -49,6 +49,7 @@ void ZapFR::Engine::Database::upgrade()
     (*mSession) << "CREATE TABLE IF NOT EXISTS posts ("
                    " id INTEGER PRIMARY KEY"
                    ",feedID INTEGER NOT NULL"
+                   ",isRead BOOLEAN DEFAULT FALSE"
                    ",title TEXT"
                    ",link TEXT"
                    ",description TEXT"
@@ -177,4 +178,76 @@ std::optional<Poco::JSON::Object> ZapFR::Engine::Database::getFeed(uint64_t feed
         o.set("lastChecked", lastChecked);
     }
     return o;
+}
+
+Poco::JSON::Array ZapFR::Engine::Database::getPosts(uint64_t feedID, uint64_t perPage, uint64_t page)
+{
+    Poco::JSON::Array arr;
+
+    uint64_t id;
+    bool isRead;
+    std::string title;
+    std::string link;
+    std::string description;
+    std::string author;
+    std::string commentsURL;
+    std::string enclosureURL;
+    std::string enclosureLength;
+    std::string enclosureMimeType;
+    std::string guid;
+    bool guidIsPermalink;
+    uint64_t datePublished;
+    std::string sourceURL;
+    std::string sourceTitle;
+
+    auto offset = perPage * (page - 1);
+
+    Poco::Data::Statement selectStmt(*mSession);
+    selectStmt << "SELECT id"
+                  ",isRead"
+                  ",title"
+                  ",link"
+                  ",description"
+                  ",author"
+                  ",commentsURL"
+                  ",enclosureURL"
+                  ",enclosureLength"
+                  ",enclosureMimeType"
+                  ",guid"
+                  ",guidIsPermalink"
+                  ",datePublished"
+                  ",sourceURL"
+                  ",sourceTitle"
+                  " FROM posts"
+                  " WHERE feedID=?"
+                  " ORDER BY datePublished DESC"
+                  " LIMIT ? OFFSET ?",
+        use(feedID), use(perPage), use(offset), into(id), into(id), into(isRead), into(title), into(link), into(description), into(author), into(commentsURL),
+        into(enclosureURL), into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle),
+        range(0, 1);
+
+    while (!selectStmt.done())
+    {
+        Poco::JSON::Object o;
+
+        selectStmt.execute();
+        o.set("id", id);
+        o.set("isRead", isRead);
+        o.set("title", title);
+        o.set("link", link);
+        o.set("description", description);
+        o.set("author", author);
+        o.set("commentsURL", commentsURL);
+        o.set("enclosureURL", enclosureURL);
+        o.set("enclosureLength", enclosureLength);
+        o.set("enclosureMimeType", enclosureMimeType);
+        o.set("guid", guid);
+        o.set("guidIsPermalink", guidIsPermalink);
+        o.set("datePublished", datePublished);
+        o.set("sourceURL", sourceURL);
+        o.set("sourceTitle", sourceTitle);
+        arr.add(o);
+    }
+
+    return arr;
 }

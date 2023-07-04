@@ -16,32 +16,31 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_DATABASE_H
-#define ZAPFR_ENGINE_DATABASE_H
+#ifndef ZAPFR_ENGINE_SOURCE_H
+#define ZAPFR_ENGINE_SOURCE_H
 
-#include "Feed.h"
 #include "Global.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Database
+        class Database;
+
+        class Source
         {
           public:
-            explicit Database(const std::string& dbPath);
+            explicit Source(Database* db) : mDatabase(db) {}
+            virtual ~Source() = default;
 
-            void subscribeToFeed(const Feed& feed);
-            std::optional<Poco::JSON::Object> getFeed(uint64_t feedID);
-            Poco::JSON::Array getPosts(uint64_t feedID, uint64_t perPage, uint64_t page);
+            virtual Poco::JSON::Array getFeeds() = 0;
+            virtual std::optional<Poco::JSON::Object> getFeed(uint64_t feedID) = 0;
+            virtual Poco::JSON::Array getPosts(uint64_t feedID, uint64_t perPage, uint64_t page) = 0;
 
-          private:
-            std::unique_ptr<Poco::Data::Session> mSession{nullptr};
-            std::mutex mInsertMutex{};
-
-            void upgrade();
+          protected:
+            Database* mDatabase{nullptr};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_DATABASE_H
+#endif // ZAPFR_ENGINE_SOURCE_H

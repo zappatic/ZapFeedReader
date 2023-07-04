@@ -35,4 +35,5 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/Feed.cpp
     ../engine/src/FeedRSS20.cpp
     ../engine/src/FeedATOM10.cpp
+    ../engine/src/SourceLocal.cpp
 )

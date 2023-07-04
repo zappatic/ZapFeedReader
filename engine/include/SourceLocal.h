@@ -16,32 +16,28 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_DATABASE_H
-#define ZAPFR_ENGINE_DATABASE_H
+#ifndef ZAPFR_ENGINE_SOURCELOCAL_H
+#define ZAPFR_ENGINE_SOURCELOCAL_H
 
-#include "Feed.h"
-#include "Global.h"
+#include "Source.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Database
+        class Database;
+
+        class SourceLocal : public Source
         {
           public:
-            explicit Database(const std::string& dbPath);
+            explicit SourceLocal(Database* db);
+            ~SourceLocal() = default;
 
-            void subscribeToFeed(const Feed& feed);
-            std::optional<Poco::JSON::Object> getFeed(uint64_t feedID);
-            Poco::JSON::Array getPosts(uint64_t feedID, uint64_t perPage, uint64_t page);
-
-          private:
-            std::unique_ptr<Poco::Data::Session> mSession{nullptr};
-            std::mutex mInsertMutex{};
-
-            void upgrade();
+            Poco::JSON::Array getFeeds() override;
+            std::optional<Poco::JSON::Object> getFeed(uint64_t feedID) override;
+            Poco::JSON::Array getPosts(uint64_t feedID, uint64_t perPage, uint64_t page) override;
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_DATABASE_H
+#endif // ZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_H
