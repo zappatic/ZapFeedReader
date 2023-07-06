@@ -16,48 +16,48 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "FeedRSS20.h"
+#include "FeedParserRSS20.h"
 
-ZapFR::Engine::FeedRSS20::FeedRSS20(Poco::XML::Document* xmlDoc, const std::string& url) : Feed(xmlDoc, url)
+ZapFR::Engine::FeedParserRSS20::FeedParserRSS20(Poco::XML::Document* xmlDoc, const std::string& url) : FeedParser(xmlDoc, url)
 {
 }
 
-std::string ZapFR::Engine::FeedRSS20::guid() const
+std::string ZapFR::Engine::FeedParserRSS20::guid() const
 {
     return "";
 }
 
-std::string ZapFR::Engine::FeedRSS20::title() const
+std::string ZapFR::Engine::FeedParserRSS20::title() const
 {
     return fetchNodeValue("/channel/title");
 }
 
-std::string ZapFR::Engine::FeedRSS20::subtitle() const
+std::string ZapFR::Engine::FeedParserRSS20::subtitle() const
 {
     return "";
 }
 
-std::string ZapFR::Engine::FeedRSS20::link() const
+std::string ZapFR::Engine::FeedParserRSS20::link() const
 {
     return fetchNodeValue("/channel/link");
 }
 
-std::string ZapFR::Engine::FeedRSS20::description() const
+std::string ZapFR::Engine::FeedParserRSS20::description() const
 {
     return fetchNodeValue("/channel/description");
 }
 
-std::string ZapFR::Engine::FeedRSS20::language() const
+std::string ZapFR::Engine::FeedParserRSS20::language() const
 {
     return fetchNodeValue("/channel/language");
 }
 
-std::string ZapFR::Engine::FeedRSS20::copyright() const
+std::string ZapFR::Engine::FeedParserRSS20::copyright() const
 {
     return fetchNodeValue("/channel/copyright");
 }
 
-std::vector<ZapFR::Engine::Feed::Item> ZapFR::Engine::FeedRSS20::items() const
+std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::items() const
 {
     std::vector<Item> items;
 

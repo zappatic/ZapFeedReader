@@ -17,11 +17,15 @@
 */
 
 #include "Daemon.h"
+#include "Feed.h"
 #include "FeedFetcher.h"
+#include "Source.h"
 
 int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
 {
-    mDatabase = std::make_unique<Engine::Database>(dataDir() + Poco::Path::separator() + "zapfeedreader.db");
+    mDatabase = std::make_unique<Engine::Database>(dataDir() + Poco::Path::separator() + "zapfeedreader-server.db");
+    ZapFR::Engine::Source::registerDatabaseInstance(mDatabase.get());
+    ZapFR::Engine::Feed::registerDatabaseInstance(mDatabase.get());
 
     // auto url = "https://en.wikipedia.org/w/api.php?hidebots=1&hidecategorization=1&hideWikibase=1&urlversion=1&days=7&limit=50&action=feedrecentchanges&feedformat=rss";
     // auto url = "https://www.vrt.be/vrtnieuws/nl.rss.articles.xml";

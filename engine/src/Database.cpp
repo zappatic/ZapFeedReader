@@ -17,7 +17,9 @@
 */
 
 #include "Database.h"
+#include "Feed.h"
 #include "Global.h"
+#include "Source.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -29,45 +31,105 @@ ZapFR::Engine::Database::Database(const std::string& dbPath)
     upgrade();
 }
 
-void ZapFR::Engine::Database::upgrade()
+Poco::Data::Session* ZapFR::Engine::Database::session() const noexcept
 {
-    (*mSession) << "CREATE TABLE IF NOT EXISTS feeds ("
-                   " id INTEGER PRIMARY KEY"
-                   ",url TEXT NOT NULL"
-                   ",folderHierarchy TEXT"
-                   ",guid TEXT"
-                   ",title TEXT NOT NULL"
-                   ",subtitle TEXT"
-                   ",link TEXT"
-                   ",description TEXT "
-                   ",language TEXT "
-                   ",copyright TEXT "
-                   ",lastChecked INTEGER NOT NULL DEFAULT 0"
-                   ")",
-        now;
-
-    (*mSession) << "CREATE TABLE IF NOT EXISTS posts ("
-                   " id INTEGER PRIMARY KEY"
-                   ",feedID INTEGER NOT NULL"
-                   ",isRead BOOLEAN DEFAULT FALSE"
-                   ",title TEXT"
-                   ",link TEXT"
-                   ",description TEXT"
-                   ",author TEXT"
-                   ",commentsURL TEXT"
-                   ",enclosureURL TEXT"
-                   ",enclosureLength TEXT"
-                   ",enclosureMimeType TEXT"
-                   ",guid TEXT"
-                   ",guidIsPermalink BOOLEAN"
-                   ",datePublished INTEGER"
-                   ",sourceURL TEXT"
-                   ",sourceTitle TEXT"
-                   ")",
-        now;
+    return mSession.get();
 }
 
-void ZapFR::Engine::Database::subscribeToFeed(const Feed& feed)
+void ZapFR::Engine::Database::upgrade()
+{
+    // check if we have a config table, which contains the current version of the database
+    Poco::Data::Statement selectStmt(*mSession);
+    uint64_t count{0};
+    selectStmt << "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='config'", into(count), now;
+    if (count == 0)
+    {
+        installDBSchemaV1();
+    }
+    else
+    {
+    }
+}
+
+void ZapFR::Engine::Database::installDBSchemaV1()
+{
+    // CONFIG TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS config ("
+                       " key TEXT PRIMARY KEY NOT NULL"
+                       ",value TEXT"
+                       ")",
+            now;
+
+        Poco::Data::Statement insertStmt(*mSession);
+        insertStmt << "INSERT INTO config (key, value) VALUES ('db_schema_version', 1)", now;
+    }
+
+    // FEEDS TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS feeds ("
+                       " id INTEGER PRIMARY KEY"
+                       ",url TEXT NOT NULL"
+                       ",folderHierarchy TEXT"
+                       ",guid TEXT"
+                       ",title TEXT NOT NULL"
+                       ",subtitle TEXT"
+                       ",link TEXT"
+                       ",description TEXT "
+                       ",language TEXT "
+                       ",copyright TEXT "
+                       ",sortOrder INTEGER NOT NULL"
+                       ",lastChecked INTEGER NOT NULL DEFAULT 0"
+                       ")",
+            now;
+    }
+
+    // POSTS TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS posts ("
+                       " id INTEGER PRIMARY KEY"
+                       ",feedID INTEGER NOT NULL"
+                       ",isRead BOOLEAN DEFAULT FALSE"
+                       ",title TEXT"
+                       ",link TEXT"
+                       ",description TEXT"
+                       ",author TEXT"
+                       ",commentsURL TEXT"
+                       ",enclosureURL TEXT"
+                       ",enclosureLength TEXT"
+                       ",enclosureMimeType TEXT"
+                       ",guid TEXT"
+                       ",guidIsPermalink BOOLEAN"
+                       ",datePublished INTEGER"
+                       ",sourceURL TEXT"
+                       ",sourceTitle TEXT"
+                       ")",
+            now;
+    }
+
+    // SOURCES TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS sources ("
+                       " id INTEGER PRIMARY KEY"
+                       ",type TEXT NOT NULL"
+                       ",title TEXT"
+                       ",sortOrder INTEGER NOT NULL"
+                       ",configData TEXT"
+                       ")",
+            now;
+
+        std::string localSourceName = "On this computer";
+        std::string localType = "local";
+        uint64_t localSortOrder = 10;
+        Poco::Data::Statement insertStmt(*mSession);
+        insertStmt << "INSERT INTO sources ("
+                      "type,title,sortOrder"
+                      ") VALUES (?,?,?)",
+            useRef(localType), useRef(localSourceName), use(localSortOrder), now;
+    }
+}
+
+void ZapFR::Engine::Database::subscribeToFeed(const FeedParser& feed)
 {
     auto url = feed.url();
     auto guid = feed.guid();
@@ -127,57 +189,6 @@ void ZapFR::Engine::Database::subscribeToFeed(const Feed& feed)
             useRef(item.sourceTitle);
         insertStmt.execute();
     }
-}
-
-std::optional<Poco::JSON::Object> ZapFR::Engine::Database::getFeed(uint64_t feedID)
-{
-    Poco::JSON::Object o;
-
-    uint64_t id;
-    std::string url;
-    std::string folderHierarchy;
-    std::string guid;
-    std::string title;
-    std::string subtitle;
-    std::string link;
-    std::string description;
-    std::string language;
-    std::string copyright;
-    std::string lastChecked;
-
-    Poco::Data::Statement selectStmt(*mSession);
-    selectStmt << "SELECT id"
-                  ",url"
-                  ",folderHierarchy"
-                  ",guid"
-                  ",title"
-                  ",subtitle"
-                  ",link"
-                  ",description"
-                  ",language"
-                  ",copyright"
-                  ",lastChecked"
-                  " FROM feeds"
-                  " WHERE id=?",
-        use(feedID), into(id), into(url), into(folderHierarchy), into(guid), into(title), into(subtitle), into(link), into(description), into(language), into(copyright),
-        into(lastChecked), range(0, 1);
-
-    while (!selectStmt.done())
-    {
-        selectStmt.execute();
-        o.set("id", id);
-        o.set("url", url);
-        o.set("folderHierarchy", folderHierarchy);
-        o.set("guid", guid);
-        o.set("title", title);
-        o.set("subtitle", subtitle);
-        o.set("link", link);
-        o.set("description", description);
-        o.set("language", language);
-        o.set("copyright", copyright);
-        o.set("lastChecked", lastChecked);
-    }
-    return o;
 }
 
 Poco::JSON::Array ZapFR::Engine::Database::getPosts(uint64_t feedID, uint64_t perPage, uint64_t page)

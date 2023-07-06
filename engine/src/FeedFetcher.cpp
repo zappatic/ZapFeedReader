@@ -17,8 +17,8 @@
 */
 
 #include "FeedFetcher.h"
-#include "FeedAtom10.h"
-#include "FeedRSS20.h"
+#include "FeedParserAtom10.h"
+#include "FeedParserRSS20.h"
 
 ZapFR::Engine::FeedFetcher::FeedFetcher(Database* db) : mDatabase(db)
 {
@@ -37,13 +37,13 @@ void ZapFR::Engine::FeedFetcher::subscribeToFeed(const std::string& url)
     {
         if (docEl->hasAttribute("version") && docEl->getAttribute("version") == "2.0")
         {
-            auto feed = FeedRSS20(xmlDoc, url);
+            auto feed = FeedParserRSS20(xmlDoc, url);
             mDatabase->subscribeToFeed(feed);
         }
     }
     else if (docEl->nodeName() == "feed")
     {
-        auto feed = FeedAtom10(xmlDoc, url);
+        auto feed = FeedParserAtom10(xmlDoc, url);
         mDatabase->subscribeToFeed(feed);
     }
     else

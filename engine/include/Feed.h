@@ -25,49 +25,58 @@ namespace ZapFR
 {
     namespace Engine
     {
+        class Database;
         class Feed
         {
           public:
-            Feed(Poco::XML::Document* xmlDoc, const std::string& url);
+            explicit Feed(uint64_t id);
             virtual ~Feed() = default;
 
-            std::string url() const noexcept;
+            uint64_t id() const noexcept { return mID; }
+            std::string url() const noexcept { return mURL; }
+            std::string folderHierarchy() const noexcept { return mFolderHierarchy; }
+            std::string guid() const noexcept { return mGuid; }
+            std::string title() const noexcept { return mTitle; }
+            std::string subtitle() const noexcept { return mSubtitle; }
+            std::string link() const noexcept { return mLink; }
+            std::string description() const noexcept { return mDescription; }
+            std::string language() const noexcept { return mLanguage; }
+            std::string copyright() const noexcept { return mCopyright; }
+            std::string lastChecked() const noexcept { return mLastChecked; }
+            uint64_t sortOrder() const noexcept { return mSortOrder; }
 
-            virtual std::string guid() const = 0;
-            virtual std::string title() const = 0;
-            virtual std::string subtitle() const = 0;
-            virtual std::string link() const = 0;
-            virtual std::string description() const = 0;
-            virtual std::string language() const = 0;
-            virtual std::string copyright() const = 0;
+            void setURL(const std::string& url) { mURL = url; }
+            void setFolderHierarchy(const std::string& folderHierarchy) { mFolderHierarchy = folderHierarchy; }
+            void setGuid(const std::string& guid) { mGuid = guid; }
+            void setTitle(const std::string& title) { mTitle = title; }
+            void setSubtitle(const std::string& subtitle) { mSubtitle = subtitle; }
+            void setLink(const std::string& link) { mLink = link; }
+            void setDescription(const std::string& description) { mDescription = description; }
+            void setLanguage(const std::string& language) { mLanguage = language; }
+            void setCopyright(const std::string& copyright) { mCopyright = copyright; }
+            void setLastChecked(const std::string& lastChecked) { mLastChecked = lastChecked; }
+            void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
 
-            struct Item
-            {
-                std::string title{""};
-                std::string link{""};
-                std::string description{""};
-                std::string author{""};
-                std::string category{""};
-                std::string commentsURL{""};
-                std::string enclosureURL{""};
-                std::string enclosureLength{""};
-                std::string enclosureMimeType{""};
-                std::string guid{""};
-                bool guidIsPermalink{true};
-                std::string datePublished{""};
-                std::string sourceURL{""};
-                std::string sourceTitle{""};
-            };
+            virtual Poco::JSON::Array getPosts(uint64_t perPage, uint64_t page) = 0;
 
-            virtual std::vector<Item> items() const = 0;
+            static void registerDatabaseInstance(Database* db);
 
           protected:
-            Poco::XML::Document* mXMLDoc{nullptr};
+            uint64_t mID{0};
             std::string mURL{""};
+            std::string mFolderHierarchy{""};
+            std::string mGuid{""};
+            std::string mTitle{""};
+            std::string mSubtitle{""};
+            std::string mLink{""};
+            std::string mDescription{""};
+            std::string mLanguage{""};
+            std::string mCopyright{""};
+            std::string mLastChecked{""};
+            uint64_t mSortOrder{0};
 
-            std::string fetchNodeValue(const std::string& nodeName) const;
-            std::string fetchNodeValue(Poco::XML::Node* parent, const std::string& nodeName) const;
-            Poco::XML::Node* fetchNode(Poco::XML::Node* parent, const std::string& nodeName) const;
+            static Database* database() noexcept;
+            static Database* msDatabase;
         };
     } // namespace Engine
 } // namespace ZapFR

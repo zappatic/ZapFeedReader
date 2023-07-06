@@ -19,8 +19,10 @@
 #ifndef ZAPFR_CLIENT_MAINWINDOW_H
 #define ZAPFR_CLIENT_MAINWINDOW_H
 
+#include "Database.h"
 #include "Global.h"
 #include <QMainWindow>
+#include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -46,6 +48,11 @@ namespace ZapFR
 
           private:
             Ui::MainWindow* ui;
+            std::unique_ptr<QStandardItemModel> mItemModelSources{nullptr};
+            std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
+
+            void reloadSources();
+            QString dataDir() const;
         };
     } // namespace Client
 } // namespace ZapFR

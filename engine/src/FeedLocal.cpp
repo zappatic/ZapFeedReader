@@ -16,28 +16,13 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_SOURCELOCAL_H
-#define ZAPFR_ENGINE_SOURCELOCAL_H
+#include "FeedLocal.h"
 
-#include "Source.h"
-
-namespace ZapFR
+ZapFR::Engine::FeedLocal::FeedLocal(uint64_t id) : Feed(id)
 {
-    namespace Engine
-    {
-        class Database;
-        class Feed;
+}
 
-        class SourceLocal : public Source
-        {
-          public:
-            explicit SourceLocal(uint64_t id);
-            ~SourceLocal() = default;
-
-            std::vector<std::unique_ptr<Feed>> getFeeds() override;
-            std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) override;
-        };
-    } // namespace Engine
-} // namespace ZapFR
-
-#endif // ZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_H
+Poco::JSON::Array ZapFR::Engine::FeedLocal::getPosts(uint64_t /*perPage*/, uint64_t /*page*/)
+{
+    return Poco::JSON::Array();
+}

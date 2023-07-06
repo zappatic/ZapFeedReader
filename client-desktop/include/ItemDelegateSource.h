@@ -16,37 +16,27 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_DATABASE_H
-#define ZAPFR_ENGINE_DATABASE_H
+#ifndef ZAPFR_CLIENT_ITEMDELEGATESOURCE_H
+#define ZAPFR_CLIENT_ITEMDELEGATESOURCE_H
 
-#include "FeedParser.h"
 #include "Global.h"
+#include <QStyledItemDelegate>
 
 namespace ZapFR
 {
-    namespace Engine
+    namespace Client
     {
-        class Source;
-        class Feed;
-
-        class Database
+        class ItemDelegateSource : public QStyledItemDelegate
         {
+            Q_OBJECT
+
           public:
-            explicit Database(const std::string& dbPath);
+            explicit ItemDelegateSource(QObject* parent = nullptr);
+            ~ItemDelegateSource() = default;
 
-            Poco::Data::Session* session() const noexcept;
-
-            void subscribeToFeed(const FeedParser& feed);
-            Poco::JSON::Array getPosts(uint64_t feedID, uint64_t perPage, uint64_t page);
-
-          private:
-            std::unique_ptr<Poco::Data::Session> mSession{nullptr};
-            std::mutex mInsertMutex{};
-
-            void upgrade();
-            void installDBSchemaV1();
+            void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
         };
-    } // namespace Engine
+    } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_DATABASE_H
+#endif // ZAPFR_CLIENT_ITEMDELEGATESOURCE_H

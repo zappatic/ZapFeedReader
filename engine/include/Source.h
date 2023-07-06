@@ -19,6 +19,7 @@
 #ifndef ZAPFR_ENGINE_SOURCE_H
 #define ZAPFR_ENGINE_SOURCE_H
 
+#include "Feed.h"
 #include "Global.h"
 
 namespace ZapFR
@@ -30,15 +31,33 @@ namespace ZapFR
         class Source
         {
           public:
-            explicit Source(Database* db) : mDatabase(db) {}
+            explicit Source(uint64_t id) : mID(id) {}
             virtual ~Source() = default;
 
-            virtual Poco::JSON::Array getFeeds() = 0;
-            virtual std::optional<Poco::JSON::Object> getFeed(uint64_t feedID) = 0;
-            virtual Poco::JSON::Array getPosts(uint64_t feedID, uint64_t perPage, uint64_t page) = 0;
+            uint64_t id() const noexcept { return mID; }
+            std::string title() const noexcept { return mTitle; }
+            uint64_t sortOrder() const noexcept { return mSortOrder; }
+            std::string configData() const noexcept { return mConfigData; }
+
+            void setTitle(const std::string& title) { mTitle = title; }
+            void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
+            void setConfigData(const std::string& configData) { mConfigData = configData; }
+
+            virtual std::vector<std::unique_ptr<Feed>> getFeeds() = 0;
+            virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) = 0;
+
+            static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);
+            static void registerDatabaseInstance(Database* db);
+            static std::unique_ptr<ZapFR::Engine::Source> createSourceInstance(uint64_t id, const std::string& type);
 
           protected:
-            Database* mDatabase{nullptr};
+            uint64_t mID{0};
+            std::string mTitle{""};
+            uint64_t mSortOrder{0};
+            std::string mConfigData{""};
+
+            static Database* database() noexcept;
+            static Database* msDatabase;
         };
     } // namespace Engine
 } // namespace ZapFR

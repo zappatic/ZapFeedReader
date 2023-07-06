@@ -16,28 +16,28 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "FeedAtom10.h"
+#include "FeedParserAtom10.h"
 
-ZapFR::Engine::FeedAtom10::FeedAtom10(Poco::XML::Document* xmlDoc, const std::string& url) : Feed(xmlDoc, url)
+ZapFR::Engine::FeedParserAtom10::FeedParserAtom10(Poco::XML::Document* xmlDoc, const std::string& url) : FeedParser(xmlDoc, url)
 {
 }
 
-std::string ZapFR::Engine::FeedAtom10::guid() const
+std::string ZapFR::Engine::FeedParserAtom10::guid() const
 {
     return fetchNodeValue("/id");
 }
 
-std::string ZapFR::Engine::FeedAtom10::title() const
+std::string ZapFR::Engine::FeedParserAtom10::title() const
 {
     return fetchNodeValue("/title");
 }
 
-std::string ZapFR::Engine::FeedAtom10::subtitle() const
+std::string ZapFR::Engine::FeedParserAtom10::subtitle() const
 {
     return fetchNodeValue("/subtitle");
 }
 
-std::string ZapFR::Engine::FeedAtom10::link() const
+std::string ZapFR::Engine::FeedParserAtom10::link() const
 {
     std::string link;
     auto linkNodes = mXMLDoc->documentElement()->getElementsByTagName("link");
@@ -54,12 +54,12 @@ std::string ZapFR::Engine::FeedAtom10::link() const
     return link;
 }
 
-std::string ZapFR::Engine::FeedAtom10::description() const
+std::string ZapFR::Engine::FeedParserAtom10::description() const
 {
     return "";
 }
 
-std::string ZapFR::Engine::FeedAtom10::language() const
+std::string ZapFR::Engine::FeedParserAtom10::language() const
 {
     auto docEl = mXMLDoc->documentElement();
     if (docEl->hasAttributeNS("xml", "lang"))
@@ -69,12 +69,12 @@ std::string ZapFR::Engine::FeedAtom10::language() const
     return "";
 }
 
-std::string ZapFR::Engine::FeedAtom10::copyright() const
+std::string ZapFR::Engine::FeedParserAtom10::copyright() const
 {
     return fetchNodeValue("/rights");
 }
 
-std::vector<ZapFR::Engine::Feed::Item> ZapFR::Engine::FeedAtom10::items() const
+std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserAtom10::items() const
 {
     std::vector<Item> items;
 

@@ -15,7 +15,9 @@ set(TS_FILES i18n/ZapFeedReader_en_US.ts)
 set(PROJECT_SOURCES
         src/main.cpp
         src/MainWindow.cpp
+        src/ItemDelegateSource.cpp
         include/MainWindow.h
+        include/ItemDelegateSource.h
         src/MainWindow.ui
         ${TS_FILES}
 )
@@ -61,6 +63,18 @@ target_include_directories(zapfeedreader-client PRIVATE include)
 target_include_directories(zapfeedreader-client PRIVATE ../engine/include)
 
 target_link_libraries(zapfeedreader-client PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+target_sources(zapfeedreader-client PRIVATE
+                                ../engine/src/Database.cpp
+                                ../engine/src/FeedFetcher.cpp
+                                ../engine/src/FeedParser.cpp
+                                ../engine/src/FeedParserRSS20.cpp
+                                ../engine/src/FeedParserATOM10.cpp
+                                ../engine/src/Source.cpp
+                                ../engine/src/SourceLocal.cpp
+                                ../engine/src/Feed.cpp
+                                ../engine/src/FeedLocal.cpp
+)
 
 install(TARGETS zapfeedreader-client
     BUNDLE DESTINATION .

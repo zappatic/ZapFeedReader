@@ -18,11 +18,25 @@
 
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
+#include "Feed.h"
+#include "ItemDelegateSource.h"
+#include "Source.h"
+#include <QDir>
+#include <QStandardItem>
+#include <QStandardPaths>
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    mDatabase = std::make_unique<ZapFR::Engine::Database>(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader-client.db").toStdString());
+    ZapFR::Engine::Source::registerDatabaseInstance(mDatabase.get());
+    ZapFR::Engine::Feed::registerDatabaseInstance(mDatabase.get());
+
     ui->setupUi(this);
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
+
+    reloadSources();
+    ui->treeViewSources->setModel(mItemModelSources.get());
+    ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
 }
 
 ZapFR::Client::MainWindow::~MainWindow()
@@ -33,4 +47,35 @@ ZapFR::Client::MainWindow::~MainWindow()
 void ZapFR::Client::MainWindow::addSource()
 {
     std::cout << "tst\n";
+}
+
+void ZapFR::Client::MainWindow::reloadSources()
+{
+    mItemModelSources = std::make_unique<QStandardItemModel>(this);
+
+    auto sources = ZapFR::Engine::Source::getSources({});
+    for (const auto& source : sources)
+    {
+        QStandardItem* sourceItem = new QStandardItem(QString::fromUtf8(source->title()));
+        mItemModelSources->appendRow(sourceItem);
+
+        auto feeds = source->getFeeds();
+        for (const auto& feed : feeds)
+        {
+            QStandardItem* feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
+            sourceItem->appendRow(feedItem);
+        }
+    }
+}
+
+QString ZapFR::Client::MainWindow::dataDir() const
+{
+    auto data = QStandardPaths::locate(QStandardPaths::StandardLocation::GenericDataLocation, "", QStandardPaths::LocateDirectory);
+
+    auto dir = QDir(QDir::cleanPath(data + QDir::separator() + "ZapFeedReader"));
+    if (!dir.exists())
+    {
+        dir.mkpath("ZapFeedReader");
+    }
+    return dir.path();
 }

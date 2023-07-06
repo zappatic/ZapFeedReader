@@ -17,37 +17,15 @@
 */
 
 #include "Feed.h"
+#include "Database.h"
 
-ZapFR::Engine::Feed::Feed(Poco::XML::Document* xmlDoc, const std::string& url) : mXMLDoc(xmlDoc), mURL(url)
+ZapFR::Engine::Database* ZapFR::Engine::Feed::msDatabase{nullptr};
+
+void ZapFR::Engine::Feed::registerDatabaseInstance(Database* db)
 {
+    msDatabase = db;
 }
 
-std::string ZapFR::Engine::Feed::url() const noexcept
+ZapFR::Engine::Feed::Feed(uint64_t id) : mID(id)
 {
-    return mURL;
-}
-
-std::string ZapFR::Engine::Feed::fetchNodeValue(const std::string& nodeName) const
-{
-    auto node = mXMLDoc->documentElement()->getNodeByPath(nodeName);
-    if (node != nullptr)
-    {
-        return node->innerText();
-    }
-    return "";
-}
-
-std::string ZapFR::Engine::Feed::fetchNodeValue(Poco::XML::Node* parent, const std::string& nodeName) const
-{
-    auto node = parent->getNodeByPath(nodeName);
-    if (node != nullptr)
-    {
-        return node->innerText();
-    }
-    return "";
-}
-
-Poco::XML::Node* ZapFR::Engine::Feed::fetchNode(Poco::XML::Node* parent, const std::string& nodeName) const
-{
-    return parent->getNodeByPath(nodeName);
 }

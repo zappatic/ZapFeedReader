@@ -16,32 +16,27 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FEEDATOM10_H
-#define ZAPFR_ENGINE_FEEDATOM10_H
+#ifndef ZAPFR_ENGINE_FEEDLOCAL_H
+#define ZAPFR_ENGINE_FEEDLOCAL_H
 
 #include "Feed.h"
+#include "Global.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class FeedAtom10 : public Feed
+        class Database;
+
+        class FeedLocal : public Feed
         {
           public:
-            FeedAtom10(Poco::XML::Document* xmlDoc, const std::string& url);
-            virtual ~FeedAtom10() = default;
+            explicit FeedLocal(uint64_t id);
+            virtual ~FeedLocal() = default;
 
-            std::string guid() const override;
-            std::string title() const override;
-            std::string subtitle() const override;
-            std::string link() const override;
-            std::string description() const override;
-            std::string language() const override;
-            std::string copyright() const override;
-
-            std::vector<Item> items() const override;
+            Poco::JSON::Array getPosts(uint64_t perPage, uint64_t page) override;
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FEEDATOM10_H
+#endif // ZAPFR_ENGINE_FEEDLOCAL_H

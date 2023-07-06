@@ -16,37 +16,32 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_DATABASE_H
-#define ZAPFR_ENGINE_DATABASE_H
+#ifndef ZAPFR_ENGINE_FEEDPARSERATOM10_H
+#define ZAPFR_ENGINE_FEEDPARSERATOM10_H
 
 #include "FeedParser.h"
-#include "Global.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Source;
-        class Feed;
-
-        class Database
+        class FeedParserAtom10 : public FeedParser
         {
           public:
-            explicit Database(const std::string& dbPath);
+            FeedParserAtom10(Poco::XML::Document* xmlDoc, const std::string& url);
+            virtual ~FeedParserAtom10() = default;
 
-            Poco::Data::Session* session() const noexcept;
+            std::string guid() const override;
+            std::string title() const override;
+            std::string subtitle() const override;
+            std::string link() const override;
+            std::string description() const override;
+            std::string language() const override;
+            std::string copyright() const override;
 
-            void subscribeToFeed(const FeedParser& feed);
-            Poco::JSON::Array getPosts(uint64_t feedID, uint64_t perPage, uint64_t page);
-
-          private:
-            std::unique_ptr<Poco::Data::Session> mSession{nullptr};
-            std::mutex mInsertMutex{};
-
-            void upgrade();
-            void installDBSchemaV1();
+            std::vector<Item> items() const override;
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_DATABASE_H
+#endif // ZAPFR_ENGINE_FEEDPARSERATOM10_H
