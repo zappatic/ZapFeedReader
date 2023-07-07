@@ -33,9 +33,9 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
 
     ui->setupUi(this);
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
+    connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
 
     reloadSources();
-    ui->treeViewSources->setModel(mItemModelSources.get());
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
 }
 
@@ -49,9 +49,42 @@ void ZapFR::Client::MainWindow::addSource()
     std::cout << "tst\n";
 }
 
+void ZapFR::Client::MainWindow::addFeed()
+{
+    if (mDialogAddFeed == nullptr)
+    {
+        mDialogAddFeed = std::make_unique<DialogAddFeed>(this);
+        connect(mDialogAddFeed.get(), &QDialog::finished,
+                [&](int result)
+                {
+                    if (result == QDialog::DialogCode::Accepted)
+                    {
+                        try
+                        {
+                            auto source = ZapFR::Engine::Source::getSource(mDialogAddFeed->sourceID());
+                            if (source.has_value())
+                            {
+                                source.value()->addFeed(mDialogAddFeed->url().toStdString());
+                                reloadSources();
+                            }
+                        }
+                        catch (const std::runtime_error& e)
+                        {
+                            std::cerr << e.what() << "\n";
+                        }
+                    }
+                });
+    }
+
+    auto sources = ZapFR::Engine::Source::getSources({});
+    mDialogAddFeed->reset(sources);
+    mDialogAddFeed->open();
+}
+
 void ZapFR::Client::MainWindow::reloadSources()
 {
     mItemModelSources = std::make_unique<QStandardItemModel>(this);
+    ui->treeViewSources->setModel(mItemModelSources.get());
 
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)

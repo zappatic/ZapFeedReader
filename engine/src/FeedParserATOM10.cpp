@@ -123,7 +123,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserAtom10::it
         //     }
         // }
 
-        item.datePublished = fetchNodeValue(entryNode, "pubDate");
+        item.datePublished = fetchNodeValue(entryNode, "updated");
         int tzDiff;
         auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, item.datePublished, tzDiff); // actually RFC 3339
         parsedDate.makeUTC(tzDiff);

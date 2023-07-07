@@ -107,13 +107,19 @@ border-top: 0px solid transparent;
      <string>&amp;File</string>
     </property>
     <addaction name="action_Add_source"/>
+    <addaction name="action_Add_feed"/>
    </widget>
    <addaction name="menu_File"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_Add_source">
    <property name="text">
-    <string>&amp;Add source...</string>
+    <string>Add &amp;source...</string>
+   </property>
+  </action>
+  <action name="action_Add_feed">
+   <property name="text">
+    <string>Add &amp;feed...</string>
    </property>
   </action>
  </widget>

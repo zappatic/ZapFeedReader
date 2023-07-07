@@ -45,7 +45,9 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<Feed>> getFeeds() = 0;
             virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) = 0;
+            virtual void addFeed(const std::string& url) = 0;
 
+            static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);
             static void registerDatabaseInstance(Database* db);
             static std::unique_ptr<ZapFR::Engine::Source> createSourceInstance(uint64_t id, const std::string& type);

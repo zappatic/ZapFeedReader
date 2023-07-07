@@ -91,3 +91,32 @@ std::vector<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSo
 
     return sourceList;
 }
+
+std::optional<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSource(uint64_t sourceID)
+{
+    std::string sourceType;
+    std::string sourceTitle;
+    uint64_t sourceSortOrder;
+    std::string sourceConfigData;
+
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT type"
+                  ",title"
+                  ",sortOrder"
+                  ",configData"
+                  " FROM sources"
+                  " WHERE id=?",
+        use(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), range(0, 1);
+    while (!selectStmt.done())
+    {
+        selectStmt.execute();
+
+        auto s = Source::createSourceInstance(sourceID, sourceType);
+        s->setTitle(sourceTitle);
+        s->setSortOrder(sourceSortOrder);
+        s->setConfigData(sourceConfigData);
+
+        return s;
+    }
+    return {};
+}

@@ -70,7 +70,7 @@ void ZapFR::Engine::Database::installDBSchemaV1()
         (*mSession) << "CREATE TABLE IF NOT EXISTS feeds ("
                        " id INTEGER PRIMARY KEY"
                        ",url TEXT NOT NULL"
-                       ",folderHierarchy TEXT"
+                       ",folderHierarchy TEXT NOT NULL DEFAULT ''"
                        ",guid TEXT"
                        ",title TEXT NOT NULL"
                        ",subtitle TEXT"
@@ -140,6 +140,7 @@ void ZapFR::Engine::Database::subscribeToFeed(const FeedParser& feed)
     auto language = feed.language();
     auto copyright = feed.copyright();
     uint64_t feedID{0};
+    auto sortOrder = getNextFeedSortOrder("");
 
     // scope for insert mutex lock
     {
@@ -153,12 +154,12 @@ void ZapFR::Engine::Database::subscribeToFeed(const FeedParser& feed)
                       ",description"
                       ",language"
                       ",copyright"
+                      ",sortOrder"
                       ",lastChecked"
-                      ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
-            useRef(url), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright);
+                      ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+            useRef(url), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright), use(sortOrder);
         const std::lock_guard<std::mutex> lock(mInsertMutex);
         insertStmt.execute();
-
         Poco::Data::Statement selectStmt(*mSession);
         selectStmt << "SELECT last_insert_rowid()", into(feedID), range(0, 1);
         selectStmt.execute();
@@ -189,6 +190,14 @@ void ZapFR::Engine::Database::subscribeToFeed(const FeedParser& feed)
             useRef(item.sourceTitle);
         insertStmt.execute();
     }
+}
+
+uint64_t ZapFR::Engine::Database::getNextFeedSortOrder(const std::string& folderHierarchy)
+{
+    uint64_t sortOrder{0};
+    Poco::Data::Statement selectStmt(*mSession);
+    selectStmt << "SELECT MAX(sortOrder) FROM feeds WHERE folderHierarchy=?", into(sortOrder), useRef(folderHierarchy), now;
+    return sortOrder + 10;
 }
 
 Poco::JSON::Array ZapFR::Engine::Database::getPosts(uint64_t feedID, uint64_t perPage, uint64_t page)

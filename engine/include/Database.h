@@ -37,6 +37,8 @@ namespace ZapFR
             Poco::Data::Session* session() const noexcept;
 
             void subscribeToFeed(const FeedParser& feed);
+            uint64_t getNextFeedSortOrder(const std::string& folderHierarchy);
+
             Poco::JSON::Array getPosts(uint64_t feedID, uint64_t perPage, uint64_t page);
 
           private:

@@ -18,6 +18,7 @@
 
 #include "SourceLocal.h"
 #include "Database.h"
+#include "FeedFetcher.h"
 #include "FeedLocal.h"
 
 using namespace Poco::Data::Keywords;
@@ -86,4 +87,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
 std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t /*feedID*/)
 {
     return {};
+}
+
+void ZapFR::Engine::SourceLocal::addFeed(const std::string& url)
+{
+    FeedFetcher ff(msDatabase);
+    ff.subscribeToFeed(url);
 }

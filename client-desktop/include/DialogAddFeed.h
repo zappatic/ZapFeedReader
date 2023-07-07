@@ -16,48 +16,42 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_MAINWINDOW_H
-#define ZAPFR_CLIENT_MAINWINDOW_H
+#ifndef ZAPFR_CLIENT_DIALOGADDFEED_H
+#define ZAPFR_CLIENT_DIALOGADDFEED_H
 
-#include "Database.h"
-#include "DialogAddFeed.h"
-#include "Global.h"
-#include <QMainWindow>
+#include "Source.h"
+#include <QDialog>
 #include <QStandardItemModel>
 
-QT_BEGIN_NAMESPACE
 namespace Ui
 {
-    class MainWindow;
+    class DialogAddFeed;
 }
-QT_END_NAMESPACE
 
 namespace ZapFR
 {
     namespace Client
     {
-        class MainWindow : public QMainWindow
+        class DialogAddFeed : public QDialog
         {
             Q_OBJECT
 
           public:
-            MainWindow(QWidget* parent = nullptr);
-            ~MainWindow();
+            explicit DialogAddFeed(QWidget* parent = nullptr);
+            ~DialogAddFeed();
 
-          private slots:
-            void addSource();
-            void addFeed();
+            void reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources);
+
+            QString url() const;
+            uint64_t sourceID() const;
 
           private:
-            Ui::MainWindow* ui;
-            std::unique_ptr<QStandardItemModel> mItemModelSources{nullptr};
-            std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
-            std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
+            Ui::DialogAddFeed* ui;
+            std::unique_ptr<QStandardItemModel> mSourcesModel;
 
-            void reloadSources();
-            QString dataDir() const;
+            static constexpr uint32_t SourceIDRole{Qt::ItemDataRole::UserRole + 1};
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_MAINWINDOW_H
+#endif // ZAPFR_CLIENT_DIALOGADDFEED_H

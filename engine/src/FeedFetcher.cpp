@@ -72,6 +72,7 @@ std::string ZapFR::Engine::FeedFetcher::performHTTPRequest(const std::string& ur
     {
         auto newURL = response.get("Location");
         std::cout << "Redirect to " << newURL << "\n";
+        // TODO: limit amount of redirects
         return performHTTPRequest(newURL, method);
     }
 

@@ -16,8 +16,10 @@ set(PROJECT_SOURCES
         src/main.cpp
         src/MainWindow.cpp
         src/ItemDelegateSource.cpp
+        src/DialogAddFeed.cpp
         include/MainWindow.h
         include/ItemDelegateSource.h
+        include/DialogAddFeed.h
         src/MainWindow.ui
         ${TS_FILES}
 )
