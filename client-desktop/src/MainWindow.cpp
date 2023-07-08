@@ -39,6 +39,7 @@ static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FEED = 1;
 static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FOLDER = 2;
 static constexpr uint32_t SourceTreeEntryTypeRole{Qt::ItemDataRole::UserRole + 1};
 static constexpr uint32_t SourceTreeEntryIDRole{Qt::ItemDataRole::UserRole + 2};
+static constexpr uint32_t SourceTreeEntryParentSourceIDRole{Qt::ItemDataRole::UserRole + 3};
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -89,6 +90,14 @@ void ZapFR::Client::MainWindow::saveSettings() const
                     QJsonObject o;
                     o.insert("type", "source");
                     o.insert("id", QJsonValue::fromVariant(parent->data(SourceTreeEntryIDRole)));
+                    expandedSourceTreeItems.append(o);
+                }
+                else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+                {
+                    QJsonObject o;
+                    o.insert("type", "folder");
+                    o.insert("sourceID", QJsonValue::fromVariant(parent->data(SourceTreeEntryParentSourceIDRole)));
+                    o.insert("title", getFolderHierarchy(parent));
                     expandedSourceTreeItems.append(o);
                 }
             }
@@ -147,23 +156,46 @@ void ZapFR::Client::MainWindow::restoreSettings()
                         if (parent->hasChildren())
                         {
                             auto idToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
+                            auto sourceIDToMatch = parent->data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                            QString folderHierarchyToMatch;
                             auto typeToMatch = QString("");
                             if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
                             {
                                 typeToMatch = "source";
                             }
+                            else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+                            {
+                                typeToMatch = "folder";
+                                folderHierarchyToMatch = getFolderHierarchy(parent);
+                            }
 
                             for (const auto& entry : expansions)
                             {
                                 auto o = entry.toObject();
-                                auto id = o.value("id").toVariant().toULongLong();
                                 auto type = o.value("type").toString();
-                                if (type == typeToMatch && id == idToMatch)
+                                if (type == typeToMatch)
                                 {
-                                    auto index = mItemModelSources->indexFromItem(parent);
-                                    if (index.isValid())
+                                    auto shouldExpand{false};
+
+                                    if (type == "source")
                                     {
-                                        ui->treeViewSources->setExpanded(index, true);
+                                        auto id = o.value("id").toVariant().toULongLong();
+                                        shouldExpand = id == idToMatch;
+                                    }
+                                    else if (type == "folder")
+                                    {
+                                        auto sourceID = o.value("sourceID").toVariant().toULongLong();
+                                        auto title = o.value("title").toString();
+                                        shouldExpand = (sourceID == sourceIDToMatch && title == folderHierarchyToMatch);
+                                    }
+
+                                    if (shouldExpand)
+                                    {
+                                        auto index = mItemModelSources->indexFromItem(parent);
+                                        if (index.isValid())
+                                        {
+                                            ui->treeViewSources->setExpanded(index, true);
+                                        }
                                     }
                                 }
                             }
@@ -234,6 +266,7 @@ void ZapFR::Client::MainWindow::reloadSources()
         mItemModelSources->appendRow(sourceItem);
         sourceItem->setData(SOURCETREE_ENTRY_TYPE_SOURCE, SourceTreeEntryTypeRole);
         sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryIDRole);
+        sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
 
         auto feeds = source->getFeeds();
         for (const auto& feed : feeds)
@@ -260,6 +293,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                     {
                         auto subfolderItem = new QStandardItem(subfolder);
                         subfolderItem->setData(SOURCETREE_ENTRY_TYPE_FOLDER, SourceTreeEntryTypeRole);
+                        subfolderItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
                         currentParent->appendRow(subfolderItem);
                         currentParent = subfolderItem;
                     }
@@ -269,6 +303,7 @@ void ZapFR::Client::MainWindow::reloadSources()
             auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
             feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
             feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), SourceTreeEntryIDRole);
+            feedItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
             currentParent->appendRow(feedItem);
         }
     }
@@ -301,4 +336,21 @@ QString ZapFR::Client::MainWindow::configDir() const
 QString ZapFR::Client::MainWindow::settingsFile() const
 {
     return QDir::cleanPath(configDir() + QDir::separator() + "zapfeedreader-client.conf");
+}
+
+QString ZapFR::Client::MainWindow::getFolderHierarchy(QStandardItem* parent) const
+{
+    std::function<void(QStandardItem*, QStringList&)> getFolderHierarchy;
+    getFolderHierarchy = [&](QStandardItem* item, QStringList& subfolders)
+    {
+        if (item->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+        {
+            subfolders.insert(0, item->data(Qt::DisplayRole).toString());
+            getFolderHierarchy(item->parent(), subfolders);
+        }
+    };
+
+    QStringList subfolders;
+    getFolderHierarchy(parent, subfolders);
+    return subfolders.join("/");
 }

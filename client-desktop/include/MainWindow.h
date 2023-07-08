@@ -63,6 +63,7 @@ namespace ZapFR
             QString settingsFile() const;
             void saveSettings() const;
             void restoreSettings();
+            QString getFolderHierarchy(QStandardItem* item) const;
         };
     } // namespace Client
 } // namespace ZapFR
