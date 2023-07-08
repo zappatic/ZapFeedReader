@@ -22,8 +22,22 @@
 #include "ItemDelegateSource.h"
 #include "Source.h"
 #include <QDir>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QStandardItem>
 #include <QStandardPaths>
+
+static const QString SETTING_MAINWINDOW_STATE = "mainwindow.state";
+static const QString SETTING_MAINWINDOW_GEOMETRY = "mainwindow.geometry";
+static const QString SETTING_SPLITTERLEFT_STATE = "splitterleft.state";
+static const QString SETTING_SPLITTERRIGHT_STATE = "splitterright.state";
+static const QString SETTING_SOURCETREEVIEW_EXPANSION = "sourcetreeview.expansion";
+
+static constexpr uint32_t SOURCETREE_ENTRY_TYPE_SOURCE = 0;
+static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FEED = 1;
+static constexpr uint32_t SourceTreeEntryTypeRole{Qt::ItemDataRole::UserRole + 1};
+static constexpr uint32_t SourceTreeEntryIDRole{Qt::ItemDataRole::UserRole + 2};
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -37,11 +51,137 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
 
     reloadSources();
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
+
+    restoreSettings();
 }
 
 ZapFR::Client::MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
+{
+    saveSettings();
+}
+
+void ZapFR::Client::MainWindow::saveSettings() const
+{
+    QJsonObject root;
+    root.insert(SETTING_MAINWINDOW_STATE, QString::fromUtf8(saveState().toBase64()));
+    root.insert(SETTING_MAINWINDOW_GEOMETRY, QString::fromUtf8(saveGeometry().toBase64()));
+    root.insert(SETTING_SPLITTERLEFT_STATE, QString::fromUtf8(ui->splitterLeft->saveState().toBase64()));
+    root.insert(SETTING_SPLITTERRIGHT_STATE, QString::fromUtf8(ui->splitterRight->saveState().toBase64()));
+
+    // save which sources/folders are expanded in the source tree view
+    QJsonArray expandedSourceTreeItems;
+    std::function<void(QStandardItem*)> processExpansionStates;
+    processExpansionStates = [&](QStandardItem* parent)
+    {
+        if (parent->hasChildren())
+        {
+            auto index = mItemModelSources->indexFromItem(parent);
+            if (ui->treeViewSources->isExpanded(index))
+            {
+                if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+                {
+                    QJsonObject o;
+                    o.insert("type", "source");
+                    o.insert("id", QJsonValue::fromVariant(parent->data(SourceTreeEntryIDRole)));
+                    expandedSourceTreeItems.append(o);
+                }
+            }
+
+            for (auto i = 0; i < parent->rowCount(); ++i)
+            {
+                auto child = parent->child(i);
+                processExpansionStates(child);
+            }
+        }
+    };
+    processExpansionStates(mItemModelSources->invisibleRootItem());
+    root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedSourceTreeItems);
+
+    auto sf = QFile(settingsFile());
+    sf.open(QIODeviceBase::WriteOnly);
+    sf.write(QJsonDocument(root).toJson());
+    sf.close();
+}
+
+void ZapFR::Client::MainWindow::restoreSettings()
+{
+    try
+    {
+        auto sf = QFile(settingsFile());
+        if (sf.exists())
+        {
+            sf.open(QIODeviceBase::ReadOnly);
+            auto json = QJsonDocument::fromJson(sf.readAll());
+            sf.close();
+            if (json.isObject())
+            {
+                auto root = json.object();
+                if (root.contains(SETTING_MAINWINDOW_STATE))
+                {
+                    restoreState(QByteArray::fromBase64(root.value(SETTING_MAINWINDOW_STATE).toVariant().toByteArray()));
+                }
+                if (root.contains(SETTING_MAINWINDOW_GEOMETRY))
+                {
+                    restoreGeometry(QByteArray::fromBase64(root.value(SETTING_MAINWINDOW_GEOMETRY).toVariant().toByteArray()));
+                }
+                if (root.contains(SETTING_SPLITTERLEFT_STATE))
+                {
+                    ui->splitterLeft->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERLEFT_STATE).toVariant().toByteArray()));
+                }
+                if (root.contains(SETTING_SPLITTERRIGHT_STATE))
+                {
+                    ui->splitterRight->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERRIGHT_STATE).toVariant().toByteArray()));
+                }
+                if (root.contains(SETTING_SOURCETREEVIEW_EXPANSION))
+                {
+                    auto expansions = root.value(SETTING_SOURCETREEVIEW_EXPANSION).toArray();
+                    std::function<void(QStandardItem*)> processExpansionStates;
+                    processExpansionStates = [&](QStandardItem* parent)
+                    {
+                        if (parent->hasChildren())
+                        {
+                            auto idToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
+                            auto typeToMatch = QString("");
+                            if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+                            {
+                                typeToMatch = "source";
+                            }
+
+                            for (const auto& entry : expansions)
+                            {
+                                auto o = entry.toObject();
+                                auto id = o.value("id").toVariant().toULongLong();
+                                auto type = o.value("type").toString();
+                                if (type == typeToMatch && id == idToMatch)
+                                {
+                                    auto index = mItemModelSources->indexFromItem(parent);
+                                    if (index.isValid())
+                                    {
+                                        ui->treeViewSources->setExpanded(index, true);
+                                    }
+                                }
+                            }
+
+                            for (auto i = 0; i < parent->rowCount(); ++i)
+                            {
+                                auto child = parent->child(i);
+                                processExpansionStates(child);
+                            }
+                        }
+                    };
+                    processExpansionStates(mItemModelSources->invisibleRootItem());
+                }
+            }
+        }
+    }
+    catch (...)
+    {
+    }
 }
 
 void ZapFR::Client::MainWindow::addSource()
@@ -91,11 +231,14 @@ void ZapFR::Client::MainWindow::reloadSources()
     {
         QStandardItem* sourceItem = new QStandardItem(QString::fromUtf8(source->title()));
         mItemModelSources->appendRow(sourceItem);
+        sourceItem->setData(SOURCETREE_ENTRY_TYPE_SOURCE, SourceTreeEntryTypeRole);
+        sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryIDRole);
 
         auto feeds = source->getFeeds();
         for (const auto& feed : feeds)
         {
             QStandardItem* feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
+            feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
             sourceItem->appendRow(feedItem);
         }
     }
@@ -111,4 +254,21 @@ QString ZapFR::Client::MainWindow::dataDir() const
         dir.mkpath("ZapFeedReader");
     }
     return dir.path();
+}
+
+QString ZapFR::Client::MainWindow::configDir() const
+{
+    auto data = QStandardPaths::locate(QStandardPaths::StandardLocation::ConfigLocation, "", QStandardPaths::LocateDirectory);
+
+    auto dir = QDir(QDir::cleanPath(data + QDir::separator() + "ZapFeedReader"));
+    if (!dir.exists())
+    {
+        dir.mkpath("ZapFeedReader");
+    }
+    return dir.path();
+}
+
+QString ZapFR::Client::MainWindow::settingsFile() const
+{
+    return QDir::cleanPath(configDir() + QDir::separator() + "zapfeedreader-client.conf");
 }

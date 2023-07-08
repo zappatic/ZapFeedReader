@@ -48,6 +48,9 @@ namespace ZapFR
             void addSource();
             void addFeed();
 
+          protected:
+            void closeEvent(QCloseEvent* event) override;
+
           private:
             Ui::MainWindow* ui;
             std::unique_ptr<QStandardItemModel> mItemModelSources{nullptr};
@@ -56,6 +59,10 @@ namespace ZapFR
 
             void reloadSources();
             QString dataDir() const;
+            QString configDir() const;
+            QString settingsFile() const;
+            void saveSettings() const;
+            void restoreSettings();
         };
     } // namespace Client
 } // namespace ZapFR
