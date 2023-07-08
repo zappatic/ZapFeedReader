@@ -36,6 +36,7 @@ static const QString SETTING_SOURCETREEVIEW_EXPANSION = "sourcetreeview.expansio
 
 static constexpr uint32_t SOURCETREE_ENTRY_TYPE_SOURCE = 0;
 static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FEED = 1;
+static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FOLDER = 2;
 static constexpr uint32_t SourceTreeEntryTypeRole{Qt::ItemDataRole::UserRole + 1};
 static constexpr uint32_t SourceTreeEntryIDRole{Qt::ItemDataRole::UserRole + 2};
 
@@ -229,7 +230,7 @@ void ZapFR::Client::MainWindow::reloadSources()
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)
     {
-        QStandardItem* sourceItem = new QStandardItem(QString::fromUtf8(source->title()));
+        auto sourceItem = new QStandardItem(QString::fromUtf8(source->title()));
         mItemModelSources->appendRow(sourceItem);
         sourceItem->setData(SOURCETREE_ENTRY_TYPE_SOURCE, SourceTreeEntryTypeRole);
         sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryIDRole);
@@ -237,9 +238,38 @@ void ZapFR::Client::MainWindow::reloadSources()
         auto feeds = source->getFeeds();
         for (const auto& feed : feeds)
         {
-            QStandardItem* feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
+            auto currentParent = sourceItem;
+            auto folderHierarchy = QString::fromUtf8(feed->folderHierarchy());
+            if (!folderHierarchy.isEmpty())
+            {
+                auto subfolders = folderHierarchy.split("/", Qt::SkipEmptyParts);
+                for (const auto& subfolder : subfolders)
+                {
+                    auto subfolderFound{false};
+                    for (int i = 0; i < currentParent->rowCount(); ++i)
+                    {
+                        auto item = currentParent->child(i);
+                        if (item->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER && item->data(Qt::DisplayRole).toString() == subfolder)
+                        {
+                            subfolderFound = true;
+                            currentParent = item;
+                            break;
+                        }
+                    }
+                    if (!subfolderFound)
+                    {
+                        auto subfolderItem = new QStandardItem(subfolder);
+                        subfolderItem->setData(SOURCETREE_ENTRY_TYPE_FOLDER, SourceTreeEntryTypeRole);
+                        currentParent->appendRow(subfolderItem);
+                        currentParent = subfolderItem;
+                    }
+                }
+            }
+
+            auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
             feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
-            sourceItem->appendRow(feedItem);
+            feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), SourceTreeEntryIDRole);
+            currentParent->appendRow(feedItem);
         }
     }
 }
