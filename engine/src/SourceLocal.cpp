@@ -84,8 +84,58 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
     return feeds;
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t /*feedID*/)
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID)
 {
+    uint64_t id;
+    std::string url;
+    std::string folderHierarchy;
+    std::string guid;
+    std::string title;
+    std::string subtitle;
+    std::string link;
+    std::string description;
+    std::string language;
+    std::string copyright;
+    std::string lastChecked;
+    uint64_t sortOrder;
+
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT id"
+                  ",url"
+                  ",folderHierarchy"
+                  ",guid"
+                  ",title"
+                  ",subtitle"
+                  ",link"
+                  ",description"
+                  ",language"
+                  ",copyright"
+                  ",lastChecked"
+                  ",sortOrder"
+                  " FROM feeds"
+                  " WHERE id=?",
+        use(feedID), into(id), into(url), into(folderHierarchy), into(guid), into(title), into(subtitle), into(link), into(description), into(language), into(copyright),
+        into(lastChecked), into(sortOrder), range(0, 1);
+
+    while (!selectStmt.done())
+    {
+        selectStmt.execute();
+
+        auto f = std::make_unique<FeedLocal>(id);
+        f->setURL(url);
+        f->setFolderHierarchy(folderHierarchy);
+        f->setGuid(guid);
+        f->setTitle(title);
+        f->setSubtitle(subtitle);
+        f->setLink(link);
+        f->setDescription(description);
+        f->setLanguage(language);
+        f->setCopyright(copyright);
+        f->setLastChecked(lastChecked);
+        f->setSortOrder(sortOrder);
+        return f;
+    }
+
     return {};
 }
 

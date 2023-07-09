@@ -47,6 +47,7 @@ namespace ZapFR
           private slots:
             void addSource();
             void addFeed();
+            void sourceTreeViewItemClicked(const QModelIndex& index);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -54,6 +55,7 @@ namespace ZapFR
           private:
             Ui::MainWindow* ui;
             std::unique_ptr<QStandardItemModel> mItemModelSources{nullptr};
+            std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
 

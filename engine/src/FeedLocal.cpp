@@ -17,12 +17,78 @@
 */
 
 #include "FeedLocal.h"
+#include "Database.h"
+
+using namespace Poco::Data::Keywords;
 
 ZapFR::Engine::FeedLocal::FeedLocal(uint64_t id) : Feed(id)
 {
 }
 
-Poco::JSON::Array ZapFR::Engine::FeedLocal::getPosts(uint64_t /*perPage*/, uint64_t /*page*/)
+std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getPosts(uint64_t perPage, uint64_t page)
 {
-    return Poco::JSON::Array();
+    std::vector<std::unique_ptr<Post>> posts;
+
+    auto offset = perPage * (page - 1);
+
+    uint64_t id{0};
+    std::string title{""};
+    std::string link{""};
+    std::string description{""};
+    std::string author{""};
+    std::string commentsURL{""};
+    std::string enclosureURL{""};
+    std::string enclosureLength{""};
+    std::string enclosureMimeType{""};
+    std::string guid{""};
+    bool guidIsPermalink{false};
+    std::string datePublished{""};
+    std::string sourceURL{""};
+    std::string sourceTitle{""};
+
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT id"
+                  ",title"
+                  ",link"
+                  ",description"
+                  ",author"
+                  ",commentsURL"
+                  ",enclosureURL"
+                  ",enclosureLength"
+                  ",enclosureMimeType"
+                  ",guid"
+                  ",guidIsPermalink"
+                  ",datePublished"
+                  ",sourceURL"
+                  ",sourceTitle"
+                  " FROM posts"
+                  " WHERE feedID=?"
+                  " ORDER BY datePublished DESC"
+                  " LIMIT ? OFFSET ?",
+        use(mID), use(perPage), use(offset), into(id), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL), into(enclosureLength),
+        into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), range(0, 1);
+
+    while (!selectStmt.done())
+    {
+        selectStmt.execute();
+
+        auto p = std::make_unique<Post>(id);
+        p->setFeedID(mID);
+        p->setTitle(title);
+        p->setLink(link);
+        p->setDescription(description);
+        p->setAuthor(author);
+        p->setCommentsURL(commentsURL);
+        p->setEnclosureURL(enclosureURL);
+        p->setEnclosureLength(enclosureLength);
+        p->setEnclosureMimeType(enclosureMimeType);
+        p->setGuid(guid);
+        p->setGuidIsPermalink(guidIsPermalink);
+        p->setDatePublished(datePublished);
+        p->setSourceURL(sourceURL);
+        p->setSourceTitle(sourceTitle);
+        posts.emplace_back(std::move(p));
+    }
+
+    return posts;
 }

@@ -39,4 +39,5 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/SourceLocal.cpp
     ../engine/src/Feed.cpp
     ../engine/src/FeedLocal.cpp
+    ../engine/src/Post.cpp
 )

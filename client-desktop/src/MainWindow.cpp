@@ -20,6 +20,7 @@
 #include "./ui_MainWindow.h"
 #include "Feed.h"
 #include "ItemDelegateSource.h"
+#include "Post.h"
 #include "Source.h"
 #include <QDir>
 #include <QJsonArray>
@@ -46,10 +47,24 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     mDatabase = std::make_unique<ZapFR::Engine::Database>(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader-client.db").toStdString());
     ZapFR::Engine::Source::registerDatabaseInstance(mDatabase.get());
     ZapFR::Engine::Feed::registerDatabaseInstance(mDatabase.get());
+    ZapFR::Engine::Post::registerDatabaseInstance(mDatabase.get());
 
     ui->setupUi(this);
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
+    connect(ui->treeViewSources, &QTreeView::clicked, this, &MainWindow::sourceTreeViewItemClicked);
+
+    // overwrite the inactive palette with the active palette colors to get rid of the stupid unreadable gray on blue text when focus is lost on
+    // the sources tree view and posts table view
+    auto palette = QPalette(ui->treeViewSources->palette());
+    palette.setColor(QPalette::Inactive, QPalette::Highlight, palette.color(QPalette::Active, QPalette::Highlight));
+    palette.setColor(QPalette::Inactive, QPalette::HighlightedText, palette.color(QPalette::Active, QPalette::HighlightedText));
+    ui->treeViewSources->setPalette(palette);
+
+    palette = QPalette(ui->tableViewPosts->palette());
+    palette.setColor(QPalette::Inactive, QPalette::Highlight, palette.color(QPalette::Active, QPalette::Highlight));
+    palette.setColor(QPalette::Inactive, QPalette::HighlightedText, palette.color(QPalette::Active, QPalette::HighlightedText));
+    ui->tableViewPosts->setPalette(palette);
 
     reloadSources();
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
@@ -258,6 +273,7 @@ void ZapFR::Client::MainWindow::reloadSources()
 {
     mItemModelSources = std::make_unique<QStandardItemModel>(this);
     ui->treeViewSources->setModel(mItemModelSources.get());
+    mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
 
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)
@@ -353,4 +369,35 @@ QString ZapFR::Client::MainWindow::getFolderHierarchy(QStandardItem* parent) con
     QStringList subfolders;
     getFolderHierarchy(parent, subfolders);
     return subfolders.join("/");
+}
+
+void ZapFR::Client::MainWindow::sourceTreeViewItemClicked(const QModelIndex& index)
+{
+    if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+    {
+        auto source = ZapFR::Engine::Source::getSource(index.data(SourceTreeEntryParentSourceIDRole).toULongLong());
+        if (source.has_value())
+        {
+            auto feed = source.value()->getFeed(index.data(SourceTreeEntryIDRole).toULongLong());
+            if (feed.has_value())
+            {
+                auto posts = feed.value()->getPosts(100, 1);
+
+                mItemModelPosts = std::make_unique<QStandardItemModel>(this);
+                ui->tableViewPosts->setModel(mItemModelPosts.get());
+                mItemModelPosts->setHorizontalHeaderItem(0, new QStandardItem(tr("Title")));
+                mItemModelPosts->setHorizontalHeaderItem(1, new QStandardItem(tr("Date")));
+
+                for (const auto& post : posts)
+                {
+                    QList<QStandardItem*> rowData;
+                    rowData << new QStandardItem(QString::fromUtf8(post->title()));
+                    rowData << new QStandardItem(QString::fromUtf8(post->datePublished()));
+                    mItemModelPosts->appendRow(rowData);
+                }
+                ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+                ui->tableViewPosts->horizontalHeader()->setMinimumSectionSize(200);
+            }
+        }
+    }
 }

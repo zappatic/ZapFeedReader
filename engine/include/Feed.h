@@ -20,6 +20,7 @@
 #define ZAPFR_ENGINE_FEED_H
 
 #include "Global.h"
+#include "Post.h"
 
 namespace ZapFR
 {
@@ -57,7 +58,7 @@ namespace ZapFR
             void setLastChecked(const std::string& lastChecked) { mLastChecked = lastChecked; }
             void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
 
-            virtual Poco::JSON::Array getPosts(uint64_t perPage, uint64_t page) = 0;
+            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) = 0;
 
             static void registerDatabaseInstance(Database* db);
 

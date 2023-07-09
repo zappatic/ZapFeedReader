@@ -76,6 +76,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/SourceLocal.cpp
                                 ../engine/src/Feed.cpp
                                 ../engine/src/FeedLocal.cpp
+                                ../engine/src/Post.cpp
 )
 
 install(TARGETS zapfeedreader-client

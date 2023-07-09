@@ -16,27 +16,16 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FEEDLOCAL_H
-#define ZAPFR_ENGINE_FEEDLOCAL_H
+#include "Post.h"
+#include "Database.h"
 
-#include "Feed.h"
-#include "Global.h"
+ZapFR::Engine::Database* ZapFR::Engine::Post::msDatabase{nullptr};
 
-namespace ZapFR
+void ZapFR::Engine::Post::registerDatabaseInstance(Database* db)
 {
-    namespace Engine
-    {
-        class Database;
+    msDatabase = db;
+}
 
-        class FeedLocal : public Feed
-        {
-          public:
-            explicit FeedLocal(uint64_t id);
-            virtual ~FeedLocal() = default;
-
-            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
-        };
-    } // namespace Engine
-} // namespace ZapFR
-
-#endif // ZAPFR_ENGINE_FEEDLOCAL_H
+ZapFR::Engine::Post::Post(uint64_t id) : mID(id)
+{
+}

@@ -32,6 +32,9 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
+      <property name="handleWidth">
+       <number>8</number>
+      </property>
       <widget class="QTreeView" name="treeViewSources">
        <property name="styleSheet">
         <string notr="true">QTreeView {
@@ -54,12 +57,15 @@
         <bool>true</bool>
        </property>
        <property name="headerHidden">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
       <widget class="QSplitter" name="splitterRight">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
+       </property>
+       <property name="handleWidth">
+        <number>8</number>
        </property>
        <widget class="QTableView" name="tableViewPosts">
         <property name="styleSheet">
@@ -80,9 +86,9 @@ border-top: 0px solid transparent;
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
-        <attribute name="horizontalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
+        <property name="gridStyle">
+         <enum>Qt::DotLine</enum>
+        </property>
         <attribute name="verticalHeaderVisible">
          <bool>false</bool>
         </attribute>
