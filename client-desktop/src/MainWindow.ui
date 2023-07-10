@@ -93,7 +93,7 @@ border-top: 0px solid transparent;
          <bool>false</bool>
         </attribute>
        </widget>
-       <widget class="QWidget" name="webViewPost" native="true"/>
+       <widget class="QWebEngineView" name="webViewPost" native="true"/>
       </widget>
      </widget>
     </item>
@@ -129,6 +129,14 @@ border-top: 0px solid transparent;
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebEngineView</class>
+   <extends>QWidget</extends>
+   <header>qwebengineview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

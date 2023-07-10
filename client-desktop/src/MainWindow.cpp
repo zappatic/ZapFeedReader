@@ -29,6 +29,7 @@
 #include <QJsonObject>
 #include <QStandardItem>
 #include <QStandardPaths>
+#include <QStyleHints>
 
 static const QString SETTING_MAINWINDOW_STATE = "mainwindow.state";
 static const QString SETTING_MAINWINDOW_GEOMETRY = "mainwindow.geometry";
@@ -42,7 +43,10 @@ static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FOLDER = 2;
 static constexpr uint32_t SourceTreeEntryTypeRole{Qt::ItemDataRole::UserRole + 1};
 static constexpr uint32_t SourceTreeEntryIDRole{Qt::ItemDataRole::UserRole + 2};
 static constexpr uint32_t SourceTreeEntryParentSourceIDRole{Qt::ItemDataRole::UserRole + 3};
-static constexpr uint32_t PostDateISODateRole{Qt::ItemDataRole::UserRole + 1};
+static constexpr uint32_t PostIDRole{Qt::ItemDataRole::UserRole + 1};
+static constexpr uint32_t PostSourceIDRole{Qt::ItemDataRole::UserRole + 2};
+static constexpr uint32_t PostFeedDRole{Qt::ItemDataRole::UserRole + 3};
+static constexpr uint32_t PostISODateRole{Qt::ItemDataRole::UserRole + 4};
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -55,6 +59,8 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
     connect(ui->treeViewSources, &QTreeView::clicked, this, &MainWindow::sourceTreeViewItemClicked);
+    connect(ui->tableViewPosts, &QTableView::clicked, this, &MainWindow::postsTableViewItemClicked);
+    connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
     // overwrite the inactive palette with the active palette colors to get rid of the stupid unreadable gray on blue text when focus is lost on
     // the sources tree view and posts table view
@@ -71,6 +77,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     reloadSources();
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
 
+    ui->webViewPost->setHtml("<b>test</b>");
     restoreSettings();
 }
 
@@ -82,6 +89,18 @@ ZapFR::Client::MainWindow::~MainWindow()
 void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
 {
     saveSettings();
+}
+
+void ZapFR::Client::MainWindow::colorSchemeChanged(Qt::ColorScheme scheme)
+{
+    if (scheme == Qt::ColorScheme::Dark)
+    {
+        std::cout << "color scheme changed to dark\n";
+    }
+    else
+    {
+        std::cout << "color scheme changed to light/unknown\n";
+    }
 }
 
 void ZapFR::Client::MainWindow::saveSettings() const
@@ -393,9 +412,16 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemClicked(const QModelIndex& ind
                 for (const auto& post : posts)
                 {
                     auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
+                    titleItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+                    titleItem->setData(QVariant::fromValue<uint64_t>(source.value()->id()), PostSourceIDRole);
+                    titleItem->setData(QVariant::fromValue<uint64_t>(feed.value()->id()), PostFeedDRole);
+
                     auto datePublished = QString::fromUtf8(post->datePublished());
                     auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
-                    dateItem->setData(datePublished, PostDateISODateRole);
+                    dateItem->setData(datePublished, PostISODateRole);
+                    dateItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+                    dateItem->setData(QVariant::fromValue<uint64_t>(source.value()->id()), PostSourceIDRole);
+                    dateItem->setData(QVariant::fromValue<uint64_t>(feed.value()->id()), PostFeedDRole);
 
                     QList<QStandardItem*> rowData;
                     rowData << titleItem << dateItem;
@@ -406,4 +432,38 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemClicked(const QModelIndex& ind
             }
         }
     }
+}
+
+void ZapFR::Client::MainWindow::postsTableViewItemClicked(const QModelIndex& index)
+{
+    mCurrentPostID = index.data(PostIDRole).toULongLong();
+    mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
+    mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
+    reloadCurrentPost();
+}
+
+void ZapFR::Client::MainWindow::reloadCurrentPost() const
+{
+    QString htmlStr;
+    QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
+
+    html << "<html><body>";
+
+    auto source = ZapFR::Engine::Source::getSource(mCurrentPostSourceID);
+    if (source.has_value())
+    {
+        auto feed = source.value()->getFeed(mCurrentPostFeedID);
+        if (feed.has_value())
+        {
+            auto post = feed.value()->getPost(mCurrentPostID);
+            if (post.has_value())
+            {
+                html << QString::fromUtf8(post.value()->description());
+            }
+        }
+    }
+
+    html << "</body></html>";
+
+    ui->webViewPost->setHtml(htmlStr);
 }

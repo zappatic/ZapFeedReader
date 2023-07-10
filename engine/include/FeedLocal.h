@@ -35,6 +35,7 @@ namespace ZapFR
             virtual ~FeedLocal() = default;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
+            std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
         };
     } // namespace Engine
 } // namespace ZapFR

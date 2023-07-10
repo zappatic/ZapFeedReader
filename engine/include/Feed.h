@@ -59,6 +59,7 @@ namespace ZapFR
             void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) = 0;
+            virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
 
             static void registerDatabaseInstance(Database* db);
 
