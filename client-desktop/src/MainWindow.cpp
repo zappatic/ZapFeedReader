@@ -22,6 +22,7 @@
 #include "ItemDelegateSource.h"
 #include "Post.h"
 #include "Source.h"
+#include "Utilities.h"
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -41,6 +42,7 @@ static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FOLDER = 2;
 static constexpr uint32_t SourceTreeEntryTypeRole{Qt::ItemDataRole::UserRole + 1};
 static constexpr uint32_t SourceTreeEntryIDRole{Qt::ItemDataRole::UserRole + 2};
 static constexpr uint32_t SourceTreeEntryParentSourceIDRole{Qt::ItemDataRole::UserRole + 3};
+static constexpr uint32_t PostDateISODateRole{Qt::ItemDataRole::UserRole + 1};
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -390,9 +392,13 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemClicked(const QModelIndex& ind
 
                 for (const auto& post : posts)
                 {
+                    auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
+                    auto datePublished = QString::fromUtf8(post->datePublished());
+                    auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
+                    dateItem->setData(datePublished, PostDateISODateRole);
+
                     QList<QStandardItem*> rowData;
-                    rowData << new QStandardItem(QString::fromUtf8(post->title()));
-                    rowData << new QStandardItem(QString::fromUtf8(post->datePublished()));
+                    rowData << titleItem << dateItem;
                     mItemModelPosts->appendRow(rowData);
                 }
                 ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);

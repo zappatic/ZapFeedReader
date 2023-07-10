@@ -17,6 +17,7 @@ set(PROJECT_SOURCES
         src/MainWindow.cpp
         src/ItemDelegateSource.cpp
         src/DialogAddFeed.cpp
+        src/Utilities.cpp
         include/MainWindow.h
         include/ItemDelegateSource.h
         include/DialogAddFeed.h
