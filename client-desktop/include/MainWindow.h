@@ -72,6 +72,7 @@ namespace ZapFR
             void restoreSettings();
             QString getFolderHierarchy(QStandardItem* item) const;
             void reloadCurrentPost() const;
+            QString postStyles() const;
         };
     } // namespace Client
 } // namespace ZapFR

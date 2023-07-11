@@ -24,6 +24,7 @@
 #include "Source.h"
 #include "Utilities.h"
 #include <QDir>
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -79,6 +80,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
 
     ui->webViewPost->setHtml("<b>test</b>");
     restoreSettings();
+    reloadCurrentPost();
 }
 
 ZapFR::Client::MainWindow::~MainWindow()
@@ -91,16 +93,9 @@ void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
     saveSettings();
 }
 
-void ZapFR::Client::MainWindow::colorSchemeChanged(Qt::ColorScheme scheme)
+void ZapFR::Client::MainWindow::colorSchemeChanged(Qt::ColorScheme /*scheme*/)
 {
-    if (scheme == Qt::ColorScheme::Dark)
-    {
-        std::cout << "color scheme changed to dark\n";
-    }
-    else
-    {
-        std::cout << "color scheme changed to light/unknown\n";
-    }
+    reloadCurrentPost();
 }
 
 void ZapFR::Client::MainWindow::saveSettings() const
@@ -447,18 +442,21 @@ void ZapFR::Client::MainWindow::reloadCurrentPost() const
     QString htmlStr;
     QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
 
-    html << "<html><body>";
+    html << "<!DOCTYPE html>\n<html><head><style type='text/css'>\n" << postStyles() << "\n</style></head><body>";
 
-    auto source = ZapFR::Engine::Source::getSource(mCurrentPostSourceID);
-    if (source.has_value())
+    if (mCurrentPostSourceID > 0 && mCurrentPostFeedID > 0 && mCurrentPostID > 0)
     {
-        auto feed = source.value()->getFeed(mCurrentPostFeedID);
-        if (feed.has_value())
+        auto source = ZapFR::Engine::Source::getSource(mCurrentPostSourceID);
+        if (source.has_value())
         {
-            auto post = feed.value()->getPost(mCurrentPostID);
-            if (post.has_value())
+            auto feed = source.value()->getFeed(mCurrentPostFeedID);
+            if (feed.has_value())
             {
-                html << QString::fromUtf8(post.value()->description());
+                auto post = feed.value()->getPost(mCurrentPostID);
+                if (post.has_value())
+                {
+                    html << QString::fromUtf8(post.value()->description());
+                }
             }
         }
     }
@@ -466,4 +464,37 @@ void ZapFR::Client::MainWindow::reloadCurrentPost() const
     html << "</body></html>";
 
     ui->webViewPost->setHtml(htmlStr);
+}
+
+QString ZapFR::Client::MainWindow::postStyles() const
+{
+    auto font = ui->treeViewSources->font();
+    auto commonStyles = QString::fromUtf8(R"(body { font-family: "%1", sans-serif; }\n)").arg(font.family());
+
+    auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
+    if (currentColorScheme == Qt::ColorScheme::Dark)
+    {
+        auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + "posttheme.dark.css"));
+        if (override.exists())
+        {
+            override.open(QIODeviceBase::ReadOnly);
+            auto styles = QString::fromUtf8(override.readAll());
+            override.close();
+            return styles;
+        }
+        return "body { background-color: #2a2a2a; color: #fff; }\n" + commonStyles;
+        ;
+    }
+    else
+    {
+        auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + "posttheme.light.css"));
+        if (override.exists())
+        {
+            override.open(QIODeviceBase::ReadOnly);
+            auto styles = QString::fromUtf8(override.readAll());
+            override.close();
+            return styles;
+        }
+        return "body { background-color: #fff; color: #000; }\n" + commonStyles;
+    }
 }
