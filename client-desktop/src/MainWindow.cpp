@@ -23,6 +23,7 @@
 #include "Post.h"
 #include "Source.h"
 #include "Utilities.h"
+#include "WebEnginePagePost.h"
 #include <QDir>
 #include <QFile>
 #include <QJsonArray>
@@ -77,6 +78,9 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
 
     reloadSources();
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
+
+    mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
+    ui->webViewPost->setPage(mPostWebEnginePage.get());
 
     ui->webViewPost->setHtml("<b>test</b>");
     restoreSettings();
@@ -424,6 +428,7 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemClicked(const QModelIndex& ind
                 }
                 ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
                 ui->tableViewPosts->horizontalHeader()->setMinimumSectionSize(200);
+                postsTableViewItemClicked(QModelIndex());
             }
         }
     }
@@ -431,9 +436,18 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemClicked(const QModelIndex& ind
 
 void ZapFR::Client::MainWindow::postsTableViewItemClicked(const QModelIndex& index)
 {
-    mCurrentPostID = index.data(PostIDRole).toULongLong();
-    mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
-    mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
+    if (index.isValid())
+    {
+        mCurrentPostID = index.data(PostIDRole).toULongLong();
+        mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
+        mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
+    }
+    else
+    {
+        mCurrentPostID = 0;
+        mCurrentPostSourceID = 0;
+        mCurrentPostFeedID = 0;
+    }
     reloadCurrentPost();
 }
 

@@ -18,9 +18,11 @@ set(PROJECT_SOURCES
         src/ItemDelegateSource.cpp
         src/DialogAddFeed.cpp
         src/Utilities.cpp
+        src/WebEnginePagePost.cpp
         include/MainWindow.h
         include/ItemDelegateSource.h
         include/DialogAddFeed.h
+        include/WebEnginePagePost.h
         src/MainWindow.ui
         ${TS_FILES}
 )

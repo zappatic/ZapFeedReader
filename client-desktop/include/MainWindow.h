@@ -36,6 +36,8 @@ namespace ZapFR
 {
     namespace Client
     {
+        class WebEnginePagePost;
+
         class MainWindow : public QMainWindow
         {
             Q_OBJECT
@@ -60,6 +62,7 @@ namespace ZapFR
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
+            std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
             uint64_t mCurrentPostID{0};
