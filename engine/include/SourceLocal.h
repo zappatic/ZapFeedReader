@@ -37,6 +37,7 @@ namespace ZapFR
             std::vector<std::unique_ptr<Feed>> getFeeds() override;
             std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) override;
             void addFeed(const std::string& url) override;
+            void refreshFeed(uint64_t feedID) override;
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -52,6 +52,7 @@ namespace ZapFR
             void sourceTreeViewItemClicked(const QModelIndex& index);
             void postsTableViewItemClicked(const QModelIndex& index);
             void colorSchemeChanged(Qt::ColorScheme scheme);
+            void sourceTreeViewContextMenuRequested(const QPoint& p);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -63,6 +64,7 @@ namespace ZapFR
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
+            std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
             uint64_t mCurrentPostID{0};
@@ -76,6 +78,7 @@ namespace ZapFR
             QString getFolderHierarchy(QStandardItem* item) const;
             void reloadCurrentPost() const;
             QString postStyles() const;
+            void createContextMenus();
         };
     } // namespace Client
 } // namespace ZapFR

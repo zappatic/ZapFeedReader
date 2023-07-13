@@ -22,6 +22,7 @@
 #include <Poco/DOM/DOMParser.h>
 #include <Poco/DOM/Document.h>
 #include <Poco/DOM/NodeList.h>
+#include <Poco/Data/RecordSet.h>
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
 #include <Poco/DateTimeParser.h>

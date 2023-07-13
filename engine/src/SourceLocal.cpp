@@ -78,6 +78,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
         f->setCopyright(copyright);
         f->setLastChecked(lastChecked);
         f->setSortOrder(sortOrder);
+        f->setDataFetched(true);
         feeds.emplace_back(std::move(f));
     }
 
@@ -133,6 +134,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
         f->setCopyright(copyright);
         f->setLastChecked(lastChecked);
         f->setSortOrder(sortOrder);
+        f->setDataFetched(true);
         return f;
     }
 
@@ -143,4 +145,10 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url)
 {
     FeedFetcher ff(msDatabase);
     ff.subscribeToFeed(url);
+}
+
+void ZapFR::Engine::SourceLocal::refreshFeed(uint64_t feedID)
+{
+    FeedFetcher ff(msDatabase);
+    ff.refreshFeed(feedID);
 }

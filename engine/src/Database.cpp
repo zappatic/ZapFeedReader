@@ -165,6 +165,11 @@ void ZapFR::Engine::Database::subscribeToFeed(const FeedParser& feed)
         selectStmt.execute();
     }
 
+    refreshFeed(feed, feedID);
+}
+
+void ZapFR::Engine::Database::refreshFeed(const FeedParser& feed, uint64_t feedID)
+{
     for (const auto& item : feed.items())
     {
         auto isPermaLink = item.guidIsPermalink ? 1 : 0;

@@ -61,6 +61,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
     connect(ui->treeViewSources, &QTreeView::clicked, this, &MainWindow::sourceTreeViewItemClicked);
+    connect(ui->treeViewSources, &QTreeView::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
     connect(ui->tableViewPosts, &QTableView::clicked, this, &MainWindow::postsTableViewItemClicked);
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
@@ -85,6 +86,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ui->webViewPost->setHtml("<b>test</b>");
     restoreSettings();
     reloadCurrentPost();
+    createContextMenus();
 }
 
 ZapFR::Client::MainWindow::~MainWindow()
@@ -272,7 +274,14 @@ void ZapFR::Client::MainWindow::addFeed()
                             auto source = ZapFR::Engine::Source::getSource(mDialogAddFeed->sourceID());
                             if (source.has_value())
                             {
-                                source.value()->addFeed(mDialogAddFeed->url().toStdString());
+                                try
+                                {
+                                    source.value()->addFeed(mDialogAddFeed->url().toStdString());
+                                }
+                                catch (Poco::Exception& e)
+                                {
+                                    std::cout << "Poco Exception: " << e.what() << "\n" << e.displayText() << "\n";
+                                }
                                 reloadSources();
                             }
                         }
@@ -511,4 +520,45 @@ QString ZapFR::Client::MainWindow::postStyles() const
         }
         return "body { background-color: #fff; color: #000; }\n" + commonStyles;
     }
+}
+
+void ZapFR::Client::MainWindow::sourceTreeViewContextMenuRequested(const QPoint& p)
+{
+    auto index = ui->treeViewSources->indexAt(p);
+    if (index.isValid())
+    {
+        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+        switch (type)
+        {
+            case SOURCETREE_ENTRY_TYPE_FEED:
+            {
+                mSourceContextMenuFeed->exec(ui->treeViewSources->viewport()->mapToGlobal(p));
+            }
+        }
+    }
+}
+
+void ZapFR::Client::MainWindow::createContextMenus()
+{
+    mSourceContextMenuFeed = std::make_unique<QMenu>(nullptr);
+
+    auto refreshAction = new QAction(tr("&Refresh"), this);
+    connect(refreshAction, &QAction::triggered,
+            [&]()
+            {
+                auto index = ui->treeViewSources->currentIndex();
+                if (index.isValid())
+                {
+                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                    auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+
+                    auto source = ZapFR::Engine::Source::getSource(sourceID);
+                    if (source.has_value())
+                    {
+                        source.value()->refreshFeed(feedID);
+                    }
+                    reloadSources();
+                }
+            });
+    mSourceContextMenuFeed->addAction(refreshAction);
 }

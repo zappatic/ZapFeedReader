@@ -17,6 +17,7 @@
 */
 
 #include "FeedFetcher.h"
+#include "FeedLocal.h"
 #include "FeedParserAtom10.h"
 #include "FeedParserRSS20.h"
 
@@ -25,7 +26,7 @@ ZapFR::Engine::FeedFetcher::FeedFetcher(Database* db) : mDatabase(db)
     mSSLContext = new Poco::Net::Context(Poco::Net::Context::TLS_CLIENT_USE, "", Poco::Net::Context::VERIFY_NONE);
 }
 
-void ZapFR::Engine::FeedFetcher::subscribeToFeed(const std::string& url)
+std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::getParser(const std::string& url)
 {
     auto xml = performHTTPRequest(url, "GET");
 
@@ -37,18 +38,35 @@ void ZapFR::Engine::FeedFetcher::subscribeToFeed(const std::string& url)
     {
         if (docEl->hasAttribute("version") && docEl->getAttribute("version") == "2.0")
         {
-            auto feed = FeedParserRSS20(xmlDoc, url);
-            mDatabase->subscribeToFeed(feed);
+            return std::make_unique<FeedParserRSS20>(xmlDoc, url);
         }
+        // TODO: rss 1.0
     }
     else if (docEl->nodeName() == "feed")
     {
-        auto feed = FeedParserAtom10(xmlDoc, url);
-        mDatabase->subscribeToFeed(feed);
+        return std::make_unique<FeedParserAtom10>(xmlDoc, url);
     }
     else
     {
         throw std::runtime_error("Unkown feed type");
+    }
+    return nullptr;
+}
+
+void ZapFR::Engine::FeedFetcher::subscribeToFeed(const std::string& url)
+{
+    auto parser = getParser(url);
+    mDatabase->subscribeToFeed(*parser);
+}
+
+void ZapFR::Engine::FeedFetcher::refreshFeed(uint64_t feedID)
+{
+    auto feed = FeedLocal(feedID);
+    if (feed.fetchData())
+    {
+        auto url = feed.url();
+        auto parser = getParser(url);
+        mDatabase->refreshFeed(*parser, feed.id());
     }
 }
 
@@ -56,7 +74,22 @@ std::string ZapFR::Engine::FeedFetcher::performHTTPRequest(const std::string& ur
 {
     Poco::URI uri(url);
 
-    auto session = std::make_unique<Poco::Net::HTTPSClientSession>(uri.getHost(), uri.getPort(), mSSLContext);
+    std::unique_ptr<Poco::Net::HTTPClientSession> session;
+
+    auto scheme = uri.getScheme();
+    if (scheme == "https")
+    {
+        session = std::make_unique<Poco::Net::HTTPSClientSession>(uri.getHost(), uri.getPort(), mSSLContext);
+    }
+    else if (scheme == "http")
+    {
+        session = std::make_unique<Poco::Net::HTTPClientSession>(uri.getHost(), uri.getPort());
+    }
+    else
+    {
+        throw std::runtime_error("Unknown scheme in URL");
+    }
+
     session->setTimeout(Poco::Timespan(10, 0));
     Poco::Net::HTTPRequest request(method, uri.getPathAndQuery(), Poco::Net::HTTPMessage::HTTP_1_1);
     request.setKeepAlive(false);
@@ -71,7 +104,14 @@ std::string ZapFR::Engine::FeedFetcher::performHTTPRequest(const std::string& ur
     if (status == 301)
     {
         auto newURL = response.get("Location");
-        std::cout << "Redirect to " << newURL << "\n";
+        std::cout << "Moved permanently to " << newURL << "\n";
+        // TODO: limit amount of redirects
+        return performHTTPRequest(newURL, method);
+    }
+    else if (status == 302)
+    {
+        auto newURL = response.get("Location");
+        std::cout << "Moved temporarily to " << newURL << "\n";
         // TODO: limit amount of redirects
         return performHTTPRequest(newURL, method);
     }

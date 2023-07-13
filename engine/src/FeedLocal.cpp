@@ -155,3 +155,27 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
 
     return {};
 }
+
+bool ZapFR::Engine::FeedLocal::fetchData()
+{
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT url"
+                  ",folderHierarchy"
+                  ",guid"
+                  ",title"
+                  ",subtitle"
+                  ",link"
+                  ",description"
+                  ",language"
+                  ",copyright"
+                  ",lastChecked"
+                  ",sortOrder"
+                  " FROM feeds"
+                  " WHERE id=?",
+        use(mID), into(mURL), into(mFolderHierarchy), into(mGuid), into(mTitle), into(mSubtitle), into(mLink), into(mDescription), into(mLanguage), into(mCopyright),
+        into(mLastChecked), into(mSortOrder), now;
+
+    mDataFetched = true;
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    return (rs.rowCount() == 1);
+}
