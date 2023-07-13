@@ -82,8 +82,6 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
 
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
     ui->webViewPost->setPage(mPostWebEnginePage.get());
-
-    ui->webViewPost->setHtml("<b>test</b>");
     restoreSettings();
     reloadCurrentPost();
     createContextMenus();
@@ -111,43 +109,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(SETTING_MAINWINDOW_GEOMETRY, QString::fromUtf8(saveGeometry().toBase64()));
     root.insert(SETTING_SPLITTERLEFT_STATE, QString::fromUtf8(ui->splitterLeft->saveState().toBase64()));
     root.insert(SETTING_SPLITTERRIGHT_STATE, QString::fromUtf8(ui->splitterRight->saveState().toBase64()));
-
-    // save which sources/folders are expanded in the source tree view
-    QJsonArray expandedSourceTreeItems;
-    std::function<void(QStandardItem*)> processExpansionStates;
-    processExpansionStates = [&](QStandardItem* parent)
-    {
-        if (parent->hasChildren())
-        {
-            auto index = mItemModelSources->indexFromItem(parent);
-            if (ui->treeViewSources->isExpanded(index))
-            {
-                if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
-                {
-                    QJsonObject o;
-                    o.insert("type", "source");
-                    o.insert("id", QJsonValue::fromVariant(parent->data(SourceTreeEntryIDRole)));
-                    expandedSourceTreeItems.append(o);
-                }
-                else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
-                {
-                    QJsonObject o;
-                    o.insert("type", "folder");
-                    o.insert("sourceID", QJsonValue::fromVariant(parent->data(SourceTreeEntryParentSourceIDRole)));
-                    o.insert("title", getFolderHierarchy(parent));
-                    expandedSourceTreeItems.append(o);
-                }
-            }
-
-            for (auto i = 0; i < parent->rowCount(); ++i)
-            {
-                auto child = parent->child(i);
-                processExpansionStates(child);
-            }
-        }
-    };
-    processExpansionStates(mItemModelSources->invisibleRootItem());
-    root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedSourceTreeItems);
+    root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedSourceTreeItems());
 
     auto sf = QFile(settingsFile());
     sf.open(QIODeviceBase::WriteOnly);
@@ -186,65 +148,7 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 }
                 if (root.contains(SETTING_SOURCETREEVIEW_EXPANSION))
                 {
-                    auto expansions = root.value(SETTING_SOURCETREEVIEW_EXPANSION).toArray();
-                    std::function<void(QStandardItem*)> processExpansionStates;
-                    processExpansionStates = [&](QStandardItem* parent)
-                    {
-                        if (parent->hasChildren())
-                        {
-                            auto idToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
-                            auto sourceIDToMatch = parent->data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                            QString folderHierarchyToMatch;
-                            auto typeToMatch = QString("");
-                            if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
-                            {
-                                typeToMatch = "source";
-                            }
-                            else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
-                            {
-                                typeToMatch = "folder";
-                                folderHierarchyToMatch = getFolderHierarchy(parent);
-                            }
-
-                            for (const auto& entry : expansions)
-                            {
-                                auto o = entry.toObject();
-                                auto type = o.value("type").toString();
-                                if (type == typeToMatch)
-                                {
-                                    auto shouldExpand{false};
-
-                                    if (type == "source")
-                                    {
-                                        auto id = o.value("id").toVariant().toULongLong();
-                                        shouldExpand = id == idToMatch;
-                                    }
-                                    else if (type == "folder")
-                                    {
-                                        auto sourceID = o.value("sourceID").toVariant().toULongLong();
-                                        auto title = o.value("title").toString();
-                                        shouldExpand = (sourceID == sourceIDToMatch && title == folderHierarchyToMatch);
-                                    }
-
-                                    if (shouldExpand)
-                                    {
-                                        auto index = mItemModelSources->indexFromItem(parent);
-                                        if (index.isValid())
-                                        {
-                                            ui->treeViewSources->setExpanded(index, true);
-                                        }
-                                    }
-                                }
-                            }
-
-                            for (auto i = 0; i < parent->rowCount(); ++i)
-                            {
-                                auto child = parent->child(i);
-                                processExpansionStates(child);
-                            }
-                        }
-                    };
-                    processExpansionStates(mItemModelSources->invisibleRootItem());
+                    expandSourceTreeItems(root.value(SETTING_SOURCETREEVIEW_EXPANSION).toArray());
                 }
             }
         }
@@ -252,6 +156,112 @@ void ZapFR::Client::MainWindow::restoreSettings()
     catch (...)
     {
     }
+}
+
+QJsonArray ZapFR::Client::MainWindow::expandedSourceTreeItems() const
+{
+    QJsonArray expandedSourceTreeItems;
+    if (mItemModelSources == nullptr)
+    {
+        return expandedSourceTreeItems;
+    }
+
+    std::function<void(QStandardItem*)> processExpansionStates;
+    processExpansionStates = [&](QStandardItem* parent)
+    {
+        if (parent->hasChildren())
+        {
+            auto index = mItemModelSources->indexFromItem(parent);
+            if (ui->treeViewSources->isExpanded(index))
+            {
+                if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+                {
+                    QJsonObject o;
+                    o.insert("type", "source");
+                    o.insert("id", QJsonValue::fromVariant(parent->data(SourceTreeEntryIDRole)));
+                    expandedSourceTreeItems.append(o);
+                }
+                else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+                {
+                    QJsonObject o;
+                    o.insert("type", "folder");
+                    o.insert("sourceID", QJsonValue::fromVariant(parent->data(SourceTreeEntryParentSourceIDRole)));
+                    o.insert("title", getFolderHierarchy(parent));
+                    expandedSourceTreeItems.append(o);
+                }
+            }
+
+            for (auto i = 0; i < parent->rowCount(); ++i)
+            {
+                auto child = parent->child(i);
+                processExpansionStates(child);
+            }
+        }
+    };
+    processExpansionStates(mItemModelSources->invisibleRootItem());
+    return expandedSourceTreeItems;
+}
+
+void ZapFR::Client::MainWindow::expandSourceTreeItems(const QJsonArray& items) const
+{
+    std::function<void(QStandardItem*)> processExpansionStates;
+    processExpansionStates = [&](QStandardItem* parent)
+    {
+        if (parent->hasChildren())
+        {
+            auto idToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
+            auto sourceIDToMatch = parent->data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            QString folderHierarchyToMatch;
+            auto typeToMatch = QString("");
+            if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+            {
+                typeToMatch = "source";
+            }
+            else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+            {
+                typeToMatch = "folder";
+                folderHierarchyToMatch = getFolderHierarchy(parent);
+            }
+
+            for (const auto& entry : items)
+            {
+                auto o = entry.toObject();
+                auto type = o.value("type").toString();
+                if (type == typeToMatch)
+                {
+                    auto shouldExpand{false};
+
+                    if (type == "source")
+                    {
+                        auto id = o.value("id").toVariant().toULongLong();
+                        shouldExpand = id == idToMatch;
+                    }
+                    else if (type == "folder")
+                    {
+                        auto sourceID = o.value("sourceID").toVariant().toULongLong();
+                        auto title = o.value("title").toString();
+                        shouldExpand = (sourceID == sourceIDToMatch && title == folderHierarchyToMatch);
+                    }
+
+                    if (shouldExpand)
+                    {
+                        auto index = mItemModelSources->indexFromItem(parent);
+                        if (index.isValid())
+                        {
+                            ui->treeViewSources->setExpanded(index, true);
+                        }
+                    }
+                }
+            }
+
+            for (auto i = 0; i < parent->rowCount(); ++i)
+            {
+                auto child = parent->child(i);
+                processExpansionStates(child);
+            }
+        }
+    };
+    processExpansionStates(mItemModelSources->invisibleRootItem());
 }
 
 void ZapFR::Client::MainWindow::addSource()
@@ -300,6 +310,8 @@ void ZapFR::Client::MainWindow::addFeed()
 
 void ZapFR::Client::MainWindow::reloadSources()
 {
+    auto expandedItems = expandedSourceTreeItems();
+
     mItemModelSources = std::make_unique<QStandardItemModel>(this);
     ui->treeViewSources->setModel(mItemModelSources.get());
     mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
@@ -352,6 +364,8 @@ void ZapFR::Client::MainWindow::reloadSources()
             currentParent->appendRow(feedItem);
         }
     }
+
+    expandSourceTreeItems(expandedItems);
 }
 
 QString ZapFR::Client::MainWindow::dataDir() const

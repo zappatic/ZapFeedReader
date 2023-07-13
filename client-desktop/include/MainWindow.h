@@ -73,8 +73,12 @@ namespace ZapFR
             QString dataDir() const;
             QString configDir() const;
             QString settingsFile() const;
+
             void saveSettings() const;
             void restoreSettings();
+            QJsonArray expandedSourceTreeItems() const;
+            void expandSourceTreeItems(const QJsonArray& items) const;
+
             QString getFolderHierarchy(QStandardItem* item) const;
             void reloadCurrentPost() const;
             QString postStyles() const;
