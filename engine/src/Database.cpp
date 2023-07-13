@@ -173,27 +173,60 @@ void ZapFR::Engine::Database::refreshFeed(const FeedParser& feed, uint64_t feedI
     for (const auto& item : feed.items())
     {
         auto isPermaLink = item.guidIsPermalink ? 1 : 0;
-        Poco::Data::Statement insertStmt(*mSession);
-        insertStmt << "INSERT INTO posts ("
-                      " feedID"
-                      ",title"
-                      ",link"
-                      ",description"
-                      ",author"
-                      ",commentsURL"
-                      ",enclosureURL"
-                      ",enclosureLength"
-                      ",enclosureMimeType"
-                      ",guid"
-                      ",guidIsPermalink"
-                      ",datePublished"
-                      ",sourceURL"
-                      ",sourceTitle"
-                      ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            use(feedID), useRef(item.title), useRef(item.link), useRef(item.description), useRef(item.author), useRef(item.commentsURL), useRef(item.enclosureURL),
-            useRef(item.enclosureLength), useRef(item.enclosureMimeType), useRef(item.guid), use(isPermaLink), useRef(item.datePublished), useRef(item.sourceURL),
-            useRef(item.sourceTitle);
-        insertStmt.execute();
+        auto guid = item.guid;
+
+        // see if it already exists
+        Poco::Data::Statement selectStmt(*mSession);
+        selectStmt << "SELECT id FROM posts WHERE feedID=? AND guid=?", use(feedID), useRef(guid), now;
+        selectStmt.execute();
+        auto rs = Poco::Data::RecordSet(selectStmt);
+        if (rs.rowCount() == 1)
+        {
+            Poco::Data::Statement updateStmt(*mSession);
+            updateStmt << "UPDATE posts SET"
+                          " title=?"
+                          ",link=?"
+                          ",description=?"
+                          ",author=?"
+                          ",commentsURL=?"
+                          ",enclosureURL=?"
+                          ",enclosureLength=?"
+                          ",enclosureMimeType=?"
+                          ",guid=?"
+                          ",guidIsPermalink=?"
+                          ",datePublished=?"
+                          ",sourceURL=?"
+                          ",sourceTitle=?"
+                          " WHERE feedID=? AND guid=?",
+                useRef(item.title), useRef(item.link), useRef(item.description), useRef(item.author), useRef(item.commentsURL), useRef(item.enclosureURL),
+                useRef(item.enclosureLength), useRef(item.enclosureMimeType), useRef(item.guid), use(isPermaLink), useRef(item.datePublished), useRef(item.sourceURL),
+                useRef(item.sourceTitle), use(feedID), useRef(guid);
+            updateStmt.execute();
+        }
+        else
+        {
+            Poco::Data::Statement insertStmt(*mSession);
+            insertStmt << "INSERT INTO posts ("
+                          " feedID"
+                          ",title"
+                          ",link"
+                          ",description"
+                          ",author"
+                          ",commentsURL"
+                          ",enclosureURL"
+                          ",enclosureLength"
+                          ",enclosureMimeType"
+                          ",guid"
+                          ",guidIsPermalink"
+                          ",datePublished"
+                          ",sourceURL"
+                          ",sourceTitle"
+                          ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                use(feedID), useRef(item.title), useRef(item.link), useRef(item.description), useRef(item.author), useRef(item.commentsURL), useRef(item.enclosureURL),
+                useRef(item.enclosureLength), useRef(item.enclosureMimeType), useRef(item.guid), use(isPermaLink), useRef(item.datePublished), useRef(item.sourceURL),
+                useRef(item.sourceTitle);
+            insertStmt.execute();
+        }
     }
 }
 

@@ -310,7 +310,24 @@ void ZapFR::Client::MainWindow::addFeed()
 
 void ZapFR::Client::MainWindow::reloadSources()
 {
+    // preserve the expansion of the source items and selected item data
     auto expandedItems = expandedSourceTreeItems();
+    uint64_t selectedSourceID = 0;
+    uint64_t selectedID = 0;
+    auto selectionModel = ui->treeViewSources->selectionModel();
+    if (selectionModel != nullptr)
+    {
+        auto selectedIndexes = selectionModel->selectedIndexes();
+        if (selectedIndexes.length() > 0)
+        {
+            auto index = selectedIndexes.at(0);
+            if (index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
+            {
+                selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                selectedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            }
+        }
+    }
 
     mItemModelSources = std::make_unique<QStandardItemModel>(this);
     ui->treeViewSources->setModel(mItemModelSources.get());
@@ -319,12 +336,14 @@ void ZapFR::Client::MainWindow::reloadSources()
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)
     {
+        // create the parent source item
         auto sourceItem = new QStandardItem(QString::fromUtf8(source->title()));
         mItemModelSources->appendRow(sourceItem);
         sourceItem->setData(SOURCETREE_ENTRY_TYPE_SOURCE, SourceTreeEntryTypeRole);
         sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryIDRole);
         sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
 
+        // create the subfolder items
         auto feeds = source->getFeeds();
         for (const auto& feed : feeds)
         {
@@ -357,6 +376,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                 }
             }
 
+            // create the feed item
             auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
             feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
             feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), SourceTreeEntryIDRole);
@@ -365,7 +385,35 @@ void ZapFR::Client::MainWindow::reloadSources()
         }
     }
 
+    // restore source item expansion and selection
     expandSourceTreeItems(expandedItems);
+    if (selectedSourceID != 0 && selectedID != 0)
+    {
+        std::function<void(QStandardItem*)> selectIndex;
+        selectIndex = [&](QStandardItem* parent)
+        {
+            if (parent->data(SourceTreeEntryTypeRole).toInt() == SOURCETREE_ENTRY_TYPE_FEED &&
+                parent->data(SourceTreeEntryParentSourceIDRole).toULongLong() == selectedSourceID && parent->data(SourceTreeEntryIDRole).toULongLong() == selectedID)
+            {
+                auto indexToSelect = mItemModelSources->indexFromItem(parent);
+                ui->treeViewSources->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+                // simullate a click, so it refreshes the posts table
+                sourceTreeViewItemClicked(indexToSelect);
+                return;
+            }
+            else
+            {
+                if (parent->hasChildren())
+                {
+                    for (int i = 0; i < parent->rowCount(); ++i)
+                    {
+                        selectIndex(parent->child(i));
+                    }
+                }
+            }
+        };
+        selectIndex(mItemModelSources->invisibleRootItem());
+    }
 }
 
 QString ZapFR::Client::MainWindow::dataDir() const

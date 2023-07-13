@@ -112,6 +112,8 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserAtom10::it
         //     item.enclosureMimeType = enclosureEl->hasAttribute("type") ? enclosureEl->getAttribute("type") : "";
         // }
 
+        item.guid = fetchNodeValue(entryNode, "id");
+        item.guidIsPermalink = true;
         // auto guidNode = fetchNode(entryNode, "guid");
         // if (guidNode != nullptr)
         // {
