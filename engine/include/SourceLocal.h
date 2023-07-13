@@ -38,6 +38,10 @@ namespace ZapFR
             std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) override;
             void addFeed(const std::string& url) override;
             void refreshFeed(uint64_t feedID) override;
+            void moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder) override;
+
+          private:
+            void resort(const std::string& folderHierarchy) const;
         };
     } // namespace Engine
 } // namespace ZapFR

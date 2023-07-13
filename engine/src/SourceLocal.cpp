@@ -152,3 +152,32 @@ void ZapFR::Engine::SourceLocal::refreshFeed(uint64_t feedID)
     FeedFetcher ff(msDatabase);
     ff.refreshFeed(feedID);
 }
+
+void ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder)
+{
+    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    updateStmt << "UPDATE feeds SET folderHierarchy=?, sortOrder=? WHERE id=?", useRef(newFolderHierarchy), use(newSortOrder), use(feedID), now;
+    resort(newFolderHierarchy);
+}
+
+void ZapFR::Engine::SourceLocal::resort(const std::string& folderHierarchy) const
+{
+    std::vector<uint64_t> feedIDs;
+
+    uint64_t feedID{0};
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT id FROM feeds WHERE folderHierarchy=? ORDER BY sortOrder ASC", useRef(folderHierarchy), into(feedID), range(0, 1);
+    while (!selectStmt.done())
+    {
+        selectStmt.execute();
+        feedIDs.emplace_back(feedID);
+    }
+
+    uint64_t sortOrder = 10;
+    for (auto f : feedIDs)
+    {
+        Poco::Data::Statement updateStmt(*(msDatabase->session()));
+        updateStmt << "UPDATE feeds SET sortOrder=? WHERE id=?", use(sortOrder), use(f), now;
+        sortOrder += 10;
+    }
+}

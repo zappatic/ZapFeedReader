@@ -19,9 +19,8 @@
 #ifndef ZAPFR_CLIENT_DIALOGADDFEED_H
 #define ZAPFR_CLIENT_DIALOGADDFEED_H
 
+#include "ClientGlobal.h"
 #include "Source.h"
-#include <QDialog>
-#include <QStandardItemModel>
 
 namespace Ui
 {

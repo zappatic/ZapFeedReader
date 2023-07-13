@@ -22,33 +22,9 @@
 #include "ItemDelegateSource.h"
 #include "Post.h"
 #include "Source.h"
+#include "StandardItemModelSources.h"
 #include "Utilities.h"
 #include "WebEnginePagePost.h"
-#include <QDir>
-#include <QFile>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QStandardItem>
-#include <QStandardPaths>
-#include <QStyleHints>
-
-static const QString SETTING_MAINWINDOW_STATE = "mainwindow.state";
-static const QString SETTING_MAINWINDOW_GEOMETRY = "mainwindow.geometry";
-static const QString SETTING_SPLITTERLEFT_STATE = "splitterleft.state";
-static const QString SETTING_SPLITTERRIGHT_STATE = "splitterright.state";
-static const QString SETTING_SOURCETREEVIEW_EXPANSION = "sourcetreeview.expansion";
-
-static constexpr uint32_t SOURCETREE_ENTRY_TYPE_SOURCE = 0;
-static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FEED = 1;
-static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FOLDER = 2;
-static constexpr uint32_t SourceTreeEntryTypeRole{Qt::ItemDataRole::UserRole + 1};
-static constexpr uint32_t SourceTreeEntryIDRole{Qt::ItemDataRole::UserRole + 2};
-static constexpr uint32_t SourceTreeEntryParentSourceIDRole{Qt::ItemDataRole::UserRole + 3};
-static constexpr uint32_t PostIDRole{Qt::ItemDataRole::UserRole + 1};
-static constexpr uint32_t PostSourceIDRole{Qt::ItemDataRole::UserRole + 2};
-static constexpr uint32_t PostFeedDRole{Qt::ItemDataRole::UserRole + 3};
-static constexpr uint32_t PostISODateRole{Qt::ItemDataRole::UserRole + 4};
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -329,7 +305,7 @@ void ZapFR::Client::MainWindow::reloadSources()
         }
     }
 
-    mItemModelSources = std::make_unique<QStandardItemModel>(this);
+    mItemModelSources = std::make_unique<StandardItemModelSources>(this, this);
     ui->treeViewSources->setModel(mItemModelSources.get());
     mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
 

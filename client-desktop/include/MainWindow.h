@@ -19,11 +19,10 @@
 #ifndef ZAPFR_CLIENT_MAINWINDOW_H
 #define ZAPFR_CLIENT_MAINWINDOW_H
 
+#include "ClientGlobal.h"
 #include "Database.h"
 #include "DialogAddFeed.h"
 #include "Global.h"
-#include <QMainWindow>
-#include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -37,6 +36,7 @@ namespace ZapFR
     namespace Client
     {
         class WebEnginePagePost;
+        class StandardItemModelSources;
 
         class MainWindow : public QMainWindow
         {
@@ -45,6 +45,8 @@ namespace ZapFR
           public:
             MainWindow(QWidget* parent = nullptr);
             ~MainWindow();
+
+            void reloadSources();
 
           private slots:
             void addSource();
@@ -59,7 +61,7 @@ namespace ZapFR
 
           private:
             Ui::MainWindow* ui;
-            std::unique_ptr<QStandardItemModel> mItemModelSources{nullptr};
+            std::unique_ptr<StandardItemModelSources> mItemModelSources{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
@@ -69,7 +71,6 @@ namespace ZapFR
             uint64_t mCurrentPostFeedID{0};
             uint64_t mCurrentPostID{0};
 
-            void reloadSources();
             QString dataDir() const;
             QString configDir() const;
             QString settingsFile() const;

@@ -1,7 +1,4 @@
 #include "ItemDelegateSource.h"
-#include <QGuiApplication>
-#include <QPainter>
-#include <QPalette>
 
 ZapFR::Client::ItemDelegateSource::ItemDelegateSource(QObject* parent) : QStyledItemDelegate(parent)
 {

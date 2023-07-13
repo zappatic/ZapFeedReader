@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_ITEMDELEGATESOURCE_H
-#define ZAPFR_CLIENT_ITEMDELEGATESOURCE_H
+#ifndef ZAPFR_CLIENT_STANDARDITEMMODELSOURCES_H
+#define ZAPFR_CLIENT_STANDARDITEMMODELSOURCES_H
 
 #include "ClientGlobal.h"
 
@@ -25,18 +25,25 @@ namespace ZapFR
 {
     namespace Client
     {
-        class ItemDelegateSource : public QStyledItemDelegate
+        class MainWindow;
+
+        class StandardItemModelSources : public QStandardItemModel
         {
             Q_OBJECT
 
           public:
-            explicit ItemDelegateSource(QObject* parent = nullptr);
-            ~ItemDelegateSource() = default;
+            StandardItemModelSources(MainWindow* mainWindow, QObject* parent = nullptr);
+            ~StandardItemModelSources() = default;
 
-            void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-            QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+            Qt::ItemFlags flags(const QModelIndex& index) const override;
+            bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
+            QStringList mimeTypes() const override;
+            QMimeData* mimeData(const QModelIndexList& indexes) const override;
+
+          private:
+            MainWindow* mMainWindow;
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_ITEMDELEGATESOURCE_H
+#endif // ZAPFR_CLIENT_STANDARDITEMMODELSOURCES_H

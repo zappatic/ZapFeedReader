@@ -17,7 +17,6 @@
 */
 
 #include "WebEnginePagePost.h"
-#include <QDesktopServices>
 
 ZapFR::Client::WebEnginePagePost::WebEnginePagePost(QObject* parent) : QWebEnginePage(parent)
 {

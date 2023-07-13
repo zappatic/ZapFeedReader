@@ -17,8 +17,6 @@
 */
 
 #include "Utilities.h"
-#include <QDate>
-#include <QLocale>
 
 QString ZapFR::Client::Utilities::prettyDate(const QString& iso8601Date)
 {

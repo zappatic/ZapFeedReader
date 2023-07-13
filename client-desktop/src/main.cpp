@@ -16,11 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ClientGlobal.h"
 #include "MainWindow.h"
-
-#include <QApplication>
-#include <QLocale>
-#include <QTranslator>
 
 int main(int argc, char* argv[])
 {

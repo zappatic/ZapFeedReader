@@ -19,7 +19,7 @@
 #ifndef ZAPFR_CLIENT_UTILITIES_H
 #define ZAPFR_CLIENT_UTILITIES_H
 
-#include <QString>
+#include "ClientGlobal.h"
 
 namespace ZapFR
 {

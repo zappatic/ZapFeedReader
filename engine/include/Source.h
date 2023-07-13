@@ -47,6 +47,7 @@ namespace ZapFR
             virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) = 0;
             virtual void addFeed(const std::string& url) = 0;
             virtual void refreshFeed(uint64_t feedID) = 0;
+            virtual void moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder) = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

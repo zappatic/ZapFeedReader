@@ -19,10 +19,13 @@ set(PROJECT_SOURCES
         src/DialogAddFeed.cpp
         src/Utilities.cpp
         src/WebEnginePagePost.cpp
+        src/StandardItemModelSources.cpp
+        include/ClientGlobal.h
         include/MainWindow.h
         include/ItemDelegateSource.h
         include/DialogAddFeed.h
         include/WebEnginePagePost.h
+        include/StandardItemModelSources.h
         src/MainWindow.ui
         ${TS_FILES}
 )
