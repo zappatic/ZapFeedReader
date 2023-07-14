@@ -18,6 +18,7 @@
 
 #include "FeedLocal.h"
 #include "Database.h"
+#include "FeedFetcher.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -70,26 +71,26 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
 
     while (!selectStmt.done())
     {
-        selectStmt.execute();
-
-        auto p = std::make_unique<Post>(id);
-        p->setFeedID(mID);
-        p->setTitle(title);
-        p->setLink(link);
-        p->setDescription(description);
-        p->setAuthor(author);
-        p->setCommentsURL(commentsURL);
-        p->setEnclosureURL(enclosureURL);
-        p->setEnclosureLength(enclosureLength);
-        p->setEnclosureMimeType(enclosureMimeType);
-        p->setGuid(guid);
-        p->setGuidIsPermalink(guidIsPermalink);
-        p->setDatePublished(datePublished);
-        p->setSourceURL(sourceURL);
-        p->setSourceTitle(sourceTitle);
-        posts.emplace_back(std::move(p));
+        if (selectStmt.execute() > 0)
+        {
+            auto p = std::make_unique<Post>(id);
+            p->setFeedID(mID);
+            p->setTitle(title);
+            p->setLink(link);
+            p->setDescription(description);
+            p->setAuthor(author);
+            p->setCommentsURL(commentsURL);
+            p->setEnclosureURL(enclosureURL);
+            p->setEnclosureLength(enclosureLength);
+            p->setEnclosureMimeType(enclosureMimeType);
+            p->setGuid(guid);
+            p->setGuidIsPermalink(guidIsPermalink);
+            p->setDatePublished(datePublished);
+            p->setSourceURL(sourceURL);
+            p->setSourceTitle(sourceTitle);
+            posts.emplace_back(std::move(p));
+        }
     }
-
     return posts;
 }
 
@@ -129,12 +130,11 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
                   " WHERE feedID=?"
                   "   AND id=?",
         use(mID), use(postID), into(id), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL), into(enclosureLength),
-        into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), range(0, 1);
+        into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), now;
 
-    while (!selectStmt.done())
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
     {
-        selectStmt.execute();
-
         auto p = std::make_unique<Post>(id);
         p->setFeedID(mID);
         p->setTitle(title);
@@ -158,24 +158,99 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
 
 bool ZapFR::Engine::FeedLocal::fetchData()
 {
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
-    selectStmt << "SELECT url"
-                  ",folderHierarchy"
-                  ",guid"
-                  ",title"
-                  ",subtitle"
-                  ",link"
-                  ",description"
-                  ",language"
-                  ",copyright"
-                  ",lastChecked"
-                  ",sortOrder"
-                  " FROM feeds"
-                  " WHERE id=?",
-        use(mID), into(mURL), into(mFolderHierarchy), into(mGuid), into(mTitle), into(mSubtitle), into(mLink), into(mDescription), into(mLanguage), into(mCopyright),
-        into(mLastChecked), into(mSortOrder), now;
+    if (!mDataFetched)
+    {
+        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        selectStmt << "SELECT url"
+                      ",folderHierarchy"
+                      ",guid"
+                      ",title"
+                      ",subtitle"
+                      ",link"
+                      ",description"
+                      ",language"
+                      ",copyright"
+                      ",lastChecked"
+                      ",sortOrder"
+                      " FROM feeds"
+                      " WHERE id=?",
+            use(mID), into(mURL), into(mFolderHierarchy), into(mGuid), into(mTitle), into(mSubtitle), into(mLink), into(mDescription), into(mLanguage), into(mCopyright),
+            into(mLastChecked), into(mSortOrder), now;
 
-    mDataFetched = true;
-    auto rs = Poco::Data::RecordSet(selectStmt);
-    return (rs.rowCount() == 1);
+        mDataFetched = true;
+        auto rs = Poco::Data::RecordSet(selectStmt);
+        return (rs.rowCount() == 1);
+    }
+    return true;
+}
+
+void ZapFR::Engine::FeedLocal::refresh()
+{
+    fetchData();
+
+    FeedFetcher ff;
+    auto parsedFeed = ff.parse(mURL);
+    processItems(parsedFeed.get());
+}
+
+void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
+{
+    for (const auto& item : parsedFeed->items())
+    {
+        auto isPermaLink = item.guidIsPermalink ? 1 : 0;
+        auto guid = item.guid;
+
+        // see if it already exists
+        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        selectStmt << "SELECT id FROM posts WHERE feedID=? AND guid=?", use(mID), useRef(guid), now;
+        selectStmt.execute();
+        auto rs = Poco::Data::RecordSet(selectStmt);
+        if (rs.rowCount() == 1)
+        {
+            Poco::Data::Statement updateStmt(*(msDatabase->session()));
+            updateStmt << "UPDATE posts SET"
+                          " title=?"
+                          ",link=?"
+                          ",description=?"
+                          ",author=?"
+                          ",commentsURL=?"
+                          ",enclosureURL=?"
+                          ",enclosureLength=?"
+                          ",enclosureMimeType=?"
+                          ",guid=?"
+                          ",guidIsPermalink=?"
+                          ",datePublished=?"
+                          ",sourceURL=?"
+                          ",sourceTitle=?"
+                          " WHERE feedID=? AND guid=?",
+                useRef(item.title), useRef(item.link), useRef(item.description), useRef(item.author), useRef(item.commentsURL), useRef(item.enclosureURL),
+                useRef(item.enclosureLength), useRef(item.enclosureMimeType), useRef(item.guid), use(isPermaLink), useRef(item.datePublished), useRef(item.sourceURL),
+                useRef(item.sourceTitle), use(mID), useRef(guid);
+            updateStmt.execute();
+        }
+        else
+        {
+            Poco::Data::Statement insertStmt(*(msDatabase->session()));
+            insertStmt << "INSERT INTO posts ("
+                          " feedID"
+                          ",title"
+                          ",link"
+                          ",description"
+                          ",author"
+                          ",commentsURL"
+                          ",enclosureURL"
+                          ",enclosureLength"
+                          ",enclosureMimeType"
+                          ",guid"
+                          ",guidIsPermalink"
+                          ",datePublished"
+                          ",sourceURL"
+                          ",sourceTitle"
+                          ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                use(mID), useRef(item.title), useRef(item.link), useRef(item.description), useRef(item.author), useRef(item.commentsURL), useRef(item.enclosureURL),
+                useRef(item.enclosureLength), useRef(item.enclosureMimeType), useRef(item.guid), use(isPermaLink), useRef(item.datePublished), useRef(item.sourceURL),
+                useRef(item.sourceTitle);
+            insertStmt.execute();
+        }
+    }
 }

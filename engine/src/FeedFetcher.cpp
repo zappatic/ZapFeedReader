@@ -21,12 +21,17 @@
 #include "FeedParserAtom10.h"
 #include "FeedParserRSS20.h"
 
-ZapFR::Engine::FeedFetcher::FeedFetcher(Database* db) : mDatabase(db)
+static Poco::Net::Context::Ptr gsSSLContext{nullptr};
+
+ZapFR::Engine::FeedFetcher::FeedFetcher()
 {
-    mSSLContext = new Poco::Net::Context(Poco::Net::Context::TLS_CLIENT_USE, "", Poco::Net::Context::VERIFY_NONE);
+    if (gsSSLContext == nullptr)
+    {
+        gsSSLContext = new Poco::Net::Context(Poco::Net::Context::TLS_CLIENT_USE, "", Poco::Net::Context::VERIFY_NONE);
+    }
 }
 
-std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::getParser(const std::string& url)
+std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parse(const std::string& url)
 {
     auto xml = performHTTPRequest(url, "GET");
 
@@ -53,23 +58,6 @@ std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::getParser
     return nullptr;
 }
 
-void ZapFR::Engine::FeedFetcher::subscribeToFeed(const std::string& url)
-{
-    auto parser = getParser(url);
-    mDatabase->subscribeToFeed(*parser);
-}
-
-void ZapFR::Engine::FeedFetcher::refreshFeed(uint64_t feedID)
-{
-    auto feed = FeedLocal(feedID);
-    if (feed.fetchData())
-    {
-        auto url = feed.url();
-        auto parser = getParser(url);
-        mDatabase->refreshFeed(*parser, feed.id());
-    }
-}
-
 std::string ZapFR::Engine::FeedFetcher::performHTTPRequest(const std::string& url, const std::string& method)
 {
     Poco::URI uri(url);
@@ -79,7 +67,7 @@ std::string ZapFR::Engine::FeedFetcher::performHTTPRequest(const std::string& ur
     auto scheme = uri.getScheme();
     if (scheme == "https")
     {
-        session = std::make_unique<Poco::Net::HTTPSClientSession>(uri.getHost(), uri.getPort(), mSSLContext);
+        session = std::make_unique<Poco::Net::HTTPSClientSession>(uri.getHost(), uri.getPort(), gsSSLContext);
     }
     else if (scheme == "http")
     {

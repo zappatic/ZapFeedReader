@@ -598,7 +598,11 @@ void ZapFR::Client::MainWindow::createContextMenus()
                     auto source = ZapFR::Engine::Source::getSource(sourceID);
                     if (source.has_value())
                     {
-                        source.value()->refreshFeed(feedID);
+                        auto feed = source.value()->getFeed(feedID);
+                        if (feed.has_value())
+                        {
+                            feed.value()->refresh();
+                        }
                     }
                     reloadSources();
                 }

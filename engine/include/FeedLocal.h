@@ -27,6 +27,7 @@ namespace ZapFR
     namespace Engine
     {
         class Database;
+        class FeedParser;
 
         class FeedLocal : public Feed
         {
@@ -37,6 +38,9 @@ namespace ZapFR
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
             std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
             bool fetchData() override;
+            void refresh() override;
+
+            void processItems(FeedParser* parsedFeed);
         };
     } // namespace Engine
 } // namespace ZapFR

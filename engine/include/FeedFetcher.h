@@ -29,18 +29,13 @@ namespace ZapFR
         class FeedFetcher
         {
           public:
-            FeedFetcher(Database* db);
+            FeedFetcher();
             virtual ~FeedFetcher() = default;
 
-            void subscribeToFeed(const std::string& url);
-            void refreshFeed(uint64_t feedID);
+            std::unique_ptr<FeedParser> parse(const std::string& url);
 
           private:
-            Database* mDatabase{nullptr};
-            Poco::Net::Context::Ptr mSSLContext;
-
             std::string performHTTPRequest(const std::string& url, const std::string& method);
-            std::unique_ptr<FeedParser> getParser(const std::string& url);
         };
     } // namespace Engine
 } // namespace ZapFR

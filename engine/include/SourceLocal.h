@@ -37,12 +37,14 @@ namespace ZapFR
             std::vector<std::unique_ptr<Feed>> getFeeds() override;
             std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) override;
             void addFeed(const std::string& url) override;
-            void refreshFeed(uint64_t feedID) override;
             void moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder) override;
             void removeFeed(uint64_t feedID) override;
 
           private:
+            std::mutex mInsertFeedMutex{};
+
             void resort(const std::string& folderHierarchy) const;
+            uint64_t getNextFeedSortOrder(const std::string& folderHierarchy) const;
         };
     } // namespace Engine
 } // namespace ZapFR

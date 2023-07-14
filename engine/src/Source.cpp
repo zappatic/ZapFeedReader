@@ -80,15 +80,15 @@ std::vector<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSo
     }
     while (!selectStmt.done())
     {
-        selectStmt.execute();
-
-        auto s = Source::createSourceInstance(sourceID, sourceType);
-        s->setTitle(sourceTitle);
-        s->setSortOrder(sourceSortOrder);
-        s->setConfigData(sourceConfigData);
-        sourceList.emplace_back(std::move(s));
+        if (selectStmt.execute() > 0)
+        {
+            auto s = Source::createSourceInstance(sourceID, sourceType);
+            s->setTitle(sourceTitle);
+            s->setSortOrder(sourceSortOrder);
+            s->setConfigData(sourceConfigData);
+            sourceList.emplace_back(std::move(s));
+        }
     }
-
     return sourceList;
 }
 
@@ -106,16 +106,15 @@ std::optional<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::get
                   ",configData"
                   " FROM sources"
                   " WHERE id=?",
-        use(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), range(0, 1);
-    while (!selectStmt.done())
-    {
-        selectStmt.execute();
+        use(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), now;
 
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
         auto s = Source::createSourceInstance(sourceID, sourceType);
         s->setTitle(sourceTitle);
         s->setSortOrder(sourceSortOrder);
         s->setConfigData(sourceConfigData);
-
         return s;
     }
     return {};

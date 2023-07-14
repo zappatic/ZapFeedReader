@@ -64,30 +64,30 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
 
     while (!selectStmt.done())
     {
-        selectStmt.execute();
-
-        auto f = std::make_unique<FeedLocal>(id);
-        f->setURL(url);
-        f->setFolderHierarchy(folderHierarchy);
-        f->setGuid(guid);
-        f->setTitle(title);
-        f->setSubtitle(subtitle);
-        f->setLink(link);
-        f->setDescription(description);
-        f->setLanguage(language);
-        f->setCopyright(copyright);
-        f->setLastChecked(lastChecked);
-        f->setSortOrder(sortOrder);
-        f->setDataFetched(true);
-        feeds.emplace_back(std::move(f));
+        if (selectStmt.execute() > 0)
+        {
+            auto f = std::make_unique<FeedLocal>(id);
+            f->setURL(url);
+            f->setFolderHierarchy(folderHierarchy);
+            f->setGuid(guid);
+            f->setTitle(title);
+            f->setSubtitle(subtitle);
+            f->setLink(link);
+            f->setDescription(description);
+            f->setLanguage(language);
+            f->setCopyright(copyright);
+            f->setLastChecked(lastChecked);
+            f->setSortOrder(sortOrder);
+            f->setDataFetched(true);
+            feeds.emplace_back(std::move(f));
+        }
     }
-
     return feeds;
 }
 
 std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID)
 {
-    uint64_t id;
+    uint64_t id{0};
     std::string url;
     std::string folderHierarchy;
     std::string guid;
@@ -116,12 +116,11 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
                   " FROM feeds"
                   " WHERE id=?",
         use(feedID), into(id), into(url), into(folderHierarchy), into(guid), into(title), into(subtitle), into(link), into(description), into(language), into(copyright),
-        into(lastChecked), into(sortOrder), range(0, 1);
+        into(lastChecked), into(sortOrder), now;
 
-    while (!selectStmt.done())
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
     {
-        selectStmt.execute();
-
         auto f = std::make_unique<FeedLocal>(id);
         f->setURL(url);
         f->setFolderHierarchy(folderHierarchy);
@@ -143,14 +142,55 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
 
 void ZapFR::Engine::SourceLocal::addFeed(const std::string& url)
 {
-    FeedFetcher ff(msDatabase);
-    ff.subscribeToFeed(url);
+    FeedFetcher ff;
+    auto parsedFeed = ff.parse(url);
+
+    auto guid = parsedFeed->guid();
+    auto title = parsedFeed->title();
+    auto subtitle = parsedFeed->subtitle();
+    auto link = parsedFeed->link();
+    auto description = parsedFeed->description();
+    auto language = parsedFeed->language();
+    auto copyright = parsedFeed->copyright();
+    uint64_t feedID{0};
+    auto sortOrder = getNextFeedSortOrder("");
+
+    // scope for insert feed mutex lock
+    {
+        Poco::Data::Statement insertStmt(*(msDatabase->session()));
+        insertStmt << "INSERT INTO feeds ("
+                      " url"
+                      ",guid"
+                      ",title"
+                      ",subtitle"
+                      ",link"
+                      ",description"
+                      ",language"
+                      ",copyright"
+                      ",sortOrder"
+                      ",lastChecked"
+                      ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+            useRef(url), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright), use(sortOrder);
+        const std::lock_guard<std::mutex> lock(mInsertFeedMutex);
+        insertStmt.execute();
+        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        selectStmt << "SELECT last_insert_rowid()", into(feedID), range(0, 1);
+        selectStmt.execute();
+    }
+
+    auto feed = getFeed(feedID);
+    if (feed.has_value())
+    {
+        feed.value()->refresh();
+    }
 }
 
-void ZapFR::Engine::SourceLocal::refreshFeed(uint64_t feedID)
+uint64_t ZapFR::Engine::SourceLocal::getNextFeedSortOrder(const std::string& folderHierarchy) const
 {
-    FeedFetcher ff(msDatabase);
-    ff.refreshFeed(feedID);
+    uint64_t sortOrder{0};
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT MAX(sortOrder) FROM feeds WHERE folderHierarchy=?", into(sortOrder), useRef(folderHierarchy), now;
+    return sortOrder + 10;
 }
 
 void ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder)
@@ -167,12 +207,15 @@ void ZapFR::Engine::SourceLocal::resort(const std::string& folderHierarchy) cons
     uint64_t feedID{0};
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
     selectStmt << "SELECT id FROM feeds WHERE folderHierarchy=? ORDER BY sortOrder ASC", useRef(folderHierarchy), into(feedID), range(0, 1);
-    while (!selectStmt.done())
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() > 0)
     {
-        selectStmt.execute();
-        feedIDs.emplace_back(feedID);
+        while (!selectStmt.done())
+        {
+            selectStmt.execute();
+            feedIDs.emplace_back(feedID);
+        }
     }
-
     uint64_t sortOrder = 10;
     for (auto f : feedIDs)
     {
