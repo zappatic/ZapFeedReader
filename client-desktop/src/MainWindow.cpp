@@ -611,10 +611,36 @@ void ZapFR::Client::MainWindow::createContextMenus()
             });
     mSourceContextMenuFeed->addAction(refreshAction);
 
+    // Feed - Mark all as read
+    auto markAllAsReadAction = new QAction(tr("&Mark all as read"), this);
+    connect(markAllAsReadAction, &QAction::triggered,
+            [&]()
+            {
+                auto index = ui->treeViewSources->currentIndex();
+                if (index.isValid())
+                {
+                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                    auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+
+                    auto source = ZapFR::Engine::Source::getSource(sourceID);
+                    if (source.has_value())
+                    {
+                        auto feed = source.value()->getFeed(feedID);
+                        if (feed.has_value())
+                        {
+                            feed.value()->markAllAsRead();
+                            // TODO, this should reload the posts, so they can reflect read status
+                        }
+                    }
+                    reloadSources();
+                }
+            });
+    mSourceContextMenuFeed->addAction(markAllAsReadAction);
+
     mSourceContextMenuFeed->addSeparator();
 
     // Feed - Remove
-    auto removeAction = new QAction(tr("&Remove"), this);
+    auto removeAction = new QAction(tr("Remo&ve"), this);
     connect(removeAction, &QAction::triggered,
             [&]()
             {

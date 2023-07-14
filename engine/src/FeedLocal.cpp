@@ -254,3 +254,10 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         }
     }
 }
+
+void ZapFR::Engine::FeedLocal::markAllAsRead()
+{
+    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=?", use(mID), now;
+    updateStmt.execute();
+}

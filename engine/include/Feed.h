@@ -64,6 +64,7 @@ namespace ZapFR
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
 
             virtual void refresh() = 0;
+            virtual void markAllAsRead() = 0;
 
             virtual bool fetchData() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }

@@ -39,6 +39,7 @@ namespace ZapFR
             std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
             bool fetchData() override;
             void refresh() override;
+            void markAllAsRead() override;
 
             void processItems(FeedParser* parsedFeed);
         };
