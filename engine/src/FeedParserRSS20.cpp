@@ -104,6 +104,26 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
                 item.guidIsPermalink = guidEl->getAttribute("isPermaLink") == "true";
             }
         }
+        else
+        {
+            // create a guid out of either title or description (all are optional, but either title or description must be present)
+            auto guidSrc = item.title;
+            if (guidSrc.empty())
+            {
+                guidSrc = item.description;
+            }
+            if (guidSrc.empty()) // shouldn't happen, but just in case, use a random uuid
+            {
+                guidSrc = Poco::UUIDGenerator::defaultGenerator().createRandom().toString();
+            }
+
+            Poco::MD5Engine md5;
+            Poco::DigestOutputStream ds(md5);
+            ds << guidSrc;
+            ds.close();
+            item.guid = Poco::DigestEngine::digestToHex(md5.digest());
+            item.guidIsPermalink = false;
+        }
 
         item.datePublished = fetchNodeValue(itemNode, "pubDate");
         int tzDiff;

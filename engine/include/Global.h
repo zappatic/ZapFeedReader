@@ -26,14 +26,17 @@
 #include <Poco/Data/SQLite/Connector.h>
 #include <Poco/Data/Session.h>
 #include <Poco/DateTimeParser.h>
+#include <Poco/DigestStream.h>
 #include <Poco/File.h>
 #include <Poco/JSON/Array.h>
 #include <Poco/JSON/Object.h>
+#include <Poco/MD5Engine.h>
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/HTTPSClientSession.h>
 #include <Poco/StreamCopier.h>
 #include <Poco/URI.h>
+#include <Poco/UUIDGenerator.h>
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/SystemConfiguration.h>
 
