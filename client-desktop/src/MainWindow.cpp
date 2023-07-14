@@ -373,7 +373,7 @@ void ZapFR::Client::MainWindow::reloadSources()
             {
                 auto indexToSelect = mItemModelSources->indexFromItem(parent);
                 ui->treeViewSources->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-                // simullate a click, so it refreshes the posts table
+                // simulate a click, so it refreshes the posts table
                 sourceTreeViewItemClicked(indexToSelect);
                 return;
             }
@@ -449,36 +449,40 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemClicked(const QModelIndex& ind
             if (feed.has_value())
             {
                 auto posts = feed.value()->getPosts(100, 1);
-
-                mItemModelPosts = std::make_unique<QStandardItemModel>(this);
-                ui->tableViewPosts->setModel(mItemModelPosts.get());
-                mItemModelPosts->setHorizontalHeaderItem(0, new QStandardItem(tr("Title")));
-                mItemModelPosts->setHorizontalHeaderItem(1, new QStandardItem(tr("Date")));
-
-                for (const auto& post : posts)
-                {
-                    auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
-                    titleItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
-                    titleItem->setData(QVariant::fromValue<uint64_t>(source.value()->id()), PostSourceIDRole);
-                    titleItem->setData(QVariant::fromValue<uint64_t>(feed.value()->id()), PostFeedDRole);
-
-                    auto datePublished = QString::fromUtf8(post->datePublished());
-                    auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
-                    dateItem->setData(datePublished, PostISODateRole);
-                    dateItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
-                    dateItem->setData(QVariant::fromValue<uint64_t>(source.value()->id()), PostSourceIDRole);
-                    dateItem->setData(QVariant::fromValue<uint64_t>(feed.value()->id()), PostFeedDRole);
-
-                    QList<QStandardItem*> rowData;
-                    rowData << titleItem << dateItem;
-                    mItemModelPosts->appendRow(rowData);
-                }
-                ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-                ui->tableViewPosts->horizontalHeader()->setMinimumSectionSize(200);
-                postsTableViewItemClicked(QModelIndex());
+                loadPosts(posts, source.value().get(), feed.value().get());
             }
         }
     }
+}
+
+void ZapFR::Client::MainWindow::loadPosts(const std::vector<std::unique_ptr<ZapFR::Engine::Post>>& posts, ZapFR::Engine::Source* source, ZapFR::Engine::Feed* feed)
+{
+    mItemModelPosts = std::make_unique<QStandardItemModel>(this);
+    ui->tableViewPosts->setModel(mItemModelPosts.get());
+    mItemModelPosts->setHorizontalHeaderItem(0, new QStandardItem(tr("Title")));
+    mItemModelPosts->setHorizontalHeaderItem(1, new QStandardItem(tr("Date")));
+
+    for (const auto& post : posts)
+    {
+        auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
+        titleItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+        titleItem->setData(QVariant::fromValue<uint64_t>(source->id()), PostSourceIDRole);
+        titleItem->setData(QVariant::fromValue<uint64_t>(feed->id()), PostFeedDRole);
+
+        auto datePublished = QString::fromUtf8(post->datePublished());
+        auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
+        dateItem->setData(datePublished, PostISODateRole);
+        dateItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+        dateItem->setData(QVariant::fromValue<uint64_t>(source->id()), PostSourceIDRole);
+        dateItem->setData(QVariant::fromValue<uint64_t>(feed->id()), PostFeedDRole);
+
+        QList<QStandardItem*> rowData;
+        rowData << titleItem << dateItem;
+        mItemModelPosts->appendRow(rowData);
+    }
+    ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui->tableViewPosts->horizontalHeader()->setMinimumSectionSize(200);
+    postsTableViewItemClicked(QModelIndex());
 }
 
 void ZapFR::Client::MainWindow::postsTableViewItemClicked(const QModelIndex& index)
@@ -580,6 +584,7 @@ void ZapFR::Client::MainWindow::createContextMenus()
 {
     mSourceContextMenuFeed = std::make_unique<QMenu>(nullptr);
 
+    // Feed - Refresh
     auto refreshAction = new QAction(tr("&Refresh"), this);
     connect(refreshAction, &QAction::triggered,
             [&]()
@@ -599,4 +604,42 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 }
             });
     mSourceContextMenuFeed->addAction(refreshAction);
+
+    mSourceContextMenuFeed->addSeparator();
+
+    // Feed - Remove
+    auto removeAction = new QAction(tr("&Remove"), this);
+    connect(removeAction, &QAction::triggered,
+            [&]()
+            {
+                QMessageBox messageBox;
+                messageBox.setText(tr("Remove feed"));
+                messageBox.setWindowTitle(tr("Remove feed"));
+                messageBox.setInformativeText(tr("Are you sure you want to remove this feed? All associated posts will be removed!"));
+                messageBox.setIcon(QMessageBox::Warning);
+                messageBox.addButton(tr("Remove"), QMessageBox::ButtonRole::YesRole);
+                messageBox.addButton(QMessageBox::StandardButton::Cancel);
+                auto messageBoxLayout = qobject_cast<QGridLayout*>(messageBox.layout());
+                messageBoxLayout->addItem(new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), messageBoxLayout->rowCount(), 0, 1,
+                                          messageBoxLayout->columnCount());
+                messageBox.exec();
+                if (messageBox.buttonRole(messageBox.clickedButton()) == QMessageBox::YesRole)
+                {
+                    auto index = ui->treeViewSources->currentIndex();
+                    if (index.isValid())
+                    {
+                        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                        auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+
+                        auto source = ZapFR::Engine::Source::getSource(sourceID);
+                        if (source.has_value())
+                        {
+                            source.value()->removeFeed(feedID);
+                        }
+                        reloadSources();
+                        loadPosts({}, nullptr, nullptr);
+                    }
+                }
+            });
+    mSourceContextMenuFeed->addAction(removeAction);
 }

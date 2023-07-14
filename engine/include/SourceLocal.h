@@ -39,6 +39,7 @@ namespace ZapFR
             void addFeed(const std::string& url) override;
             void refreshFeed(uint64_t feedID) override;
             void moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder) override;
+            void removeFeed(uint64_t feedID) override;
 
           private:
             void resort(const std::string& folderHierarchy) const;

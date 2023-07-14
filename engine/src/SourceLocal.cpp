@@ -181,3 +181,24 @@ void ZapFR::Engine::SourceLocal::resort(const std::string& folderHierarchy) cons
         sortOrder += 10;
     }
 }
+
+void ZapFR::Engine::SourceLocal::removeFeed(uint64_t feedID)
+{
+    auto feed = getFeed(feedID);
+    if (feed.has_value())
+    {
+        auto folderHierarchy = feed.value()->folderHierarchy();
+
+        {
+            Poco::Data::Statement deleteStmt(*(msDatabase->session()));
+            deleteStmt << "DELETE FROM feeds WHERE id=?", use(feedID), now;
+        }
+
+        {
+            Poco::Data::Statement deleteStmt(*(msDatabase->session()));
+            deleteStmt << "DELETE FROM posts WHERE feedID=?", use(feedID), now;
+        }
+
+        resort(folderHierarchy);
+    }
+}

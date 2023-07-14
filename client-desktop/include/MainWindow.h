@@ -82,6 +82,7 @@ namespace ZapFR
 
             QString getFolderHierarchy(QStandardItem* item) const;
             void reloadCurrentPost() const;
+            void loadPosts(const std::vector<std::unique_ptr<ZapFR::Engine::Post>>& posts, ZapFR::Engine::Source* source, ZapFR::Engine::Feed* feed);
             QString postStyles() const;
             void createContextMenus();
         };

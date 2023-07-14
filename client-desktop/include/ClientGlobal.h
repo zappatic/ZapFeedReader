@@ -34,6 +34,7 @@
 #include <QJsonObject>
 #include <QLocale>
 #include <QMainWindow>
+#include <QMessageBox>
 #include <QMimeData>
 #include <QPainter>
 #include <QPalette>
