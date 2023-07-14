@@ -357,6 +357,7 @@ void ZapFR::Client::MainWindow::reloadSources()
             feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
             feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), SourceTreeEntryIDRole);
             feedItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
+            feedItem->setData(QVariant::fromValue<uint64_t>(feed->unreadCount()), SourceTreeEntryUnreadCount);
             currentParent->appendRow(feedItem);
         }
     }
@@ -520,6 +521,7 @@ void ZapFR::Client::MainWindow::reloadCurrentPost() const
                 auto post = feed.value()->getPost(mCurrentPostID);
                 if (post.has_value())
                 {
+                    html << "<h1 class='zapfr_title'>" << QString::fromUtf8(post.value()->title()) << "</h1>";
                     html << QString::fromUtf8(post.value()->description());
                 }
             }

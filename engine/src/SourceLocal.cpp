@@ -79,6 +79,13 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
             f->setLastChecked(lastChecked);
             f->setSortOrder(sortOrder);
             f->setDataFetched(true);
+
+            // fetch the unread count
+            uint64_t unreadCount{0};
+            Poco::Data::Statement selectUnreadStmt(*(msDatabase->session()));
+            selectUnreadStmt << "SELECT COUNT(*) FROM posts WHERE feedID=? AND isRead=FALSE", use(id), into(unreadCount), now;
+            f->setUnreadCount(unreadCount);
+
             feeds.emplace_back(std::move(f));
         }
     }

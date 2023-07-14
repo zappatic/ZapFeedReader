@@ -37,6 +37,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPalette>
 #include <QStandardItem>
 #include <QStandardItemModel>
@@ -62,9 +63,12 @@ namespace ZapFR
         static constexpr uint32_t SOURCETREE_ENTRY_TYPE_SOURCE = 0;
         static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FEED = 1;
         static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FOLDER = 2;
+
         static constexpr uint32_t SourceTreeEntryTypeRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t SourceTreeEntryIDRole{Qt::ItemDataRole::UserRole + 2};
         static constexpr uint32_t SourceTreeEntryParentSourceIDRole{Qt::ItemDataRole::UserRole + 3};
+        static constexpr uint32_t SourceTreeEntryUnreadCount{Qt::ItemDataRole::UserRole + 4};
+
         static constexpr uint32_t PostIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t PostSourceIDRole{Qt::ItemDataRole::UserRole + 2};
         static constexpr uint32_t PostFeedDRole{Qt::ItemDataRole::UserRole + 3};
