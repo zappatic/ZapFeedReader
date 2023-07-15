@@ -461,6 +461,7 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
                 auto posts = feed.value()->getPosts(100, 1);
                 loadPosts(posts, source.value().get(), feed.value().get());
             }
+            ui->treeViewSources->scrollTo(index);
         }
     }
 }
@@ -518,6 +519,7 @@ void ZapFR::Client::MainWindow::postsTableViewItemSelected(const QModelIndex& in
                     item->setData(QVariant::fromValue<bool>(true), PostIsReadRole);
                 }
                 reloadSources(false);
+                ui->tableViewPosts->scrollTo(index);
             }
         }
     }
