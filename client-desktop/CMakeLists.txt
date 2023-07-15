@@ -16,16 +16,22 @@ set(PROJECT_SOURCES
         src/main.cpp
         src/MainWindow.cpp
         src/ItemDelegateSource.cpp
+        src/ItemDelegatePost.cpp
         src/DialogAddFeed.cpp
         src/Utilities.cpp
         src/WebEnginePagePost.cpp
         src/StandardItemModelSources.cpp
+        src/TableViewPosts.cpp
+        src/TreeViewSources.cpp
         include/ClientGlobal.h
         include/MainWindow.h
         include/ItemDelegateSource.h
+        include/ItemDelegatePost.h
         include/DialogAddFeed.h
         include/WebEnginePagePost.h
         include/StandardItemModelSources.h
+        include/TableViewPosts.h
+        include/TreeViewSources.h
         src/MainWindow.ui
         ${TS_FILES}
 )

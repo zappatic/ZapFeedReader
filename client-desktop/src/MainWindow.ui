@@ -35,7 +35,7 @@
       <property name="handleWidth">
        <number>8</number>
       </property>
-      <widget class="QTreeView" name="treeViewSources">
+      <widget class="ZapFR::Client::TreeViewSources" name="treeViewSources">
        <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>
        </property>
@@ -79,7 +79,7 @@
        <property name="handleWidth">
         <number>8</number>
        </property>
-       <widget class="QTableView" name="tableViewPosts">
+       <widget class="ZapFR::Client::TableViewPosts" name="tableViewPosts">
         <property name="styleSheet">
          <string notr="true">QTableView {
 border-right: 0px solid transparent;
@@ -147,6 +147,16 @@ border-top: 0px solid transparent;
    <extends>QWidget</extends>
    <header>qwebengineview.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::TreeViewSources</class>
+   <extends>QTreeView</extends>
+   <header>TreeViewSources.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::TableViewPosts</class>
+   <extends>QTableView</extends>
+   <header>TableViewPosts.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -89,7 +89,7 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
         return false;
     }
     source.value()->moveFeed(childID, newFolderHierarchy.toStdString(), newSortOrder);
-    QTimer::singleShot(100, mMainWindow, &MainWindow::reloadSources);
+    QTimer::singleShot(100, [&]() { mMainWindow->reloadSources(); });
     return true;
 }
 

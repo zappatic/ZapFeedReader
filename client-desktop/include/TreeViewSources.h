@@ -16,35 +16,30 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FEEDLOCAL_H
-#define ZAPFR_ENGINE_FEEDLOCAL_H
+#ifndef ZAPFR_CLIENT_TREEVIEWSOURCES_H
+#define ZAPFR_CLIENT_TREEVIEWSOURCES_H
 
-#include "Feed.h"
-#include "Global.h"
+#include "ClientGlobal.h"
 
 namespace ZapFR
 {
-    namespace Engine
+    namespace Client
     {
-        class Database;
-        class FeedParser;
-
-        class FeedLocal : public Feed
+        class TreeViewSources : public QTreeView
         {
+            Q_OBJECT
+
           public:
-            explicit FeedLocal(uint64_t id);
-            virtual ~FeedLocal() = default;
+            TreeViewSources(QWidget* parent = nullptr);
+            ~TreeViewSources() = default;
 
-            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
-            std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
-            bool fetchData() override;
-            void refresh() override;
-            void markAllAsRead() override;
-            void markAsRead(uint64_t postID) override;
+          signals:
+            void currentSourceChanged(const QModelIndex&);
 
-            void processItems(FeedParser* parsedFeed);
+          protected:
+            void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
         };
-    } // namespace Engine
+    } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FEEDLOCAL_H
+#endif // ZAPFR_CLIENT_TREEVIEWSOURCES_H

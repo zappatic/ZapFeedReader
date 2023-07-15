@@ -19,6 +19,7 @@
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
 #include "Feed.h"
+#include "ItemDelegatePost.h"
 #include "ItemDelegateSource.h"
 #include "Post.h"
 #include "Source.h"
@@ -36,25 +37,15 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ui->setupUi(this);
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
-    connect(ui->treeViewSources, &QTreeView::clicked, this, &MainWindow::sourceTreeViewItemClicked);
-    connect(ui->treeViewSources, &QTreeView::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
-    connect(ui->tableViewPosts, &QTableView::clicked, this, &MainWindow::postsTableViewItemClicked);
+    connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
+    connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
+    connect(ui->tableViewPosts, &TableViewPosts::currentPostChanged, this, &MainWindow::postsTableViewItemSelected);
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
-    // overwrite the inactive palette with the active palette colors to get rid of the stupid unreadable gray on blue text when focus is lost on
-    // the sources tree view and posts table view
-    auto palette = QPalette(ui->treeViewSources->palette());
-    palette.setColor(QPalette::Inactive, QPalette::Highlight, palette.color(QPalette::Active, QPalette::Highlight));
-    palette.setColor(QPalette::Inactive, QPalette::HighlightedText, palette.color(QPalette::Active, QPalette::HighlightedText));
-    ui->treeViewSources->setPalette(palette);
-
-    palette = QPalette(ui->tableViewPosts->palette());
-    palette.setColor(QPalette::Inactive, QPalette::Highlight, palette.color(QPalette::Active, QPalette::Highlight));
-    palette.setColor(QPalette::Inactive, QPalette::HighlightedText, palette.color(QPalette::Active, QPalette::HighlightedText));
-    ui->tableViewPosts->setPalette(palette);
-
+    fixPalette();
     reloadSources();
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
+    ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
 
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
     ui->webViewPost->setPage(mPostWebEnginePage.get());
@@ -284,7 +275,7 @@ void ZapFR::Client::MainWindow::addFeed()
     mDialogAddFeed->open();
 }
 
-void ZapFR::Client::MainWindow::reloadSources()
+void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
 {
     // preserve the expansion of the source items and selected item data
     auto expandedItems = expandedSourceTreeItems();
@@ -305,6 +296,7 @@ void ZapFR::Client::MainWindow::reloadSources()
         }
     }
 
+    // recreate the model
     mItemModelSources = std::make_unique<StandardItemModelSources>(this, this);
     ui->treeViewSources->setModel(mItemModelSources.get());
     mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
@@ -374,8 +366,10 @@ void ZapFR::Client::MainWindow::reloadSources()
             {
                 auto indexToSelect = mItemModelSources->indexFromItem(parent);
                 ui->treeViewSources->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-                // simulate a click, so it refreshes the posts table
-                sourceTreeViewItemClicked(indexToSelect);
+                if (performClickOnSelection)
+                {
+                    sourceTreeViewItemSelected(indexToSelect);
+                }
                 return;
             }
             else
@@ -422,6 +416,21 @@ QString ZapFR::Client::MainWindow::settingsFile() const
     return QDir::cleanPath(configDir() + QDir::separator() + "zapfeedreader-client.conf");
 }
 
+void ZapFR::Client::MainWindow::fixPalette() const
+{
+    // overwrite the inactive palette with the active palette colors to get rid of the stupid unreadable gray on blue text when focus is lost on
+    // the sources tree view and posts table view
+    auto palette = QPalette(ui->treeViewSources->palette());
+    palette.setColor(QPalette::Inactive, QPalette::Highlight, palette.color(QPalette::Active, QPalette::Highlight));
+    palette.setColor(QPalette::Inactive, QPalette::HighlightedText, palette.color(QPalette::Active, QPalette::HighlightedText));
+    ui->treeViewSources->setPalette(palette);
+
+    palette = QPalette(ui->tableViewPosts->palette());
+    palette.setColor(QPalette::Inactive, QPalette::Highlight, palette.color(QPalette::Active, QPalette::Highlight));
+    palette.setColor(QPalette::Inactive, QPalette::HighlightedText, palette.color(QPalette::Active, QPalette::HighlightedText));
+    ui->tableViewPosts->setPalette(palette);
+}
+
 QString ZapFR::Client::MainWindow::getFolderHierarchy(QStandardItem* parent) const
 {
     std::function<void(QStandardItem*, QStringList&)> getFolderHierarchy;
@@ -439,7 +448,7 @@ QString ZapFR::Client::MainWindow::getFolderHierarchy(QStandardItem* parent) con
     return subfolders.join("/");
 }
 
-void ZapFR::Client::MainWindow::sourceTreeViewItemClicked(const QModelIndex& index)
+void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& index)
 {
     if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
     {
@@ -469,6 +478,7 @@ void ZapFR::Client::MainWindow::loadPosts(const std::vector<std::unique_ptr<ZapF
         titleItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
         titleItem->setData(QVariant::fromValue<uint64_t>(source->id()), PostSourceIDRole);
         titleItem->setData(QVariant::fromValue<uint64_t>(feed->id()), PostFeedDRole);
+        titleItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
 
         auto datePublished = QString::fromUtf8(post->datePublished());
         auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
@@ -476,6 +486,7 @@ void ZapFR::Client::MainWindow::loadPosts(const std::vector<std::unique_ptr<ZapF
         dateItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
         dateItem->setData(QVariant::fromValue<uint64_t>(source->id()), PostSourceIDRole);
         dateItem->setData(QVariant::fromValue<uint64_t>(feed->id()), PostFeedDRole);
+        dateItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
 
         QList<QStandardItem*> rowData;
         rowData << titleItem << dateItem;
@@ -483,16 +494,32 @@ void ZapFR::Client::MainWindow::loadPosts(const std::vector<std::unique_ptr<ZapF
     }
     ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     ui->tableViewPosts->horizontalHeader()->setMinimumSectionSize(200);
-    postsTableViewItemClicked(QModelIndex());
+    postsTableViewItemSelected(QModelIndex());
 }
 
-void ZapFR::Client::MainWindow::postsTableViewItemClicked(const QModelIndex& index)
+void ZapFR::Client::MainWindow::postsTableViewItemSelected(const QModelIndex& index)
 {
     if (index.isValid())
     {
         mCurrentPostID = index.data(PostIDRole).toULongLong();
         mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
         mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
+
+        auto source = ZapFR::Engine::Source::getSource(mCurrentPostSourceID);
+        if (source.has_value())
+        {
+            auto feed = source.value()->getFeed(mCurrentPostFeedID);
+            if (feed.has_value())
+            {
+                feed.value()->markAsRead(mCurrentPostID);
+                for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
+                {
+                    auto item = mItemModelPosts->item(index.row(), col);
+                    item->setData(QVariant::fromValue<bool>(true), PostIsReadRole);
+                }
+                reloadSources(false);
+            }
+        }
     }
     else
     {

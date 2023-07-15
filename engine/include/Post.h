@@ -34,6 +34,7 @@ namespace ZapFR
 
             uint64_t id() const noexcept { return mID; }
             uint64_t feedID() const noexcept { return mFeedID; }
+            bool isRead() const noexcept { return mIsRead; }
             std::string title() const noexcept { return mTitle; }
             std::string link() const noexcept { return mLink; }
             std::string description() const noexcept { return mDescription; }
@@ -48,6 +49,7 @@ namespace ZapFR
             std::string sourceURL() const noexcept { return mSourceURL; }
             std::string sourceTitle() const noexcept { return mSourceTitle; }
 
+            void setIsRead(bool b) { mIsRead = b; }
             void setFeedID(uint64_t feedID) { mFeedID = feedID; }
             void setTitle(const std::string& title) { mTitle = title; }
             void setLink(const std::string& link) { mLink = link; }
@@ -67,6 +69,7 @@ namespace ZapFR
 
           protected:
             uint64_t mID{0};
+            bool mIsRead{false};
             uint64_t mFeedID{0};
             std::string mTitle{""};
             std::string mLink{""};

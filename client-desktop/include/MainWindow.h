@@ -46,13 +46,13 @@ namespace ZapFR
             MainWindow(QWidget* parent = nullptr);
             ~MainWindow();
 
-            void reloadSources();
+            void reloadSources(bool performClickOnSelection = true);
 
           private slots:
             void addSource();
             void addFeed();
-            void sourceTreeViewItemClicked(const QModelIndex& index);
-            void postsTableViewItemClicked(const QModelIndex& index);
+            void sourceTreeViewItemSelected(const QModelIndex& index);
+            void postsTableViewItemSelected(const QModelIndex& index);
             void colorSchemeChanged(Qt::ColorScheme scheme);
             void sourceTreeViewContextMenuRequested(const QPoint& p);
 
@@ -75,6 +75,7 @@ namespace ZapFR
             QString configDir() const;
             QString settingsFile() const;
 
+            void fixPalette() const;
             void saveSettings() const;
             void restoreSettings();
             QJsonArray expandedSourceTreeItems() const;

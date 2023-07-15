@@ -33,6 +33,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
     auto offset = perPage * (page - 1);
 
     uint64_t id{0};
+    bool isRead{false};
     std::string title{""};
     std::string link{""};
     std::string description{""};
@@ -49,6 +50,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
 
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
     selectStmt << "SELECT id"
+                  ",isRead"
                   ",title"
                   ",link"
                   ",description"
@@ -66,14 +68,15 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
                   " WHERE feedID=?"
                   " ORDER BY datePublished DESC"
                   " LIMIT ? OFFSET ?",
-        use(mID), use(perPage), use(offset), into(id), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL), into(enclosureLength),
-        into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), range(0, 1);
+        use(mID), use(perPage), use(offset), into(id), into(isRead), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL),
+        into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), range(0, 1);
 
     while (!selectStmt.done())
     {
         if (selectStmt.execute() > 0)
         {
             auto p = std::make_unique<Post>(id);
+            p->setIsRead(isRead);
             p->setFeedID(mID);
             p->setTitle(title);
             p->setLink(link);
@@ -96,7 +99,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
 
 std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getPost(uint64_t postID)
 {
-    uint64_t id{0};
+    bool isRead{false};
     std::string title{""};
     std::string link{""};
     std::string description{""};
@@ -112,7 +115,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
     std::string sourceTitle{""};
 
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
-    selectStmt << "SELECT id"
+    selectStmt << "SELECT "
+                  " isRead"
                   ",title"
                   ",link"
                   ",description"
@@ -129,14 +133,15 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
                   " FROM posts"
                   " WHERE feedID=?"
                   "   AND id=?",
-        use(mID), use(postID), into(id), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL), into(enclosureLength),
+        use(mID), use(postID), into(isRead), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL), into(enclosureLength),
         into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), now;
 
     auto rs = Poco::Data::RecordSet(selectStmt);
     if (rs.rowCount() == 1)
     {
-        auto p = std::make_unique<Post>(id);
+        auto p = std::make_unique<Post>(postID);
         p->setFeedID(mID);
+        p->setIsRead(isRead);
         p->setTitle(title);
         p->setLink(link);
         p->setDescription(description);
@@ -259,5 +264,12 @@ void ZapFR::Engine::FeedLocal::markAllAsRead()
 {
     Poco::Data::Statement updateStmt(*(msDatabase->session()));
     updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=?", use(mID), now;
+    updateStmt.execute();
+}
+
+void ZapFR::Engine::FeedLocal::markAsRead(uint64_t postID)
+{
+    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=? AND id=?", use(mID), use(postID), now;
     updateStmt.execute();
 }

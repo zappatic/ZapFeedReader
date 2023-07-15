@@ -39,12 +39,14 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPalette>
+#include <QRegularExpression>
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QStandardPaths>
 #include <QString>
 #include <QStyleHints>
 #include <QStyledItemDelegate>
+#include <QTableView>
 #include <QTimer>
 #include <QTranslator>
 #include <QTreeView>
@@ -73,6 +75,7 @@ namespace ZapFR
         static constexpr uint32_t PostSourceIDRole{Qt::ItemDataRole::UserRole + 2};
         static constexpr uint32_t PostFeedDRole{Qt::ItemDataRole::UserRole + 3};
         static constexpr uint32_t PostISODateRole{Qt::ItemDataRole::UserRole + 4};
+        static constexpr uint32_t PostIsReadRole{Qt::ItemDataRole::UserRole + 5};
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
 
