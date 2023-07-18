@@ -39,17 +39,6 @@
        <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>
        </property>
-       <property name="styleSheet">
-        <string notr="true">QTreeView {
-	border-left: 0px solid transparent;
-	border-top: 0px solid transparent;
-	border-bottom: 0px solid transparent;
-}
-</string>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>
        </property>
@@ -80,12 +69,6 @@
         <number>8</number>
        </property>
        <widget class="ZapFR::Client::TableViewPosts" name="tableViewPosts">
-        <property name="styleSheet">
-         <string notr="true">QTableView {
-border-right: 0px solid transparent;
-border-top: 0px solid transparent;
-}</string>
-        </property>
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
@@ -105,7 +88,34 @@ border-top: 0px solid transparent;
          <bool>false</bool>
         </attribute>
        </widget>
-       <widget class="QWebEngineView" name="webViewPost" native="true"/>
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QWebEngineView" name="webViewPost" native="true"/>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -126,6 +136,8 @@ border-top: 0px solid transparent;
     </property>
     <addaction name="action_Add_source"/>
     <addaction name="action_Add_feed"/>
+    <addaction name="separator"/>
+    <addaction name="action_Import_OPML"/>
    </widget>
    <addaction name="menu_File"/>
   </widget>
@@ -138,6 +150,11 @@ border-top: 0px solid transparent;
   <action name="action_Add_feed">
    <property name="text">
     <string>Add &amp;feed...</string>
+   </property>
+  </action>
+  <action name="action_Import_OPML">
+   <property name="text">
+    <string>&amp;Import OPML...</string>
    </property>
   </action>
  </widget>

@@ -34,6 +34,9 @@
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/SAX/Attributes.h>
+#include <Poco/SAX/ContentHandler.h>
+#include <Poco/SAX/SAXParser.h>
 #include <Poco/StreamCopier.h>
 #include <Poco/URI.h>
 #include <Poco/UUIDGenerator.h>

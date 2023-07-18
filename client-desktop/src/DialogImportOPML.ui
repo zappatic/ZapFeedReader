@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DialogAddFeed</class>
- <widget class="QDialog" name="DialogAddFeed">
+ <class>DialogImportOPML</class>
+ <widget class="QDialog" name="DialogImportOPML">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>116</height>
+    <width>431</width>
+    <height>147</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
+    <width>431</width>
     <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>600</width>
-    <height>116</height>
+    <height>147</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Add feed</string>
+   <string>Import OPML file</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -38,18 +38,49 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="comboBoxSource"/>
-     </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="labelURL">
+      <widget class="QLabel" name="labelOPMLFile">
        <property name="text">
-        <string>Feed/website URL :</string>
+        <string>OPML file :</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEditURL"/>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLineEdit" name="lineEditChosenOPMLFile">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="placeholderText">
+          <string>Please choose an OPML file</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonChooseOPMLFile">
+         <property name="text">
+          <string>Choose...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="comboBoxSources"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelAddToFolder">
+       <property name="text">
+        <string>Add to folder :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineEditAddToFolder"/>
      </item>
     </layout>
    </item>
@@ -66,15 +97,16 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lineEditURL</tabstop>
-  <tabstop>comboBoxSource</tabstop>
+  <tabstop>pushButtonChooseOPMLFile</tabstop>
+  <tabstop>comboBoxSources</tabstop>
+  <tabstop>lineEditChosenOPMLFile</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>DialogAddFeed</receiver>
+   <receiver>DialogImportOPML</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -90,7 +122,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>DialogAddFeed</receiver>
+   <receiver>DialogImportOPML</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

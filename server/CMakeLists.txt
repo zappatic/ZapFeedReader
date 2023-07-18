@@ -30,6 +30,7 @@ target_include_directories(zapfeedreader-server PRIVATE ../engine/include)
 add_subdirectory(src)
 
 target_sources(zapfeedreader-server PRIVATE
+    ../engine/src/Helpers.cpp
     ../engine/src/Database.cpp
     ../engine/src/FeedFetcher.cpp
     ../engine/src/FeedParser.cpp
@@ -40,4 +41,5 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/Feed.cpp
     ../engine/src/FeedLocal.cpp
     ../engine/src/Post.cpp
+    ../engine/src/OPMLParser.cpp
 )

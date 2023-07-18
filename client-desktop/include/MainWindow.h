@@ -22,6 +22,7 @@
 #include "ClientGlobal.h"
 #include "Database.h"
 #include "DialogAddFeed.h"
+#include "DialogImportOPML.h"
 #include "Global.h"
 
 QT_BEGIN_NAMESPACE
@@ -51,10 +52,12 @@ namespace ZapFR
           private slots:
             void addSource();
             void addFeed();
+            void importOPML();
             void sourceTreeViewItemSelected(const QModelIndex& index);
             void postsTableViewItemSelected(const QModelIndex& index);
             void colorSchemeChanged(Qt::ColorScheme scheme);
             void sourceTreeViewContextMenuRequested(const QPoint& p);
+            void postLinkHovered(const QString& url);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -65,6 +68,7 @@ namespace ZapFR
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
+            std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
             uint64_t mCurrentPostSourceID{0};

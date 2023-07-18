@@ -25,7 +25,18 @@ ZapFR::Client::DialogAddFeed::DialogAddFeed(QWidget* parent) : QDialog(parent), 
 
     mSourcesModel = std::make_unique<QStandardItemModel>(this);
     ui->comboBoxSource->setModel(mSourcesModel.get());
+
+    for (const auto& button : ui->buttonBox->buttons())
+    {
+        if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::ButtonRole::AcceptRole)
+        {
+            button->setText(tr("Add feed"));
+            break;
+        }
+    }
 }
+
+// TODO: check chosen feed url before 'accept'ing
 
 ZapFR::Client::DialogAddFeed::~DialogAddFeed()
 {

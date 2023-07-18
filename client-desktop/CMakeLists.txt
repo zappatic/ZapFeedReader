@@ -18,6 +18,7 @@ set(PROJECT_SOURCES
         src/ItemDelegateSource.cpp
         src/ItemDelegatePost.cpp
         src/DialogAddFeed.cpp
+        src/DialogImportOPML.cpp
         src/Utilities.cpp
         src/WebEnginePagePost.cpp
         src/StandardItemModelSources.cpp
@@ -28,11 +29,14 @@ set(PROJECT_SOURCES
         include/ItemDelegateSource.h
         include/ItemDelegatePost.h
         include/DialogAddFeed.h
+        include/DialogImportOPML.h
         include/WebEnginePagePost.h
         include/StandardItemModelSources.h
         include/TableViewPosts.h
         include/TreeViewSources.h
         src/MainWindow.ui
+        src/DialogAddFeed.ui
+        src/DialogImportOPML.ui
         ${TS_FILES}
 )
 
@@ -80,6 +84,7 @@ target_link_libraries(zapfeedreader-client PRIVATE  Qt${QT_VERSION_MAJOR}::Widge
                                                     Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
 
 target_sources(zapfeedreader-client PRIVATE
+                                ../engine/src/Helpers.cpp
                                 ../engine/src/Database.cpp
                                 ../engine/src/FeedFetcher.cpp
                                 ../engine/src/FeedParser.cpp
@@ -90,6 +95,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/Feed.cpp
                                 ../engine/src/FeedLocal.cpp
                                 ../engine/src/Post.cpp
+                                ../engine/src/OPMLParser.cpp
 )
 
 install(TARGETS zapfeedreader-client

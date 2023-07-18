@@ -28,6 +28,8 @@
 #include <QDir>
 #include <QDropEvent>
 #include <QFile>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>

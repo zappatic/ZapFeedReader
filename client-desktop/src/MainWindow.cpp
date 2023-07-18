@@ -37,6 +37,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ui->setupUi(this);
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
+    connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
     connect(ui->tableViewPosts, &TableViewPosts::currentPostChanged, this, &MainWindow::postsTableViewItemSelected);
@@ -49,6 +50,8 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
 
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
     ui->webViewPost->setPage(mPostWebEnginePage.get());
+    connect(mPostWebEnginePage.get(), &QWebEnginePage::linkHovered, this, &MainWindow::postLinkHovered);
+
     restoreSettings();
     reloadCurrentPost();
     createContextMenus();
@@ -273,6 +276,29 @@ void ZapFR::Client::MainWindow::addFeed()
     auto sources = ZapFR::Engine::Source::getSources({});
     mDialogAddFeed->reset(sources);
     mDialogAddFeed->open();
+}
+
+void ZapFR::Client::MainWindow::importOPML()
+{
+    if (mDialogImportOPML == nullptr)
+    {
+        mDialogImportOPML = std::make_unique<DialogImportOPML>(this);
+        connect(mDialogImportOPML.get(), &QDialog::finished,
+                [&](int result)
+                {
+                    if (result == QDialog::DialogCode::Accepted)
+                    {
+                        for (const auto& feed : mDialogImportOPML->importedFeeds())
+                        {
+                            std::cout << feed.url << "\n";
+                        }
+                    }
+                });
+    }
+
+    auto sources = ZapFR::Engine::Source::getSources({});
+    mDialogImportOPML->reset(sources);
+    mDialogImportOPML->open();
 }
 
 void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
@@ -592,6 +618,18 @@ QString ZapFR::Client::MainWindow::postStyles() const
             return styles;
         }
         return "body { background-color: #fff; color: #000; }\n" + commonStyles;
+    }
+}
+
+void ZapFR::Client::MainWindow::postLinkHovered(const QString& url)
+{
+    if (!url.isEmpty())
+    {
+        ui->statusbar->showMessage(url);
+    }
+    else
+    {
+        ui->statusbar->clearMessage();
     }
 }
 
