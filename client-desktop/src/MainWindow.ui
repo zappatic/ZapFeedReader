@@ -35,6 +35,9 @@
       <property name="handleWidth">
        <number>8</number>
       </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
       <widget class="ZapFR::Client::TreeViewSources" name="treeViewSources">
        <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>

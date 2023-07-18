@@ -25,6 +25,8 @@ ZapFR::Client::ItemDelegateSource::ItemDelegateSource(QObject* parent) : QStyled
 void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     static bool initDone{false};
+    static constexpr int32_t unreadBadgeWidth{25};
+    static constexpr int32_t unreadBadgeWidthWithMargin{unreadBadgeWidth + 5};
     static auto titleTextOptions = QTextOption(Qt::AlignLeft | Qt::AlignVCenter);
     static auto unreadTextOptions = QTextOption(Qt::AlignCenter | Qt::AlignVCenter);
     if (!initDone)
@@ -61,8 +63,12 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
 
     // draw the title
     auto title = index.data(Qt::DisplayRole).toString();
+    auto titleRect = option.rect;
+    titleRect.adjust(0, 0, -5 - unreadBadgeWidthWithMargin, 0);
+    auto fm = QFontMetrics(painter->font());
+    auto elidedTitle = fm.elidedText(title, Qt::ElideRight, titleRect.width());
     painter->setPen(QPen(brushText, 1.0));
-    painter->drawText(option.rect, title, titleTextOptions);
+    painter->drawText(titleRect, elidedTitle, titleTextOptions);
 
     // draw the unread amount badge
     if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
@@ -71,9 +77,9 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         if (unreadCount > 0)
         {
             auto unreadRect = option.rect;
-            unreadRect.moveLeft(option.rect.right() - 30);
+            unreadRect.moveLeft(option.rect.right() - unreadBadgeWidthWithMargin);
             unreadRect.moveTop(option.rect.top() + 2);
-            unreadRect.setWidth(25);
+            unreadRect.setWidth(unreadBadgeWidth);
             unreadRect.setHeight(option.rect.height() - 4);
 
             QPainterPath path;

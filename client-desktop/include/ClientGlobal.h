@@ -30,6 +30,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFontMetrics>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>

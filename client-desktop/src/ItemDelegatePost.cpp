@@ -63,5 +63,7 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
     title.replace(whitespaceRe, " ");
     painter->setPen(QPen(brushText, 1.0));
     painter->setFont(isRead ? regularFont : boldFont);
-    painter->drawText(option.rect, title, titleTextOptions);
+    auto fm = QFontMetrics(painter->font());
+    auto elidedTitle = fm.elidedText(title, Qt::ElideRight, option.rect.width());
+    painter->drawText(option.rect, elidedTitle, titleTextOptions);
 }
