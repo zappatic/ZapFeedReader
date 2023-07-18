@@ -59,6 +59,7 @@ namespace ZapFR
             void sourceTreeViewContextMenuRequested(const QPoint& p);
             void postLinkHovered(const QString& url);
             void feedRefreshed();
+            void feedAdded();
 
           protected:
             void closeEvent(QCloseEvent* event) override;

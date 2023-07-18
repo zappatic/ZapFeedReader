@@ -42,6 +42,8 @@ namespace ZapFR
 
             void reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources);
             std::vector<ZapFR::Engine::OPMLEntry> importedFeeds() const noexcept;
+            QString folderHierarchy() const;
+            uint64_t sourceID() const;
 
           private slots:
             void chooseOPMLFile(bool checked);

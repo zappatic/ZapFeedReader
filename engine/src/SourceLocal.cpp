@@ -147,7 +147,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
     return {};
 }
 
-void ZapFR::Engine::SourceLocal::addFeed(const std::string& url)
+void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::string& folderHierarchy)
 {
     FeedFetcher ff;
     auto parsedFeed = ff.parse(url);
@@ -167,6 +167,7 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url)
         Poco::Data::Statement insertStmt(*(msDatabase->session()));
         insertStmt << "INSERT INTO feeds ("
                       " url"
+                      ",folderHierarchy"
                       ",guid"
                       ",title"
                       ",subtitle"
@@ -176,8 +177,9 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url)
                       ",copyright"
                       ",sortOrder"
                       ",lastChecked"
-                      ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
-            useRef(url), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright), use(sortOrder);
+                      ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+            useRef(url), useRef(folderHierarchy), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright),
+            use(sortOrder);
         const std::lock_guard<std::mutex> lock(mInsertFeedMutex);
         insertStmt.execute();
         Poco::Data::Statement selectStmt(*(msDatabase->session()));

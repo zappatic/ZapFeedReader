@@ -18,6 +18,7 @@
 
 #include "Agent.h"
 #include "AgentRefreshFeed.h"
+#include "AgentSubscribeFeed.h"
 #include "Feed.h"
 
 ZapFR::Engine::Agent::Agent()
@@ -37,8 +38,14 @@ ZapFR::Engine::Agent* ZapFR::Engine::Agent::getInstance()
 void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
     std::lock_guard<std::mutex> lock(mMutex);
-
     auto r = std::make_unique<AgentRefreshFeed>(sourceID, feedID, finishedCallback);
+    mQueue.push_back(std::move(r));
+}
+
+void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    auto r = std::make_unique<AgentSubscribeFeed>(sourceID, url, folderHierarchy, finishedCallback);
     mQueue.push_back(std::move(r));
 }
 

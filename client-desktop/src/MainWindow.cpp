@@ -251,26 +251,8 @@ void ZapFR::Client::MainWindow::addFeed()
                 {
                     if (result == QDialog::DialogCode::Accepted)
                     {
-                        try
-                        {
-                            auto source = ZapFR::Engine::Source::getSource(mDialogAddFeed->sourceID());
-                            if (source.has_value())
-                            {
-                                try
-                                {
-                                    source.value()->addFeed(mDialogAddFeed->url().toStdString());
-                                }
-                                catch (Poco::Exception& e)
-                                {
-                                    std::cout << "Poco Exception: " << e.what() << "\n" << e.displayText() << "\n";
-                                }
-                                reloadSources();
-                            }
-                        }
-                        catch (const std::runtime_error& e)
-                        {
-                            std::cerr << e.what() << "\n";
-                        }
+                        ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogAddFeed->sourceID(), mDialogAddFeed->url().toStdString(), "",
+                                                                                [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
                     }
                 });
     }
@@ -292,7 +274,15 @@ void ZapFR::Client::MainWindow::importOPML()
                     {
                         for (const auto& feed : mDialogImportOPML->importedFeeds())
                         {
-                            std::cout << feed.url << "\n";
+                            auto folderHierarchy = mDialogImportOPML->folderHierarchy();
+                            if (!feed.folderHierarchy.empty() && !folderHierarchy.endsWith("/"))
+                            {
+                                folderHierarchy += "/";
+                            }
+                            folderHierarchy += QString::fromUtf8(feed.folderHierarchy);
+
+                            ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogImportOPML->sourceID(), feed.url, folderHierarchy.toStdString(),
+                                                                                    [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
                         }
                     }
                 });
@@ -654,6 +644,11 @@ void ZapFR::Client::MainWindow::sourceTreeViewContextMenuRequested(const QPoint&
 void ZapFR::Client::MainWindow::feedRefreshed()
 {
     reloadSources();
+}
+
+void ZapFR::Client::MainWindow::feedAdded()
+{
+    reloadSources(false);
 }
 
 void ZapFR::Client::MainWindow::createContextMenus()

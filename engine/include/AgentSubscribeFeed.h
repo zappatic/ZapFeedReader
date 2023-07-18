@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENT_H
-#define ZAPFR_ENGINE_AGENT_H
+#ifndef ZAPFR_ENGINE_AGENTSUBSCRIBEFEED_H
+#define ZAPFR_ENGINE_AGENTSUBSCRIBEFEED_H
 
 #include "AgentRunnable.h"
 #include "Global.h"
@@ -28,30 +28,21 @@ namespace ZapFR
     {
         class Feed;
 
-        class Agent
+        class AgentSubscribeFeed : public AgentRunnable
         {
           public:
-            Agent(const Agent&) = delete;
-            Agent& operator=(const Agent&) = delete;
-            virtual ~Agent() = default;
+            explicit AgentSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback);
+            virtual ~AgentSubscribeFeed() = default;
 
-            static Agent* getInstance();
-
-            void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
-            void queueSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback);
+            void run() override;
 
           private:
-            explicit Agent();
-            std::mutex mMutex{};
-
-            std::deque<std::unique_ptr<AgentRunnable>> mQueue{};
-            std::unique_ptr<Poco::Timer> mQueueTimer{nullptr};
-            std::unique_ptr<Poco::ThreadPool> mThreadPool{nullptr};
-            std::vector<std::unique_ptr<AgentRunnable>> mRunningAgents{};
-
-            void onQueueTimer(Poco::Timer& timer);
+            uint64_t mSourceID{0};
+            std::string mURL{0};
+            std::string mFolderHierarchy{""};
+            std::function<void()> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENT_H
+#endif // ZAPFR_ENGINE_AGENTSUBSCRIBEFEED_H

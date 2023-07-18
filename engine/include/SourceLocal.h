@@ -36,7 +36,7 @@ namespace ZapFR
 
             std::vector<std::unique_ptr<Feed>> getFeeds() override;
             std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) override;
-            void addFeed(const std::string& url) override;
+            void addFeed(const std::string& url, const std::string& folderHierarchy) override;
             void moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder) override;
             void removeFeed(uint64_t feedID) override;
 
