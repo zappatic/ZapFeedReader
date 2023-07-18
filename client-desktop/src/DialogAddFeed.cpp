@@ -65,3 +65,8 @@ uint64_t ZapFR::Client::DialogAddFeed::sourceID() const
 {
     return ui->comboBoxSource->currentData(SourceIDRole).toULongLong();
 }
+
+QString ZapFR::Client::DialogAddFeed::folderHierarchy() const
+{
+    return ui->lineEditAddToFolder->text();
+}

@@ -43,6 +43,7 @@ namespace ZapFR
 
             QString url() const;
             uint64_t sourceID() const;
+            QString folderHierarchy() const;
 
           private:
             Ui::DialogAddFeed* ui;
