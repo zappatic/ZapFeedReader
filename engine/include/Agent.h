@@ -1,0 +1,56 @@
+/*
+    ZapFeedReader - RSS/Atom feed reader
+    Copyright (C) 2023-present  Kasper Nauwelaerts (zapfr at zappatic dot net)
+
+    ZapFeedReader is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    ZapFeedReader is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#ifndef ZAPFR_ENGINE_AGENT_H
+#define ZAPFR_ENGINE_AGENT_H
+
+#include "AgentRunnable.h"
+#include "Global.h"
+
+namespace ZapFR
+{
+    namespace Engine
+    {
+        class Feed;
+
+        class Agent
+        {
+          public:
+            Agent(const Agent&) = delete;
+            Agent& operator=(const Agent&) = delete;
+            virtual ~Agent() = default;
+
+            static Agent* getInstance();
+
+            void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
+
+          private:
+            explicit Agent();
+            std::mutex mMutex{};
+
+            std::deque<std::unique_ptr<AgentRunnable>> mQueue{};
+            std::unique_ptr<Poco::Timer> mQueueTimer{nullptr};
+            std::unique_ptr<Poco::ThreadPool> mThreadPool{nullptr};
+            std::vector<std::unique_ptr<AgentRunnable>> mRunningAgents{};
+
+            void onQueueTimer(Poco::Timer& timer);
+        };
+    } // namespace Engine
+} // namespace ZapFR
+
+#endif // ZAPFR_ENGINE_AGENT_H

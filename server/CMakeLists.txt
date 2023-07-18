@@ -31,6 +31,8 @@ add_subdirectory(src)
 
 target_sources(zapfeedreader-server PRIVATE
     ../engine/src/Helpers.cpp
+    ../engine/src/Agent.cpp
+    ../engine/src/AgentRefreshFeed.cpp
     ../engine/src/Database.cpp
     ../engine/src/FeedFetcher.cpp
     ../engine/src/FeedParser.cpp

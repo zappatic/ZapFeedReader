@@ -58,6 +58,7 @@ namespace ZapFR
             void colorSchemeChanged(Qt::ColorScheme scheme);
             void sourceTreeViewContextMenuRequested(const QPoint& p);
             void postLinkHovered(const QString& url);
+            void feedRefreshed();
 
           protected:
             void closeEvent(QCloseEvent* event) override;

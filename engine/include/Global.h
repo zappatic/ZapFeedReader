@@ -34,16 +34,20 @@
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/Runnable.h>
 #include <Poco/SAX/Attributes.h>
 #include <Poco/SAX/ContentHandler.h>
 #include <Poco/SAX/SAXParser.h>
 #include <Poco/StreamCopier.h>
+#include <Poco/ThreadPool.h>
+#include <Poco/Timer.h>
 #include <Poco/URI.h>
 #include <Poco/UUIDGenerator.h>
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/SystemConfiguration.h>
 
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <sstream>
 #include <string>

@@ -18,6 +18,8 @@
 
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
+#include "Agent.h"
+#include "AgentRefreshFeed.h"
 #include "Feed.h"
 #include "ItemDelegatePost.h"
 #include "ItemDelegateSource.h"
@@ -649,6 +651,11 @@ void ZapFR::Client::MainWindow::sourceTreeViewContextMenuRequested(const QPoint&
     }
 }
 
+void ZapFR::Client::MainWindow::feedRefreshed()
+{
+    reloadSources();
+}
+
 void ZapFR::Client::MainWindow::createContextMenus()
 {
     mSourceContextMenuFeed = std::make_unique<QMenu>(nullptr);
@@ -663,17 +670,8 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 {
                     auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
                     auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-
-                    auto source = ZapFR::Engine::Source::getSource(sourceID);
-                    if (source.has_value())
-                    {
-                        auto feed = source.value()->getFeed(feedID);
-                        if (feed.has_value())
-                        {
-                            feed.value()->refresh();
-                        }
-                    }
-                    reloadSources();
+                    ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
+                        sourceID, feedID, [&](uint64_t /*sourceID*/, uint64_t /*feedID*/) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection); });
                 }
             });
     mSourceContextMenuFeed->addAction(refreshAction);

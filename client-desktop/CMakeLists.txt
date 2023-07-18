@@ -85,6 +85,8 @@ target_link_libraries(zapfeedreader-client PRIVATE  Qt${QT_VERSION_MAJOR}::Widge
 
 target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/Helpers.cpp
+                                ../engine/src/Agent.cpp
+                                ../engine/src/AgentRefreshFeed.cpp
                                 ../engine/src/Database.cpp
                                 ../engine/src/FeedFetcher.cpp
                                 ../engine/src/FeedParser.cpp
