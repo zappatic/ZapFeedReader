@@ -21,6 +21,7 @@ set(PROJECT_SOURCES
         src/DialogImportOPML.cpp
         src/Utilities.cpp
         src/WebEnginePagePost.cpp
+        src/WebEngineViewPost.cpp
         src/StandardItemModelSources.cpp
         src/TableViewPosts.cpp
         src/TreeViewSources.cpp
@@ -31,6 +32,7 @@ set(PROJECT_SOURCES
         include/DialogAddFeed.h
         include/DialogImportOPML.h
         include/WebEnginePagePost.h
+        include/WebEngineViewPost.h
         include/StandardItemModelSources.h
         include/TableViewPosts.h
         include/TreeViewSources.h

@@ -22,6 +22,7 @@
 #include "Global.h"
 
 #include <QApplication>
+#include <QClipboard>
 #include <QDate>
 #include <QDesktopServices>
 #include <QDialog>
@@ -37,6 +38,7 @@
 #include <QJsonObject>
 #include <QLocale>
 #include <QMainWindow>
+#include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPainter>
@@ -53,7 +55,9 @@
 #include <QTimer>
 #include <QTranslator>
 #include <QTreeView>
+#include <QWebEngineContextMenuRequest>
 #include <QWebEnginePage>
+#include <QWebEngineView>
 
 namespace ZapFR
 {

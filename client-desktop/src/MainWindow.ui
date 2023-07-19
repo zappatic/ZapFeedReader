@@ -115,7 +115,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QWebEngineView" name="webViewPost" native="true"/>
+          <widget class="ZapFR::Client::WebEngineViewPost" name="webViewPost" native="true"/>
          </item>
         </layout>
        </widget>
@@ -163,12 +163,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebEngineView</class>
-   <extends>QWidget</extends>
-   <header>qwebengineview.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ZapFR::Client::TreeViewSources</class>
    <extends>QTreeView</extends>
    <header>TreeViewSources.h</header>
@@ -177,6 +171,12 @@
    <class>ZapFR::Client::TableViewPosts</class>
    <extends>QTableView</extends>
    <header>TableViewPosts.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::WebEngineViewPost</class>
+   <extends>QWidget</extends>
+   <header>WebEngineViewPost.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
