@@ -20,6 +20,7 @@
 #include "Database.h"
 #include "FeedFetcher.h"
 #include "FeedLocal.h"
+#include "Helpers.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -252,5 +253,39 @@ void ZapFR::Engine::SourceLocal::removeFeed(uint64_t feedID)
         }
 
         resort(folderHierarchy);
+    }
+}
+
+void ZapFR::Engine::SourceLocal::removeFolder(const std::string& folderHierarchy)
+{
+    // find all the feed ID's for the respective folder hierarchy, so we can remove all the posts of those ID's
+    std::vector<std::string> affectedFeedIDs;
+    {
+        auto sql = Poco::format("SELECT id FROM feeds WHERE folderHierarchy LIKE '%s'", Poco::replace(folderHierarchy, "'", "''"));
+
+        uint64_t feedID{0};
+        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        selectStmt << sql, into(feedID), range(0, 1);
+        while (!selectStmt.done())
+        {
+            if (selectStmt.execute() > 0)
+            {
+                affectedFeedIDs.emplace_back(std::to_string(feedID));
+            }
+        }
+    }
+    if (affectedFeedIDs.size() > 0)
+    {
+        auto feedIDs = Helpers::joinString(affectedFeedIDs, ",");
+        auto deletePostsSQL = Poco::format("DELETE FROM posts WHERE feedID IN (%s)", feedIDs);
+        auto deleteFeedsSQL = Poco::format("DELETE FROM feeds WHERE id IN (%s)", feedIDs);
+
+        // remove all posts from the affected feeds
+        Poco::Data::Statement deletePostsStmt(*(msDatabase->session()));
+        deletePostsStmt << deletePostsSQL, now;
+
+        // remove all affected feeds
+        Poco::Data::Statement deleteFeedsStmt(*(msDatabase->session()));
+        deleteFeedsStmt << deleteFeedsSQL, now;
     }
 }

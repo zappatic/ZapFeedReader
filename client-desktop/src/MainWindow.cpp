@@ -20,6 +20,7 @@
 #include "./ui_MainWindow.h"
 #include "Agent.h"
 #include "AgentRefreshFeed.h"
+#include "AgentRemoveFolder.h"
 #include "Feed.h"
 #include "ItemDelegatePost.h"
 #include "ItemDelegateSource.h"
@@ -641,7 +642,13 @@ void ZapFR::Client::MainWindow::sourceTreeViewContextMenuRequested(const QPoint&
         {
             case SOURCETREE_ENTRY_TYPE_FEED:
             {
-                mSourceContextMenuFeed->exec(ui->treeViewSources->viewport()->mapToGlobal(p));
+                mSourceContextMenuFeed->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            {
+                mSourceContextMenuFolder->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                break;
             }
         }
     }
@@ -657,8 +664,14 @@ void ZapFR::Client::MainWindow::feedAdded()
     reloadSources(false);
 }
 
+void ZapFR::Client::MainWindow::folderRemoved()
+{
+    reloadSources(false);
+}
+
 void ZapFR::Client::MainWindow::createContextMenus()
 {
+    // FEEDS
     mSourceContextMenuFeed = std::make_unique<QMenu>(nullptr);
 
     // Feed - Refresh
@@ -715,7 +728,8 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 messageBox.setWindowTitle(tr("Remove feed"));
                 messageBox.setInformativeText(tr("Are you sure you want to remove this feed? All associated posts will be removed!"));
                 messageBox.setIcon(QMessageBox::Warning);
-                messageBox.addButton(tr("Remove"), QMessageBox::ButtonRole::YesRole);
+                auto yesButton = messageBox.addButton(QMessageBox::StandardButton::Yes);
+                yesButton->setText(tr("Remove"));
                 messageBox.addButton(QMessageBox::StandardButton::Cancel);
                 auto messageBoxLayout = qobject_cast<QGridLayout*>(messageBox.layout());
                 messageBoxLayout->addItem(new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), messageBoxLayout->rowCount(), 0, 1,
@@ -740,4 +754,50 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 }
             });
     mSourceContextMenuFeed->addAction(removeAction);
+
+    // FOLDERS
+    mSourceContextMenuFolder = std::make_unique<QMenu>(nullptr);
+
+    // Folder - remove
+    auto removeFolderAction = new QAction(tr("Remo&ve"), this);
+    connect(removeFolderAction, &QAction::triggered,
+            [&]()
+            {
+                QMessageBox messageBox;
+                messageBox.setText(tr("Remove folder"));
+                messageBox.setWindowTitle(tr("Remove folder"));
+                messageBox.setInformativeText(tr("Are you sure you want to remove this folder and all feeds it contains? All associated posts will be removed!"));
+                messageBox.setIcon(QMessageBox::Warning);
+                auto yesButton = messageBox.addButton(QMessageBox::StandardButton::Yes);
+                yesButton->setText(tr("Remove"));
+                messageBox.addButton(QMessageBox::StandardButton::Cancel);
+                auto messageBoxLayout = qobject_cast<QGridLayout*>(messageBox.layout());
+                messageBoxLayout->addItem(new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), messageBoxLayout->rowCount(), 0, 1,
+                                          messageBoxLayout->columnCount());
+                messageBox.exec();
+                if (messageBox.buttonRole(messageBox.clickedButton()) == QMessageBox::YesRole)
+                {
+                    auto index = ui->treeViewSources->currentIndex();
+                    if (index.isValid())
+                    {
+                        auto cur = index;
+                        QStringList subfolders;
+                        while (true)
+                        {
+                            subfolders << cur.data(Qt::DisplayRole).toString();
+                            cur = cur.parent();
+                            if (!cur.isValid() || cur.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+                            {
+                                break;
+                            }
+                        }
+                        std::reverse(subfolders.begin(), subfolders.end());
+                        auto folderHierarchy = subfolders.join("/").toStdString();
+
+                        ZapFR::Engine::Agent::getInstance()->queueRemoveFolder(index.data(SourceTreeEntryParentSourceIDRole).toULongLong(), folderHierarchy,
+                                                                               [&]() { QMetaObject::invokeMethod(this, "folderRemoved", Qt::AutoConnection); });
+                    }
+                }
+            });
+    mSourceContextMenuFolder->addAction(removeFolderAction);
 }

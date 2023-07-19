@@ -44,6 +44,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPalette>
+#include <QPushButton>
 #include <QRegularExpression>
 #include <QStandardItem>
 #include <QStandardItemModel>

@@ -60,6 +60,7 @@ namespace ZapFR
             void postLinkHovered(const QString& url);
             void feedRefreshed();
             void feedAdded();
+            void folderRemoved();
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -73,6 +74,7 @@ namespace ZapFR
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
+            std::unique_ptr<QMenu> mSourceContextMenuFolder{nullptr};
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
             uint64_t mCurrentPostID{0};

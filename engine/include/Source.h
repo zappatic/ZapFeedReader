@@ -48,6 +48,7 @@ namespace ZapFR
             virtual void addFeed(const std::string& url, const std::string& folderHierarchy) = 0;
             virtual void moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder) = 0;
             virtual void removeFeed(uint64_t feedID) = 0;
+            virtual void removeFolder(const std::string& folderHierarchy) = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

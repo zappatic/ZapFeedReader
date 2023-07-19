@@ -89,6 +89,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/Helpers.cpp
                                 ../engine/src/Agent.cpp
                                 ../engine/src/AgentRefreshFeed.cpp
+                                ../engine/src/AgentRemoveFolder.cpp
                                 ../engine/src/AgentSubscribeFeed.cpp
                                 ../engine/src/Database.cpp
                                 ../engine/src/FeedFetcher.cpp

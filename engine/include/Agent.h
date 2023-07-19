@@ -39,6 +39,7 @@ namespace ZapFR
 
             void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback);
+            void queueRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback);
 
           private:
             explicit Agent();

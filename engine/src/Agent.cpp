@@ -18,6 +18,7 @@
 
 #include "Agent.h"
 #include "AgentRefreshFeed.h"
+#include "AgentRemoveFolder.h"
 #include "AgentSubscribeFeed.h"
 #include "Feed.h"
 
@@ -46,6 +47,13 @@ void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::stri
 {
     std::lock_guard<std::mutex> lock(mMutex);
     auto r = std::make_unique<AgentSubscribeFeed>(sourceID, url, folderHierarchy, finishedCallback);
+    mQueue.push_back(std::move(r));
+}
+
+void ZapFR::Engine::Agent::queueRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    auto r = std::make_unique<AgentRemoveFolder>(sourceID, folderHierarchy, finishedCallback);
     mQueue.push_back(std::move(r));
 }
 

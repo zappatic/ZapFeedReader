@@ -39,6 +39,7 @@ namespace ZapFR
             void addFeed(const std::string& url, const std::string& folderHierarchy) override;
             void moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder) override;
             void removeFeed(uint64_t feedID) override;
+            void removeFolder(const std::string& folderHierarchy) override;
 
           private:
             std::mutex mInsertFeedMutex{};
