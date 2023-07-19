@@ -53,6 +53,7 @@
 #include <QStyledItemDelegate>
 #include <QTableView>
 #include <QTimer>
+#include <QToolTip>
 #include <QTranslator>
 #include <QTreeView>
 #include <QWebEngineContextMenuRequest>

@@ -25,7 +25,7 @@ ZapFR::Client::ItemDelegateSource::ItemDelegateSource(QObject* parent) : QStyled
 void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     static bool initDone{false};
-    static constexpr int32_t unreadBadgeWidth{25};
+    static constexpr int32_t unreadBadgeWidth{33};
     static constexpr int32_t unreadBadgeWidthWithMargin{unreadBadgeWidth + 5};
     static auto titleTextOptions = QTextOption(Qt::AlignLeft | Qt::AlignVCenter);
     static auto unreadTextOptions = QTextOption(Qt::AlignCenter | Qt::AlignVCenter);
@@ -76,6 +76,17 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         auto unreadCount = index.data(SourceTreeEntryUnreadCount).toULongLong();
         if (unreadCount > 0)
         {
+            auto unreadCountString = QString::number(unreadCount);
+            if (unreadCount > 9999)
+            {
+                unreadCountString = "9K+";
+            }
+            else if (unreadCount >= 1000)
+            {
+                float f = static_cast<float>(unreadCount) / 1000.0f;
+                unreadCountString = QString("%1K").arg(QString::number(f, 'f', 1));
+            }
+
             auto unreadRect = option.rect;
             unreadRect.moveLeft(option.rect.right() - unreadBadgeWidthWithMargin);
             unreadRect.moveTop(option.rect.top() + 2);
@@ -87,7 +98,7 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
             painter->fillPath(path, brushUnreadBadgeBackground);
 
             painter->setPen(penUnreadBadgeText);
-            painter->drawText(unreadRect, QString("%1").arg(unreadCount), unreadTextOptions);
+            painter->drawText(unreadRect, unreadCountString, unreadTextOptions);
         }
     }
 }

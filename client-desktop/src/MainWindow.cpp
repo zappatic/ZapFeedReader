@@ -368,7 +368,12 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
             feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
             feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), SourceTreeEntryIDRole);
             feedItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
-            feedItem->setData(QVariant::fromValue<uint64_t>(feed->unreadCount()), SourceTreeEntryUnreadCount);
+            auto unreadCount = feed->unreadCount();
+            feedItem->setData(QVariant::fromValue<uint64_t>(unreadCount), SourceTreeEntryUnreadCount);
+            if (unreadCount >= 999)
+            {
+                feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
+            }
             currentParent->appendRow(feedItem);
         }
     }

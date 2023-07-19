@@ -26,3 +26,15 @@ void ZapFR::Client::TreeViewSources::currentChanged(const QModelIndex& current, 
 {
     emit currentSourceChanged(current);
 }
+
+bool ZapFR::Client::TreeViewSources::viewportEvent(QEvent* event)
+{
+    if (event->type() == QEvent::ToolTip)
+    {
+        // workaround for qt bug showing tooltip text as gray on light yellow background in dark mode
+        auto tooltipPalette = QToolTip::palette();
+        tooltipPalette.setColor(QPalette::Inactive, QPalette::ToolTipText, Qt::black);
+        QToolTip::setPalette(tooltipPalette);
+    }
+    return QTreeView::viewportEvent(event);
+}

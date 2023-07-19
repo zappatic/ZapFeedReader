@@ -38,6 +38,7 @@ namespace ZapFR
 
           protected:
             void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
+            bool viewportEvent(QEvent* event) override;
         };
     } // namespace Client
 } // namespace ZapFR
