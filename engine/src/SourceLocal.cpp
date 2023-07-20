@@ -277,14 +277,14 @@ void ZapFR::Engine::SourceLocal::removeFolder(const std::string& folderHierarchy
     if (affectedFeedIDs.size() > 0)
     {
         auto feedIDs = Helpers::joinString(affectedFeedIDs, ",");
-        auto deletePostsSQL = Poco::format("DELETE FROM posts WHERE feedID IN (%s)", feedIDs);
-        auto deleteFeedsSQL = Poco::format("DELETE FROM feeds WHERE id IN (%s)", feedIDs);
 
         // remove all posts from the affected feeds
+        auto deletePostsSQL = Poco::format("DELETE FROM posts WHERE feedID IN (%s)", feedIDs);
         Poco::Data::Statement deletePostsStmt(*(msDatabase->session()));
         deletePostsStmt << deletePostsSQL, now;
 
         // remove all affected feeds
+        auto deleteFeedsSQL = Poco::format("DELETE FROM feeds WHERE id IN (%s)", feedIDs);
         Poco::Data::Statement deleteFeedsStmt(*(msDatabase->session()));
         deleteFeedsStmt << deleteFeedsSQL, now;
     }

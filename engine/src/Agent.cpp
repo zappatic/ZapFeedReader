@@ -38,23 +38,17 @@ ZapFR::Engine::Agent* ZapFR::Engine::Agent::getInstance()
 
 void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
-    std::lock_guard<std::mutex> lock(mMutex);
-    auto r = std::make_unique<AgentRefreshFeed>(sourceID, feedID, finishedCallback);
-    mQueue.push_back(std::move(r));
+    enqueue(std::make_unique<AgentRefreshFeed>(sourceID, feedID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback)
 {
-    std::lock_guard<std::mutex> lock(mMutex);
-    auto r = std::make_unique<AgentSubscribeFeed>(sourceID, url, folderHierarchy, finishedCallback);
-    mQueue.push_back(std::move(r));
+    enqueue(std::make_unique<AgentSubscribeFeed>(sourceID, url, folderHierarchy, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback)
 {
-    std::lock_guard<std::mutex> lock(mMutex);
-    auto r = std::make_unique<AgentRemoveFolder>(sourceID, folderHierarchy, finishedCallback);
-    mQueue.push_back(std::move(r));
+    enqueue(std::make_unique<AgentRemoveFolder>(sourceID, folderHierarchy, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
@@ -70,4 +64,18 @@ void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
 
     // clear out the finished agents from the running agents vector
     std::erase_if(mRunningAgents, [](const std::unique_ptr<AgentRunnable>& agent) { return agent->isDone(); });
+}
+
+void ZapFR::Engine::Agent::enqueue(std::unique_ptr<AgentRunnable> agent)
+{
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mThreadPool->available() > 0)
+    {
+        mThreadPool->start(*agent);
+        mRunningAgents.push_back(std::move(agent));
+    }
+    else
+    {
+        mQueue.push_back(std::move(agent));
+    }
 }

@@ -51,6 +51,7 @@ namespace ZapFR
             std::vector<std::unique_ptr<AgentRunnable>> mRunningAgents{};
 
             void onQueueTimer(Poco::Timer& timer);
+            void enqueue(std::unique_ptr<AgentRunnable> agent);
         };
     } // namespace Engine
 } // namespace ZapFR
