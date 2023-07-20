@@ -62,6 +62,7 @@ namespace ZapFR
             void feedAdded();
             void folderRemoved();
             void loadPosts(const QList<QList<QStandardItem*>>& posts);
+            void postMarkedRead();
 
           protected:
             void closeEvent(QCloseEvent* event) override;

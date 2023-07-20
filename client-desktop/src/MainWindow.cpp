@@ -534,22 +534,15 @@ void ZapFR::Client::MainWindow::postsTableViewItemSelected(const QModelIndex& in
         mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
         mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
 
-        auto source = ZapFR::Engine::Source::getSource(mCurrentPostSourceID);
-        if (source.has_value())
+        ZapFR::Engine::Agent::getInstance()->queueMarkPostRead(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
+                                                               [&]() { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection); });
+
+        for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
         {
-            auto feed = source.value()->getFeed(mCurrentPostFeedID);
-            if (feed.has_value())
-            {
-                feed.value()->markAsRead(mCurrentPostID);
-                for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
-                {
-                    auto item = mItemModelPosts->item(index.row(), col);
-                    item->setData(QVariant::fromValue<bool>(true), PostIsReadRole);
-                }
-                reloadSources(false);
-                ui->tableViewPosts->scrollTo(index);
-            }
+            auto item = mItemModelPosts->item(index.row(), col);
+            item->setData(QVariant::fromValue<bool>(true), PostIsReadRole);
         }
+        ui->tableViewPosts->scrollTo(index);
     }
     else
     {
@@ -668,6 +661,11 @@ void ZapFR::Client::MainWindow::feedAdded()
 }
 
 void ZapFR::Client::MainWindow::folderRemoved()
+{
+    reloadSources(false);
+}
+
+void ZapFR::Client::MainWindow::postMarkedRead()
 {
     reloadSources(false);
 }

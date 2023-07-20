@@ -18,6 +18,7 @@
 
 #include "Agent.h"
 #include "AgentGetPosts.h"
+#include "AgentMarkPostRead.h"
 #include "AgentRefreshFeed.h"
 #include "AgentRemoveFolder.h"
 #include "AgentSubscribeFeed.h"
@@ -57,6 +58,11 @@ void ZapFR::Engine::Agent::queueGetPosts(uint64_t sourceID, uint64_t feedID, uin
                                          std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<Post>>)> finishedCallback)
 {
     enqueue(std::make_unique<AgentGetPosts>(sourceID, feedID, perPage, page, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentMarkPostRead>(sourceID, feedID, postID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
