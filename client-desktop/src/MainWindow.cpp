@@ -19,6 +19,7 @@
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
 #include "Agent.h"
+#include "AgentGetPosts.h"
 #include "AgentRefreshFeed.h"
 #include "AgentRemoveFolder.h"
 #include "Feed.h"
@@ -477,46 +478,48 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
 {
     if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
     {
-        auto source = ZapFR::Engine::Source::getSource(index.data(SourceTreeEntryParentSourceIDRole).toULongLong());
-        if (source.has_value())
-        {
-            auto feed = source.value()->getFeed(index.data(SourceTreeEntryIDRole).toULongLong());
-            if (feed.has_value())
-            {
-                auto posts = feed.value()->getPosts(100, 1);
-                loadPosts(posts, source.value().get(), feed.value().get());
-            }
-            ui->treeViewSources->scrollTo(index);
-        }
+
+        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueGetPosts(sourceID, feedID, 100, 1,
+                                                           [&](uint64_t sourceID, uint64_t feedID, std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts)
+                                                           {
+                                                               QList<QList<QStandardItem*>> rows;
+                                                               for (const auto& post : posts)
+                                                               {
+                                                                   auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
+                                                                   titleItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+                                                                   titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
+                                                                   titleItem->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
+                                                                   titleItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
+
+                                                                   auto datePublished = QString::fromUtf8(post->datePublished());
+                                                                   auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
+                                                                   dateItem->setData(datePublished, PostISODateRole);
+                                                                   dateItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+                                                                   dateItem->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
+                                                                   dateItem->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
+                                                                   dateItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
+
+                                                                   QList<QStandardItem*> rowData;
+                                                                   rowData << titleItem << dateItem;
+                                                                   rows << rowData;
+                                                               }
+
+                                                               QMetaObject::invokeMethod(this, "loadPosts", Qt::AutoConnection, rows);
+                                                           });
     }
 }
 
-void ZapFR::Client::MainWindow::loadPosts(const std::vector<std::unique_ptr<ZapFR::Engine::Post>>& posts, ZapFR::Engine::Source* source, ZapFR::Engine::Feed* feed)
+void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& posts)
 {
     mItemModelPosts = std::make_unique<QStandardItemModel>(this);
     ui->tableViewPosts->setModel(mItemModelPosts.get());
     mItemModelPosts->setHorizontalHeaderItem(0, new QStandardItem(tr("Title")));
     mItemModelPosts->setHorizontalHeaderItem(1, new QStandardItem(tr("Date")));
-
-    for (const auto& post : posts)
+    for (auto post : posts)
     {
-        auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
-        titleItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
-        titleItem->setData(QVariant::fromValue<uint64_t>(source->id()), PostSourceIDRole);
-        titleItem->setData(QVariant::fromValue<uint64_t>(feed->id()), PostFeedDRole);
-        titleItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
-
-        auto datePublished = QString::fromUtf8(post->datePublished());
-        auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
-        dateItem->setData(datePublished, PostISODateRole);
-        dateItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
-        dateItem->setData(QVariant::fromValue<uint64_t>(source->id()), PostSourceIDRole);
-        dateItem->setData(QVariant::fromValue<uint64_t>(feed->id()), PostFeedDRole);
-        dateItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
-
-        QList<QStandardItem*> rowData;
-        rowData << titleItem << dateItem;
-        mItemModelPosts->appendRow(rowData);
+        mItemModelPosts->appendRow(post);
     }
     ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     ui->tableViewPosts->horizontalHeader()->setMinimumSectionSize(200);
@@ -749,7 +752,7 @@ void ZapFR::Client::MainWindow::createContextMenus()
                             source.value()->removeFeed(feedID);
                         }
                         reloadSources();
-                        loadPosts({}, nullptr, nullptr);
+                        loadPosts({});
                     }
                 }
             });

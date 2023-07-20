@@ -17,10 +17,12 @@
 */
 
 #include "Agent.h"
+#include "AgentGetPosts.h"
 #include "AgentRefreshFeed.h"
 #include "AgentRemoveFolder.h"
 #include "AgentSubscribeFeed.h"
 #include "Feed.h"
+#include "Post.h"
 
 ZapFR::Engine::Agent::Agent()
 {
@@ -49,6 +51,12 @@ void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::stri
 void ZapFR::Engine::Agent::queueRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentRemoveFolder>(sourceID, folderHierarchy, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+                                         std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<Post>>)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetPosts>(sourceID, feedID, perPage, page, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)

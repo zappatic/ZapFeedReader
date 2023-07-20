@@ -27,6 +27,7 @@ namespace ZapFR
     namespace Engine
     {
         class Feed;
+        class Post;
 
         class Agent
         {
@@ -40,6 +41,8 @@ namespace ZapFR
             void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback);
             void queueRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback);
+            void queueGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+                               std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<Post>>)> finishedCallback);
 
           private:
             explicit Agent();
