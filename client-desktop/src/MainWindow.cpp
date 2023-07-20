@@ -553,34 +553,38 @@ void ZapFR::Client::MainWindow::postsTableViewItemSelected(const QModelIndex& in
     reloadCurrentPost();
 }
 
-void ZapFR::Client::MainWindow::reloadCurrentPost() const
+void ZapFR::Client::MainWindow::reloadCurrentPost()
 {
-    QString htmlStr;
-    QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
-
-    html << "<!DOCTYPE html>\n<html><head><style type='text/css'>\n" << postStyles() << "\n</style></head><body>";
-
     if (mCurrentPostSourceID > 0 && mCurrentPostFeedID > 0 && mCurrentPostID > 0)
     {
-        auto source = ZapFR::Engine::Source::getSource(mCurrentPostSourceID);
-        if (source.has_value())
-        {
-            auto feed = source.value()->getFeed(mCurrentPostFeedID);
-            if (feed.has_value())
-            {
-                auto post = feed.value()->getPost(mCurrentPostID);
-                if (post.has_value())
-                {
-                    html << "<h1 class='zapfr_title'>" << QString::fromUtf8(post.value()->title()) << "</h1>";
-                    html << QString::fromUtf8(post.value()->description());
-                }
-            }
-        }
+        ZapFR::Engine::Agent::getInstance()->queueGetPost(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
+                                                          [&](std::unique_ptr<ZapFR::Engine::Post> post)
+                                                          {
+                                                              QString htmlStr;
+                                                              QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
+
+                                                              html << "<!DOCTYPE html>\n<html><head><style type='text/css'>\n" << postStyles() << "\n</style></head><body>";
+                                                              html << "<h1 class='zapfr_title'>" << QString::fromUtf8(post->title()) << "</h1>";
+                                                              html << QString::fromUtf8(post->description());
+                                                              html << "</body></html>";
+
+                                                              QMetaObject::invokeMethod(this, "setPostHTML", Qt::AutoConnection, htmlStr);
+                                                          });
     }
+    else
+    {
+        QString htmlStr;
+        QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
 
-    html << "</body></html>";
+        html << "<!DOCTYPE html>\n<html><head><style type='text/css'>\n" << postStyles() << "\n</style></head><body>";
+        html << "</body></html>";
+        setPostHTML(htmlStr);
+    }
+}
 
-    ui->webViewPost->setHtml(htmlStr);
+void ZapFR::Client::MainWindow::setPostHTML(const QString& html)
+{
+    ui->webViewPost->setHtml(html);
 }
 
 QString ZapFR::Client::MainWindow::postStyles() const

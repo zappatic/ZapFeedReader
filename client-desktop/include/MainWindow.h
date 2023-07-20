@@ -63,6 +63,7 @@ namespace ZapFR
             void folderRemoved();
             void loadPosts(const QList<QList<QStandardItem*>>& posts);
             void postMarkedRead();
+            void setPostHTML(const QString& html);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -92,7 +93,7 @@ namespace ZapFR
             void expandSourceTreeItems(const QJsonArray& items) const;
 
             QString getFolderHierarchy(QStandardItem* item) const;
-            void reloadCurrentPost() const;
+            void reloadCurrentPost();
             QString postStyles() const;
             void createContextMenus();
         };

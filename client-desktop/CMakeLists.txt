@@ -93,6 +93,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/AgentSubscribeFeed.cpp
                                 ../engine/src/AgentGetPosts.cpp
                                 ../engine/src/AgentMarkPostRead.cpp
+                                ../engine/src/AgentGetPost.cpp
                                 ../engine/src/Database.cpp
                                 ../engine/src/FeedFetcher.cpp
                                 ../engine/src/FeedParser.cpp

@@ -44,6 +44,7 @@ namespace ZapFR
             void queueGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
                                std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<Post>>)> finishedCallback);
             void queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void()> finishedCallback);
+            void queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback);
 
           private:
             explicit Agent();

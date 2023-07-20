@@ -17,6 +17,7 @@
 */
 
 #include "Agent.h"
+#include "AgentGetPost.h"
 #include "AgentGetPosts.h"
 #include "AgentMarkPostRead.h"
 #include "AgentRefreshFeed.h"
@@ -63,6 +64,11 @@ void ZapFR::Engine::Agent::queueGetPosts(uint64_t sourceID, uint64_t feedID, uin
 void ZapFR::Engine::Agent::queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkPostRead>(sourceID, feedID, postID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetPost>(sourceID, feedID, postID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
