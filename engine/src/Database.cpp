@@ -70,6 +70,8 @@ void ZapFR::Engine::Database::installDBSchemaV1()
         (*mSession) << "CREATE TABLE IF NOT EXISTS feeds ("
                        " id INTEGER PRIMARY KEY"
                        ",url TEXT NOT NULL"
+                       ",iconURL TEXT"
+                       ",iconLastFetched INTEGER NOT NULL DEFAULT 0"
                        ",folderHierarchy TEXT NOT NULL DEFAULT ''"
                        ",guid TEXT"
                        ",title TEXT NOT NULL"

@@ -38,6 +38,7 @@ namespace ZapFR
             std::string description() const override;
             std::string language() const override;
             std::string copyright() const override;
+            std::string iconURL() const override;
 
             std::vector<Item> items() const override;
         };

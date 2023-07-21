@@ -59,6 +59,11 @@ std::string ZapFR::Engine::FeedParserAtom10::description() const
     return "";
 }
 
+std::string ZapFR::Engine::FeedParserAtom10::iconURL() const
+{
+    return "";
+}
+
 std::string ZapFR::Engine::FeedParserAtom10::language() const
 {
     auto docEl = mXMLDoc->documentElement();

@@ -20,20 +20,11 @@
 #include "FeedLocal.h"
 #include "FeedParserAtom10.h"
 #include "FeedParserRSS20.h"
-
-static Poco::Net::Context::Ptr gsSSLContext{nullptr};
-
-ZapFR::Engine::FeedFetcher::FeedFetcher()
-{
-    if (gsSSLContext == nullptr)
-    {
-        gsSSLContext = new Poco::Net::Context(Poco::Net::Context::TLS_CLIENT_USE, "", Poco::Net::Context::VERIFY_NONE);
-    }
-}
+#include "Helpers.h"
 
 std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parse(const std::string& url)
 {
-    auto xml = performHTTPRequest(url, "GET");
+    auto xml = Helpers::performHTTPRequest(url, "GET");
 
     Poco::XML::DOMParser parser;
     auto xmlDoc = parser.parseString(xml);
@@ -56,61 +47,4 @@ std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parse(con
         throw std::runtime_error("Unkown feed type");
     }
     return nullptr;
-}
-
-std::string ZapFR::Engine::FeedFetcher::performHTTPRequest(const std::string& url, const std::string& method)
-{
-    Poco::URI uri(url);
-
-    std::unique_ptr<Poco::Net::HTTPClientSession> session;
-
-    auto scheme = uri.getScheme();
-    if (scheme == "https")
-    {
-        session = std::make_unique<Poco::Net::HTTPSClientSession>(uri.getHost(), uri.getPort(), gsSSLContext);
-    }
-    else if (scheme == "http")
-    {
-        session = std::make_unique<Poco::Net::HTTPClientSession>(uri.getHost(), uri.getPort());
-    }
-    else
-    {
-        throw std::runtime_error("Unknown scheme in URL");
-    }
-
-    session->setTimeout(Poco::Timespan(10, 0));
-    Poco::Net::HTTPRequest request(method, uri.getPathAndQuery(), Poco::Net::HTTPMessage::HTTP_1_1);
-    request.setKeepAlive(false);
-
-    session->sendRequest(request);
-
-    Poco::Net::HTTPResponse response;
-    std::istream& responseStream = session->receiveResponse(response);
-
-    auto status = response.getStatus();
-
-    if (status == 301)
-    {
-        auto newURL = response.get("Location");
-        std::cout << "Moved permanently to " << newURL << "\n";
-        // TODO: limit amount of redirects
-        return performHTTPRequest(newURL, method);
-    }
-    else if (status == 302)
-    {
-        auto newURL = response.get("Location");
-        std::cout << "Moved temporarily to " << newURL << "\n";
-        // TODO: limit amount of redirects
-        return performHTTPRequest(newURL, method);
-    }
-
-    if (status < 200 || status > 299)
-    {
-        throw std::runtime_error(fmt::format("Fetching feed, status {} received", static_cast<uint32_t>(response.getStatus())));
-    }
-
-    std::string resultStr;
-    Poco::StreamCopier::copyToString(responseStream, resultStr);
-
-    return resultStr;
 }

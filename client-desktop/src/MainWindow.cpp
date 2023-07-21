@@ -23,17 +23,16 @@
 #include "AgentRefreshFeed.h"
 #include "AgentRemoveFeed.h"
 #include "AgentRemoveFolder.h"
-#include "Feed.h"
+#include "FeedLocal.h"
 #include "ItemDelegatePost.h"
 #include "ItemDelegateSource.h"
-#include "Post.h"
-#include "Source.h"
 #include "StandardItemModelSources.h"
 #include "Utilities.h"
 #include "WebEnginePagePost.h"
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
     mDatabase = std::make_unique<ZapFR::Engine::Database>(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader-client.db").toStdString());
     ZapFR::Engine::Source::registerDatabaseInstance(mDatabase.get());
     ZapFR::Engine::Feed::registerDatabaseInstance(mDatabase.get());
@@ -376,6 +375,18 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
             if (unreadCount >= 999)
             {
                 feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
+            }
+
+            feedItem->setData(QVariant(), SourceTreeEntryIcon);
+            auto iconData = feed->icon();
+            if (!iconData.empty())
+            {
+                QPixmap icon;
+                icon.loadFromData(QByteArray(iconData.c_str(), static_cast<int64_t>(iconData.length())));
+                if (!icon.isNull())
+                {
+                    feedItem->setData(QVariant::fromValue(icon), SourceTreeEntryIcon);
+                }
             }
             currentParent->appendRow(feedItem);
         }

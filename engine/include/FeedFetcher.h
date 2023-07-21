@@ -29,13 +29,10 @@ namespace ZapFR
         class FeedFetcher
         {
           public:
-            FeedFetcher();
+            FeedFetcher() = default;
             virtual ~FeedFetcher() = default;
 
             std::unique_ptr<FeedParser> parse(const std::string& url);
-
-          private:
-            std::string performHTTPRequest(const std::string& url, const std::string& method);
         };
     } // namespace Engine
 } // namespace ZapFR

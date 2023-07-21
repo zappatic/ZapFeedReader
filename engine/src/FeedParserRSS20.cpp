@@ -57,6 +57,11 @@ std::string ZapFR::Engine::FeedParserRSS20::copyright() const
     return fetchNodeValue("/channel/copyright");
 }
 
+std::string ZapFR::Engine::FeedParserRSS20::iconURL() const
+{
+    return fetchNodeValue("/channel/image/url");
+}
+
 std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::items() const
 {
     std::vector<Item> items;

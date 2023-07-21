@@ -19,8 +19,11 @@
 #include "FeedLocal.h"
 #include "Database.h"
 #include "FeedFetcher.h"
+#include "Helpers.h"
 
 using namespace Poco::Data::Keywords;
+
+std::string ZapFR::Engine::FeedLocal::msIconDir{""};
 
 ZapFR::Engine::FeedLocal::FeedLocal(uint64_t id) : Feed(id)
 {
@@ -196,6 +199,7 @@ void ZapFR::Engine::FeedLocal::refresh()
     FeedFetcher ff;
     auto parsedFeed = ff.parse(mURL);
     processItems(parsedFeed.get());
+    refreshIcon();
 }
 
 void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
@@ -272,4 +276,80 @@ void ZapFR::Engine::FeedLocal::markAsRead(uint64_t postID)
     Poco::Data::Statement updateStmt(*(msDatabase->session()));
     updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=? AND id=?", use(mID), use(postID), now;
     updateStmt.execute();
+}
+
+void ZapFR::Engine::FeedLocal::refreshIcon()
+{
+    fetchData();
+
+    // only check for new icons every week
+    Poco::DateTime lastFetched;
+    int32_t tzd;
+    if (Poco::DateTimeParser::tryParse(mIconLastFetched, lastFetched, tzd))
+    {
+        lastFetched.makeUTC(tzd);
+        Poco::DateTime now;
+        auto difference = now - lastFetched;
+        if (difference.totalHours() < (24 * 7))
+        {
+            return;
+        }
+    }
+
+    if (mIconURL.empty())
+    {
+        // todo : get url for favicon and continue
+        return;
+    }
+
+    try
+    {
+        auto iconData = Helpers::performHTTPRequest(mIconURL, "GET");
+        // todo: check max size
+        auto iconFile = Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
+        auto fos = Poco::FileOutputStream(iconFile.path());
+        fos << iconData;
+        fos.close();
+    }
+    catch (const Poco::Exception& e)
+    {
+        // todo: log complaint
+    }
+
+    // update icon last fetched time
+    {
+        Poco::Data::Statement updateStmt(*(msDatabase->session()));
+        updateStmt << "UPDATE feeds SET iconLastFetched=datetime('now') WHERE id=?", use(mID), now;
+        updateStmt.execute();
+    }
+}
+
+std::string ZapFR::Engine::FeedLocal::icon() const
+{
+    if (msIconDir.empty())
+    {
+        return "";
+    }
+
+    auto iconFile = Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
+    if (iconFile.exists())
+    {
+        auto fis = Poco::FileInputStream(iconFile.path());
+        std::string iconData;
+        Poco::StreamCopier::copyToString(fis, iconData);
+        fis.close();
+        return iconData;
+    }
+
+    return "";
+}
+
+void ZapFR::Engine::FeedLocal::setIconDir(const std::string& iconDir)
+{
+    msIconDir = iconDir;
+    auto d = Poco::File(msIconDir);
+    if (!d.exists())
+    {
+        d.createDirectories();
+    }
 }

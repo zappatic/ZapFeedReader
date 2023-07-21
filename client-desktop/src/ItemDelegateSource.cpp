@@ -36,7 +36,11 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         initDone = true;
     }
 
-    painter->setRenderHint(QPainter::Antialiasing);
+    // the area where the title is drawn
+    auto titleRect = option.rect;
+    titleRect.adjust(0, 0, -5 - unreadBadgeWidthWithMargin, 0);
+
+    painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
 
     // determine colors to use
     auto palette = qobject_cast<QWidget*>(parent())->palette();
@@ -61,10 +65,27 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         painter->fillRect(option.rect, brushBackground);
     }
 
+    // draw the icon
+    if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+    {
+        QPixmap iconPixmap;
+        auto iconVariant = index.data(SourceTreeEntryIcon);
+        if (!iconVariant.isNull() && iconVariant.isValid())
+        {
+            iconPixmap = iconVariant.value<QPixmap>();
+        }
+        if (iconPixmap.isNull())
+        {
+            iconPixmap = QPixmap(":/rss.png");
+        }
+        auto iconSize = option.rect.height() * .75;
+        auto iconTargetRect = QRectF(option.rect.left(), option.rect.top() + ((option.rect.height() - iconSize) / 2.0), iconSize, iconSize);
+        painter->drawPixmap(iconTargetRect, iconPixmap, iconPixmap.rect());
+        titleRect.adjust(static_cast<int32_t>(iconSize) + 9, 0, 0, 0);
+    }
+
     // draw the title
     auto title = index.data(Qt::DisplayRole).toString();
-    auto titleRect = option.rect;
-    titleRect.adjust(0, 0, -5 - unreadBadgeWidthWithMargin, 0);
     auto fm = QFontMetrics(painter->font());
     auto elidedTitle = fm.elidedText(title, Qt::ElideRight, titleRect.width());
     painter->setPen(QPen(brushText, 1.0));

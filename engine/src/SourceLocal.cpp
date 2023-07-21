@@ -34,6 +34,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
 
     uint64_t id;
     std::string url;
+    std::string iconURL;
+    std::string iconLastFetched;
     std::string folderHierarchy;
     std::string guid;
     std::string title;
@@ -48,6 +50,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
     selectStmt << "SELECT id"
                   ",url"
+                  ",iconURL"
+                  ",iconLastFetched"
                   ",folderHierarchy"
                   ",guid"
                   ",title"
@@ -60,8 +64,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
                   ",sortOrder"
                   " FROM feeds"
                   " ORDER BY sortOrder ASC",
-        into(id), into(url), into(folderHierarchy), into(guid), into(title), into(subtitle), into(link), into(description), into(language), into(copyright), into(lastChecked),
-        into(sortOrder), range(0, 1);
+        into(id), into(url), into(iconURL), into(iconLastFetched), into(folderHierarchy), into(guid), into(title), into(subtitle), into(link), into(description),
+        into(language), into(copyright), into(lastChecked), into(sortOrder), range(0, 1);
 
     while (!selectStmt.done())
     {
@@ -69,6 +73,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
         {
             auto f = std::make_unique<FeedLocal>(id);
             f->setURL(url);
+            f->setIconURL(iconURL);
+            f->setIconLastFetched(iconLastFetched);
             f->setFolderHierarchy(folderHierarchy);
             f->setGuid(guid);
             f->setTitle(title);
@@ -97,6 +103,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
 {
     uint64_t id{0};
     std::string url;
+    std::string iconURL;
+    std::string iconLastFetched;
     std::string folderHierarchy;
     std::string guid;
     std::string title;
@@ -111,6 +119,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
     selectStmt << "SELECT id"
                   ",url"
+                  ",iconURL"
+                  ",iconLastFetched"
                   ",folderHierarchy"
                   ",guid"
                   ",title"
@@ -123,14 +133,16 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
                   ",sortOrder"
                   " FROM feeds"
                   " WHERE id=?",
-        use(feedID), into(id), into(url), into(folderHierarchy), into(guid), into(title), into(subtitle), into(link), into(description), into(language), into(copyright),
-        into(lastChecked), into(sortOrder), now;
+        use(feedID), into(id), into(url), into(iconURL), into(iconLastFetched), into(folderHierarchy), into(guid), into(title), into(subtitle), into(link), into(description),
+        into(language), into(copyright), into(lastChecked), into(sortOrder), now;
 
     auto rs = Poco::Data::RecordSet(selectStmt);
     if (rs.rowCount() == 1)
     {
         auto f = std::make_unique<FeedLocal>(id);
         f->setURL(url);
+        f->setIconURL(iconURL);
+        f->setIconLastFetched(iconLastFetched);
         f->setFolderHierarchy(folderHierarchy);
         f->setGuid(guid);
         f->setTitle(title);
@@ -160,6 +172,7 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::stri
     auto description = parsedFeed->description();
     auto language = parsedFeed->language();
     auto copyright = parsedFeed->copyright();
+    auto iconURL = parsedFeed->iconURL();
     uint64_t feedID{0};
     auto sortOrder = getNextFeedSortOrder("");
 
@@ -168,6 +181,7 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::stri
         Poco::Data::Statement insertStmt(*(msDatabase->session()));
         insertStmt << "INSERT INTO feeds ("
                       " url"
+                      ",iconURL"
                       ",folderHierarchy"
                       ",guid"
                       ",title"
@@ -178,9 +192,9 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::stri
                       ",copyright"
                       ",sortOrder"
                       ",lastChecked"
-                      ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
-            useRef(url), useRef(folderHierarchy), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright),
-            use(sortOrder);
+                      ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+            useRef(url), useRef(iconURL), useRef(folderHierarchy), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language),
+            useRef(copyright), use(sortOrder);
         const std::lock_guard<std::mutex> lock(mInsertFeedMutex);
         insertStmt.execute();
         Poco::Data::Statement selectStmt(*(msDatabase->session()));

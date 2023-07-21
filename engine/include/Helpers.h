@@ -29,6 +29,7 @@ namespace ZapFR
         {
           public:
             static std::string joinString(const std::vector<std::string>& sourceVector, const char* delimiter);
+            static std::string performHTTPRequest(const std::string& url, const std::string& method);
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -43,11 +43,17 @@ namespace ZapFR
             std::string description() const noexcept { return mDescription; }
             std::string language() const noexcept { return mLanguage; }
             std::string copyright() const noexcept { return mCopyright; }
+            std::string iconURL() const noexcept { return mIconURL; }
+            virtual std::string icon() const { return mIcon; }
+            std::string iconLastFetched() const noexcept { return mIconLastFetched; }
             std::string lastChecked() const noexcept { return mLastChecked; }
             uint64_t sortOrder() const noexcept { return mSortOrder; }
             uint64_t unreadCount() const noexcept { return mUnreadCount; }
 
             void setURL(const std::string& url) { mURL = url; }
+            void setIconURL(const std::string& iconURL) { mIconURL = iconURL; }
+            void setIcon(const std::string& icon) { mIcon = icon; }
+            void setIconLastFetched(const std::string& iconLastFetched) { mIconLastFetched = iconLastFetched; }
             void setFolderHierarchy(const std::string& folderHierarchy) { mFolderHierarchy = folderHierarchy; }
             void setGuid(const std::string& guid) { mGuid = guid; }
             void setTitle(const std::string& title) { mTitle = title; }
@@ -64,6 +70,7 @@ namespace ZapFR
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
 
             virtual void refresh() = 0;
+            virtual void refreshIcon() = 0;
             virtual void markAllAsRead() = 0;
             virtual void markAsRead(uint64_t postID) = 0;
 
@@ -75,6 +82,9 @@ namespace ZapFR
           protected:
             uint64_t mID{0};
             std::string mURL{""};
+            std::string mIconURL{""};
+            std::string mIcon{""};
+            std::string mIconLastFetched{""};
             std::string mFolderHierarchy{""};
             std::string mGuid{""};
             std::string mTitle{""};

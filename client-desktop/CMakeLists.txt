@@ -39,6 +39,7 @@ set(PROJECT_SOURCES
         src/MainWindow.ui
         src/DialogAddFeed.ui
         src/DialogImportOPML.ui
+        resources/resources.qrc
         ${TS_FILES}
 )
 

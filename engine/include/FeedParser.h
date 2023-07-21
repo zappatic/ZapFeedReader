@@ -40,6 +40,7 @@ namespace ZapFR
             virtual std::string description() const = 0;
             virtual std::string language() const = 0;
             virtual std::string copyright() const = 0;
+            virtual std::string iconURL() const = 0;
 
             struct Item
             {
