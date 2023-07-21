@@ -16,27 +16,33 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentRefreshFeed.h"
-#include "Feed.h"
-#include "Source.h"
+#ifndef ZAPFR_ENGINE_AGENTMARKFEEDREAD_H
+#define ZAPFR_ENGINE_AGENTMARKFEEDREAD_H
 
-ZapFR::Engine::AgentRefreshFeed::AgentRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
-{
-}
+#include "AgentRunnable.h"
+#include "Global.h"
+#include "Post.h"
 
-void ZapFR::Engine::AgentRefreshFeed::run()
+namespace ZapFR
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
-    if (source.has_value())
+    namespace Engine
     {
-        auto feed = source.value()->getFeed(mFeedID);
-        if (feed.has_value())
-        {
-            feed.value()->refresh();
-            mFinishedCallback();
-        }
-    }
+        class Feed;
 
-    mIsDone = true;
-}
+        class AgentMarkFeedRead : public AgentRunnable
+        {
+          public:
+            explicit AgentMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
+            virtual ~AgentMarkFeedRead() = default;
+
+            void run() override;
+
+          private:
+            uint64_t mSourceID{0};
+            uint64_t mFeedID{0};
+            std::function<void()> mFinishedCallback{};
+        };
+    } // namespace Engine
+} // namespace ZapFR
+
+#endif // ZAPFR_ENGINE_AGENTMARKFEEDREAD_H

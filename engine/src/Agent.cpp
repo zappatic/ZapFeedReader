@@ -19,6 +19,7 @@
 #include "Agent.h"
 #include "AgentGetPost.h"
 #include "AgentGetPosts.h"
+#include "AgentMarkFeedRead.h"
 #include "AgentMarkPostRead.h"
 #include "AgentRefreshFeed.h"
 #include "AgentRemoveFeed.h"
@@ -41,7 +42,7 @@ ZapFR::Engine::Agent* ZapFR::Engine::Agent::getInstance()
     return &instance;
 }
 
-void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentRefreshFeed>(sourceID, feedID, finishedCallback));
 }
@@ -70,6 +71,11 @@ void ZapFR::Engine::Agent::queueGetPosts(uint64_t sourceID, uint64_t feedID, uin
 void ZapFR::Engine::Agent::queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkPostRead>(sourceID, feedID, postID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentMarkFeedRead>(sourceID, feedID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback)

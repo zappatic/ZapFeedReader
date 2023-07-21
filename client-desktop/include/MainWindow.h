@@ -64,6 +64,7 @@ namespace ZapFR
             void folderRemoved();
             void loadPosts(const QList<QList<QStandardItem*>>& posts);
             void postMarkedRead();
+            void feedMarkedRead();
             void setPostHTML(const QString& html);
 
           protected:

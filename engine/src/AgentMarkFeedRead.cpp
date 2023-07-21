@@ -16,16 +16,16 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentRefreshFeed.h"
+#include "AgentMarkFeedRead.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentRefreshFeed::AgentRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentMarkFeedRead::AgentMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentRefreshFeed::run()
+void ZapFR::Engine::AgentMarkFeedRead::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
@@ -33,7 +33,7 @@ void ZapFR::Engine::AgentRefreshFeed::run()
         auto feed = source.value()->getFeed(mFeedID);
         if (feed.has_value())
         {
-            feed.value()->refresh();
+            feed.value()->markAllAsRead();
             mFinishedCallback();
         }
     }

@@ -681,6 +681,11 @@ void ZapFR::Client::MainWindow::postMarkedRead()
     reloadSources(false);
 }
 
+void ZapFR::Client::MainWindow::feedMarkedRead()
+{
+    reloadSources();
+}
+
 void ZapFR::Client::MainWindow::createContextMenus()
 {
     // FEEDS
@@ -696,8 +701,7 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 {
                     auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
                     auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                    ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
-                        sourceID, feedID, [&](uint64_t /*sourceID*/, uint64_t /*feedID*/) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection); });
+                    ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection); });
                 }
             });
     mSourceContextMenuFeed->addAction(refreshAction);
@@ -712,18 +716,7 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 {
                     auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
                     auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-
-                    auto source = ZapFR::Engine::Source::getSource(sourceID);
-                    if (source.has_value())
-                    {
-                        auto feed = source.value()->getFeed(feedID);
-                        if (feed.has_value())
-                        {
-                            feed.value()->markAllAsRead();
-                            // TODO, this should reload the posts, so they can reflect read status
-                        }
-                    }
-                    reloadSources();
+                    ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
                 }
             });
     mSourceContextMenuFeed->addAction(markAllAsReadAction);
