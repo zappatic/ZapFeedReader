@@ -21,6 +21,7 @@
 #include "AgentGetPosts.h"
 #include "AgentMarkPostRead.h"
 #include "AgentRefreshFeed.h"
+#include "AgentRemoveFeed.h"
 #include "AgentRemoveFolder.h"
 #include "AgentSubscribeFeed.h"
 #include "Feed.h"
@@ -48,6 +49,11 @@ void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, 
 void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentSubscribeFeed>(sourceID, url, folderHierarchy, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentRemoveFeed>(sourceID, feedID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback)

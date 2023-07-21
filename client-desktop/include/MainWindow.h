@@ -60,6 +60,7 @@ namespace ZapFR
             void postLinkHovered(const QString& url);
             void feedRefreshed();
             void feedAdded();
+            void feedRemoved();
             void folderRemoved();
             void loadPosts(const QList<QList<QStandardItem*>>& posts);
             void postMarkedRead();

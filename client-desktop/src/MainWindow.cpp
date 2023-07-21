@@ -21,6 +21,7 @@
 #include "Agent.h"
 #include "AgentGetPosts.h"
 #include "AgentRefreshFeed.h"
+#include "AgentRemoveFeed.h"
 #include "AgentRemoveFolder.h"
 #include "Feed.h"
 #include "ItemDelegatePost.h"
@@ -664,6 +665,12 @@ void ZapFR::Client::MainWindow::feedAdded()
     reloadSources(false);
 }
 
+void ZapFR::Client::MainWindow::feedRemoved()
+{
+    reloadSources();
+    loadPosts({});
+}
+
 void ZapFR::Client::MainWindow::folderRemoved()
 {
     reloadSources(false);
@@ -747,14 +754,7 @@ void ZapFR::Client::MainWindow::createContextMenus()
                     {
                         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
                         auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-
-                        auto source = ZapFR::Engine::Source::getSource(sourceID);
-                        if (source.has_value())
-                        {
-                            source.value()->removeFeed(feedID);
-                        }
-                        reloadSources();
-                        loadPosts({});
+                        ZapFR::Engine::Agent::getInstance()->queueRemoveFeed(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedRemoved", Qt::AutoConnection); });
                     }
                 }
             });
