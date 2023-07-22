@@ -162,6 +162,12 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
 
 void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::string& folderHierarchy)
 {
+    auto sanitizedFolderHierarchy = folderHierarchy;
+    if (sanitizedFolderHierarchy.starts_with("/"))
+    {
+        sanitizedFolderHierarchy = sanitizedFolderHierarchy.substr(1);
+    }
+
     FeedFetcher ff;
     auto parsedFeed = ff.parse(url);
 
@@ -193,7 +199,7 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::stri
                       ",sortOrder"
                       ",lastChecked"
                       ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
-            useRef(url), useRef(iconURL), useRef(folderHierarchy), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language),
+            useRef(url), useRef(iconURL), useRef(sanitizedFolderHierarchy), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language),
             useRef(copyright), use(sortOrder);
         const std::lock_guard<std::mutex> lock(mInsertFeedMutex);
         insertStmt.execute();
@@ -255,6 +261,7 @@ void ZapFR::Engine::SourceLocal::removeFeed(uint64_t feedID)
     if (feed.has_value())
     {
         auto folderHierarchy = feed.value()->folderHierarchy();
+        feed.value()->removeIcon();
 
         {
             Poco::Data::Statement deleteStmt(*(msDatabase->session()));
@@ -276,7 +283,6 @@ void ZapFR::Engine::SourceLocal::removeFolder(const std::string& folderHierarchy
     std::vector<std::string> affectedFeedIDs;
     {
         auto sql = Poco::format("SELECT id FROM feeds WHERE folderHierarchy LIKE '%s'", Poco::replace(folderHierarchy, "'", "''"));
-
         uint64_t feedID{0};
         Poco::Data::Statement selectStmt(*(msDatabase->session()));
         selectStmt << sql, into(feedID), range(0, 1);
@@ -285,9 +291,13 @@ void ZapFR::Engine::SourceLocal::removeFolder(const std::string& folderHierarchy
             if (selectStmt.execute() > 0)
             {
                 affectedFeedIDs.emplace_back(std::to_string(feedID));
+
+                auto feed = FeedLocal(feedID);
+                feed.removeIcon();
             }
         }
     }
+
     if (affectedFeedIDs.size() > 0)
     {
         auto feedIDs = Helpers::joinString(affectedFeedIDs, ",");

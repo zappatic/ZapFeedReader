@@ -39,9 +39,10 @@ namespace ZapFR
             std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
             bool fetchData() override;
             void refresh() override;
-            void refreshIcon() override;
             void markAllAsRead() override;
             void markAsRead(uint64_t postID) override;
+            void refreshIcon() override;
+            void removeIcon() override;
 
             std::string icon() const override;
 
@@ -51,6 +52,8 @@ namespace ZapFR
 
           private:
             static std::string msIconDir;
+
+            Poco::File iconFile() const;
         };
     } // namespace Engine
 } // namespace ZapFR

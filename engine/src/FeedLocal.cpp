@@ -306,8 +306,8 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
     {
         auto iconData = Helpers::performHTTPRequest(mIconURL, "GET");
         // todo: check max size
-        auto iconFile = Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
-        auto fos = Poco::FileOutputStream(iconFile.path());
+        auto i = iconFile();
+        auto fos = Poco::FileOutputStream(i.path());
         fos << iconData;
         fos.close();
     }
@@ -324,6 +324,15 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
     }
 }
 
+void ZapFR::Engine::FeedLocal::removeIcon()
+{
+    auto i = iconFile();
+    if (i.exists())
+    {
+        i.remove();
+    }
+}
+
 std::string ZapFR::Engine::FeedLocal::icon() const
 {
     if (msIconDir.empty())
@@ -331,10 +340,10 @@ std::string ZapFR::Engine::FeedLocal::icon() const
         return "";
     }
 
-    auto iconFile = Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
-    if (iconFile.exists())
+    auto i = iconFile();
+    if (i.exists())
     {
-        auto fis = Poco::FileInputStream(iconFile.path());
+        auto fis = Poco::FileInputStream(i.path());
         std::string iconData;
         Poco::StreamCopier::copyToString(fis, iconData);
         fis.close();
@@ -352,4 +361,14 @@ void ZapFR::Engine::FeedLocal::setIconDir(const std::string& iconDir)
     {
         d.createDirectories();
     }
+}
+
+Poco::File ZapFR::Engine::FeedLocal::iconFile() const
+{
+    if (msIconDir.empty())
+    {
+        return {};
+    }
+
+    return Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
 }
