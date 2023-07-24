@@ -42,12 +42,15 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
+    connect(ui->action_Mark_feed_as_read, &QAction::triggered, this, &MainWindow::markFeedAsRead);
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
     connect(ui->tableViewPosts, &TableViewPosts::currentPostChanged, this, &MainWindow::postsTableViewItemSelected);
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
     fixPalette();
+    setupToolbarIcons();
+    setupToolbarEnabledStates();
     reloadSources();
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
     ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
@@ -74,6 +77,7 @@ void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
 void ZapFR::Client::MainWindow::colorSchemeChanged(Qt::ColorScheme /*scheme*/)
 {
     reloadCurrentPost();
+    setupToolbarIcons();
 }
 
 void ZapFR::Client::MainWindow::saveSettings() const
@@ -490,7 +494,6 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
 {
     if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
     {
-
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
         auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueGetPosts(sourceID, feedID, 100, 1,
@@ -521,6 +524,7 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
                                                                QMetaObject::invokeMethod(this, "loadPosts", Qt::AutoConnection, rows);
                                                            });
     }
+    setupToolbarEnabledStates();
 }
 
 void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& posts)
@@ -697,6 +701,55 @@ void ZapFR::Client::MainWindow::feedMarkedRead()
     reloadSources();
 }
 
+void ZapFR::Client::MainWindow::setupToolbarIcons()
+{
+    auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
+    if (currentColorScheme == Qt::ColorScheme::Dark)
+    {
+        auto icon = QIcon();
+        icon.addPixmap(QPixmap(":/markAsReadDark.svg"), QIcon::Normal, QIcon::On);
+        icon.addPixmap(QPixmap(":/markAsReadDarkDisabled.svg"), QIcon::Disabled, QIcon::On);
+        ui->action_Mark_feed_as_read->setIcon(icon);
+
+        ui->toolBar->setStyleSheet("QToolBar { border-bottom-style: none; }\n"
+                                   "QToolButton:disabled { color:#555; }\n");
+    }
+    else
+    {
+        auto icon = QIcon();
+        icon.addPixmap(QPixmap(":/markAsReadLight.svg"), QIcon::Normal, QIcon::On);
+        icon.addPixmap(QPixmap(":/markAsReadLightDisabled.svg"), QIcon::Disabled, QIcon::On);
+        ui->action_Mark_feed_as_read->setIcon(icon);
+
+        ui->toolBar->setStyleSheet("QToolBar { border-bottom-style: none; }\n"
+                                   "QToolButton:disabled { color:#aaa; }\n");
+    }
+}
+
+void ZapFR::Client::MainWindow::setupToolbarEnabledStates()
+{
+    bool feedSelected{false};
+
+    auto index = ui->treeViewSources->currentIndex();
+    if (index.isValid())
+    {
+        feedSelected = (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED);
+    }
+
+    ui->action_Mark_feed_as_read->setEnabled(feedSelected);
+}
+
+void ZapFR::Client::MainWindow::markFeedAsRead()
+{
+    auto index = ui->treeViewSources->currentIndex();
+    if (index.isValid())
+    {
+        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+    }
+}
+
 void ZapFR::Client::MainWindow::createContextMenus()
 {
     // FEEDS
@@ -719,17 +772,7 @@ void ZapFR::Client::MainWindow::createContextMenus()
 
     // Feed - Mark all as read
     auto markAllAsReadAction = new QAction(tr("&Mark all as read"), this);
-    connect(markAllAsReadAction, &QAction::triggered,
-            [&]()
-            {
-                auto index = ui->treeViewSources->currentIndex();
-                if (index.isValid())
-                {
-                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                    auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                    ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
-                }
-            });
+    connect(markAllAsReadAction, &QAction::triggered, this, &MainWindow::markFeedAsRead);
     mSourceContextMenuFeed->addAction(markAllAsReadAction);
 
     mSourceContextMenuFeed->addSeparator();

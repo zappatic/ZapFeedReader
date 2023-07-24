@@ -2,5 +2,9 @@
 <RCC version="1.0">
     <qresource>
         <file>rss.png</file>
+        <file>markAsReadDark.svg</file>
+        <file>markAsReadDarkDisabled.svg</file>
+        <file>markAsReadLight.svg</file>
+        <file>markAsReadLightDisabled.svg</file>
     </qresource>
 </RCC>

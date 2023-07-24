@@ -66,6 +66,7 @@ namespace ZapFR
             void postMarkedRead();
             void feedMarkedRead();
             void setPostHTML(const QString& html);
+            void markFeedAsRead();
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -98,6 +99,8 @@ namespace ZapFR
             void reloadCurrentPost();
             QString postStyles() const;
             void createContextMenus();
+            void setupToolbarIcons();
+            void setupToolbarEnabledStates();
         };
     } // namespace Client
 } // namespace ZapFR
