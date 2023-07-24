@@ -21,6 +21,7 @@
 
 #include <Poco/DOM/DOMParser.h>
 #include <Poco/DOM/Document.h>
+#include <Poco/DOM/NamedNodeMap.h>
 #include <Poco/DOM/NodeList.h>
 #include <Poco/Data/RecordSet.h>
 #include <Poco/Data/SQLite/Connector.h>
@@ -36,9 +37,12 @@
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/RegularExpression.h>
 #include <Poco/Runnable.h>
 #include <Poco/SAX/Attributes.h>
 #include <Poco/SAX/ContentHandler.h>
+#include <Poco/SAX/ErrorHandler.h>
+#include <Poco/SAX/SAXException.h>
 #include <Poco/SAX/SAXParser.h>
 #include <Poco/StreamCopier.h>
 #include <Poco/ThreadPool.h>

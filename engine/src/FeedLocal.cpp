@@ -18,6 +18,7 @@
 
 #include "FeedLocal.h"
 #include "Database.h"
+#include "FavIconParser.h"
 #include "FeedFetcher.h"
 #include "Helpers.h"
 
@@ -296,24 +297,46 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
         }
     }
 
-    if (mIconURL.empty())
-    {
-        // todo : get url for favicon and continue
-        return;
-    }
-
+    std::string iconData;
     try
     {
-        auto iconData = Helpers::performHTTPRequest(mIconURL, "GET");
-        // todo: check max size
-        auto i = iconFile();
-        auto fos = Poco::FileOutputStream(i.path());
-        fos << iconData;
-        fos.close();
+        if (mIconURL.empty())
+        {
+            auto link = mLink;
+            // in case no link is provided in the feed details, try a favicon located on the index page of the domain that hosts the feed itself
+            if (link.empty())
+            {
+                auto indexPage = Poco::URI(mURL);
+                indexPage.setPath("/");
+                link = indexPage.toString();
+            }
+            auto p = FavIconParser(link);
+            auto favIconURL = p.favIcon();
+            if (!favIconURL.empty())
+            {
+                iconData = Helpers::performHTTPRequest(favIconURL, "GET");
+            }
+        }
+        else
+        {
+            iconData = Helpers::performHTTPRequest(mIconURL, "GET");
+        }
     }
     catch (const Poco::Exception& e)
     {
         // todo: log complaint
+    }
+    catch (const std::runtime_error& e)
+    {
+        // todo: log complaint
+    }
+
+    if (!iconData.empty())
+    {
+        auto i = iconFile();
+        auto fos = Poco::FileOutputStream(i.path());
+        fos << iconData;
+        fos.close();
     }
 
     // update icon last fetched time

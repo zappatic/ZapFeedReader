@@ -64,8 +64,14 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, c
         throw std::runtime_error("Unknown scheme in URL");
     }
 
+    auto path = uri.getPathAndQuery();
+    if (path.empty())
+    {
+        path = "/";
+    }
+
     session->setTimeout(Poco::Timespan(10, 0));
-    Poco::Net::HTTPRequest request(method, uri.getPathAndQuery(), Poco::Net::HTTPMessage::HTTP_1_1);
+    Poco::Net::HTTPRequest request(method, path, Poco::Net::HTTPMessage::HTTP_1_1);
     request.setKeepAlive(false);
 
     session->sendRequest(request);

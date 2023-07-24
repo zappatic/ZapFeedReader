@@ -51,4 +51,5 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/FeedLocal.cpp
     ../engine/src/Post.cpp
     ../engine/src/OPMLParser.cpp
+    ../engine/src/FavIconParser.cpp
 )

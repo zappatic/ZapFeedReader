@@ -108,6 +108,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/FeedLocal.cpp
                                 ../engine/src/Post.cpp
                                 ../engine/src/OPMLParser.cpp
+                                ../engine/src/FavIconParser.cpp
 )
 
 install(TARGETS zapfeedreader-client
