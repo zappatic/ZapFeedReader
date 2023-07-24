@@ -43,16 +43,30 @@ ZapFR::Client::DialogAddFeed::~DialogAddFeed()
     delete ui;
 }
 
-void ZapFR::Client::DialogAddFeed::reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources)
+void ZapFR::Client::DialogAddFeed::reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources, uint64_t selectedSourceID, const QString& folderHierarchy)
 {
     ui->lineEditURL->setText("");
+    ui->lineEditAddToFolder->setText(folderHierarchy);
 
     mSourcesModel->clear();
+    int32_t toSelect{-1};
+    int32_t counter{0};
     for (const auto& source : sources)
     {
         auto item = new QStandardItem(QString::fromUtf8(source->title()));
-        item->setData(QVariant::fromValue<uint64_t>(source->id()), SourceIDRole);
+        auto sourceID = source->id();
+        item->setData(QVariant::fromValue<uint64_t>(sourceID), SourceIDRole);
+        if (sourceID == selectedSourceID)
+        {
+            toSelect = counter;
+        }
         mSourcesModel->appendRow(item);
+        counter++;
+    }
+
+    if (toSelect != -1)
+    {
+        ui->comboBoxSource->setCurrentIndex(toSelect);
     }
 }
 

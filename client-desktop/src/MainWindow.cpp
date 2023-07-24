@@ -264,8 +264,23 @@ void ZapFR::Client::MainWindow::addFeed()
                 });
     }
 
+    // if we have a folder or feed selected, use the same folderHierarchy
+    // also use the currently selected source
+    uint64_t sourceID{0};
+    QString folderHierarchy;
+    auto currentIndex = ui->treeViewSources->currentIndex();
+    if (currentIndex.isValid())
+    {
+        sourceID = currentIndex.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto type = currentIndex.data(SourceTreeEntryTypeRole);
+        if (type == SOURCETREE_ENTRY_TYPE_FOLDER || type == SOURCETREE_ENTRY_TYPE_FEED)
+        {
+            folderHierarchy = getFolderHierarchy(mItemModelSources->itemFromIndex(currentIndex));
+        }
+    }
+
     auto sources = ZapFR::Engine::Source::getSources({});
-    mDialogAddFeed->reset(sources);
+    mDialogAddFeed->reset(sources, sourceID, folderHierarchy);
     mDialogAddFeed->open();
 }
 
@@ -478,10 +493,22 @@ QString ZapFR::Client::MainWindow::getFolderHierarchy(QStandardItem* parent) con
     std::function<void(QStandardItem*, QStringList&)> getFolderHierarchy;
     getFolderHierarchy = [&](QStandardItem* item, QStringList& subfolders)
     {
-        if (item->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+        auto role = item->data(SourceTreeEntryTypeRole);
+        switch (role.toUInt())
         {
-            subfolders.insert(0, item->data(Qt::DisplayRole).toString());
-            getFolderHierarchy(item->parent(), subfolders);
+            case SOURCETREE_ENTRY_TYPE_FEED:
+            {
+                getFolderHierarchy(item->parent(), subfolders);
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            {
+                subfolders.insert(0, item->data(Qt::DisplayRole).toString());
+                getFolderHierarchy(item->parent(), subfolders);
+                break;
+            }
+            default:
+                break;
         }
     };
 
@@ -706,20 +733,30 @@ void ZapFR::Client::MainWindow::setupToolbarIcons()
     auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
     if (currentColorScheme == Qt::ColorScheme::Dark)
     {
-        auto icon = QIcon();
-        icon.addPixmap(QPixmap(":/markAsReadDark.svg"), QIcon::Normal, QIcon::On);
-        icon.addPixmap(QPixmap(":/markAsReadDarkDisabled.svg"), QIcon::Disabled, QIcon::On);
-        ui->action_Mark_feed_as_read->setIcon(icon);
+        auto markAsReadIcon = QIcon();
+        markAsReadIcon.addPixmap(QPixmap(":/markAsReadDark.svg"), QIcon::Normal, QIcon::On);
+        markAsReadIcon.addPixmap(QPixmap(":/markAsReadDarkDisabled.svg"), QIcon::Disabled, QIcon::On);
+        ui->action_Mark_feed_as_read->setIcon(markAsReadIcon);
+
+        auto addFeedIcon = QIcon();
+        addFeedIcon.addPixmap(QPixmap(":/addFeedDark.svg"), QIcon::Normal, QIcon::On);
+        addFeedIcon.addPixmap(QPixmap(":/addFeedDarkDisabled.svg"), QIcon::Disabled, QIcon::On);
+        ui->action_Add_feed->setIcon(addFeedIcon);
 
         ui->toolBar->setStyleSheet("QToolBar { border-bottom-style: none; }\n"
                                    "QToolButton:disabled { color:#555; }\n");
     }
     else
     {
-        auto icon = QIcon();
-        icon.addPixmap(QPixmap(":/markAsReadLight.svg"), QIcon::Normal, QIcon::On);
-        icon.addPixmap(QPixmap(":/markAsReadLightDisabled.svg"), QIcon::Disabled, QIcon::On);
-        ui->action_Mark_feed_as_read->setIcon(icon);
+        auto markAsReadIcon = QIcon();
+        markAsReadIcon.addPixmap(QPixmap(":/markAsReadLight.svg"), QIcon::Normal, QIcon::On);
+        markAsReadIcon.addPixmap(QPixmap(":/markAsReadLightDisabled.svg"), QIcon::Disabled, QIcon::On);
+        ui->action_Mark_feed_as_read->setIcon(markAsReadIcon);
+
+        auto addFeedIcon = QIcon();
+        addFeedIcon.addPixmap(QPixmap(":/addFeedLight.svg"), QIcon::Normal, QIcon::On);
+        addFeedIcon.addPixmap(QPixmap(":/addFeedLightDisabled.svg"), QIcon::Disabled, QIcon::On);
+        ui->action_Add_feed->setIcon(addFeedIcon);
 
         ui->toolBar->setStyleSheet("QToolBar { border-bottom-style: none; }\n"
                                    "QToolButton:disabled { color:#aaa; }\n");
@@ -728,15 +765,18 @@ void ZapFR::Client::MainWindow::setupToolbarIcons()
 
 void ZapFR::Client::MainWindow::setupToolbarEnabledStates()
 {
+    bool anythingSelected{false};
     bool feedSelected{false};
 
     auto index = ui->treeViewSources->currentIndex();
     if (index.isValid())
     {
+        anythingSelected = true;
         feedSelected = (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED);
     }
 
     ui->action_Mark_feed_as_read->setEnabled(feedSelected);
+    ui->action_Add_feed->setEnabled(anythingSelected);
 }
 
 void ZapFR::Client::MainWindow::markFeedAsRead()

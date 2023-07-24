@@ -39,7 +39,7 @@ namespace ZapFR
             explicit DialogAddFeed(QWidget* parent = nullptr);
             ~DialogAddFeed();
 
-            void reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources);
+            void reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources, uint64_t selectedSourceID, const QString& folderHierarchy);
 
             QString url() const;
             uint64_t sourceID() const;

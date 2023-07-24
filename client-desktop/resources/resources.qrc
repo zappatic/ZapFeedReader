@@ -6,5 +6,9 @@
         <file>markAsReadDarkDisabled.svg</file>
         <file>markAsReadLight.svg</file>
         <file>markAsReadLightDisabled.svg</file>
+        <file>addFeedDark.svg</file>
+        <file>addFeedDarkDisabled.svg</file>
+        <file>addFeedLight.svg</file>
+        <file>addFeedLightDisabled.svg</file>
     </qresource>
 </RCC>
