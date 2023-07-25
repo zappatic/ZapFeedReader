@@ -21,7 +21,8 @@
 namespace
 {
     static Poco::Net::Context::Ptr gsSSLContext{nullptr};
-}
+    static std::mutex gsSSLContextMutex{};
+} // namespace
 
 std::string ZapFR::Engine::Helpers::joinString(const std::vector<std::string>& sourceVector, const char* delimiter)
 {
@@ -41,9 +42,12 @@ std::string ZapFR::Engine::Helpers::joinString(const std::vector<std::string>& s
 
 std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, const std::string& method)
 {
-    if (gsSSLContext == nullptr)
     {
-        gsSSLContext = new Poco::Net::Context(Poco::Net::Context::TLS_CLIENT_USE, "", Poco::Net::Context::VERIFY_NONE);
+        std::lock_guard<std::mutex> lock(gsSSLContextMutex);
+        if (gsSSLContext == nullptr)
+        {
+            gsSSLContext = new Poco::Net::Context(Poco::Net::Context::TLS_CLIENT_USE, "", Poco::Net::Context::VERIFY_NONE);
+        }
     }
 
     Poco::URI uri(url);

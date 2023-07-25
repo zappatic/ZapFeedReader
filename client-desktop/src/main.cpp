@@ -21,6 +21,9 @@
 
 int main(int argc, char* argv[])
 {
+    Poco::Net::initializeSSL();
+    Poco::Net::initializeNetwork();
+
     QApplication a(argc, argv);
 
     QTranslator translator;
@@ -36,5 +39,10 @@ int main(int argc, char* argv[])
     }
     ZapFR::Client::MainWindow w;
     w.show();
-    return a.exec();
+    auto returnValue = a.exec();
+
+    Poco::Net::uninitializeSSL();
+    Poco::Net::uninitializeNetwork();
+
+    return returnValue;
 }

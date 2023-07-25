@@ -175,6 +175,7 @@
    </attribute>
    <addaction name="action_Add_feed"/>
    <addaction name="action_Mark_feed_as_read"/>
+   <addaction name="action_Refresh_all_feeds"/>
   </widget>
   <action name="action_Add_source">
    <property name="text">
@@ -197,6 +198,14 @@
    </property>
    <property name="toolTip">
     <string>Mark feed as read</string>
+   </property>
+  </action>
+  <action name="action_Refresh_all_feeds">
+   <property name="text">
+    <string>Refresh all feeds</string>
+   </property>
+   <property name="toolTip">
+    <string>Refresh all feeds</string>
    </property>
   </action>
  </widget>

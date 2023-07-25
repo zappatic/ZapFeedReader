@@ -67,6 +67,7 @@ namespace ZapFR
             void feedMarkedRead();
             void setPostHTML(const QString& html);
             void markFeedAsRead();
+            void refreshAllFeeds();
 
           protected:
             void closeEvent(QCloseEvent* event) override;

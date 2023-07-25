@@ -43,6 +43,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
     connect(ui->action_Mark_feed_as_read, &QAction::triggered, this, &MainWindow::markFeedAsRead);
+    connect(ui->action_Refresh_all_feeds, &QAction::triggered, this, &MainWindow::refreshAllFeeds);
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
     connect(ui->tableViewPosts, &TableViewPosts::currentPostChanged, this, &MainWindow::postsTableViewItemSelected);
@@ -730,37 +731,50 @@ void ZapFR::Client::MainWindow::feedMarkedRead()
 
 void ZapFR::Client::MainWindow::setupToolbarIcons()
 {
+    // the defaults are for the light theme
+    auto color = QString("#000");
+    auto colorDisabled = QString("#aaa");
     auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
     if (currentColorScheme == Qt::ColorScheme::Dark)
     {
-        auto markAsReadIcon = QIcon();
-        markAsReadIcon.addPixmap(QPixmap(":/markAsReadDark.svg"), QIcon::Normal, QIcon::On);
-        markAsReadIcon.addPixmap(QPixmap(":/markAsReadDarkDisabled.svg"), QIcon::Disabled, QIcon::On);
-        ui->action_Mark_feed_as_read->setIcon(markAsReadIcon);
-
-        auto addFeedIcon = QIcon();
-        addFeedIcon.addPixmap(QPixmap(":/addFeedDark.svg"), QIcon::Normal, QIcon::On);
-        addFeedIcon.addPixmap(QPixmap(":/addFeedDarkDisabled.svg"), QIcon::Disabled, QIcon::On);
-        ui->action_Add_feed->setIcon(addFeedIcon);
-
-        ui->toolBar->setStyleSheet("QToolBar { border-bottom-style: none; }\n"
-                                   "QToolButton:disabled { color:#555; }\n");
+        color = "#fff";
+        colorDisabled = "#555";
     }
-    else
+
+    std::function<void(const QString&, QAction*)> installIcon;
+    installIcon = [&](const QString& svgResource, QAction* action)
     {
-        auto markAsReadIcon = QIcon();
-        markAsReadIcon.addPixmap(QPixmap(":/markAsReadLight.svg"), QIcon::Normal, QIcon::On);
-        markAsReadIcon.addPixmap(QPixmap(":/markAsReadLightDisabled.svg"), QIcon::Disabled, QIcon::On);
-        ui->action_Mark_feed_as_read->setIcon(markAsReadIcon);
+        auto svgFile = QFile(svgResource);
+        svgFile.open(QIODeviceBase::ReadOnly);
+        auto svgContents = QString(svgFile.readAll());
+        svgFile.close();
 
-        auto addFeedIcon = QIcon();
-        addFeedIcon.addPixmap(QPixmap(":/addFeedLight.svg"), QIcon::Normal, QIcon::On);
-        addFeedIcon.addPixmap(QPixmap(":/addFeedLightDisabled.svg"), QIcon::Disabled, QIcon::On);
-        ui->action_Add_feed->setIcon(addFeedIcon);
+        auto icon = QIcon();
 
-        ui->toolBar->setStyleSheet("QToolBar { border-bottom-style: none; }\n"
-                                   "QToolButton:disabled { color:#aaa; }\n");
-    }
+        // Icon Normal On
+        QImage normalOn;
+        auto svg = svgContents;
+        svg.replace("{#color}", color);
+        normalOn.loadFromData(svg.toUtf8());
+        icon.addPixmap(QPixmap::fromImage(normalOn), QIcon::Normal, QIcon::On);
+
+        // Icon Disabled On
+        QImage disabledOn;
+        svg = svgContents;
+        svg.replace("{#color}", colorDisabled);
+        disabledOn.loadFromData(svg.toUtf8());
+        icon.addPixmap(QPixmap::fromImage(disabledOn), QIcon::Disabled, QIcon::On);
+
+        action->setIcon(icon);
+    };
+
+    installIcon(":/refreshFeed.svg", ui->action_Refresh_all_feeds);
+    installIcon(":/markAsRead.svg", ui->action_Mark_feed_as_read);
+    installIcon(":/addFeed.svg", ui->action_Add_feed);
+
+    ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
+                                       "QToolButton:disabled { color:%1; }\n")
+                                   .arg(colorDisabled));
 }
 
 void ZapFR::Client::MainWindow::setupToolbarEnabledStates()
@@ -788,6 +802,11 @@ void ZapFR::Client::MainWindow::markFeedAsRead()
         auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
     }
+}
+
+void ZapFR::Client::MainWindow::refreshAllFeeds()
+{
+    ZapFR::Engine::Agent::getInstance()->queueRefreshAllFeeds([&]() { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection); });
 }
 
 void ZapFR::Client::MainWindow::createContextMenus()

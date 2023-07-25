@@ -33,7 +33,19 @@ void ZapFR::Engine::AgentRefreshFeed::run()
         auto feed = source.value()->getFeed(mFeedID);
         if (feed.has_value())
         {
-            feed.value()->refresh();
+            try
+            {
+                feed.value()->refresh();
+            }
+            catch (const Poco::Exception& e)
+            {
+                // TODO: log this
+                std::cerr << e.what() << "\n" << e.displayText() << "\n";
+            }
+            catch (const std::runtime_error& e)
+            {
+                std::cerr << e.what() << "\n";
+            }
             mFinishedCallback();
         }
     }

@@ -2,13 +2,8 @@
 <RCC version="1.0">
     <qresource>
         <file>rss.png</file>
-        <file>markAsReadDark.svg</file>
-        <file>markAsReadDarkDisabled.svg</file>
-        <file>markAsReadLight.svg</file>
-        <file>markAsReadLightDisabled.svg</file>
-        <file>addFeedDark.svg</file>
-        <file>addFeedDarkDisabled.svg</file>
-        <file>addFeedLight.svg</file>
-        <file>addFeedLightDisabled.svg</file>
+        <file>markAsRead.svg</file>
+        <file>addFeed.svg</file>
+        <file>refreshFeed.svg</file>
     </qresource>
 </RCC>

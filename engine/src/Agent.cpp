@@ -27,6 +27,7 @@
 #include "AgentSubscribeFeed.h"
 #include "Feed.h"
 #include "Post.h"
+#include "Source.h"
 
 ZapFR::Engine::Agent::Agent()
 {
@@ -45,6 +46,19 @@ ZapFR::Engine::Agent* ZapFR::Engine::Agent::getInstance()
 void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentRefreshFeed>(sourceID, feedID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueRefreshAllFeeds(std::function<void()> finishedCallback)
+{
+    auto sources = ZapFR::Engine::Source::getSources({});
+    for (const auto& source : sources)
+    {
+        auto feeds = source->getFeeds();
+        for (const auto& feed : feeds)
+        {
+            enqueue(std::make_unique<AgentRefreshFeed>(source->id(), feed->id(), finishedCallback));
+        }
+    }
 }
 
 void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback)
