@@ -50,14 +50,21 @@ namespace ZapFR
             void reloadSources(bool performClickOnSelection = true);
 
           private slots:
+            // actions
             void addSource();
             void addFeed();
             void importOPML();
+            void markFeedAsRead();
+            void refreshAllFeeds();
+
+            // events
             void sourceTreeViewItemSelected(const QModelIndex& index);
             void postsTableViewItemSelected(const QModelIndex& index);
             void colorSchemeChanged(Qt::ColorScheme scheme);
             void sourceTreeViewContextMenuRequested(const QPoint& p);
             void postLinkHovered(const QString& url);
+
+            // callbacks
             void feedRefreshed();
             void feedAdded();
             void feedRemoved();
@@ -66,8 +73,6 @@ namespace ZapFR
             void postMarkedRead();
             void feedMarkedRead();
             void setPostHTML(const QString& html);
-            void markFeedAsRead();
-            void refreshAllFeeds();
 
           protected:
             void closeEvent(QCloseEvent* event) override;

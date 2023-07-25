@@ -426,7 +426,7 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
                 ui->treeViewSources->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
                 if (performClickOnSelection)
                 {
-                    sourceTreeViewItemSelected(indexToSelect);
+                    ui->treeViewSources->setCurrentIndex(indexToSelect);
                 }
                 return;
             }
