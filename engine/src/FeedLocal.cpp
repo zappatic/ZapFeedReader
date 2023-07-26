@@ -171,7 +171,7 @@ bool ZapFR::Engine::FeedLocal::fetchData()
     {
         Poco::Data::Statement selectStmt(*(msDatabase->session()));
         selectStmt << "SELECT url"
-                      ",folderHierarchy"
+                      ",folder"
                       ",guid"
                       ",title"
                       ",subtitle"
@@ -183,7 +183,7 @@ bool ZapFR::Engine::FeedLocal::fetchData()
                       ",sortOrder"
                       " FROM feeds"
                       " WHERE id=?",
-            use(mID), into(mURL), into(mFolderHierarchy), into(mGuid), into(mTitle), into(mSubtitle), into(mLink), into(mDescription), into(mLanguage), into(mCopyright),
+            use(mID), into(mURL), into(mFolderID), into(mGuid), into(mTitle), into(mSubtitle), into(mLink), into(mDescription), into(mLanguage), into(mCopyright),
             into(mLastChecked), into(mSortOrder), now;
 
         mDataFetched = true;

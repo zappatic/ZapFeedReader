@@ -63,23 +63,10 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
     }
 
     uint64_t newSortOrder = static_cast<uint64_t>(std::max(0, (row * 10) + 5));
-    auto newFolderHierarchy = QString("");
+    uint64_t newFolder{0};
     if (parent.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
     {
-        // build the tree of subfolders all the way to the parent
-        auto cur = parent;
-        QStringList subfolders;
-        while (true)
-        {
-            subfolders << cur.data(Qt::DisplayRole).toString();
-            cur = cur.parent();
-            if (!cur.isValid() || cur.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
-            {
-                break;
-            }
-        }
-        std::reverse(subfolders.begin(), subfolders.end());
-        newFolderHierarchy = subfolders.join("/");
+        newFolder = parent.data(SourceTreeEntryIDRole).toULongLong();
     }
 
     // perform the move
@@ -88,7 +75,7 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
     {
         return false;
     }
-    source.value()->moveFeed(childID, newFolderHierarchy.toStdString(), newSortOrder);
+    source.value()->moveFeed(childID, newFolder, newSortOrder);
     QTimer::singleShot(100, [&]() { mMainWindow->reloadSources(); });
     return true;
 }

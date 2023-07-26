@@ -35,7 +35,7 @@ namespace ZapFR
 
             uint64_t id() const noexcept { return mID; }
             std::string url() const noexcept { return mURL; }
-            std::string folderHierarchy() const noexcept { return mFolderHierarchy; }
+            uint64_t folder() const noexcept { return mFolderID; }
             std::string guid() const noexcept { return mGuid; }
             std::string title() const noexcept { return mTitle; }
             std::string subtitle() const noexcept { return mSubtitle; }
@@ -54,7 +54,7 @@ namespace ZapFR
             void setIconURL(const std::string& iconURL) { mIconURL = iconURL; }
             void setIcon(const std::string& icon) { mIcon = icon; }
             void setIconLastFetched(const std::string& iconLastFetched) { mIconLastFetched = iconLastFetched; }
-            void setFolderHierarchy(const std::string& folderHierarchy) { mFolderHierarchy = folderHierarchy; }
+            void setFolder(uint64_t folder) { mFolderID = folder; }
             void setGuid(const std::string& guid) { mGuid = guid; }
             void setTitle(const std::string& title) { mTitle = title; }
             void setSubtitle(const std::string& subtitle) { mSubtitle = subtitle; }
@@ -86,7 +86,7 @@ namespace ZapFR
             std::string mIconURL{""};
             std::string mIcon{""};
             std::string mIconLastFetched{""};
-            std::string mFolderHierarchy{""};
+            uint64_t mFolderID{0};
             std::string mGuid{""};
             std::string mTitle{""};
             std::string mSubtitle{""};

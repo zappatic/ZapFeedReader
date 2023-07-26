@@ -18,6 +18,7 @@ set(PROJECT_SOURCES
         src/ItemDelegateSource.cpp
         src/ItemDelegatePost.cpp
         src/DialogAddFeed.cpp
+        src/DialogAddFolder.cpp
         src/DialogImportOPML.cpp
         src/Utilities.cpp
         src/WebEnginePagePost.cpp
@@ -30,6 +31,7 @@ set(PROJECT_SOURCES
         include/ItemDelegateSource.h
         include/ItemDelegatePost.h
         include/DialogAddFeed.h
+        include/DialogAddFolder.h
         include/DialogImportOPML.h
         include/WebEnginePagePost.h
         include/WebEngineViewPost.h
@@ -38,6 +40,7 @@ set(PROJECT_SOURCES
         include/TreeViewSources.h
         src/MainWindow.ui
         src/DialogAddFeed.ui
+        src/DialogAddFolder.ui
         src/DialogImportOPML.ui
         resources/resources.qrc
         ${TS_FILES}
@@ -94,6 +97,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/AgentRemoveFeed.cpp
                                 ../engine/src/AgentSubscribeFeed.cpp
                                 ../engine/src/AgentGetPosts.cpp
+                                ../engine/src/AgentAddFolder.cpp
                                 ../engine/src/AgentMarkPostRead.cpp
                                 ../engine/src/AgentMarkFeedRead.cpp
                                 ../engine/src/AgentGetPost.cpp
@@ -104,6 +108,8 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/FeedParserATOM10.cpp
                                 ../engine/src/Source.cpp
                                 ../engine/src/SourceLocal.cpp
+                                ../engine/src/Folder.cpp
+                                ../engine/src/FolderLocal.cpp
                                 ../engine/src/Feed.cpp
                                 ../engine/src/FeedLocal.cpp
                                 ../engine/src/Post.cpp

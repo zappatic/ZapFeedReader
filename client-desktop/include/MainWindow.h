@@ -22,6 +22,7 @@
 #include "ClientGlobal.h"
 #include "Database.h"
 #include "DialogAddFeed.h"
+#include "DialogAddFolder.h"
 #include "DialogImportOPML.h"
 #include "Global.h"
 
@@ -53,6 +54,7 @@ namespace ZapFR
             // actions
             void addSource();
             void addFeed();
+            void addFolder();
             void importOPML();
             void markFeedAsRead();
             void refreshAllFeeds();
@@ -69,6 +71,7 @@ namespace ZapFR
             void feedAdded();
             void feedRemoved();
             void folderRemoved();
+            void folderAdded();
             void loadPosts(const QList<QList<QStandardItem*>>& posts);
             void postMarkedRead();
             void feedMarkedRead();
@@ -83,6 +86,7 @@ namespace ZapFR
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
+            std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
@@ -100,8 +104,8 @@ namespace ZapFR
             void restoreSettings();
             QJsonArray expandedSourceTreeItems() const;
             void expandSourceTreeItems(const QJsonArray& items) const;
+            std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFolderID() const;
 
-            QString getFolderHierarchy(QStandardItem* item) const;
             void reloadCurrentPost();
             QString postStyles() const;
             void createContextMenus();

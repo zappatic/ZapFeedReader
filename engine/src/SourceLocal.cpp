@@ -20,6 +20,7 @@
 #include "Database.h"
 #include "FeedFetcher.h"
 #include "FeedLocal.h"
+#include "FolderLocal.h"
 #include "Helpers.h"
 
 using namespace Poco::Data::Keywords;
@@ -36,7 +37,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
     std::string url;
     std::string iconURL;
     std::string iconLastFetched;
-    std::string folderHierarchy;
+    uint64_t folder;
     std::string guid;
     std::string title;
     std::string subtitle;
@@ -52,7 +53,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
                   ",url"
                   ",iconURL"
                   ",iconLastFetched"
-                  ",folderHierarchy"
+                  ",folder"
                   ",guid"
                   ",title"
                   ",subtitle"
@@ -64,8 +65,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
                   ",sortOrder"
                   " FROM feeds"
                   " ORDER BY sortOrder ASC",
-        into(id), into(url), into(iconURL), into(iconLastFetched), into(folderHierarchy), into(guid), into(title), into(subtitle), into(link), into(description),
-        into(language), into(copyright), into(lastChecked), into(sortOrder), range(0, 1);
+        into(id), into(url), into(iconURL), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link), into(description), into(language),
+        into(copyright), into(lastChecked), into(sortOrder), range(0, 1);
 
     while (!selectStmt.done())
     {
@@ -75,7 +76,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
             f->setURL(url);
             f->setIconURL(iconURL);
             f->setIconLastFetched(iconLastFetched);
-            f->setFolderHierarchy(folderHierarchy);
+            f->setFolder(folder);
             f->setGuid(guid);
             f->setTitle(title);
             f->setSubtitle(subtitle);
@@ -105,7 +106,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
     std::string url;
     std::string iconURL;
     std::string iconLastFetched;
-    std::string folderHierarchy;
+    uint64_t folder;
     std::string guid;
     std::string title;
     std::string subtitle;
@@ -121,7 +122,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
                   ",url"
                   ",iconURL"
                   ",iconLastFetched"
-                  ",folderHierarchy"
+                  ",folder"
                   ",guid"
                   ",title"
                   ",subtitle"
@@ -133,7 +134,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
                   ",sortOrder"
                   " FROM feeds"
                   " WHERE id=?",
-        use(feedID), into(id), into(url), into(iconURL), into(iconLastFetched), into(folderHierarchy), into(guid), into(title), into(subtitle), into(link), into(description),
+        use(feedID), into(id), into(url), into(iconURL), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link), into(description),
         into(language), into(copyright), into(lastChecked), into(sortOrder), now;
 
     auto rs = Poco::Data::RecordSet(selectStmt);
@@ -143,7 +144,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
         f->setURL(url);
         f->setIconURL(iconURL);
         f->setIconLastFetched(iconLastFetched);
-        f->setFolderHierarchy(folderHierarchy);
+        f->setFolder(folder);
         f->setGuid(guid);
         f->setTitle(title);
         f->setSubtitle(subtitle);
@@ -160,13 +161,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
     return {};
 }
 
-void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::string& folderHierarchy)
+void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder)
 {
-    auto sanitizedFolderHierarchy = folderHierarchy;
-    if (sanitizedFolderHierarchy.starts_with("/"))
-    {
-        sanitizedFolderHierarchy = sanitizedFolderHierarchy.substr(1);
-    }
 
     FeedFetcher ff;
     auto parsedFeed = ff.parse(url);
@@ -180,7 +176,7 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::stri
     auto copyright = parsedFeed->copyright();
     auto iconURL = parsedFeed->iconURL();
     uint64_t feedID{0};
-    auto sortOrder = getNextFeedSortOrder("");
+    auto sortOrder = getNextFeedSortOrder(folder);
 
     // scope for insert feed mutex lock
     {
@@ -188,7 +184,7 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::stri
         insertStmt << "INSERT INTO feeds ("
                       " url"
                       ",iconURL"
-                      ",folderHierarchy"
+                      ",folder"
                       ",guid"
                       ",title"
                       ",subtitle"
@@ -199,8 +195,8 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::stri
                       ",sortOrder"
                       ",lastChecked"
                       ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
-            useRef(url), useRef(iconURL), useRef(sanitizedFolderHierarchy), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language),
-            useRef(copyright), use(sortOrder);
+            useRef(url), useRef(iconURL), use(folder), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright),
+            use(sortOrder);
         const std::lock_guard<std::mutex> lock(mInsertFeedMutex);
         insertStmt.execute();
         Poco::Data::Statement selectStmt(*(msDatabase->session()));
@@ -215,37 +211,53 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, const std::stri
     }
 }
 
-uint64_t ZapFR::Engine::SourceLocal::getNextFeedSortOrder(const std::string& folderHierarchy) const
+uint64_t ZapFR::Engine::SourceLocal::getNextFeedSortOrder(uint64_t folder) const
 {
     uint64_t sortOrder{0};
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
-    selectStmt << "SELECT MAX(sortOrder) FROM feeds WHERE folderHierarchy=?", into(sortOrder), useRef(folderHierarchy), now;
+    selectStmt << "SELECT MAX(sortOrder) FROM feeds WHERE folder=?", into(sortOrder), use(folder), now;
     return sortOrder + 10;
 }
 
-void ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder)
+uint64_t ZapFR::Engine::SourceLocal::getNextFolderSortOrder(uint64_t folder) const
 {
-    Poco::Data::Statement updateStmt(*(msDatabase->session()));
-    updateStmt << "UPDATE feeds SET folderHierarchy=?, sortOrder=? WHERE id=?", useRef(newFolderHierarchy), use(newSortOrder), use(feedID), now;
-    resort(newFolderHierarchy);
+    uint64_t sortOrder{0};
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT MAX(sortOrder) FROM folders WHERE parent=?", into(sortOrder), use(folder), now;
+    return sortOrder + 10;
 }
 
-void ZapFR::Engine::SourceLocal::resort(const std::string& folderHierarchy) const
+void ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
+{
+    uint64_t oldFolder{0};
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT folder FROM feeds WHERE id=?", use(feedID), into(oldFolder), now;
+
+    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    updateStmt << "UPDATE feeds SET folder=?, sortOrder=? WHERE id=?", use(newFolder), use(newSortOrder), use(feedID), now;
+
+    resortFeeds(newFolder);
+    if (newFolder != oldFolder) // check in case we are moving within the same folder
+    {
+        resortFeeds(oldFolder);
+    }
+}
+
+void ZapFR::Engine::SourceLocal::resortFeeds(uint64_t folder) const
 {
     std::vector<uint64_t> feedIDs;
 
     uint64_t feedID{0};
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
-    selectStmt << "SELECT id FROM feeds WHERE folderHierarchy=? ORDER BY sortOrder ASC", useRef(folderHierarchy), into(feedID), range(0, 1);
-    auto rs = Poco::Data::RecordSet(selectStmt);
-    if (rs.rowCount() > 0)
+    selectStmt << "SELECT id FROM feeds WHERE folder=? ORDER BY sortOrder ASC", use(folder), into(feedID), range(0, 1);
+    while (!selectStmt.done())
     {
-        while (!selectStmt.done())
+        if (selectStmt.execute() > 0)
         {
-            selectStmt.execute();
             feedIDs.emplace_back(feedID);
         }
     }
+
     uint64_t sortOrder = 10;
     for (auto f : feedIDs)
     {
@@ -255,12 +267,35 @@ void ZapFR::Engine::SourceLocal::resort(const std::string& folderHierarchy) cons
     }
 }
 
+void ZapFR::Engine::SourceLocal::resortFolders(uint64_t folder) const
+{
+    std::vector<uint64_t> folderIDs;
+
+    uint64_t folderID{0};
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT id FROM folders WHERE parent=? ORDER BY sortOrder ASC", use(folder), into(folderID), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            folderIDs.emplace_back(folderID);
+        }
+    }
+    uint64_t sortOrder = 10;
+    for (auto f : folderIDs)
+    {
+        Poco::Data::Statement updateStmt(*(msDatabase->session()));
+        updateStmt << "UPDATE folders SET sortOrder=? WHERE id=?", use(sortOrder), use(f), now;
+        sortOrder += 10;
+    }
+}
+
 void ZapFR::Engine::SourceLocal::removeFeed(uint64_t feedID)
 {
     auto feed = getFeed(feedID);
     if (feed.has_value())
     {
-        auto folderHierarchy = feed.value()->folderHierarchy();
+        auto folder = feed.value()->folder();
         feed.value()->removeIcon();
 
         {
@@ -273,19 +308,32 @@ void ZapFR::Engine::SourceLocal::removeFeed(uint64_t feedID)
             deleteStmt << "DELETE FROM posts WHERE feedID=?", use(feedID), now;
         }
 
-        resort(folderHierarchy);
+        resortFeeds(folder);
     }
 }
 
-void ZapFR::Engine::SourceLocal::removeFolder(const std::string& folderHierarchy)
+void ZapFR::Engine::SourceLocal::removeFolder(uint64_t folder)
 {
-    // find all the feed ID's for the respective folder hierarchy, so we can remove all the posts of those ID's
-    std::vector<std::string> affectedFeedIDs;
+    // get the parent id for this folder
+    auto f = getFolder(folder);
+    if (f.has_value())
     {
-        auto sql = Poco::format("SELECT id FROM feeds WHERE folderHierarchy LIKE '%s'", Poco::replace(folderHierarchy, "'", "''"));
+        auto folderParent = f.value()->parentID();
+
+        // get all the ID's of the chosen folder and its subfolders
+        std::vector<uint64_t> folderIDs;
+        getSubfolderIDs(folder, folderIDs, folder != 0);
+        std::stringstream ss;
+        std::copy(folderIDs.begin(), folderIDs.end(), std::ostream_iterator<int>(ss, ","));
+        auto joinedFolderIDs = ss.str();
+        joinedFolderIDs = joinedFolderIDs.substr(0, joinedFolderIDs.length() - 1);
+
+        // get all feeds that are in the (sub)folders
+        std::vector<std::string> affectedFeedIDs;
+        auto selectFeedsSQL = Poco::format("SELECT id FROM feeds WHERE folder IN (%s)", joinedFolderIDs);
         uint64_t feedID{0};
         Poco::Data::Statement selectStmt(*(msDatabase->session()));
-        selectStmt << sql, into(feedID), range(0, 1);
+        selectStmt << selectFeedsSQL, into(feedID), range(0, 1);
         while (!selectStmt.done())
         {
             if (selectStmt.execute() > 0)
@@ -296,20 +344,114 @@ void ZapFR::Engine::SourceLocal::removeFolder(const std::string& folderHierarchy
                 feed.removeIcon();
             }
         }
-    }
 
-    if (affectedFeedIDs.size() > 0)
+        // remove feeds and their posts
+        if (affectedFeedIDs.size() > 0)
+        {
+            auto joinedFeedIDs = Helpers::joinString(affectedFeedIDs, ",");
+
+            // remove all posts from the affected feeds
+            auto deletePostsSQL = Poco::format("DELETE FROM posts WHERE feedID IN (%s)", joinedFeedIDs);
+            Poco::Data::Statement deletePostsStmt(*(msDatabase->session()));
+            deletePostsStmt << deletePostsSQL, now;
+
+            // remove all affected feeds
+            auto deleteFeedsSQL = Poco::format("DELETE FROM feeds WHERE id IN (%s)", joinedFeedIDs);
+            Poco::Data::Statement deleteFeedsStmt(*(msDatabase->session()));
+            deleteFeedsStmt << deleteFeedsSQL, now;
+        }
+
+        // remove folders
+        auto deleteFoldersSQL = Poco::format("DELETE FROM folders WHERE id IN (%s)", joinedFolderIDs);
+        Poco::Data::Statement deleteFoldersStmt(*(msDatabase->session()));
+        deleteFoldersStmt << deleteFoldersSQL, now;
+        resortFolders(folderParent);
+    }
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolders(uint64_t parent)
+{
+    std::vector<std::unique_ptr<Folder>> folders;
+
+    uint64_t id{0};
+    uint64_t sortOrder{0};
+    std::string title{""};
+
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT id"
+                  ",title"
+                  ",sortOrder"
+                  " FROM folders"
+                  " WHERE parent=?"
+                  " ORDER BY sortOrder ASC",
+        use(parent), into(id), into(title), into(sortOrder), range(0, 1);
+
+    while (!selectStmt.done())
     {
-        auto feedIDs = Helpers::joinString(affectedFeedIDs, ",");
-
-        // remove all posts from the affected feeds
-        auto deletePostsSQL = Poco::format("DELETE FROM posts WHERE feedID IN (%s)", feedIDs);
-        Poco::Data::Statement deletePostsStmt(*(msDatabase->session()));
-        deletePostsStmt << deletePostsSQL, now;
-
-        // remove all affected feeds
-        auto deleteFeedsSQL = Poco::format("DELETE FROM feeds WHERE id IN (%s)", feedIDs);
-        Poco::Data::Statement deleteFeedsStmt(*(msDatabase->session()));
-        deleteFeedsStmt << deleteFeedsSQL, now;
+        if (selectStmt.execute() > 0)
+        {
+            auto f = std::make_unique<FolderLocal>(id, parent);
+            f->setTitle(title);
+            f->setSortOrder(sortOrder);
+            f->setDataFetched(true);
+            folders.emplace_back(std::move(f));
+        }
     }
+    return folders;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolder(uint64_t folderID)
+{
+    uint64_t parent{0};
+    std::string title{""};
+    uint64_t sortOrder{0};
+
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT"
+                  " parent"
+                  ",title"
+                  ",sortOrder"
+                  " FROM folders"
+                  " WHERE id=?",
+        use(folderID), into(parent), into(title), into(sortOrder), now;
+
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        auto f = std::make_unique<FolderLocal>(folderID, parent);
+        f->setTitle(title);
+        f->setSortOrder(sortOrder);
+        f->setDataFetched(true);
+        return f;
+    }
+
+    return {};
+}
+
+void ZapFR::Engine::SourceLocal::getSubfolderIDs(uint64_t parent, std::vector<uint64_t>& ids, bool includeParent)
+{
+    if (includeParent)
+    {
+        ids.emplace_back(parent);
+    }
+    uint64_t id{0};
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT id"
+                  " FROM folders"
+                  " WHERE parent=?",
+        use(parent), into(id), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            getSubfolderIDs(id, ids, true);
+        }
+    }
+}
+
+void ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_t parentID)
+{
+    auto sortOrder = getNextFolderSortOrder(parentID);
+    Poco::Data::Statement insertStmt(*(msDatabase->session()));
+    insertStmt << "INSERT INTO folders (parent,title,sortOrder) VALUES (?, ?, ?)", use(parentID), useRef(title), use(sortOrder), now;
 }

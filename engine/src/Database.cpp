@@ -72,7 +72,7 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ",url TEXT NOT NULL"
                        ",iconURL TEXT"
                        ",iconLastFetched INTEGER NOT NULL DEFAULT 0"
-                       ",folderHierarchy TEXT NOT NULL DEFAULT ''"
+                       ",folder INTEGER NOT NULL DEFAULT 0"
                        ",guid TEXT"
                        ",title TEXT NOT NULL"
                        ",subtitle TEXT"
@@ -82,6 +82,17 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ",copyright TEXT "
                        ",sortOrder INTEGER NOT NULL"
                        ",lastChecked INTEGER NOT NULL DEFAULT 0"
+                       ")",
+            now;
+    }
+
+    // FOLDERS TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS folders ("
+                       " id INTEGER PRIMARY KEY"
+                       ",parent INTEGER NOT NULL"
+                       ",sortOrder INTEGER NOT NULL"
+                       ",title TEXT NOT NULL"
                        ")",
             now;
     }

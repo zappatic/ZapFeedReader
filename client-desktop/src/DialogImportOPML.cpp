@@ -87,12 +87,12 @@ std::vector<ZapFR::Engine::OPMLEntry> ZapFR::Client::DialogImportOPML::importedF
     return mImportedFeeds;
 }
 
-QString ZapFR::Client::DialogImportOPML::folderHierarchy() const
-{
-    return ui->lineEditAddToFolder->text().trimmed();
-}
-
 uint64_t ZapFR::Client::DialogImportOPML::sourceID() const
 {
     return ui->comboBoxSources->currentData(SourceIDRole).toULongLong();
+}
+
+uint64_t ZapFR::Client::DialogImportOPML::folderID() const
+{
+    return 0; // TODO ui->lineEditAddToFolder->text().trimmed();
 }

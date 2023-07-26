@@ -40,14 +40,15 @@ namespace ZapFR
 
             void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             void queueRefreshAllFeeds(std::function<void()> finishedCallback);
-            void queueSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback);
+            void queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback);
             void queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
-            void queueRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback);
+            void queueRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
             void queueGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
                                std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<Post>>)> finishedCallback);
             void queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void()> finishedCallback);
             void queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             void queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback);
+            void queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback);
 
           private:
             explicit Agent();

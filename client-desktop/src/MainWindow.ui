@@ -139,6 +139,7 @@
     </property>
     <addaction name="action_Add_source"/>
     <addaction name="action_Add_feed"/>
+    <addaction name="action_Add_folder"/>
     <addaction name="separator"/>
     <addaction name="action_Import_OPML"/>
    </widget>
@@ -174,22 +175,23 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_Add_feed"/>
+   <addaction name="action_Add_folder"/>
    <addaction name="action_Refresh_all_feeds"/>
    <addaction name="action_Mark_feed_as_read"/>
   </widget>
   <action name="action_Add_source">
    <property name="text">
-    <string>Add &amp;source...</string>
+    <string>Add source</string>
    </property>
   </action>
   <action name="action_Add_feed">
    <property name="text">
-    <string>Add &amp;feed...</string>
+    <string>Add feed</string>
    </property>
   </action>
   <action name="action_Import_OPML">
    <property name="text">
-    <string>&amp;Import OPML...</string>
+    <string>Import OPML</string>
    </property>
   </action>
   <action name="action_Mark_feed_as_read">
@@ -206,6 +208,14 @@
    </property>
    <property name="toolTip">
     <string>Refresh all feeds</string>
+   </property>
+  </action>
+  <action name="action_Add_folder">
+   <property name="text">
+    <string>Add folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Add folder</string>
    </property>
   </action>
  </widget>

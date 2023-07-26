@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DialogAddFeed</class>
- <widget class="QDialog" name="DialogAddFeed">
+ <class>DialogAddFolder</class>
+ <widget class="QDialog" name="DialogAddFolder">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>147</height>
+    <height>145</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>0</height>
+    <height>145</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>600</width>
-    <height>147</height>
+    <width>400</width>
+    <height>145</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Add feed</string>
+   <string>Add folder</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -31,39 +40,35 @@
      <property name="labelAlignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelSource">
-       <property name="text">
-        <string>Add to source :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="comboBoxSource"/>
-     </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="labelURL">
+      <widget class="QLabel" name="labelTitle">
        <property name="text">
-        <string>Feed/website URL :</string>
+        <string>Folder title :</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEditURL"/>
+      <widget class="QLineEdit" name="lineEditTitle"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="labelSource">
+       <property name="text">
+        <string>Source :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="comboBoxSources"/>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="labelAddToFolder">
+      <widget class="QLabel" name="labelAddUnder">
        <property name="text">
-        <string>Add to folder :</string>
+        <string>Add under :</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QComboBox" name="comboBoxFolder">
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-      </widget>
+      <widget class="QComboBox" name="comboBoxAddUnderFolder"/>
      </item>
     </layout>
    </item>
@@ -79,16 +84,12 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>lineEditURL</tabstop>
-  <tabstop>comboBoxSource</tabstop>
- </tabstops>
  <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>DialogAddFeed</receiver>
+   <receiver>DialogAddFolder</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -104,7 +105,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>DialogAddFeed</receiver>
+   <receiver>DialogAddFolder</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

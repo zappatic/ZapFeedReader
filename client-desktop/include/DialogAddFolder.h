@@ -16,46 +16,48 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_DIALOGADDFEED_H
-#define ZAPFR_CLIENT_DIALOGADDFEED_H
+#ifndef ZAPFR_CLIENT_DIALOGADDFOLDER_H
+#define ZAPFR_CLIENT_DIALOGADDFOLDER_H
 
 #include "ClientGlobal.h"
 #include "Source.h"
 
 namespace Ui
 {
-    class DialogAddFeed;
+    class DialogAddFolder;
 }
 
 namespace ZapFR
 {
     namespace Client
     {
-        class DialogAddFeed : public QDialog
+        class DialogAddFolder : public QDialog
         {
             Q_OBJECT
 
           public:
-            explicit DialogAddFeed(QWidget* parent = nullptr);
-            ~DialogAddFeed();
+            explicit DialogAddFolder(QWidget* parent = nullptr);
+            ~DialogAddFolder();
+
+            QString title() const;
+            uint64_t addUnderFolder() const;
+            uint64_t sourceID() const;
 
             void reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources, uint64_t selectedSourceID, uint64_t selectedFolderID);
-
-            QString url() const;
-            uint64_t sourceID() const;
-            uint64_t folderID() const;
 
           private slots:
             void currentSourceChanged(int index);
 
           private:
-            Ui::DialogAddFeed* ui;
+            Ui::DialogAddFolder* ui;
             std::unique_ptr<QStandardItemModel> mSourcesModel;
             std::unique_ptr<QStandardItemModel> mFoldersModel;
+            int64_t mFolderIDToPreselect{-1};
 
             static constexpr uint32_t SourceIDRole{Qt::ItemDataRole::UserRole + 1};
+            static constexpr uint32_t FolderIDRole{Qt::ItemDataRole::UserRole + 2};
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_DIALOGADDFEED_H
+#endif // ZAPFR_CLIENT_DIALOGADDFOLDER_H

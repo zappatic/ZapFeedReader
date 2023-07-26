@@ -19,8 +19,8 @@
 #include "AgentRemoveFolder.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentRemoveFolder::AgentRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderHierarchy(folderHierarchy), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentRemoveFolder::AgentRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFolderID(folder), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -29,9 +29,7 @@ void ZapFR::Engine::AgentRemoveFolder::run()
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        // we remove both the exact (no wildcards) folder hierarchy, and everything that falls below, in subfolders
-        source.value()->removeFolder(mFolderHierarchy);
-        source.value()->removeFolder(mFolderHierarchy + "/%");
+        source.value()->removeFolder(mFolderID);
         mFinishedCallback();
     }
 

@@ -20,8 +20,8 @@
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentSubscribeFeed::AgentSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderHierarchy(folderHierarchy), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentSubscribeFeed::AgentSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderID(folder), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -32,7 +32,7 @@ void ZapFR::Engine::AgentSubscribeFeed::run()
     {
         try
         {
-            source.value()->addFeed(mURL, mFolderHierarchy);
+            source.value()->addFeed(mURL, mFolderID);
             mFinishedCallback();
         }
         catch (Poco::Exception& e)

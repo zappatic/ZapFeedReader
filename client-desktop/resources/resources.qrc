@@ -5,5 +5,6 @@
         <file>markAsRead.svg</file>
         <file>addFeed.svg</file>
         <file>refreshFeed.svg</file>
+        <file>addFolder.svg</file>
     </qresource>
 </RCC>

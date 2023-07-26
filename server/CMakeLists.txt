@@ -36,6 +36,7 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/AgentRemoveFeed.cpp
     ../engine/src/AgentRemoveFolder.cpp
     ../engine/src/AgentSubscribeFeed.cpp
+    ../engine/src/AgentAddFolder.cpp
     ../engine/src/AgentGetPosts.cpp
     ../engine/src/AgentMarkPostRead.cpp
     ../engine/src/AgentMarkFeedRead.cpp
@@ -49,6 +50,8 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/SourceLocal.cpp
     ../engine/src/Feed.cpp
     ../engine/src/FeedLocal.cpp
+    ../engine/src/Folder.cpp
+    ../engine/src/FolderLocal.cpp
     ../engine/src/Post.cpp
     ../engine/src/OPMLParser.cpp
     ../engine/src/FavIconParser.cpp

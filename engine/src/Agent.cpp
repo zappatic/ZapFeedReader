@@ -17,6 +17,7 @@
 */
 
 #include "Agent.h"
+#include "AgentAddFolder.h"
 #include "AgentGetPost.h"
 #include "AgentGetPosts.h"
 #include "AgentMarkFeedRead.h"
@@ -61,9 +62,9 @@ void ZapFR::Engine::Agent::queueRefreshAllFeeds(std::function<void()> finishedCa
     }
 }
 
-void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::string& url, const std::string& folderHierarchy, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback)
 {
-    enqueue(std::make_unique<AgentSubscribeFeed>(sourceID, url, folderHierarchy, finishedCallback));
+    enqueue(std::make_unique<AgentSubscribeFeed>(sourceID, url, folder, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
@@ -71,9 +72,9 @@ void ZapFR::Engine::Agent::queueRemoveFeed(uint64_t sourceID, uint64_t feedID, s
     enqueue(std::make_unique<AgentRemoveFeed>(sourceID, feedID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback)
 {
-    enqueue(std::make_unique<AgentRemoveFolder>(sourceID, folderHierarchy, finishedCallback));
+    enqueue(std::make_unique<AgentRemoveFolder>(sourceID, folder, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
@@ -95,6 +96,11 @@ void ZapFR::Engine::Agent::queueMarkFeedRead(uint64_t sourceID, uint64_t feedID,
 void ZapFR::Engine::Agent::queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback)
 {
     enqueue(std::make_unique<AgentGetPost>(sourceID, feedID, postID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentAddFolder>(sourceID, parentFolderID, title, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)

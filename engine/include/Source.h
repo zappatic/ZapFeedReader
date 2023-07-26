@@ -20,6 +20,7 @@
 #define ZAPFR_ENGINE_SOURCE_H
 
 #include "Feed.h"
+#include "Folder.h"
 #include "Global.h"
 
 namespace ZapFR
@@ -45,10 +46,15 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<Feed>> getFeeds() = 0;
             virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) = 0;
-            virtual void addFeed(const std::string& url, const std::string& folderHierarchy) = 0;
-            virtual void moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder) = 0;
+            virtual void addFeed(const std::string& url, uint64_t folder) = 0;
+            virtual void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) = 0;
             virtual void removeFeed(uint64_t feedID) = 0;
-            virtual void removeFolder(const std::string& folderHierarchy) = 0;
+            virtual void removeFolder(uint64_t folder) = 0;
+
+            virtual std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent) = 0;
+            virtual std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID) = 0;
+            virtual void getSubfolderIDs(uint64_t parent, std::vector<uint64_t>& ids, bool includeParent = true) = 0;
+            virtual void addFolder(const std::string& title, uint64_t parentID) = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

@@ -26,6 +26,9 @@ ZapFR::Client::DialogAddFeed::DialogAddFeed(QWidget* parent) : QDialog(parent), 
     mSourcesModel = std::make_unique<QStandardItemModel>(this);
     ui->comboBoxSource->setModel(mSourcesModel.get());
 
+    mFoldersModel = std::make_unique<QStandardItemModel>(this);
+    ui->comboBoxFolder->setModel(mFoldersModel.get());
+
     for (const auto& button : ui->buttonBox->buttons())
     {
         if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::ButtonRole::AcceptRole)
@@ -34,6 +37,8 @@ ZapFR::Client::DialogAddFeed::DialogAddFeed(QWidget* parent) : QDialog(parent), 
             break;
         }
     }
+
+    connect(ui->comboBoxSource, &QComboBox::currentIndexChanged, this, &DialogAddFeed::currentSourceChanged);
 }
 
 // TODO: check chosen feed url before 'accept'ing
@@ -43,10 +48,9 @@ ZapFR::Client::DialogAddFeed::~DialogAddFeed()
     delete ui;
 }
 
-void ZapFR::Client::DialogAddFeed::reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources, uint64_t selectedSourceID, const QString& folderHierarchy)
+void ZapFR::Client::DialogAddFeed::reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources, uint64_t selectedSourceID, uint64_t /*selectedFolderID*/)
 {
     ui->lineEditURL->setText("");
-    ui->lineEditAddToFolder->setText(folderHierarchy);
 
     mSourcesModel->clear();
     int32_t toSelect{-1};
@@ -68,6 +72,9 @@ void ZapFR::Client::DialogAddFeed::reset(const std::vector<std::unique_ptr<ZapFR
     {
         ui->comboBoxSource->setCurrentIndex(toSelect);
     }
+
+    mFoldersModel->clear();
+    // tODO: preselect the folder ID
 }
 
 QString ZapFR::Client::DialogAddFeed::url() const
@@ -80,7 +87,12 @@ uint64_t ZapFR::Client::DialogAddFeed::sourceID() const
     return ui->comboBoxSource->currentData(SourceIDRole).toULongLong();
 }
 
-QString ZapFR::Client::DialogAddFeed::folderHierarchy() const
+uint64_t ZapFR::Client::DialogAddFeed::folderID() const
 {
-    return ui->lineEditAddToFolder->text();
+    return 0; // TODO
+}
+
+void ZapFR::Client::DialogAddFeed::currentSourceChanged(int /*index*/)
+{
+    qDebug() << ui->comboBoxSource->currentData(SourceIDRole);
 }

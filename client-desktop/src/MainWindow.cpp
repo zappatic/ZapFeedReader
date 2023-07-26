@@ -19,11 +19,13 @@
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
 #include "Agent.h"
+#include "AgentAddFolder.h"
 #include "AgentGetPosts.h"
 #include "AgentRefreshFeed.h"
 #include "AgentRemoveFeed.h"
 #include "AgentRemoveFolder.h"
 #include "FeedLocal.h"
+#include "Folder.h"
 #include "ItemDelegatePost.h"
 #include "ItemDelegateSource.h"
 #include "StandardItemModelSources.h"
@@ -37,10 +39,12 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ZapFR::Engine::Source::registerDatabaseInstance(mDatabase.get());
     ZapFR::Engine::Feed::registerDatabaseInstance(mDatabase.get());
     ZapFR::Engine::Post::registerDatabaseInstance(mDatabase.get());
+    ZapFR::Engine::Folder::registerDatabaseInstance(mDatabase.get());
 
     ui->setupUi(this);
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
+    connect(ui->action_Add_folder, &QAction::triggered, this, &MainWindow::addFolder);
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
     connect(ui->action_Mark_feed_as_read, &QAction::triggered, this, &MainWindow::markFeedAsRead);
     connect(ui->action_Refresh_all_feeds, &QAction::triggered, this, &MainWindow::refreshAllFeeds);
@@ -165,7 +169,7 @@ QJsonArray ZapFR::Client::MainWindow::expandedSourceTreeItems() const
                     QJsonObject o;
                     o.insert("type", "folder");
                     o.insert("sourceID", QJsonValue::fromVariant(parent->data(SourceTreeEntryParentSourceIDRole)));
-                    o.insert("title", getFolderHierarchy(parent));
+                    o.insert("id", QJsonValue::fromVariant(parent->data(SourceTreeEntryIDRole)));
                     expandedSourceTreeItems.append(o);
                 }
             }
@@ -190,7 +194,7 @@ void ZapFR::Client::MainWindow::expandSourceTreeItems(const QJsonArray& items) c
         {
             auto idToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
             auto sourceIDToMatch = parent->data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            QString folderHierarchyToMatch;
+            uint64_t folderIDToMatch = 0;
             auto typeToMatch = QString("");
             if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
             {
@@ -199,7 +203,7 @@ void ZapFR::Client::MainWindow::expandSourceTreeItems(const QJsonArray& items) c
             else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
             {
                 typeToMatch = "folder";
-                folderHierarchyToMatch = getFolderHierarchy(parent);
+                folderIDToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
             }
 
             for (const auto& entry : items)
@@ -218,8 +222,8 @@ void ZapFR::Client::MainWindow::expandSourceTreeItems(const QJsonArray& items) c
                     else if (type == "folder")
                     {
                         auto sourceID = o.value("sourceID").toVariant().toULongLong();
-                        auto title = o.value("title").toString();
-                        shouldExpand = (sourceID == sourceIDToMatch && title == folderHierarchyToMatch);
+                        auto folderID = o.value("id").toVariant().toULongLong();
+                        shouldExpand = (sourceID == sourceIDToMatch && folderID == folderIDToMatch);
                     }
 
                     if (shouldExpand)
@@ -258,31 +262,62 @@ void ZapFR::Client::MainWindow::addFeed()
                 {
                     if (result == QDialog::DialogCode::Accepted)
                     {
-                        ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogAddFeed->sourceID(), mDialogAddFeed->url().toStdString(),
-                                                                                mDialogAddFeed->folderHierarchy().toStdString(),
+                        ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogAddFeed->sourceID(), mDialogAddFeed->url().toStdString(), mDialogAddFeed->folderID(),
                                                                                 [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
                     }
                 });
     }
 
-    // if we have a folder or feed selected, use the same folderHierarchy
-    // also use the currently selected source
+    // if we have a folder or feed selected, preselect the same folder and source
+    auto [sourceID, folderID] = getCurrentlySelectedSourceAndFolderID();
+    auto sources = ZapFR::Engine::Source::getSources({});
+    mDialogAddFeed->reset(sources, sourceID, folderID);
+    mDialogAddFeed->open();
+}
+
+void ZapFR::Client::MainWindow::addFolder()
+{
+    if (mDialogAddFolder == nullptr)
+    {
+        mDialogAddFolder = std::make_unique<DialogAddFolder>(this);
+        connect(mDialogAddFolder.get(), &QDialog::finished,
+                [&](int result)
+                {
+                    if (result == QDialog::DialogCode::Accepted)
+                    {
+                        ZapFR::Engine::Agent::getInstance()->queueAddFolder(mDialogAddFolder->sourceID(), mDialogAddFolder->addUnderFolder(),
+                                                                            mDialogAddFolder->title().toStdString(),
+                                                                            [&]() { QMetaObject::invokeMethod(this, "folderAdded", Qt::AutoConnection); });
+                    }
+                });
+    }
+
+    // if we have a folder or feed selected, preselect the same folder and source
+    auto [sourceID, folderID] = getCurrentlySelectedSourceAndFolderID();
+    auto sources = ZapFR::Engine::Source::getSources({});
+    mDialogAddFolder->reset(sources, sourceID, folderID);
+    mDialogAddFolder->open();
+}
+
+std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSourceAndFolderID() const
+{
     uint64_t sourceID{0};
-    QString folderHierarchy;
+    uint64_t folderID{0};
     auto currentIndex = ui->treeViewSources->currentIndex();
     if (currentIndex.isValid())
     {
         sourceID = currentIndex.data(SourceTreeEntryParentSourceIDRole).toULongLong();
         auto type = currentIndex.data(SourceTreeEntryTypeRole);
-        if (type == SOURCETREE_ENTRY_TYPE_FOLDER || type == SOURCETREE_ENTRY_TYPE_FEED)
+        if (type == SOURCETREE_ENTRY_TYPE_FOLDER)
         {
-            folderHierarchy = getFolderHierarchy(mItemModelSources->itemFromIndex(currentIndex));
+            folderID = currentIndex.data(SourceTreeEntryIDRole).toULongLong();
+        }
+        else if (type == SOURCETREE_ENTRY_TYPE_FEED)
+        {
+            folderID = currentIndex.data(SourceTreeEntryParentFolderIDRole).toULongLong();
         }
     }
-
-    auto sources = ZapFR::Engine::Source::getSources({});
-    mDialogAddFeed->reset(sources, sourceID, folderHierarchy);
-    mDialogAddFeed->open();
+    return std::make_tuple(sourceID, folderID);
 }
 
 void ZapFR::Client::MainWindow::importOPML()
@@ -297,14 +332,7 @@ void ZapFR::Client::MainWindow::importOPML()
                     {
                         for (const auto& feed : mDialogImportOPML->importedFeeds())
                         {
-                            auto folderHierarchy = mDialogImportOPML->folderHierarchy();
-                            if (!feed.folderHierarchy.empty() && !folderHierarchy.endsWith("/"))
-                            {
-                                folderHierarchy += "/";
-                            }
-                            folderHierarchy += QString::fromUtf8(feed.folderHierarchy);
-
-                            ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogImportOPML->sourceID(), feed.url, folderHierarchy.toStdString(),
+                            ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogImportOPML->sourceID(), feed.url, mDialogImportOPML->folderID(),
                                                                                     [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
                         }
                     }
@@ -342,6 +370,29 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
     ui->treeViewSources->setModel(mItemModelSources.get());
     mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
 
+    // lambda to recursively create folder items
+    std::unordered_map<uint64_t, QStandardItem*> folderIDToItemMapping; // a map to quickly look up folder items when adding feed items
+    std::function<void(ZapFR::Engine::Folder*, uint64_t, QStandardItem*)> createFolderItems;
+    createFolderItems = [&](ZapFR::Engine::Folder* folder, uint64_t sourceID, QStandardItem* parentItem)
+    {
+        auto folderItem = new QStandardItem(QString::fromUtf8(folder->title()));
+        folderItem->setData(SOURCETREE_ENTRY_TYPE_FOLDER, SourceTreeEntryTypeRole);
+        folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), SourceTreeEntryIDRole);
+        folderItem->setData(QVariant::fromValue<uint64_t>(folder->parentID()), SourceTreeEntryParentFolderIDRole);
+        folderItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryParentSourceIDRole);
+        parentItem->appendRow(folderItem);
+
+        if (folder->hasSubfolders())
+        {
+            for (const auto& subfolder : folder->subfolders())
+            {
+                createFolderItems(subfolder, sourceID, folderItem);
+            }
+        }
+        folderIDToItemMapping[folder->id()] = folderItem;
+    };
+
+    // process all available sources
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)
     {
@@ -352,37 +403,23 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
         sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryIDRole);
         sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
 
+        // create all the folder and subfolder items
+        auto rootFolders = source->getFolders(0);
+        for (const auto& folder : rootFolders)
+        {
+            createFolderItems(folder.get(), source->id(), sourceItem);
+        }
+
         // create the subfolder items
         auto feeds = source->getFeeds();
         for (const auto& feed : feeds)
         {
-            auto currentParent = sourceItem;
-            auto folderHierarchy = QString::fromUtf8(feed->folderHierarchy());
-            if (!folderHierarchy.isEmpty())
+            // look up the folder to which this feed belongs, default to source item
+            auto parentItem = sourceItem;
+            auto folderID = feed->folder();
+            if (folderIDToItemMapping.contains(folderID))
             {
-                auto subfolders = folderHierarchy.split("/", Qt::SkipEmptyParts);
-                for (const auto& subfolder : subfolders)
-                {
-                    auto subfolderFound{false};
-                    for (int i = 0; i < currentParent->rowCount(); ++i)
-                    {
-                        auto item = currentParent->child(i);
-                        if (item->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER && item->data(Qt::DisplayRole).toString() == subfolder)
-                        {
-                            subfolderFound = true;
-                            currentParent = item;
-                            break;
-                        }
-                    }
-                    if (!subfolderFound)
-                    {
-                        auto subfolderItem = new QStandardItem(subfolder);
-                        subfolderItem->setData(SOURCETREE_ENTRY_TYPE_FOLDER, SourceTreeEntryTypeRole);
-                        subfolderItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
-                        currentParent->appendRow(subfolderItem);
-                        currentParent = subfolderItem;
-                    }
-                }
+                parentItem = folderIDToItemMapping.at(folderID);
             }
 
             // create the feed item
@@ -390,6 +427,7 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
             feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
             feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), SourceTreeEntryIDRole);
             feedItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
+            feedItem->setData(QVariant::fromValue<uint64_t>(folderID), SourceTreeEntryParentFolderIDRole);
             auto unreadCount = feed->unreadCount();
             feedItem->setData(QVariant::fromValue<uint64_t>(unreadCount), SourceTreeEntryUnreadCount);
             if (unreadCount >= 999)
@@ -408,7 +446,7 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
                     feedItem->setData(QVariant::fromValue(icon), SourceTreeEntryIcon);
                 }
             }
-            currentParent->appendRow(feedItem);
+            parentItem->appendRow(feedItem);
         }
     }
 
@@ -489,70 +527,48 @@ void ZapFR::Client::MainWindow::fixPalette() const
     ui->tableViewPosts->setPalette(palette);
 }
 
-QString ZapFR::Client::MainWindow::getFolderHierarchy(QStandardItem* parent) const
-{
-    std::function<void(QStandardItem*, QStringList&)> getFolderHierarchy;
-    getFolderHierarchy = [&](QStandardItem* item, QStringList& subfolders)
-    {
-        auto role = item->data(SourceTreeEntryTypeRole);
-        switch (role.toUInt())
-        {
-            case SOURCETREE_ENTRY_TYPE_FEED:
-            {
-                getFolderHierarchy(item->parent(), subfolders);
-                break;
-            }
-            case SOURCETREE_ENTRY_TYPE_FOLDER:
-            {
-                subfolders.insert(0, item->data(Qt::DisplayRole).toString());
-                getFolderHierarchy(item->parent(), subfolders);
-                break;
-            }
-            default:
-                break;
-        }
-    };
-
-    QStringList subfolders;
-    getFolderHierarchy(parent, subfolders);
-    return subfolders.join("/");
-}
-
 void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& index)
 {
-    if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+    if (index.isValid())
     {
-        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueGetPosts(sourceID, feedID, 100, 1,
-                                                           [&](uint64_t sourceID, uint64_t feedID, std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts)
-                                                           {
-                                                               QList<QList<QStandardItem*>> rows;
-                                                               for (const auto& post : posts)
+        if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueGetPosts(sourceID, feedID, 100, 1,
+                                                               [&](uint64_t sourceID, uint64_t feedID, std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts)
                                                                {
-                                                                   auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
-                                                                   titleItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
-                                                                   titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
-                                                                   titleItem->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
-                                                                   titleItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
+                                                                   QList<QList<QStandardItem*>> rows;
+                                                                   for (const auto& post : posts)
+                                                                   {
+                                                                       auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
+                                                                       titleItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+                                                                       titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
+                                                                       titleItem->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
+                                                                       titleItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
 
-                                                                   auto datePublished = QString::fromUtf8(post->datePublished());
-                                                                   auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
-                                                                   dateItem->setData(datePublished, PostISODateRole);
-                                                                   dateItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
-                                                                   dateItem->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
-                                                                   dateItem->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
-                                                                   dateItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
+                                                                       auto datePublished = QString::fromUtf8(post->datePublished());
+                                                                       auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
+                                                                       dateItem->setData(datePublished, PostISODateRole);
+                                                                       dateItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+                                                                       dateItem->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
+                                                                       dateItem->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
+                                                                       dateItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
 
-                                                                   QList<QStandardItem*> rowData;
-                                                                   rowData << titleItem << dateItem;
-                                                                   rows << rowData;
-                                                               }
+                                                                       QList<QStandardItem*> rowData;
+                                                                       rowData << titleItem << dateItem;
+                                                                       rows << rowData;
+                                                                   }
 
-                                                               QMetaObject::invokeMethod(this, "loadPosts", Qt::AutoConnection, rows);
-                                                           });
+                                                                   QMetaObject::invokeMethod(this, "loadPosts", Qt::AutoConnection, rows);
+                                                               });
+        }
+        else
+        {
+            loadPosts({});
+        }
+        setupToolbarEnabledStates();
     }
-    setupToolbarEnabledStates();
 }
 
 void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& posts)
@@ -729,6 +745,11 @@ void ZapFR::Client::MainWindow::feedMarkedRead()
     reloadSources();
 }
 
+void ZapFR::Client::MainWindow::folderAdded()
+{
+    reloadSources(false);
+}
+
 void ZapFR::Client::MainWindow::setupToolbarIcons()
 {
     // the defaults are for the light theme
@@ -771,6 +792,7 @@ void ZapFR::Client::MainWindow::setupToolbarIcons()
     installIcon(":/refreshFeed.svg", ui->action_Refresh_all_feeds);
     installIcon(":/markAsRead.svg", ui->action_Mark_feed_as_read);
     installIcon(":/addFeed.svg", ui->action_Add_feed);
+    installIcon(":/addFolder.svg", ui->action_Add_folder);
 
     ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
                                        "QToolButton:disabled { color:%1; }\n")
@@ -877,7 +899,8 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 QMessageBox messageBox;
                 messageBox.setText(tr("Remove folder"));
                 messageBox.setWindowTitle(tr("Remove folder"));
-                messageBox.setInformativeText(tr("Are you sure you want to remove this folder and all feeds it contains? All associated posts will be removed!"));
+                messageBox.setInformativeText(
+                    tr("Are you sure you want to remove this folder, all its subfolders, and all feeds they contain? All associated posts will be removed!"));
                 messageBox.setIcon(QMessageBox::Warning);
                 auto yesButton = messageBox.addButton(QMessageBox::StandardButton::Yes);
                 yesButton->setText(tr("Remove"));
@@ -891,21 +914,10 @@ void ZapFR::Client::MainWindow::createContextMenus()
                     auto index = ui->treeViewSources->currentIndex();
                     if (index.isValid())
                     {
-                        auto cur = index;
-                        QStringList subfolders;
-                        while (true)
-                        {
-                            subfolders << cur.data(Qt::DisplayRole).toString();
-                            cur = cur.parent();
-                            if (!cur.isValid() || cur.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
-                            {
-                                break;
-                            }
-                        }
-                        std::reverse(subfolders.begin(), subfolders.end());
-                        auto folderHierarchy = subfolders.join("/").toStdString();
+                        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                        auto folder = index.data(SourceTreeEntryIDRole).toULongLong();
 
-                        ZapFR::Engine::Agent::getInstance()->queueRemoveFolder(index.data(SourceTreeEntryParentSourceIDRole).toULongLong(), folderHierarchy,
+                        ZapFR::Engine::Agent::getInstance()->queueRemoveFolder(sourceID, folder,
                                                                                [&]() { QMetaObject::invokeMethod(this, "folderRemoved", Qt::AutoConnection); });
                     }
                 }

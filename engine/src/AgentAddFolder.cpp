@@ -16,33 +16,24 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTSUBSCRIBEFEED_H
-#define ZAPFR_ENGINE_AGENTSUBSCRIBEFEED_H
+#include "AgentAddFolder.h"
+#include "Feed.h"
+#include "Post.h"
+#include "Source.h"
 
-#include "AgentRunnable.h"
-#include "Global.h"
-
-namespace ZapFR
+ZapFR::Engine::AgentAddFolder::AgentAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mParentFolderID(parentFolderID), mTitle(title), mFinishedCallback(finishedCallback)
 {
-    namespace Engine
+}
+
+void ZapFR::Engine::AgentAddFolder::run()
+{
+    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    if (source.has_value())
     {
-        class Feed;
+        source.value()->addFolder(mTitle, mParentFolderID);
+        mFinishedCallback();
+    }
 
-        class AgentSubscribeFeed : public AgentRunnable
-        {
-          public:
-            explicit AgentSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback);
-            virtual ~AgentSubscribeFeed() = default;
-
-            void run() override;
-
-          private:
-            uint64_t mSourceID{0};
-            std::string mURL{0};
-            uint64_t mFolderID{0};
-            std::function<void()> mFinishedCallback{};
-        };
-    } // namespace Engine
-} // namespace ZapFR
-
-#endif // ZAPFR_ENGINE_AGENTSUBSCRIBEFEED_H
+    mIsDone = true;
+}

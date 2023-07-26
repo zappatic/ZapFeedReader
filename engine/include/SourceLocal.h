@@ -36,18 +36,25 @@ namespace ZapFR
 
             std::vector<std::unique_ptr<Feed>> getFeeds() override;
             std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) override;
-            void addFeed(const std::string& url, const std::string& folderHierarchy) override;
-            void moveFeed(uint64_t feedID, const std::string& newFolderHierarchy, uint64_t newSortOrder) override;
+            void addFeed(const std::string& url, uint64_t folder) override;
+            void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) override;
             void removeFeed(uint64_t feedID) override;
-            void removeFolder(const std::string& folderHierarchy) override;
+            void removeFolder(uint64_t folder) override;
+            void addFolder(const std::string& title, uint64_t parentID) override;
+
+            std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent) override;
+            std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID) override;
+            void getSubfolderIDs(uint64_t parent, std::vector<uint64_t>& ids, bool includeParent) override;
 
           private:
             std::mutex mInsertFeedMutex{};
 
-            void resort(const std::string& folderHierarchy) const;
-            uint64_t getNextFeedSortOrder(const std::string& folderHierarchy) const;
+            void resortFeeds(uint64_t folder) const;
+            void resortFolders(uint64_t folder) const;
+            uint64_t getNextFeedSortOrder(uint64_t folder) const;
+            uint64_t getNextFolderSortOrder(uint64_t folder) const;
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_HZAPFR_ENGINE_SOURCELOCAL_H
+#endif // ZAPFR_ENGINE_SOURCELOCAL_H

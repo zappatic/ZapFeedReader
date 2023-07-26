@@ -16,33 +16,39 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTSUBSCRIBEFEED_H
-#define ZAPFR_ENGINE_AGENTSUBSCRIBEFEED_H
+#include "Folder.h"
 
-#include "AgentRunnable.h"
-#include "Global.h"
+ZapFR::Engine::Database* ZapFR::Engine::Folder::msDatabase{nullptr};
 
-namespace ZapFR
+ZapFR::Engine::Folder::Folder(uint64_t id, uint64_t parent) : mID(id), mParent(parent)
 {
-    namespace Engine
+}
+
+void ZapFR::Engine::Folder::registerDatabaseInstance(Database* db)
+{
+    msDatabase = db;
+}
+
+bool ZapFR::Engine::Folder::hasSubfolders()
+{
+    if (!mSubfoldersFetched)
     {
-        class Feed;
+        fetchSubfolders();
+    }
+    return mSubfolders.size() > 0;
+}
 
-        class AgentSubscribeFeed : public AgentRunnable
-        {
-          public:
-            explicit AgentSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback);
-            virtual ~AgentSubscribeFeed() = default;
+std::vector<ZapFR::Engine::Folder*> ZapFR::Engine::Folder::subfolders()
+{
+    if (!mSubfoldersFetched)
+    {
+        fetchSubfolders();
+    }
 
-            void run() override;
-
-          private:
-            uint64_t mSourceID{0};
-            std::string mURL{0};
-            uint64_t mFolderID{0};
-            std::function<void()> mFinishedCallback{};
-        };
-    } // namespace Engine
-} // namespace ZapFR
-
-#endif // ZAPFR_ENGINE_AGENTSUBSCRIBEFEED_H
+    std::vector<Folder*> folders;
+    for (const auto& f : mSubfolders)
+    {
+        folders.emplace_back(f.get());
+    }
+    return folders;
+}

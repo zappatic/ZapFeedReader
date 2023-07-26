@@ -31,14 +31,14 @@ namespace ZapFR
         class AgentRemoveFolder : public AgentRunnable
         {
           public:
-            explicit AgentRemoveFolder(uint64_t sourceID, const std::string& folderHierarchy, std::function<void()> finishedCallback);
+            explicit AgentRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
             virtual ~AgentRemoveFolder() = default;
 
             void run() override;
 
           private:
             uint64_t mSourceID{0};
-            std::string mFolderHierarchy{};
+            uint64_t mFolderID{0};
             std::function<void()> mFinishedCallback{};
         };
     } // namespace Engine
