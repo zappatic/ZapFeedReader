@@ -17,6 +17,7 @@ set(PROJECT_SOURCES
         src/MainWindow.cpp
         src/ItemDelegateSource.cpp
         src/ItemDelegatePost.cpp
+        src/DialogWithSourcesAndFolders.cpp
         src/DialogAddFeed.cpp
         src/DialogAddFolder.cpp
         src/DialogImportOPML.cpp
@@ -30,6 +31,7 @@ set(PROJECT_SOURCES
         include/MainWindow.h
         include/ItemDelegateSource.h
         include/ItemDelegatePost.h
+        include/DialogWithSourcesAndFolders.h
         include/DialogAddFeed.h
         include/DialogAddFolder.h
         include/DialogImportOPML.h

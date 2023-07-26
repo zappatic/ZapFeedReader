@@ -23,6 +23,7 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QComboBox>
 #include <QDate>
 #include <QDesktopServices>
 #include <QDialog>

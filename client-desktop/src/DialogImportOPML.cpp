@@ -20,13 +20,12 @@
 #include "OPMLParser.h"
 #include "ui_DialogImportOPML.h"
 
-ZapFR::Client::DialogImportOPML::DialogImportOPML(QWidget* parent) : QDialog(parent), ui(new Ui::DialogImportOPML)
+ZapFR::Client::DialogImportOPML::DialogImportOPML(QWidget* parent) : DialogWithSourcesAndFolders(parent), ui(new Ui::DialogImportOPML)
 {
     ui->setupUi(this);
+    setComboBoxSources(ui->comboBoxSources);
+    setComboBoxFolders(ui->comboBoxFolder);
     connect(ui->pushButtonChooseOPMLFile, &QPushButton::clicked, this, &DialogImportOPML::chooseOPMLFile);
-
-    mSourcesModel = std::make_unique<QStandardItemModel>(this);
-    ui->comboBoxSources->setModel(mSourcesModel.get());
 
     for (const auto& button : ui->buttonBox->buttons())
     {
@@ -69,30 +68,14 @@ void ZapFR::Client::DialogImportOPML::chooseOPMLFile(bool /*checked*/)
     }
 }
 
-void ZapFR::Client::DialogImportOPML::reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources)
+void ZapFR::Client::DialogImportOPML::reset(uint64_t selectedSourceID, uint64_t selectedFolderID)
 {
     ui->lineEditChosenOPMLFile->setText("");
     mImportedFeeds.clear();
-    mSourcesModel->clear();
-    for (const auto& source : sources)
-    {
-        auto item = new QStandardItem(QString::fromUtf8(source->title()));
-        item->setData(QVariant::fromValue<uint64_t>(source->id()), SourceIDRole);
-        mSourcesModel->appendRow(item);
-    }
+    setPreselectedSourceAndFolderIDs(selectedSourceID, selectedFolderID);
 }
 
 std::vector<ZapFR::Engine::OPMLEntry> ZapFR::Client::DialogImportOPML::importedFeeds() const noexcept
 {
     return mImportedFeeds;
-}
-
-uint64_t ZapFR::Client::DialogImportOPML::sourceID() const
-{
-    return ui->comboBoxSources->currentData(SourceIDRole).toULongLong();
-}
-
-uint64_t ZapFR::Client::DialogImportOPML::folderID() const
-{
-    return 0; // TODO ui->lineEditAddToFolder->text().trimmed();
 }

@@ -262,16 +262,15 @@ void ZapFR::Client::MainWindow::addFeed()
                 {
                     if (result == QDialog::DialogCode::Accepted)
                     {
-                        ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogAddFeed->sourceID(), mDialogAddFeed->url().toStdString(), mDialogAddFeed->folderID(),
+                        ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogAddFeed->selectedSourceID(), mDialogAddFeed->url().toStdString(),
+                                                                                mDialogAddFeed->selectedFolderID(),
                                                                                 [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
                     }
                 });
     }
 
-    // if we have a folder or feed selected, preselect the same folder and source
     auto [sourceID, folderID] = getCurrentlySelectedSourceAndFolderID();
-    auto sources = ZapFR::Engine::Source::getSources({});
-    mDialogAddFeed->reset(sources, sourceID, folderID);
+    mDialogAddFeed->reset(sourceID, folderID);
     mDialogAddFeed->open();
 }
 
@@ -285,18 +284,40 @@ void ZapFR::Client::MainWindow::addFolder()
                 {
                     if (result == QDialog::DialogCode::Accepted)
                     {
-                        ZapFR::Engine::Agent::getInstance()->queueAddFolder(mDialogAddFolder->sourceID(), mDialogAddFolder->addUnderFolder(),
+                        ZapFR::Engine::Agent::getInstance()->queueAddFolder(mDialogAddFolder->selectedSourceID(), mDialogAddFolder->selectedFolderID(),
                                                                             mDialogAddFolder->title().toStdString(),
                                                                             [&]() { QMetaObject::invokeMethod(this, "folderAdded", Qt::AutoConnection); });
                     }
                 });
     }
 
-    // if we have a folder or feed selected, preselect the same folder and source
     auto [sourceID, folderID] = getCurrentlySelectedSourceAndFolderID();
-    auto sources = ZapFR::Engine::Source::getSources({});
-    mDialogAddFolder->reset(sources, sourceID, folderID);
+    mDialogAddFolder->reset(sourceID, folderID);
     mDialogAddFolder->open();
+}
+
+void ZapFR::Client::MainWindow::importOPML()
+{
+    if (mDialogImportOPML == nullptr)
+    {
+        mDialogImportOPML = std::make_unique<DialogImportOPML>(this);
+        connect(mDialogImportOPML.get(), &QDialog::finished,
+                [&](int result)
+                {
+                    if (result == QDialog::DialogCode::Accepted)
+                    {
+                        for (const auto& feed : mDialogImportOPML->importedFeeds())
+                        {
+                            ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogImportOPML->selectedSourceID(), feed.url, mDialogImportOPML->selectedFolderID(),
+                                                                                    [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
+                        }
+                    }
+                });
+    }
+
+    auto [sourceID, folderID] = getCurrentlySelectedSourceAndFolderID();
+    mDialogImportOPML->reset(sourceID, folderID);
+    mDialogImportOPML->open();
 }
 
 std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSourceAndFolderID() const
@@ -318,30 +339,6 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
         }
     }
     return std::make_tuple(sourceID, folderID);
-}
-
-void ZapFR::Client::MainWindow::importOPML()
-{
-    if (mDialogImportOPML == nullptr)
-    {
-        mDialogImportOPML = std::make_unique<DialogImportOPML>(this);
-        connect(mDialogImportOPML.get(), &QDialog::finished,
-                [&](int result)
-                {
-                    if (result == QDialog::DialogCode::Accepted)
-                    {
-                        for (const auto& feed : mDialogImportOPML->importedFeeds())
-                        {
-                            ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogImportOPML->sourceID(), feed.url, mDialogImportOPML->folderID(),
-                                                                                    [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
-                        }
-                    }
-                });
-    }
-
-    auto sources = ZapFR::Engine::Source::getSources({});
-    mDialogImportOPML->reset(sources);
-    mDialogImportOPML->open();
 }
 
 void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)

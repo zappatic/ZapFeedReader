@@ -20,7 +20,7 @@
 #define ZAPFR_CLIENT_DIALOGADDFOLDER_H
 
 #include "ClientGlobal.h"
-#include "Source.h"
+#include "DialogWithSourcesAndFolders.h"
 
 namespace Ui
 {
@@ -31,7 +31,7 @@ namespace ZapFR
 {
     namespace Client
     {
-        class DialogAddFolder : public QDialog
+        class DialogAddFolder : public DialogWithSourcesAndFolders
         {
             Q_OBJECT
 
@@ -40,22 +40,11 @@ namespace ZapFR
             ~DialogAddFolder();
 
             QString title() const;
-            uint64_t addUnderFolder() const;
-            uint64_t sourceID() const;
 
-            void reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources, uint64_t selectedSourceID, uint64_t selectedFolderID);
-
-          private slots:
-            void currentSourceChanged(int index);
+            void reset(uint64_t selectedSourceID, uint64_t selectedFolderID);
 
           private:
             Ui::DialogAddFolder* ui;
-            std::unique_ptr<QStandardItemModel> mSourcesModel;
-            std::unique_ptr<QStandardItemModel> mFoldersModel;
-            int64_t mFolderIDToPreselect{-1};
-
-            static constexpr uint32_t SourceIDRole{Qt::ItemDataRole::UserRole + 1};
-            static constexpr uint32_t FolderIDRole{Qt::ItemDataRole::UserRole + 2};
         };
     } // namespace Client
 } // namespace ZapFR

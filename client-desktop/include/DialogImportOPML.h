@@ -20,8 +20,8 @@
 #define ZAPFR_CLIENT_DIALOGIMPORTOPML_H
 
 #include "ClientGlobal.h"
+#include "DialogWithSourcesAndFolders.h"
 #include "OPMLParser.h"
-#include "Source.h"
 
 namespace Ui
 {
@@ -32,7 +32,7 @@ namespace ZapFR
 {
     namespace Client
     {
-        class DialogImportOPML : public QDialog
+        class DialogImportOPML : public DialogWithSourcesAndFolders
         {
             Q_OBJECT
 
@@ -40,20 +40,16 @@ namespace ZapFR
             explicit DialogImportOPML(QWidget* parent = nullptr);
             ~DialogImportOPML();
 
-            void reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources);
             std::vector<ZapFR::Engine::OPMLEntry> importedFeeds() const noexcept;
-            uint64_t sourceID() const;
-            uint64_t folderID() const;
+
+            void reset(uint64_t selectedSourceID, uint64_t selectedFolderID);
 
           private slots:
             void chooseOPMLFile(bool checked);
 
           private:
             Ui::DialogImportOPML* ui;
-            std::unique_ptr<QStandardItemModel> mSourcesModel;
             std::vector<ZapFR::Engine::OPMLEntry> mImportedFeeds;
-
-            static constexpr uint32_t SourceIDRole{Qt::ItemDataRole::UserRole + 1};
         };
     } // namespace Client
 } // namespace ZapFR

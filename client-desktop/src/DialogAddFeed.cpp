@@ -19,15 +19,11 @@
 #include "DialogAddFeed.h"
 #include "ui_DialogAddFeed.h"
 
-ZapFR::Client::DialogAddFeed::DialogAddFeed(QWidget* parent) : QDialog(parent), ui(new Ui::DialogAddFeed)
+ZapFR::Client::DialogAddFeed::DialogAddFeed(QWidget* parent) : DialogWithSourcesAndFolders(parent), ui(new Ui::DialogAddFeed)
 {
     ui->setupUi(this);
-
-    mSourcesModel = std::make_unique<QStandardItemModel>(this);
-    ui->comboBoxSource->setModel(mSourcesModel.get());
-
-    mFoldersModel = std::make_unique<QStandardItemModel>(this);
-    ui->comboBoxFolder->setModel(mFoldersModel.get());
+    setComboBoxSources(ui->comboBoxSource);
+    setComboBoxFolders(ui->comboBoxFolder);
 
     for (const auto& button : ui->buttonBox->buttons())
     {
@@ -37,8 +33,6 @@ ZapFR::Client::DialogAddFeed::DialogAddFeed(QWidget* parent) : QDialog(parent), 
             break;
         }
     }
-
-    connect(ui->comboBoxSource, &QComboBox::currentIndexChanged, this, &DialogAddFeed::currentSourceChanged);
 }
 
 // TODO: check chosen feed url before 'accept'ing
@@ -48,51 +42,13 @@ ZapFR::Client::DialogAddFeed::~DialogAddFeed()
     delete ui;
 }
 
-void ZapFR::Client::DialogAddFeed::reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources, uint64_t selectedSourceID, uint64_t /*selectedFolderID*/)
+void ZapFR::Client::DialogAddFeed::reset(uint64_t selectedSourceID, uint64_t selectedFolderID)
 {
     ui->lineEditURL->setText("");
-
-    mSourcesModel->clear();
-    int32_t toSelect{-1};
-    int32_t counter{0};
-    for (const auto& source : sources)
-    {
-        auto item = new QStandardItem(QString::fromUtf8(source->title()));
-        auto sourceID = source->id();
-        item->setData(QVariant::fromValue<uint64_t>(sourceID), SourceIDRole);
-        if (sourceID == selectedSourceID)
-        {
-            toSelect = counter;
-        }
-        mSourcesModel->appendRow(item);
-        counter++;
-    }
-
-    if (toSelect != -1)
-    {
-        ui->comboBoxSource->setCurrentIndex(toSelect);
-    }
-
-    mFoldersModel->clear();
-    // tODO: preselect the folder ID
+    setPreselectedSourceAndFolderIDs(selectedSourceID, selectedFolderID);
 }
 
 QString ZapFR::Client::DialogAddFeed::url() const
 {
     return ui->lineEditURL->text().trimmed();
-}
-
-uint64_t ZapFR::Client::DialogAddFeed::sourceID() const
-{
-    return ui->comboBoxSource->currentData(SourceIDRole).toULongLong();
-}
-
-uint64_t ZapFR::Client::DialogAddFeed::folderID() const
-{
-    return 0; // TODO
-}
-
-void ZapFR::Client::DialogAddFeed::currentSourceChanged(int /*index*/)
-{
-    qDebug() << ui->comboBoxSource->currentData(SourceIDRole);
 }

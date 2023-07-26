@@ -20,7 +20,7 @@
 #define ZAPFR_CLIENT_DIALOGADDFEED_H
 
 #include "ClientGlobal.h"
-#include "Source.h"
+#include "DialogWithSourcesAndFolders.h"
 
 namespace Ui
 {
@@ -31,7 +31,7 @@ namespace ZapFR
 {
     namespace Client
     {
-        class DialogAddFeed : public QDialog
+        class DialogAddFeed : public DialogWithSourcesAndFolders
         {
             Q_OBJECT
 
@@ -39,21 +39,12 @@ namespace ZapFR
             explicit DialogAddFeed(QWidget* parent = nullptr);
             ~DialogAddFeed();
 
-            void reset(const std::vector<std::unique_ptr<ZapFR::Engine::Source>>& sources, uint64_t selectedSourceID, uint64_t selectedFolderID);
-
             QString url() const;
-            uint64_t sourceID() const;
-            uint64_t folderID() const;
 
-          private slots:
-            void currentSourceChanged(int index);
+            void reset(uint64_t selectedSourceID, uint64_t selectedFolderID);
 
           private:
             Ui::DialogAddFeed* ui;
-            std::unique_ptr<QStandardItemModel> mSourcesModel;
-            std::unique_ptr<QStandardItemModel> mFoldersModel;
-
-            static constexpr uint32_t SourceIDRole{Qt::ItemDataRole::UserRole + 1};
         };
     } // namespace Client
 } // namespace ZapFR
