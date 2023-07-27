@@ -41,6 +41,7 @@ namespace ZapFR
             void refresh() override;
             void markAllAsRead() override;
             void markAsRead(uint64_t postID) override;
+            void markAsUnread(uint64_t postID) override;
             void refreshIcon() override;
             void removeIcon() override;
 

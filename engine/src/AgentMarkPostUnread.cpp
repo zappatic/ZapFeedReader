@@ -16,16 +16,16 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentMarkPostRead.h"
+#include "AgentMarkPostUnread.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMarkPostRead::AgentMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback)
+ZapFR::Engine::AgentMarkPostUnread::AgentMarkPostUnread(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentMarkPostRead::run()
+void ZapFR::Engine::AgentMarkPostUnread::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
@@ -33,7 +33,7 @@ void ZapFR::Engine::AgentMarkPostRead::run()
         auto feed = source.value()->getFeed(mFeedID);
         if (feed.has_value())
         {
-            feed.value()->markAsRead(mPostID);
+            feed.value()->markAsUnread(mPostID);
             mFinishedCallback(mPostID);
         }
     }

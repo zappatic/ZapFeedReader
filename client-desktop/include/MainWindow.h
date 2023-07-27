@@ -64,6 +64,7 @@ namespace ZapFR
             void postsTableViewItemSelected(const QModelIndex& index);
             void colorSchemeChanged(Qt::ColorScheme scheme);
             void sourceTreeViewContextMenuRequested(const QPoint& p);
+            void postsTableViewContextMenuRequested(const QPoint& p);
             void postLinkHovered(const QString& url);
 
             // callbacks
@@ -75,7 +76,8 @@ namespace ZapFR
             void folderMoved();
             void folderAdded();
             void loadPosts(const QList<QList<QStandardItem*>>& posts);
-            void postMarkedRead();
+            void postMarkedRead(uint64_t postID);
+            void postMarkedUnread(uint64_t postID);
             void feedMarkedRead();
             void setPostHTML(const QString& html);
 
@@ -93,6 +95,7 @@ namespace ZapFR
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFolder{nullptr};
+            std::unique_ptr<QMenu> mPostContextMenu{nullptr};
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
             uint64_t mCurrentPostID{0};

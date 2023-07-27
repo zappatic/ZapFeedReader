@@ -16,27 +16,34 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentMarkPostRead.h"
-#include "Feed.h"
-#include "Source.h"
+#ifndef ZAPFR_ENGINE_AGENTMARKPOSTUNREAD_H
+#define ZAPFR_ENGINE_AGENTMARKPOSTUNREAD_H
 
-ZapFR::Engine::AgentMarkPostRead::AgentMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFinishedCallback(finishedCallback)
-{
-}
+#include "AgentRunnable.h"
+#include "Global.h"
+#include "Post.h"
 
-void ZapFR::Engine::AgentMarkPostRead::run()
+namespace ZapFR
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
-    if (source.has_value())
+    namespace Engine
     {
-        auto feed = source.value()->getFeed(mFeedID);
-        if (feed.has_value())
-        {
-            feed.value()->markAsRead(mPostID);
-            mFinishedCallback(mPostID);
-        }
-    }
+        class Feed;
 
-    mIsDone = true;
-}
+        class AgentMarkPostUnread : public AgentRunnable
+        {
+          public:
+            explicit AgentMarkPostUnread(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback);
+            virtual ~AgentMarkPostUnread() = default;
+
+            void run() override;
+
+          private:
+            uint64_t mSourceID{0};
+            uint64_t mFeedID{0};
+            uint64_t mPostID{0};
+            std::function<void(uint64_t)> mFinishedCallback{};
+        };
+    } // namespace Engine
+} // namespace ZapFR
+
+#endif // ZAPFR_ENGINE_AGENTMARKPOSTUNREAD_H

@@ -48,7 +48,8 @@ namespace ZapFR
             void queueRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
             void queueGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
                                std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<Post>>)> finishedCallback);
-            void queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void()> finishedCallback);
+            void queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback);
+            void queueMarkPostUnread(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback);
             void queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             void queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback);
             void queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback);

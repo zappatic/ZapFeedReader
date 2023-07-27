@@ -72,6 +72,9 @@
         <number>8</number>
        </property>
        <widget class="ZapFR::Client::TableViewPosts" name="tableViewPosts">
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>

@@ -72,6 +72,7 @@ namespace ZapFR
             virtual void refresh() = 0;
             virtual void markAllAsRead() = 0;
             virtual void markAsRead(uint64_t postID) = 0;
+            virtual void markAsUnread(uint64_t postID) = 0;
             virtual void refreshIcon() = 0;
             virtual void removeIcon() = 0;
 

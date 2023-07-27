@@ -103,6 +103,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/AgentMoveFeed.cpp
                                 ../engine/src/AgentMoveFolder.cpp
                                 ../engine/src/AgentMarkPostRead.cpp
+                                ../engine/src/AgentMarkPostUnread.cpp
                                 ../engine/src/AgentMarkFeedRead.cpp
                                 ../engine/src/AgentGetPost.cpp
                                 ../engine/src/Database.cpp

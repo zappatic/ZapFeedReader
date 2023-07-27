@@ -51,6 +51,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
     connect(ui->tableViewPosts, &TableViewPosts::currentPostChanged, this, &MainWindow::postsTableViewItemSelected);
+    connect(ui->tableViewPosts, &TableViewPosts::customContextMenuRequested, this, &MainWindow::postsTableViewContextMenuRequested);
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
     fixPalette();
@@ -601,14 +602,7 @@ void ZapFR::Client::MainWindow::postsTableViewItemSelected(const QModelIndex& in
         mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
 
         ZapFR::Engine::Agent::getInstance()->queueMarkPostRead(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
-                                                               [&]() { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection); });
-
-        for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
-        {
-            auto item = mItemModelPosts->item(index.row(), col);
-            item->setData(QVariant::fromValue<bool>(true), PostIsReadRole);
-        }
-        ui->tableViewPosts->scrollTo(index);
+                                                               [&](uint64_t postID) { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection, postID); });
     }
     else
     {
@@ -729,6 +723,11 @@ void ZapFR::Client::MainWindow::sourceTreeViewContextMenuRequested(const QPoint&
     }
 }
 
+void ZapFR::Client::MainWindow::postsTableViewContextMenuRequested(const QPoint& p)
+{
+    mPostContextMenu->popup(ui->tableViewPosts->viewport()->mapToGlobal(p));
+}
+
 void ZapFR::Client::MainWindow::feedRefreshed()
 {
     reloadSources();
@@ -760,8 +759,40 @@ void ZapFR::Client::MainWindow::folderRemoved()
     reloadSources(false);
 }
 
-void ZapFR::Client::MainWindow::postMarkedRead()
+void ZapFR::Client::MainWindow::postMarkedRead(uint64_t postID)
 {
+    for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
+    {
+        auto index = mItemModelPosts->index(i, 0);
+        if (index.data(PostIDRole).toULongLong() == postID)
+        {
+            for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
+            {
+                auto item = mItemModelPosts->item(i, col);
+                item->setData(QVariant::fromValue<bool>(true), PostIsReadRole);
+            }
+            ui->tableViewPosts->scrollTo(index);
+        }
+    }
+
+    reloadSources(false);
+}
+
+void ZapFR::Client::MainWindow::postMarkedUnread(uint64_t postID)
+{
+    for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
+    {
+        auto index = mItemModelPosts->index(i, 0);
+        if (index.data(PostIDRole).toULongLong() == postID)
+        {
+            for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
+            {
+                auto item = mItemModelPosts->item(i, col);
+                item->setData(QVariant::fromValue<bool>(false), PostIsReadRole);
+            }
+        }
+    }
+
     reloadSources(false);
 }
 
@@ -932,7 +963,12 @@ void ZapFR::Client::MainWindow::createContextMenus()
     // FOLDERS
     mSourceContextMenuFolder = std::make_unique<QMenu>(nullptr);
 
-    // Folder - remove
+    // Folder - Add subfolder
+    auto addFolderAction = new QAction(tr("Add &subfolder"), this);
+    connect(addFolderAction, &QAction::triggered, this, &MainWindow::addFolder);
+    mSourceContextMenuFolder->addAction(addFolderAction);
+
+    // Folder - Remove
     auto removeFolderAction = new QAction(tr("Remo&ve"), this);
     connect(removeFolderAction, &QAction::triggered,
             [&]()
@@ -964,4 +1000,29 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 }
             });
     mSourceContextMenuFolder->addAction(removeFolderAction);
+
+    // POSTS
+    mPostContextMenu = std::make_unique<QMenu>(nullptr);
+
+    auto markPostUnreadAction = new QAction(tr("&Mark as unread"), this);
+    connect(markPostUnreadAction, &QAction::triggered,
+            [&]()
+            {
+                auto selectionModel = ui->tableViewPosts->selectionModel();
+                if (selectionModel != nullptr)
+                {
+                    auto selectedIndexes = selectionModel->selectedIndexes();
+                    for (const auto& index : selectedIndexes)
+                    {
+                        mCurrentPostID = index.data(PostIDRole).toULongLong();
+                        mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
+                        mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
+
+                        ZapFR::Engine::Agent::getInstance()->queueMarkPostUnread(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
+                                                                                 [&](uint64_t postID)
+                                                                                 { QMetaObject::invokeMethod(this, "postMarkedUnread", Qt::AutoConnection, postID); });
+                    }
+                }
+            });
+    mPostContextMenu->addAction(markPostUnreadAction);
 }

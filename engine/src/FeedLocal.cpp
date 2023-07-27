@@ -279,6 +279,13 @@ void ZapFR::Engine::FeedLocal::markAsRead(uint64_t postID)
     updateStmt.execute();
 }
 
+void ZapFR::Engine::FeedLocal::markAsUnread(uint64_t postID)
+{
+    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    updateStmt << "UPDATE posts SET isRead=FALSE WHERE feedID=? AND id=?", use(mID), use(postID), now;
+    updateStmt.execute();
+}
+
 void ZapFR::Engine::FeedLocal::refreshIcon()
 {
     fetchData();
