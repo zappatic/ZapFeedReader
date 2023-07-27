@@ -93,6 +93,7 @@ namespace ZapFR
             std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
+            std::unique_ptr<QMenu> mSourceContextMenuSource{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFolder{nullptr};
             std::unique_ptr<QMenu> mPostContextMenu{nullptr};
@@ -114,9 +115,13 @@ namespace ZapFR
             void reloadCurrentPost();
             QString postStyles() const;
             QString textMessageHTML(const QString& message) const;
-            void createContextMenus();
             void setupToolbarIcons();
             void setupToolbarEnabledStates();
+            void createContextMenus();
+            void createContextMenuSource();
+            void createContextMenuFeed();
+            void createContextMenuFolder();
+            void createContextMenuPost();
         };
     } // namespace Client
 } // namespace ZapFR

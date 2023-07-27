@@ -742,6 +742,11 @@ void ZapFR::Client::MainWindow::sourceTreeViewContextMenuRequested(const QPoint&
                 mSourceContextMenuFolder->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
                 break;
             }
+            case SOURCETREE_ENTRY_TYPE_SOURCE:
+            {
+                mSourceContextMenuSource->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                break;
+            }
         }
     }
 }
@@ -928,7 +933,23 @@ void ZapFR::Client::MainWindow::refreshAllFeeds()
 
 void ZapFR::Client::MainWindow::createContextMenus()
 {
-    // FEEDS
+    createContextMenuSource();
+    createContextMenuFeed();
+    createContextMenuFolder();
+    createContextMenuPost();
+}
+
+void ZapFR::Client::MainWindow::createContextMenuSource()
+{
+    mSourceContextMenuSource = std::make_unique<QMenu>(nullptr);
+
+    auto addFolderAction = new QAction(tr("Add &folder"), this);
+    connect(addFolderAction, &QAction::triggered, this, &MainWindow::addFolder);
+    mSourceContextMenuSource->addAction(addFolderAction);
+}
+
+void ZapFR::Client::MainWindow::createContextMenuFeed()
+{
     mSourceContextMenuFeed = std::make_unique<QMenu>(nullptr);
 
     // Feed - Refresh
@@ -982,8 +1003,10 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 }
             });
     mSourceContextMenuFeed->addAction(removeAction);
+}
 
-    // FOLDERS
+void ZapFR::Client::MainWindow::createContextMenuFolder()
+{
     mSourceContextMenuFolder = std::make_unique<QMenu>(nullptr);
 
     // Folder - Add subfolder
@@ -1023,8 +1046,10 @@ void ZapFR::Client::MainWindow::createContextMenus()
                 }
             });
     mSourceContextMenuFolder->addAction(removeFolderAction);
+}
 
-    // POSTS
+void ZapFR::Client::MainWindow::createContextMenuPost()
+{
     mPostContextMenu = std::make_unique<QMenu>(nullptr);
 
     auto markPostUnreadAction = new QAction(tr("&Mark as unread"), this);
