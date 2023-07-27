@@ -325,18 +325,26 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
 {
     uint64_t sourceID{0};
     uint64_t folderID{0};
-    auto currentIndex = ui->treeViewSources->currentIndex();
-    if (currentIndex.isValid())
+    auto selectionModel = ui->treeViewSources->selectionModel();
+    if (selectionModel != nullptr)
     {
-        sourceID = currentIndex.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        auto type = currentIndex.data(SourceTreeEntryTypeRole);
-        if (type == SOURCETREE_ENTRY_TYPE_FOLDER)
+        auto selectedIndexes = selectionModel->selectedIndexes();
+        if (selectedIndexes.count() == 1)
         {
-            folderID = currentIndex.data(SourceTreeEntryIDRole).toULongLong();
-        }
-        else if (type == SOURCETREE_ENTRY_TYPE_FEED)
-        {
-            folderID = currentIndex.data(SourceTreeEntryParentFolderIDRole).toULongLong();
+            auto currentIndex = selectedIndexes.at(0);
+            if (currentIndex.isValid())
+            {
+                sourceID = currentIndex.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                auto type = currentIndex.data(SourceTreeEntryTypeRole);
+                if (type == SOURCETREE_ENTRY_TYPE_FOLDER)
+                {
+                    folderID = currentIndex.data(SourceTreeEntryIDRole).toULongLong();
+                }
+                else if (type == SOURCETREE_ENTRY_TYPE_FEED)
+                {
+                    folderID = currentIndex.data(SourceTreeEntryParentFolderIDRole).toULongLong();
+                }
+            }
         }
     }
     return std::make_tuple(sourceID, folderID);
@@ -565,7 +573,7 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
         {
             loadPosts({});
         }
-        setupToolbarEnabledStates();
+        QTimer::singleShot(0, [&]() { setupToolbarEnabledStates(); });
     }
 }
 
@@ -802,25 +810,40 @@ void ZapFR::Client::MainWindow::setupToolbarEnabledStates()
     bool anythingSelected{false};
     bool feedSelected{false};
 
-    auto index = ui->treeViewSources->currentIndex();
-    if (index.isValid())
+    auto selectionModel = ui->treeViewSources->selectionModel();
+    if (selectionModel != nullptr)
     {
-        anythingSelected = true;
-        feedSelected = (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED);
+        auto selectedIndexes = selectionModel->selectedIndexes();
+        if (selectedIndexes.count() == 1)
+        {
+            auto index = selectedIndexes.at(0);
+            if (index.isValid())
+            {
+                anythingSelected = true;
+                feedSelected = (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED);
+            }
+        }
     }
-
     ui->action_Mark_feed_as_read->setEnabled(feedSelected);
     ui->action_Add_feed->setEnabled(anythingSelected);
 }
 
 void ZapFR::Client::MainWindow::markFeedAsRead()
 {
-    auto index = ui->treeViewSources->currentIndex();
-    if (index.isValid())
+    auto selectionModel = ui->treeViewSources->selectionModel();
+    if (selectionModel != nullptr)
     {
-        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+        auto selectedIndexes = selectionModel->selectedIndexes();
+        if (selectedIndexes.count() == 1)
+        {
+            auto index = selectedIndexes.at(0);
+            if (index.isValid())
+            {
+                auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+                ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+            }
+        }
     }
 }
 
