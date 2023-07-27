@@ -656,34 +656,43 @@ void ZapFR::Client::MainWindow::setPostHTML(const QString& html)
 QString ZapFR::Client::MainWindow::postStyles() const
 {
     auto font = ui->treeViewSources->font();
-    auto commonStyles = QString::fromUtf8(R"(body { font-family: "%1", sans-serif; }\n)").arg(font.family());
+    auto palette = QPalette(ui->treeViewSources->palette());
+
+    QString overrideFilename;
+    QString backgroundColor;
+    QString textColor;
+    QColor highlightColor = palette.color(QPalette::Active, QPalette::Highlight);
 
     auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
     if (currentColorScheme == Qt::ColorScheme::Dark)
     {
-        auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + "posttheme.dark.css"));
-        if (override.exists())
-        {
-            override.open(QIODeviceBase::ReadOnly);
-            auto styles = QString::fromUtf8(override.readAll());
-            override.close();
-            return styles;
-        }
-        return "body { background-color: #2a2a2a; color: #fff; }\n" + commonStyles;
-        ;
+        overrideFilename = "posttheme.dark.css";
+        backgroundColor = "#2a2a2a";
+        textColor = "#fff";
     }
     else
     {
-        auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + "posttheme.light.css"));
-        if (override.exists())
-        {
-            override.open(QIODeviceBase::ReadOnly);
-            auto styles = QString::fromUtf8(override.readAll());
-            override.close();
-            return styles;
-        }
-        return "body { background-color: #fff; color: #000; }\n" + commonStyles;
+        overrideFilename = "posttheme.light.css";
+        backgroundColor = "#fff";
+        textColor = "#000";
     }
+
+    auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + overrideFilename));
+    if (override.exists())
+    {
+        override.open(QIODeviceBase::ReadOnly);
+        auto styles = QString::fromUtf8(override.readAll());
+        override.close();
+        return styles;
+    }
+
+    return QString(R"(body { font-family: "%1", sans-serif; background-color: %2; color: %3; })"
+                   "\n"
+                   "a { color: %4; }\n")
+        .arg(font.family())
+        .arg(backgroundColor)
+        .arg(textColor)
+        .arg(highlightColor.name());
 }
 
 void ZapFR::Client::MainWindow::postLinkHovered(const QString& url)
@@ -836,6 +845,7 @@ void ZapFR::Client::MainWindow::setupToolbarEnabledStates()
     }
     ui->action_Mark_feed_as_read->setEnabled(feedSelected);
     ui->action_Add_feed->setEnabled(anythingSelected);
+    ui->action_Add_folder->setEnabled(anythingSelected);
 }
 
 void ZapFR::Client::MainWindow::markFeedAsRead()
