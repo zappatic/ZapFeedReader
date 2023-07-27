@@ -55,6 +55,7 @@ namespace ZapFR
             virtual void getSubfolderIDs(uint64_t parent, std::vector<uint64_t>& ids, bool includeParent = true) = 0;
             virtual uint64_t addFolder(const std::string& title, uint64_t parentID) = 0;
             virtual void removeFolder(uint64_t folder) = 0;
+            virtual void moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) = 0;
             virtual uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy) = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);

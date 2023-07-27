@@ -248,6 +248,23 @@ void ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, uint64_t newFolder, u
     }
 }
 
+void ZapFR::Engine::SourceLocal::moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)
+{
+    auto f = getFolder(folderID);
+    if (f.has_value())
+    {
+        Poco::Data::Statement updateStmt(*(msDatabase->session()));
+        updateStmt << "UPDATE folders SET parent=?, sortOrder=? WHERE id=?", use(newParent), use(newSortOrder), use(folderID), now;
+
+        auto oldParent = f.value()->parentID();
+        resortFolders(oldParent);
+        if (newParent != oldParent) // check in case we are moving within the same folder
+        {
+            resortFolders(newParent);
+        }
+    }
+}
+
 void ZapFR::Engine::SourceLocal::resortFeeds(uint64_t folder) const
 {
     std::vector<uint64_t> feedIDs;

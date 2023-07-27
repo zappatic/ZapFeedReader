@@ -736,6 +736,16 @@ void ZapFR::Client::MainWindow::feedRemoved()
     loadPosts({});
 }
 
+void ZapFR::Client::MainWindow::feedMoved()
+{
+    reloadSources();
+}
+
+void ZapFR::Client::MainWindow::folderMoved()
+{
+    reloadSources();
+}
+
 void ZapFR::Client::MainWindow::folderRemoved()
 {
     reloadSources(false);

@@ -70,7 +70,9 @@ namespace ZapFR
             void feedRefreshed();
             void feedAdded();
             void feedRemoved();
+            void feedMoved();
             void folderRemoved();
+            void folderMoved();
             void folderAdded();
             void loadPosts(const QList<QList<QStandardItem*>>& posts);
             void postMarkedRead();

@@ -90,6 +90,7 @@ namespace ZapFR
         static constexpr uint32_t PostIsReadRole{Qt::ItemDataRole::UserRole + 5};
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
+        static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";
 
     } // namespace Client
 } // namespace ZapFR

@@ -17,6 +17,7 @@
 */
 
 #include "StandardItemModelSources.h"
+#include "Agent.h"
 #include "MainWindow.h"
 #include "Source.h"
 
@@ -30,14 +31,18 @@ Qt::ItemFlags ZapFR::Client::StandardItemModelSources::flags(const QModelIndex& 
 
     if (index.isValid())
     {
-        // feeds should be drag enabled but not drop enabled
-        // everything else should be drop enabled but not drag enabled
-        if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+        auto type = index.data(SourceTreeEntryTypeRole);
+        if (type == SOURCETREE_ENTRY_TYPE_FEED) // feeds should be drag enabled but not drop enabled
         {
             flags = flags | Qt::ItemIsDragEnabled;
             flags = flags & ~(Qt::ItemIsDropEnabled);
         }
-        else
+        else if (type == SOURCETREE_ENTRY_TYPE_FOLDER) // folders should be drag and drop enabled
+        {
+            flags = flags | Qt::ItemIsDragEnabled;
+            flags = flags | Qt::ItemIsDropEnabled;
+        }
+        else // everything else should be drop enabled but not drag enabled
         {
             flags = flags & ~(Qt::ItemIsDragEnabled);
             flags = flags | Qt::ItemIsDropEnabled;
@@ -49,13 +54,26 @@ Qt::ItemFlags ZapFR::Client::StandardItemModelSources::flags(const QModelIndex& 
 
 bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data, Qt::DropAction /*action*/, int row, int /*column*/, const QModelIndex& parent)
 {
-    auto json = data->data(MIMETYPE_DRAGGABLE_FEED);
+    QByteArray json;
+    if (data->hasFormat(MIMETYPE_DRAGGABLE_FEED))
+    {
+        json = data->data(MIMETYPE_DRAGGABLE_FEED);
+    }
+    else if (data->hasFormat(MIMETYPE_DRAGGABLE_FOLDER))
+    {
+        json = data->data(MIMETYPE_DRAGGABLE_FOLDER);
+    }
+    else
+    {
+        return false;
+    }
+
     auto jsonDoc = QJsonDocument::fromJson(json);
-    auto o = jsonDoc.array().at(0).toObject();
+    auto o = jsonDoc.object();
     auto childSourceID = o.value("source").toVariant().toULongLong();
     auto childID = o.value("id").toVariant().toULongLong();
 
-    // can only move around feeds within the same source
+    // can only move around feeds and folders within the same source
     auto parentSourceID = parent.data(SourceTreeEntryParentSourceIDRole).toULongLong();
     if (parentSourceID != childSourceID)
     {
@@ -69,20 +87,22 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
         newFolder = parent.data(SourceTreeEntryIDRole).toULongLong();
     }
 
-    // perform the move
-    auto source = ZapFR::Engine::Source::getSource(parentSourceID);
-    if (!source.has_value())
+    if (data->hasFormat(MIMETYPE_DRAGGABLE_FEED))
     {
-        return false;
+        ZapFR::Engine::Agent::getInstance()->queueMoveFeed(parentSourceID, childID, newFolder, newSortOrder,
+                                                           [&]() { QMetaObject::invokeMethod(mMainWindow, "feedMoved", Qt::AutoConnection); });
     }
-    source.value()->moveFeed(childID, newFolder, newSortOrder);
-    QTimer::singleShot(100, [&]() { mMainWindow->reloadSources(); });
+    else if (data->hasFormat(MIMETYPE_DRAGGABLE_FOLDER))
+    {
+        ZapFR::Engine::Agent::getInstance()->queueMoveFolder(parentSourceID, childID, newFolder, newSortOrder,
+                                                             [&]() { QMetaObject::invokeMethod(mMainWindow, "folderMoved", Qt::AutoConnection); });
+    }
     return true;
 }
 
 QStringList ZapFR::Client::StandardItemModelSources::mimeTypes() const
 {
-    return QStringList() << MIMETYPE_DRAGGABLE_FEED;
+    return QStringList() << MIMETYPE_DRAGGABLE_FEED << MIMETYPE_DRAGGABLE_FOLDER;
 }
 
 QMimeData* ZapFR::Client::StandardItemModelSources::mimeData(const QModelIndexList& indexes) const
@@ -92,17 +112,31 @@ QMimeData* ZapFR::Client::StandardItemModelSources::mimeData(const QModelIndexLi
         return nullptr;
     }
 
-    QJsonArray arr;
-    for (const auto& index : indexes)
+    auto mimeData = new QMimeData();
+
+    if (indexes.count() == 1)
     {
+        auto index = indexes.at(0);
+        auto type = index.data(SourceTreeEntryTypeRole).toUInt();
+
         QJsonObject o;
         o.insert("source", QJsonValue::fromVariant(index.data(SourceTreeEntryParentSourceIDRole)));
         o.insert("id", QJsonValue::fromVariant(index.data(SourceTreeEntryIDRole)));
-        arr.append(o);
-    }
 
-    auto mimeData = new QMimeData();
-    mimeData->setData(MIMETYPE_DRAGGABLE_FEED, QJsonDocument(arr).toJson());
+        switch (type)
+        {
+            case SOURCETREE_ENTRY_TYPE_FEED:
+            {
+                mimeData->setData(MIMETYPE_DRAGGABLE_FEED, QJsonDocument(o).toJson());
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            {
+                mimeData->setData(MIMETYPE_DRAGGABLE_FOLDER, QJsonDocument(o).toJson());
+                break;
+            }
+        }
+    }
 
     return mimeData;
 }

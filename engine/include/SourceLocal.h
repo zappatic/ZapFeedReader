@@ -45,6 +45,7 @@ namespace ZapFR
             std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent) override;
             std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID) override;
             void getSubfolderIDs(uint64_t parent, std::vector<uint64_t>& ids, bool includeParent) override;
+            void moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) override;
             uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy) override;
 
           private:
