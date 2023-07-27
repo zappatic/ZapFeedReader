@@ -46,15 +46,16 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<Feed>> getFeeds() = 0;
             virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) = 0;
-            virtual void addFeed(const std::string& url, uint64_t folder) = 0;
+            virtual uint64_t addFeed(const std::string& url, uint64_t folder) = 0;
             virtual void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) = 0;
             virtual void removeFeed(uint64_t feedID) = 0;
-            virtual void removeFolder(uint64_t folder) = 0;
 
             virtual std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent) = 0;
             virtual std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID) = 0;
             virtual void getSubfolderIDs(uint64_t parent, std::vector<uint64_t>& ids, bool includeParent = true) = 0;
-            virtual void addFolder(const std::string& title, uint64_t parentID) = 0;
+            virtual uint64_t addFolder(const std::string& title, uint64_t parentID) = 0;
+            virtual void removeFolder(uint64_t folder) = 0;
+            virtual uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy) = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

@@ -57,6 +57,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <thread>
 
 #include <fmt/core.h>
 

@@ -29,7 +29,7 @@ namespace ZapFR
         {
             std::string title{""};
             std::string url{""};
-            std::string folderHierarchy{""};
+            std::vector<std::string> folderHierarchy{};
         };
 
         class OPMLParser : public Poco::XML::ContentHandler

@@ -30,6 +30,8 @@
 #include "Post.h"
 #include "Source.h"
 
+std::mutex ZapFR::Engine::Agent::msMutex{};
+
 ZapFR::Engine::Agent::Agent()
 {
     mThreadPool = std::make_unique<Poco::ThreadPool>();
@@ -62,9 +64,10 @@ void ZapFR::Engine::Agent::queueRefreshAllFeeds(std::function<void()> finishedCa
     }
 }
 
-void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
+                                              std::function<void()> finishedCallback)
 {
-    enqueue(std::make_unique<AgentSubscribeFeed>(sourceID, url, folder, finishedCallback));
+    enqueue(std::make_unique<AgentSubscribeFeed>(sourceID, url, folder, newFolderHierarchy, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
@@ -105,7 +108,7 @@ void ZapFR::Engine::Agent::queueAddFolder(uint64_t sourceID, uint64_t parentFold
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
 {
-    std::lock_guard<std::mutex> lock(mMutex);
+    std::lock_guard<std::mutex> lock(msMutex);
     if (mThreadPool->available() > 0 && mQueue.size() > 0)
     {
         auto task = std::move(mQueue.front());
@@ -120,7 +123,7 @@ void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
 
 void ZapFR::Engine::Agent::enqueue(std::unique_ptr<AgentRunnable> agent)
 {
-    std::lock_guard<std::mutex> lock(mMutex);
+    std::lock_guard<std::mutex> lock(msMutex);
     if (mThreadPool->available() > 0)
     {
         mThreadPool->start(*agent);

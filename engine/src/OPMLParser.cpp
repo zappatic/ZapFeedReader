@@ -73,7 +73,7 @@ void ZapFR::Engine::OPMLParser::startElement(const Poco::XML::XMLString& /*uri*/
                         OPMLEntry entry;
                         entry.title = text;
                         entry.url = attrList.getValue(xmlUrlIndex);
-                        entry.folderHierarchy = Helpers::joinString(mCurrentFolderHierarchy, "/");
+                        entry.folderHierarchy = mCurrentFolderHierarchy;
                         mEntries.emplace_back(entry);
                     }
                 }

@@ -36,18 +36,21 @@ namespace ZapFR
 
             std::vector<std::unique_ptr<Feed>> getFeeds() override;
             std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) override;
-            void addFeed(const std::string& url, uint64_t folder) override;
+            uint64_t addFeed(const std::string& url, uint64_t folder) override;
             void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) override;
             void removeFeed(uint64_t feedID) override;
             void removeFolder(uint64_t folder) override;
-            void addFolder(const std::string& title, uint64_t parentID) override;
+            uint64_t addFolder(const std::string& title, uint64_t parentID) override;
 
             std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent) override;
             std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID) override;
             void getSubfolderIDs(uint64_t parent, std::vector<uint64_t>& ids, bool includeParent) override;
+            uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy) override;
 
           private:
-            std::mutex mInsertFeedMutex{};
+            static std::mutex msAddFeedMutex;
+            static std::mutex msAddFolderMutex;
+            static std::mutex msCreateFolderHierarchyMutex;
 
             void resortFeeds(uint64_t folder) const;
             void resortFolders(uint64_t folder) const;

@@ -20,8 +20,9 @@
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentSubscribeFeed::AgentSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderID(folder), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentSubscribeFeed::AgentSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
+                                                      std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderID(folder), mNewFolderHierarchy(newFolderHierarchy), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -32,7 +33,8 @@ void ZapFR::Engine::AgentSubscribeFeed::run()
     {
         try
         {
-            source.value()->addFeed(mURL, mFolderID);
+            auto subfolderID = source.value()->createFolderHierarchy(mFolderID, mNewFolderHierarchy);
+            source.value()->addFeed(mURL, subfolderID);
             mFinishedCallback();
         }
         catch (Poco::Exception& e)

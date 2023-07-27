@@ -25,6 +25,10 @@
 
 using namespace Poco::Data::Keywords;
 
+std::mutex ZapFR::Engine::SourceLocal::msCreateFolderHierarchyMutex{};
+std::mutex ZapFR::Engine::SourceLocal::msAddFeedMutex{};
+std::mutex ZapFR::Engine::SourceLocal::msAddFolderMutex{};
+
 ZapFR::Engine::SourceLocal::SourceLocal(uint64_t id) : Source(id)
 {
 }
@@ -161,7 +165,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
     return {};
 }
 
-void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder)
+uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder)
 {
 
     FeedFetcher ff;
@@ -197,7 +201,7 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder
                       ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
             useRef(url), useRef(iconURL), use(folder), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright),
             use(sortOrder);
-        const std::lock_guard<std::mutex> lock(mInsertFeedMutex);
+        const std::lock_guard<std::mutex> lock(msAddFeedMutex);
         insertStmt.execute();
         Poco::Data::Statement selectStmt(*(msDatabase->session()));
         selectStmt << "SELECT last_insert_rowid()", into(feedID), range(0, 1);
@@ -209,6 +213,7 @@ void ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder
     {
         feed.value()->refresh();
     }
+    return feedID;
 }
 
 uint64_t ZapFR::Engine::SourceLocal::getNextFeedSortOrder(uint64_t folder) const
@@ -449,9 +454,95 @@ void ZapFR::Engine::SourceLocal::getSubfolderIDs(uint64_t parent, std::vector<ui
     }
 }
 
-void ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_t parentID)
+uint64_t ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_t parentID)
 {
     auto sortOrder = getNextFolderSortOrder(parentID);
     Poco::Data::Statement insertStmt(*(msDatabase->session()));
-    insertStmt << "INSERT INTO folders (parent,title,sortOrder) VALUES (?, ?, ?)", use(parentID), useRef(title), use(sortOrder), now;
+    insertStmt << "INSERT INTO folders (parent,title,sortOrder) VALUES (?, ?, ?)", use(parentID), useRef(title), use(sortOrder);
+    const std::lock_guard<std::mutex> lock(msAddFolderMutex);
+    insertStmt.execute();
+    uint64_t newFolderID{0};
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT last_insert_rowid()", into(newFolderID), range(0, 1);
+    selectStmt.execute();
+    return newFolderID;
+}
+
+uint64_t ZapFR::Engine::SourceLocal::createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy)
+{
+
+    std::function<uint64_t(ZapFR::Engine::Folder*, const std::string&)> getSubfolderWithTitle;
+    getSubfolderWithTitle = [&](ZapFR::Engine::Folder* parent, const std::string& folderTitle) -> uint64_t
+    {
+        auto existingSubFolderFound{false};
+        uint64_t existingSubfolderID{0};
+        uint64_t parentID{0};
+
+        if (parent == nullptr)
+        {
+            for (const auto& subfolder : getFolders(0))
+            {
+                if (subfolder->title() == folderTitle)
+                {
+                    existingSubfolderID = subfolder->id();
+                    existingSubFolderFound = true;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            parentID = parent->id();
+            for (const auto& subfolder : parent->subfolders())
+            {
+                if (subfolder->title() == folderTitle)
+                {
+                    existingSubfolderID = subfolder->id();
+                    existingSubFolderFound = true;
+                    break;
+                }
+            }
+        }
+
+        if (!existingSubFolderFound)
+        {
+            existingSubfolderID = addFolder(folderTitle, parentID);
+        }
+        return existingSubfolderID;
+    };
+
+    const std::lock_guard<std::mutex> lock(msCreateFolderHierarchyMutex);
+    if (parentID == 0)
+    {
+        std::unique_ptr<Folder> currentParent{};
+        for (const auto& subfolder : folderHierarchy)
+        {
+            auto subfolderID = getSubfolderWithTitle(currentParent.get(), subfolder);
+            auto subfolderInstance = getFolder(subfolderID);
+            if (subfolderInstance.has_value())
+            {
+                currentParent = std::move(subfolderInstance.value());
+            }
+        }
+        return currentParent->id();
+    }
+    else
+    {
+        auto rootFolder = getFolder(parentID);
+        if (rootFolder.has_value())
+        {
+            auto currentParent = std::move(rootFolder.value());
+            for (const auto& subfolder : folderHierarchy)
+            {
+                auto subfolderID = getSubfolderWithTitle(currentParent.get(), subfolder);
+                auto subfolderInstance = getFolder(subfolderID);
+                if (subfolderInstance.has_value())
+                {
+                    currentParent = std::move(subfolderInstance.value());
+                }
+            }
+            return currentParent->id();
+        }
+    }
+    return 0;
 }

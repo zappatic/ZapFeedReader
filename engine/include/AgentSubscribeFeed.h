@@ -31,7 +31,8 @@ namespace ZapFR
         class AgentSubscribeFeed : public AgentRunnable
         {
           public:
-            explicit AgentSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback);
+            explicit AgentSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
+                                        std::function<void()> finishedCallback);
             virtual ~AgentSubscribeFeed() = default;
 
             void run() override;
@@ -40,6 +41,7 @@ namespace ZapFR
             uint64_t mSourceID{0};
             std::string mURL{0};
             uint64_t mFolderID{0};
+            std::vector<std::string> mNewFolderHierarchy{};
             std::function<void()> mFinishedCallback{};
         };
     } // namespace Engine

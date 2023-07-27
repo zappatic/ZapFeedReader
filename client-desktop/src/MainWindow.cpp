@@ -263,7 +263,7 @@ void ZapFR::Client::MainWindow::addFeed()
                     if (result == QDialog::DialogCode::Accepted)
                     {
                         ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogAddFeed->selectedSourceID(), mDialogAddFeed->url().toStdString(),
-                                                                                mDialogAddFeed->selectedFolderID(),
+                                                                                mDialogAddFeed->selectedFolderID(), {},
                                                                                 [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
                     }
                 });
@@ -309,6 +309,7 @@ void ZapFR::Client::MainWindow::importOPML()
                         for (const auto& feed : mDialogImportOPML->importedFeeds())
                         {
                             ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogImportOPML->selectedSourceID(), feed.url, mDialogImportOPML->selectedFolderID(),
+                                                                                    feed.folderHierarchy,
                                                                                     [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
                         }
                     }

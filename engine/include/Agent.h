@@ -40,7 +40,8 @@ namespace ZapFR
 
             void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             void queueRefreshAllFeeds(std::function<void()> finishedCallback);
-            void queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback);
+            void queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
+                                    std::function<void()> finishedCallback);
             void queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             void queueRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
             void queueGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
@@ -52,7 +53,7 @@ namespace ZapFR
 
           private:
             explicit Agent();
-            std::mutex mMutex{};
+            static std::mutex msMutex;
 
             std::deque<std::unique_ptr<AgentRunnable>> mQueue{};
             std::unique_ptr<Poco::Timer> mQueueTimer{nullptr};
