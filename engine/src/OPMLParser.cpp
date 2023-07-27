@@ -57,25 +57,24 @@ void ZapFR::Engine::OPMLParser::startElement(const Poco::XML::XMLString& /*uri*/
             bool isRSS{false};
             auto text = attrList.getValue(textIndex);
 
-            auto typeIndex = attrList.getIndex("", "type");
-            if (typeIndex > -1)
+            // Even though the spec says to include type="rss", some OPML files don't have this
+            // The rule to determine whether an outline is an rss feed is the fact that it has
+            // a xmlUrl attribute that starts with 'http'
+
+            auto xmlUrlIndex = attrList.getIndex("", "xmlUrl");
+            if (xmlUrlIndex > -1)
             {
-                auto type = attrList.getValue(typeIndex);
-                if (type == "rss")
+                auto xmlUrl = attrList.getValue(xmlUrlIndex);
+                if (xmlUrl.starts_with("http"))
                 {
-                    // feed found
                     isRSS = true;
                     mCurrentOutlineIsFeed = true;
 
-                    auto xmlUrlIndex = attrList.getIndex("", "xmlUrl");
-                    if (xmlUrlIndex > -1)
-                    {
-                        OPMLEntry entry;
-                        entry.title = text;
-                        entry.url = attrList.getValue(xmlUrlIndex);
-                        entry.folderHierarchy = mCurrentFolderHierarchy;
-                        mEntries.emplace_back(entry);
-                    }
+                    OPMLEntry entry;
+                    entry.title = text;
+                    entry.url = xmlUrl;
+                    entry.folderHierarchy = mCurrentFolderHierarchy;
+                    mEntries.emplace_back(entry);
                 }
             }
 
