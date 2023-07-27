@@ -50,7 +50,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->action_Refresh_all_feeds, &QAction::triggered, this, &MainWindow::refreshAllFeeds);
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
-    connect(ui->tableViewPosts, &TableViewPosts::currentPostChanged, this, &MainWindow::postsTableViewItemSelected);
+    connect(ui->tableViewPosts, &TableViewPosts::selectedPostsChanged, this, &MainWindow::postsTableViewSelectionChanged);
     connect(ui->tableViewPosts, &TableViewPosts::customContextMenuRequested, this, &MainWindow::postsTableViewContextMenuRequested);
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
@@ -590,27 +590,38 @@ void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& po
     }
     ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     ui->tableViewPosts->horizontalHeader()->setMinimumSectionSize(200);
-    postsTableViewItemSelected(QModelIndex());
+    postsTableViewSelectionChanged({});
 }
 
-void ZapFR::Client::MainWindow::postsTableViewItemSelected(const QModelIndex& index)
+void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndexList& selected)
 {
-    if (index.isValid())
-    {
-        mCurrentPostID = index.data(PostIDRole).toULongLong();
-        mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
-        mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
+    mCurrentPostID = 0;
+    mCurrentPostSourceID = 0;
+    mCurrentPostFeedID = 0;
 
-        ZapFR::Engine::Agent::getInstance()->queueMarkPostRead(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
-                                                               [&](uint64_t postID) { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection, postID); });
+    if (selected.count() == 1)
+    {
+        auto index = selected.at(0);
+        if (index.isValid())
+        {
+            mCurrentPostID = index.data(PostIDRole).toULongLong();
+            mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
+            mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
+
+            ZapFR::Engine::Agent::getInstance()->queueMarkPostRead(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
+                                                                   [&](uint64_t postID) { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection, postID); });
+
+            reloadCurrentPost();
+        }
+    }
+    else if (selected.count() == 0)
+    {
+        setPostHTML(textMessageHTML(tr("No post selected")));
     }
     else
     {
-        mCurrentPostID = 0;
-        mCurrentPostSourceID = 0;
-        mCurrentPostFeedID = 0;
+        setPostHTML(textMessageHTML(tr("%1 posts selected").arg(selected.count())));
     }
-    reloadCurrentPost();
 }
 
 void ZapFR::Client::MainWindow::reloadCurrentPost()
@@ -633,12 +644,7 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
     }
     else
     {
-        QString htmlStr;
-        QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
-
-        html << "<!DOCTYPE html>\n<html><head><style type='text/css'>\n" << postStyles() << "\n</style></head><body>";
-        html << "</body></html>";
-        setPostHTML(htmlStr);
+        setPostHTML(textMessageHTML(tr("No post selected")));
     }
 }
 
@@ -687,6 +693,23 @@ QString ZapFR::Client::MainWindow::postStyles() const
         .arg(backgroundColor)
         .arg(textColor)
         .arg(highlightColor.name());
+}
+
+QString ZapFR::Client::MainWindow::textMessageHTML(const QString& message) const
+{
+    auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
+    QString textColor = (currentColorScheme == Qt::ColorScheme::Dark ? "#444" : "#aaa");
+
+    QString htmlStr;
+    QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
+
+    html << "<!DOCTYPE html>\n<html><head><style type='text/css'>\n" << postStyles();
+    html << QString("h1 { color: %1; text-align: center; margin-top: 50px; }\n").arg(textColor);
+    html << "</style></head><body>";
+    html << "<h1>" << message << "</h1>";
+    html << "</body></html>";
+
+    return htmlStr;
 }
 
 void ZapFR::Client::MainWindow::postLinkHovered(const QString& url)

@@ -61,7 +61,7 @@ namespace ZapFR
 
             // events
             void sourceTreeViewItemSelected(const QModelIndex& index);
-            void postsTableViewItemSelected(const QModelIndex& index);
+            void postsTableViewSelectionChanged(const QModelIndexList& selected);
             void colorSchemeChanged(Qt::ColorScheme scheme);
             void sourceTreeViewContextMenuRequested(const QPoint& p);
             void postsTableViewContextMenuRequested(const QPoint& p);
@@ -113,6 +113,7 @@ namespace ZapFR
 
             void reloadCurrentPost();
             QString postStyles() const;
+            QString textMessageHTML(const QString& message) const;
             void createContextMenus();
             void setupToolbarIcons();
             void setupToolbarEnabledStates();

@@ -22,7 +22,17 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : QTableView(pare
 {
 }
 
-void ZapFR::Client::TableViewPosts::currentChanged(const QModelIndex& current, const QModelIndex& /*previous*/)
+void ZapFR::Client::TableViewPosts::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
-    emit currentPostChanged(current);
+    QTableView::selectionChanged(selected, deselected);
+
+    QModelIndexList list;
+    for (const auto& index : selectedIndexes())
+    {
+        if (index.column() == 0)
+        {
+            list.append(index);
+        }
+    }
+    emit selectedPostsChanged(list);
 }
