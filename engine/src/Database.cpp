@@ -71,6 +71,7 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        " id INTEGER PRIMARY KEY"
                        ",url TEXT NOT NULL"
                        ",iconURL TEXT"
+                       ",iconHash TEXT"
                        ",iconLastFetched INTEGER NOT NULL DEFAULT 0"
                        ",folder INTEGER NOT NULL DEFAULT 0"
                        ",guid TEXT"

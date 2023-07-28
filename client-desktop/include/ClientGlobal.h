@@ -85,9 +85,14 @@ namespace ZapFR
 
         static constexpr uint32_t PostIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t PostSourceIDRole{Qt::ItemDataRole::UserRole + 2};
-        static constexpr uint32_t PostFeedDRole{Qt::ItemDataRole::UserRole + 3};
+        static constexpr uint32_t PostFeedIDRole{Qt::ItemDataRole::UserRole + 3};
         static constexpr uint32_t PostISODateRole{Qt::ItemDataRole::UserRole + 4};
         static constexpr uint32_t PostIsReadRole{Qt::ItemDataRole::UserRole + 5};
+
+        static constexpr uint32_t PostColumnUnread = 0;
+        static constexpr uint32_t PostColumnFeed = 1;
+        static constexpr uint32_t PostColumnTitle = 2;
+        static constexpr uint32_t PostColumnDate = 3;
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";

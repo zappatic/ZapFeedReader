@@ -27,6 +27,7 @@ set(PROJECT_SOURCES
         src/StandardItemModelSources.cpp
         src/TableViewPosts.cpp
         src/TreeViewSources.cpp
+        src/FeedIconCache.cpp
         include/ClientGlobal.h
         include/MainWindow.h
         include/ItemDelegateSource.h
@@ -40,6 +41,7 @@ set(PROJECT_SOURCES
         include/StandardItemModelSources.h
         include/TableViewPosts.h
         include/TreeViewSources.h
+        include/FeedIconCache.h
         src/MainWindow.ui
         src/DialogAddFeed.ui
         src/DialogAddFolder.ui

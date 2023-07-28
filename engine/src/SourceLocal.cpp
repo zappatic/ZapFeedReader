@@ -40,6 +40,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
     uint64_t id;
     std::string url;
     std::string iconURL;
+    std::string iconHash;
     std::string iconLastFetched;
     uint64_t folder;
     std::string guid;
@@ -56,6 +57,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
     selectStmt << "SELECT id"
                   ",url"
                   ",iconURL"
+                  ",iconHash"
                   ",iconLastFetched"
                   ",folder"
                   ",guid"
@@ -69,8 +71,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
                   ",sortOrder"
                   " FROM feeds"
                   " ORDER BY sortOrder ASC",
-        into(id), into(url), into(iconURL), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link), into(description), into(language),
-        into(copyright), into(lastChecked), into(sortOrder), range(0, 1);
+        into(id), into(url), into(iconURL), into(iconHash), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link), into(description),
+        into(language), into(copyright), into(lastChecked), into(sortOrder), range(0, 1);
 
     while (!selectStmt.done())
     {
@@ -79,6 +81,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
             auto f = std::make_unique<FeedLocal>(id);
             f->setURL(url);
             f->setIconURL(iconURL);
+            f->setIconHash(iconHash);
             f->setIconLastFetched(iconLastFetched);
             f->setFolder(folder);
             f->setGuid(guid);
@@ -109,6 +112,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
     uint64_t id{0};
     std::string url;
     std::string iconURL;
+    std::string iconHash;
     std::string iconLastFetched;
     uint64_t folder;
     std::string guid;
@@ -125,6 +129,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
     selectStmt << "SELECT id"
                   ",url"
                   ",iconURL"
+                  ",iconHash"
                   ",iconLastFetched"
                   ",folder"
                   ",guid"
@@ -138,8 +143,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
                   ",sortOrder"
                   " FROM feeds"
                   " WHERE id=?",
-        use(feedID), into(id), into(url), into(iconURL), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link), into(description),
-        into(language), into(copyright), into(lastChecked), into(sortOrder), now;
+        use(feedID), into(id), into(url), into(iconURL), into(iconHash), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link),
+        into(description), into(language), into(copyright), into(lastChecked), into(sortOrder), now;
 
     auto rs = Poco::Data::RecordSet(selectStmt);
     if (rs.rowCount() == 1)
@@ -147,6 +152,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
         auto f = std::make_unique<FeedLocal>(id);
         f->setURL(url);
         f->setIconURL(iconURL);
+        f->setIconHash(iconHash);
         f->setIconLastFetched(iconLastFetched);
         f->setFolder(folder);
         f->setGuid(guid);

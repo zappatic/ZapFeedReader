@@ -24,6 +24,7 @@
 #include "AgentRefreshFeed.h"
 #include "AgentRemoveFeed.h"
 #include "AgentRemoveFolder.h"
+#include "FeedIconCache.h"
 #include "FeedLocal.h"
 #include "Folder.h"
 #include "ItemDelegatePost.h"
@@ -442,17 +443,28 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
                 feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
             }
 
-            feedItem->setData(QVariant(), SourceTreeEntryIcon);
-            auto iconData = feed->icon();
-            if (!iconData.empty())
+            if (!FeedIconCache::isCached(feed->id()) || !FeedIconCache::isSameHash(feed->id(), feed->iconHash()))
             {
-                QPixmap icon;
-                icon.loadFromData(QByteArray(iconData.c_str(), static_cast<int64_t>(iconData.length())));
-                if (!icon.isNull())
+                auto iconData = feed->icon();
+                if (!iconData.empty())
                 {
-                    feedItem->setData(QVariant::fromValue(icon), SourceTreeEntryIcon);
+                    QPixmap icon;
+                    icon.loadFromData(QByteArray(iconData.c_str(), static_cast<int64_t>(iconData.length())));
+                    if (!icon.isNull())
+                    {
+                        Poco::MD5Engine md5;
+                        Poco::DigestOutputStream ds(md5);
+                        ds << iconData;
+                        ds.close();
+                        auto iconHash = Poco::DigestEngine::digestToHex(md5.digest());
+
+                        FeedIconCache::cache(feed->id(), iconHash, icon);
+                    }
                 }
             }
+
+            feedItem->setData(FeedIconCache::icon(feed->id()), SourceTreeEntryIcon);
+
             parentItem->appendRow(feedItem);
         }
     }
@@ -550,7 +562,7 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
                                                                    {
                                                                        item->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
                                                                        item->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
-                                                                       item->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
+                                                                       item->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedIDRole);
                                                                        item->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
                                                                    };
 
@@ -559,6 +571,9 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
                                                                    {
                                                                        auto unreadItem = new QStandardItem("");
                                                                        setItemData(unreadItem, post.get());
+
+                                                                       auto feedItem = new QStandardItem("");
+                                                                       setItemData(feedItem, post.get());
 
                                                                        auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
                                                                        setItemData(titleItem, post.get());
@@ -569,7 +584,7 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
                                                                        setItemData(dateItem, post.get());
 
                                                                        QList<QStandardItem*> rowData;
-                                                                       rowData << unreadItem << titleItem << dateItem;
+                                                                       rowData << unreadItem << feedItem << titleItem << dateItem;
                                                                        rows << rowData;
                                                                    }
 
@@ -588,16 +603,18 @@ void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& po
 {
     mItemModelPosts = std::make_unique<QStandardItemModel>(this);
     ui->tableViewPosts->setModel(mItemModelPosts.get());
-    mItemModelPosts->setHorizontalHeaderItem(0, new QStandardItem(tr("Unread")));
-    mItemModelPosts->setHorizontalHeaderItem(1, new QStandardItem(tr("Title")));
-    mItemModelPosts->setHorizontalHeaderItem(2, new QStandardItem(tr("Date")));
+    mItemModelPosts->setHorizontalHeaderItem(PostColumnUnread, new QStandardItem(tr("Unread")));
+    mItemModelPosts->setHorizontalHeaderItem(PostColumnFeed, new QStandardItem(tr("Feed")));
+    mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title")));
+    mItemModelPosts->setHorizontalHeaderItem(PostColumnDate, new QStandardItem(tr("Date")));
     for (auto post : posts)
     {
         mItemModelPosts->appendRow(post);
     }
-    ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    ui->tableViewPosts->horizontalHeader()->resizeSection(0, 50);
-    ui->tableViewPosts->horizontalHeader()->resizeSection(2, 200);
+    ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnUnread, 50);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFeed, 40);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnDate, 200);
     postsTableViewSelectionChanged({});
 }
 
@@ -614,7 +631,7 @@ void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndex
         {
             mCurrentPostID = index.data(PostIDRole).toULongLong();
             mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
-            mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
+            mCurrentPostFeedID = index.data(PostFeedIDRole).toULongLong();
 
             ZapFR::Engine::Agent::getInstance()->queueMarkPostRead(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
                                                                    [&](uint64_t postID) { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection, postID); });
@@ -1072,7 +1089,7 @@ void ZapFR::Client::MainWindow::createContextMenuPost()
                     {
                         mCurrentPostID = index.data(PostIDRole).toULongLong();
                         mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
-                        mCurrentPostFeedID = index.data(PostFeedDRole).toULongLong();
+                        mCurrentPostFeedID = index.data(PostFeedIDRole).toULongLong();
 
                         ZapFR::Engine::Agent::getInstance()->queueMarkPostUnread(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
                                                                                  [&](uint64_t postID)

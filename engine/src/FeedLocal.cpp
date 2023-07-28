@@ -338,18 +338,25 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
         // todo: log complaint
     }
 
+    std::string iconHash;
     if (!iconData.empty())
     {
         auto i = iconFile();
         auto fos = Poco::FileOutputStream(i.path());
         fos << iconData;
         fos.close();
+
+        Poco::MD5Engine md5;
+        Poco::DigestOutputStream ds(md5);
+        ds << iconData;
+        ds.close();
+        iconHash = Poco::DigestEngine::digestToHex(md5.digest());
     }
 
-    // update icon last fetched time
+    // update icon last fetched time and md5 hash
     {
         Poco::Data::Statement updateStmt(*(msDatabase->session()));
-        updateStmt << "UPDATE feeds SET iconLastFetched=datetime('now') WHERE id=?", use(mID), now;
+        updateStmt << "UPDATE feeds SET iconLastFetched=datetime('now'), iconHash=? WHERE id=?", useRef(iconHash), use(mID), now;
         updateStmt.execute();
     }
 }
