@@ -545,25 +545,31 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
             ZapFR::Engine::Agent::getInstance()->queueGetPosts(sourceID, feedID, 100, 1,
                                                                [&](uint64_t sourceID, uint64_t feedID, std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts)
                                                                {
+                                                                   std::function<void(QStandardItem*, ZapFR::Engine::Post*)> setItemData;
+                                                                   setItemData = [&](QStandardItem* item, ZapFR::Engine::Post* post)
+                                                                   {
+                                                                       item->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+                                                                       item->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
+                                                                       item->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
+                                                                       item->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
+                                                                   };
+
                                                                    QList<QList<QStandardItem*>> rows;
                                                                    for (const auto& post : posts)
                                                                    {
+                                                                       auto unreadItem = new QStandardItem("");
+                                                                       setItemData(unreadItem, post.get());
+
                                                                        auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
-                                                                       titleItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
-                                                                       titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
-                                                                       titleItem->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
-                                                                       titleItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
+                                                                       setItemData(titleItem, post.get());
 
                                                                        auto datePublished = QString::fromUtf8(post->datePublished());
                                                                        auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
                                                                        dateItem->setData(datePublished, PostISODateRole);
-                                                                       dateItem->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
-                                                                       dateItem->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
-                                                                       dateItem->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedDRole);
-                                                                       dateItem->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
+                                                                       setItemData(dateItem, post.get());
 
                                                                        QList<QStandardItem*> rowData;
-                                                                       rowData << titleItem << dateItem;
+                                                                       rowData << unreadItem << titleItem << dateItem;
                                                                        rows << rowData;
                                                                    }
 
@@ -582,14 +588,16 @@ void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& po
 {
     mItemModelPosts = std::make_unique<QStandardItemModel>(this);
     ui->tableViewPosts->setModel(mItemModelPosts.get());
-    mItemModelPosts->setHorizontalHeaderItem(0, new QStandardItem(tr("Title")));
-    mItemModelPosts->setHorizontalHeaderItem(1, new QStandardItem(tr("Date")));
+    mItemModelPosts->setHorizontalHeaderItem(0, new QStandardItem(tr("Unread")));
+    mItemModelPosts->setHorizontalHeaderItem(1, new QStandardItem(tr("Title")));
+    mItemModelPosts->setHorizontalHeaderItem(2, new QStandardItem(tr("Date")));
     for (auto post : posts)
     {
         mItemModelPosts->appendRow(post);
     }
-    ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    ui->tableViewPosts->horizontalHeader()->setMinimumSectionSize(200);
+    ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(0, 50);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(2, 200);
     postsTableViewSelectionChanged({});
 }
 

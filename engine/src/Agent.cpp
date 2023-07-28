@@ -38,7 +38,7 @@ std::mutex ZapFR::Engine::Agent::msMutex{};
 ZapFR::Engine::Agent::Agent()
 {
     mThreadPool = std::make_unique<Poco::ThreadPool>();
-    mQueueTimer = std::make_unique<Poco::Timer>(0, 500);
+    mQueueTimer = std::make_unique<Poco::Timer>(0, 50);
     auto callback = Poco::TimerCallback<Agent>(*this, &Agent::onQueueTimer);
     mQueueTimer->start(callback);
 }
@@ -126,6 +126,11 @@ void ZapFR::Engine::Agent::queueAddFolder(uint64_t sourceID, uint64_t parentFold
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
 {
+    if (mQueue.size() == 0)
+    {
+        return;
+    }
+
     std::lock_guard<std::mutex> lock(msMutex);
     if (mThreadPool->available() > 0 && mQueue.size() > 0)
     {
