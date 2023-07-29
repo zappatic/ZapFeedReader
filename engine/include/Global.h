@@ -52,12 +52,14 @@
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/SystemConfiguration.h>
 
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <optional>
 #include <sstream>
 #include <string>
 #include <thread>
+#include <unordered_set>
 
 #include <fmt/core.h>
 

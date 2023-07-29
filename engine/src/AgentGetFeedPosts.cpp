@@ -16,17 +16,17 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentGetPosts.h"
+#include "AgentGetFeedPosts.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentGetPosts::AgentGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
-                                            std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>)> finishedCallback)
+ZapFR::Engine::AgentGetFeedPosts::AgentGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+                                                    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentGetPosts::run()
+void ZapFR::Engine::AgentGetFeedPosts::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
@@ -35,7 +35,12 @@ void ZapFR::Engine::AgentGetPosts::run()
         if (feed.has_value())
         {
             auto posts = feed.value()->getPosts(mPerPage, mPage);
-            mFinishedCallback(source.value()->id(), feed.value()->id(), std::move(posts));
+            std::vector<Post*> postPointers;
+            for (const auto& post : posts)
+            {
+                postPointers.emplace_back(post.get());
+            }
+            mFinishedCallback(source.value()->id(), postPointers);
         }
     }
 

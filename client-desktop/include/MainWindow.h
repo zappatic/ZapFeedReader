@@ -80,6 +80,7 @@ namespace ZapFR
             void postMarkedUnread(uint64_t postID);
             void feedMarkedRead();
             void setPostHTML(const QString& html);
+            void postsRetrieved(uint64_t sourceID, const std::vector<ZapFR::Engine::Post*>& posts);
 
           protected:
             void closeEvent(QCloseEvent* event) override;

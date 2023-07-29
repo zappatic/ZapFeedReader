@@ -16,27 +16,36 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FOLDERLOCAL_H
-#define ZAPFR_ENGINE_FOLDERLOCAL_H
+#ifndef ZAPFR_ENGINE_AGENTGETFOLDERPOSTS_H
+#define ZAPFR_ENGINE_AGENTGETFOLDERPOSTS_H
 
-#include "Folder.h"
+#include "AgentRunnable.h"
 #include "Global.h"
+#include "Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class FolderLocal : public Folder
+        class Feed;
+
+        class AgentGetFolderPosts : public AgentRunnable
         {
           public:
-            explicit FolderLocal(uint64_t id, uint64_t parent);
-            virtual ~FolderLocal() = default;
+            explicit AgentGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
+                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> finishedCallback);
+            virtual ~AgentGetFolderPosts() = default;
 
-            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
-            void fetchSubfolders() override;
-            bool fetchData() override;
+            void run() override;
+
+          private:
+            uint64_t mSourceID{0};
+            uint64_t mFolderID{0};
+            uint64_t mPerPage{0};
+            uint64_t mPage{0};
+            std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FOLDERLOCAL_H
+#endif // ZAPFR_ENGINE_AGENTGETPOSTS_H

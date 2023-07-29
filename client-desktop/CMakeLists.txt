@@ -100,7 +100,9 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/AgentRemoveFolder.cpp
                                 ../engine/src/AgentRemoveFeed.cpp
                                 ../engine/src/AgentSubscribeFeed.cpp
-                                ../engine/src/AgentGetPosts.cpp
+                                ../engine/src/AgentGetFeedPosts.cpp
+                                ../engine/src/AgentGetFolderPosts.cpp
+                                ../engine/src/AgentGetSourcePosts.cpp
                                 ../engine/src/AgentAddFolder.cpp
                                 ../engine/src/AgentMoveFeed.cpp
                                 ../engine/src/AgentMoveFolder.cpp

@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTGETPOSTS_H
-#define ZAPFR_ENGINE_AGENTGETPOSTS_H
+#ifndef ZAPFR_ENGINE_AGENTGETFEEDPOSTS_H
+#define ZAPFR_ENGINE_AGENTGETFEEDPOSTS_H
 
 #include "AgentRunnable.h"
 #include "Global.h"
@@ -29,12 +29,12 @@ namespace ZapFR
     {
         class Feed;
 
-        class AgentGetPosts : public AgentRunnable
+        class AgentGetFeedPosts : public AgentRunnable
         {
           public:
-            explicit AgentGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
-                                   std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>)> finishedCallback);
-            virtual ~AgentGetPosts() = default;
+            explicit AgentGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+                                       std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> finishedCallback);
+            virtual ~AgentGetFeedPosts() = default;
 
             void run() override;
 
@@ -43,9 +43,9 @@ namespace ZapFR
             uint64_t mFeedID{0};
             uint64_t mPerPage{0};
             uint64_t mPage{0};
-            std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>)> mFinishedCallback{};
+            std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTGETPOSTS_H
+#endif // ZAPFR_ENGINE_AGENTGETFEEDPOSTS_H

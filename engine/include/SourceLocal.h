@@ -48,6 +48,8 @@ namespace ZapFR
             void moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) override;
             uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy) override;
 
+            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
+
           private:
             static std::mutex msAddFeedMutex;
             static std::mutex msAddFolderMutex;

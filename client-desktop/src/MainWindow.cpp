@@ -19,11 +19,6 @@
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
 #include "Agent.h"
-#include "AgentAddFolder.h"
-#include "AgentGetPosts.h"
-#include "AgentRefreshFeed.h"
-#include "AgentRemoveFeed.h"
-#include "AgentRemoveFolder.h"
 #include "FeedIconCache.h"
 #include "FeedLocal.h"
 #include "Folder.h"
@@ -32,6 +27,8 @@
 #include "StandardItemModelSources.h"
 #include "Utilities.h"
 #include "WebEnginePagePost.h"
+
+using namespace std::placeholders;
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -554,42 +551,18 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
             auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetPosts(sourceID, feedID, 100, 1,
-                                                               [&](uint64_t sourceID, uint64_t feedID, std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts)
-                                                               {
-                                                                   std::function<void(QStandardItem*, ZapFR::Engine::Post*)> setItemData;
-                                                                   setItemData = [&](QStandardItem* item, ZapFR::Engine::Post* post)
-                                                                   {
-                                                                       item->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
-                                                                       item->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
-                                                                       item->setData(QVariant::fromValue<uint64_t>(feedID), PostFeedIDRole);
-                                                                       item->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
-                                                                   };
-
-                                                                   QList<QList<QStandardItem*>> rows;
-                                                                   for (const auto& post : posts)
-                                                                   {
-                                                                       auto unreadItem = new QStandardItem("");
-                                                                       setItemData(unreadItem, post.get());
-
-                                                                       auto feedItem = new QStandardItem("");
-                                                                       setItemData(feedItem, post.get());
-
-                                                                       auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
-                                                                       setItemData(titleItem, post.get());
-
-                                                                       auto datePublished = QString::fromUtf8(post->datePublished());
-                                                                       auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
-                                                                       dateItem->setData(datePublished, PostISODateRole);
-                                                                       setItemData(dateItem, post.get());
-
-                                                                       QList<QStandardItem*> rowData;
-                                                                       rowData << unreadItem << feedItem << titleItem << dateItem;
-                                                                       rows << rowData;
-                                                                   }
-
-                                                                   QMetaObject::invokeMethod(this, "loadPosts", Qt::AutoConnection, rows);
-                                                               });
+            ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, 100, 1, std::bind(&MainWindow::postsRetrieved, this, _1, _2));
+        }
+        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, 100, 1, std::bind(&MainWindow::postsRetrieved, this, _1, _2));
+        }
+        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, 100, 1, std::bind(&MainWindow::postsRetrieved, this, _1, _2));
         }
         else
         {
@@ -597,6 +570,42 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
         }
         QTimer::singleShot(0, [&]() { setupToolbarEnabledStates(); });
     }
+}
+
+void ZapFR::Client::MainWindow::postsRetrieved(uint64_t sourceID, const std::vector<ZapFR::Engine::Post*>& posts)
+{
+    std::function<void(QStandardItem*, ZapFR::Engine::Post*)> setItemData;
+    setItemData = [&](QStandardItem* item, ZapFR::Engine::Post* post)
+    {
+        item->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
+        item->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
+        item->setData(QVariant::fromValue<uint64_t>(post->feedID()), PostFeedIDRole);
+        item->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
+    };
+
+    QList<QList<QStandardItem*>> rows;
+    for (const auto& post : posts)
+    {
+        auto unreadItem = new QStandardItem("");
+        setItemData(unreadItem, post);
+
+        auto feedItem = new QStandardItem("");
+        setItemData(feedItem, post);
+
+        auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
+        setItemData(titleItem, post);
+
+        auto datePublished = QString::fromUtf8(post->datePublished());
+        auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
+        dateItem->setData(datePublished, PostISODateRole);
+        setItemData(dateItem, post);
+
+        QList<QStandardItem*> rowData;
+        rowData << unreadItem << feedItem << titleItem << dateItem;
+        rows << rowData;
+    }
+
+    QMetaObject::invokeMethod(this, "loadPosts", Qt::AutoConnection, rows);
 }
 
 void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& posts)

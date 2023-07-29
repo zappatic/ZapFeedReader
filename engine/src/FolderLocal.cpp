@@ -17,6 +17,8 @@
 */
 
 #include "FolderLocal.h"
+#include "Helpers.h"
+#include "Post.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -73,4 +75,126 @@ void ZapFR::Engine::FolderLocal::fetchSubfolders()
 
         mSubfoldersFetched = true;
     }
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page)
+{
+    // fetch all folderIDs of all the subfolders of this folder
+    std::unordered_set<uint64_t> folderIDs{};
+    std::function<void(uint64_t)> fetchSubfolderIDs;
+    fetchSubfolderIDs = [&](uint64_t parentFolderID)
+    {
+        folderIDs.insert(parentFolderID);
+        uint64_t folderID{0};
+        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        selectStmt << "SELECT id FROM folders WHERE parent=?", use(parentFolderID), into(folderID), range(0, 1);
+        while (!selectStmt.done())
+        {
+            if (selectStmt.execute() > 0)
+            {
+                fetchSubfolderIDs(folderID);
+            }
+        }
+    };
+    fetchSubfolderIDs(mID);
+    if (folderIDs.size() == 0)
+    {
+        return {};
+    }
+
+    std::stringstream ss;
+    std::copy(folderIDs.begin(), folderIDs.end(), std::ostream_iterator<int>(ss, ","));
+    auto joinedFolderIDs = ss.str();
+    joinedFolderIDs = joinedFolderIDs.substr(0, joinedFolderIDs.length() - 1);
+
+    // fetch all the feed ID's that are within the queried subfolders
+    std::vector<std::string> feedIDs;
+    auto selectFeedsSQL = Poco::format("SELECT id FROM feeds WHERE folder IN (%s)", joinedFolderIDs);
+    uint64_t feedID{0};
+    Poco::Data::Statement selectFeedsStmt(*(msDatabase->session()));
+    selectFeedsStmt << selectFeedsSQL, into(feedID), range(0, 1);
+    while (!selectFeedsStmt.done())
+    {
+        if (selectFeedsStmt.execute() > 0)
+        {
+            feedIDs.emplace_back(std::to_string(feedID));
+        }
+    }
+    if (feedIDs.size() == 0)
+    {
+        return {};
+    }
+    auto joinedFeedIDs = Helpers::joinString(feedIDs, ",");
+
+    // fetch the posts for all the queried feeds
+    std::vector<std::unique_ptr<Post>> posts;
+
+    auto offset = perPage * (page - 1);
+
+    uint64_t id{0};
+    uint64_t postFeedID{0};
+    bool isRead{false};
+    std::string title{""};
+    std::string link{""};
+    std::string description{""};
+    std::string author{""};
+    std::string commentsURL{""};
+    std::string enclosureURL{""};
+    std::string enclosureLength{""};
+    std::string enclosureMimeType{""};
+    std::string guid{""};
+    bool guidIsPermalink{false};
+    std::string datePublished{""};
+    std::string sourceURL{""};
+    std::string sourceTitle{""};
+
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << Poco::format("SELECT id"
+                               ",feedID"
+                               ",isRead"
+                               ",title"
+                               ",link"
+                               ",description"
+                               ",author"
+                               ",commentsURL"
+                               ",enclosureURL"
+                               ",enclosureLength"
+                               ",enclosureMimeType"
+                               ",guid"
+                               ",guidIsPermalink"
+                               ",datePublished"
+                               ",sourceURL"
+                               ",sourceTitle"
+                               " FROM posts"
+                               " WHERE feedID IN (%s)"
+                               " ORDER BY datePublished DESC"
+                               " LIMIT ? OFFSET ?",
+                               joinedFeedIDs),
+        use(perPage), use(offset), into(id), into(postFeedID), into(isRead), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL),
+        into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), range(0, 1);
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            auto p = std::make_unique<Post>(id);
+            p->setIsRead(isRead);
+            p->setFeedID(postFeedID);
+            p->setTitle(title);
+            p->setLink(link);
+            p->setDescription(description);
+            p->setAuthor(author);
+            p->setCommentsURL(commentsURL);
+            p->setEnclosureURL(enclosureURL);
+            p->setEnclosureLength(enclosureLength);
+            p->setEnclosureMimeType(enclosureMimeType);
+            p->setGuid(guid);
+            p->setGuidIsPermalink(guidIsPermalink);
+            p->setDatePublished(datePublished);
+            p->setSourceURL(sourceURL);
+            p->setSourceTitle(sourceTitle);
+            posts.emplace_back(std::move(p));
+        }
+    }
+    return posts;
 }

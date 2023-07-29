@@ -18,8 +18,10 @@
 
 #include "Agent.h"
 #include "AgentAddFolder.h"
+#include "AgentGetFeedPosts.h"
+#include "AgentGetFolderPosts.h"
 #include "AgentGetPost.h"
-#include "AgentGetPosts.h"
+#include "AgentGetSourcePosts.h"
 #include "AgentMarkFeedRead.h"
 #include "AgentMarkPostRead.h"
 #include "AgentMarkPostUnread.h"
@@ -93,10 +95,21 @@ void ZapFR::Engine::Agent::queueRemoveFolder(uint64_t sourceID, uint64_t folder,
     enqueue(std::make_unique<AgentRemoveFolder>(sourceID, folder, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
-                                         std::function<void(uint64_t, uint64_t, std::vector<std::unique_ptr<Post>>)> finishedCallback)
+void ZapFR::Engine::Agent::queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+                                             std::function<void(uint64_t, const std::vector<Post*>&)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentGetPosts>(sourceID, feedID, perPage, page, finishedCallback));
+    enqueue(std::make_unique<AgentGetFeedPosts>(sourceID, feedID, perPage, page, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
+                                               std::function<void(uint64_t, const std::vector<Post*>&)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetFolderPosts>(sourceID, folderID, perPage, page, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page, std::function<void(uint64_t, const std::vector<Post*>&)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetSourcePosts>(sourceID, perPage, page, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback)

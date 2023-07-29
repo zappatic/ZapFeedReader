@@ -26,6 +26,8 @@ namespace ZapFR
 {
     namespace Engine
     {
+        class Post;
+
         class Folder
         {
           public:
@@ -43,6 +45,8 @@ namespace ZapFR
             std::vector<Folder*> subfolders();
             virtual void fetchSubfolders() = 0;
             bool hasSubfolders();
+
+            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) = 0;
 
             virtual bool fetchData() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }
