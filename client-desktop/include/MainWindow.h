@@ -123,6 +123,7 @@ namespace ZapFR
             void createContextMenuFeed();
             void createContextMenuFolder();
             void createContextMenuPost();
+            QModelIndex selectedSourceTreeIndex() const;
         };
     } // namespace Client
 } // namespace ZapFR

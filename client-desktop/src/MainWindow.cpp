@@ -324,26 +324,18 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
 {
     uint64_t sourceID{0};
     uint64_t folderID{0};
-    auto selectionModel = ui->treeViewSources->selectionModel();
-    if (selectionModel != nullptr)
+    auto currentIndex = selectedSourceTreeIndex();
+    if (currentIndex.isValid())
     {
-        auto selectedIndexes = selectionModel->selectedIndexes();
-        if (selectedIndexes.count() == 1)
+        sourceID = currentIndex.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto type = currentIndex.data(SourceTreeEntryTypeRole);
+        if (type == SOURCETREE_ENTRY_TYPE_FOLDER)
         {
-            auto currentIndex = selectedIndexes.at(0);
-            if (currentIndex.isValid())
-            {
-                sourceID = currentIndex.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                auto type = currentIndex.data(SourceTreeEntryTypeRole);
-                if (type == SOURCETREE_ENTRY_TYPE_FOLDER)
-                {
-                    folderID = currentIndex.data(SourceTreeEntryIDRole).toULongLong();
-                }
-                else if (type == SOURCETREE_ENTRY_TYPE_FEED)
-                {
-                    folderID = currentIndex.data(SourceTreeEntryParentFolderIDRole).toULongLong();
-                }
-            }
+            folderID = currentIndex.data(SourceTreeEntryIDRole).toULongLong();
+        }
+        else if (type == SOURCETREE_ENTRY_TYPE_FEED)
+        {
+            folderID = currentIndex.data(SourceTreeEntryParentFolderIDRole).toULongLong();
         }
     }
     return std::make_tuple(sourceID, folderID);
@@ -355,18 +347,13 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
     auto expandedItems = expandedSourceTreeItems();
     uint64_t selectedSourceID = 0;
     uint64_t selectedID = 0;
-    auto selectionModel = ui->treeViewSources->selectionModel();
-    if (selectionModel != nullptr)
+    auto index = selectedSourceTreeIndex();
+    if (index.isValid())
     {
-        auto selectedIndexes = selectionModel->selectedIndexes();
-        if (selectedIndexes.length() > 0)
+        if (index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
         {
-            auto index = selectedIndexes.at(0);
-            if (index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
-            {
-                selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                selectedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            }
+            selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            selectedID = index.data(SourceTreeEntryIDRole).toULongLong();
         }
     }
 
@@ -625,6 +612,17 @@ void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& po
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFeed, 40);
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnDate, 200);
     postsTableViewSelectionChanged({});
+
+    // in case we have just 1 feed selected, hide the feed column in the posts table
+    ui->tableViewPosts->setColumnHidden(PostColumnFeed, false);
+    auto index = selectedSourceTreeIndex();
+    if (index.isValid())
+    {
+        if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+        {
+            ui->tableViewPosts->setColumnHidden(PostColumnFeed, true);
+        }
+    }
 }
 
 void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndexList& selected)
@@ -794,19 +792,11 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t feedID)
 {
     // only 're-click' on the feed if the one that got refreshed is the currently selected feed
     auto reclick{false};
-    auto selectionModel = ui->treeViewSources->selectionModel();
-    if (selectionModel)
+    auto index = selectedSourceTreeIndex();
+    if (index.isValid() && index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
     {
-        auto selected = selectionModel->selectedIndexes();
-        if (selected.count() == 1)
-        {
-            auto selectedItem = selected.at(0);
-            if (selectedItem.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
-            {
-                auto selectedFeedID = selectedItem.data(SourceTreeEntryIDRole).toULongLong();
-                reclick = (selectedFeedID == feedID);
-            }
-        }
+        auto selectedFeedID = index.data(SourceTreeEntryIDRole).toULongLong();
+        reclick = (selectedFeedID == feedID);
     }
     reloadSources(reclick);
 }
@@ -938,20 +928,13 @@ void ZapFR::Client::MainWindow::setupToolbarEnabledStates()
     bool anythingSelected{false};
     bool feedSelected{false};
 
-    auto selectionModel = ui->treeViewSources->selectionModel();
-    if (selectionModel != nullptr)
+    auto index = selectedSourceTreeIndex();
+    if (index.isValid())
     {
-        auto selectedIndexes = selectionModel->selectedIndexes();
-        if (selectedIndexes.count() == 1)
-        {
-            auto index = selectedIndexes.at(0);
-            if (index.isValid())
-            {
-                anythingSelected = true;
-                feedSelected = (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED);
-            }
-        }
+        anythingSelected = true;
+        feedSelected = (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED);
     }
+
     ui->action_Mark_feed_as_read->setEnabled(feedSelected);
     ui->action_Add_feed->setEnabled(anythingSelected);
     ui->action_Add_folder->setEnabled(anythingSelected);
@@ -959,26 +942,32 @@ void ZapFR::Client::MainWindow::setupToolbarEnabledStates()
 
 void ZapFR::Client::MainWindow::markFeedAsRead()
 {
-    auto selectionModel = ui->treeViewSources->selectionModel();
-    if (selectionModel != nullptr)
+    auto index = selectedSourceTreeIndex();
+    if (index.isValid())
     {
-        auto selectedIndexes = selectionModel->selectedIndexes();
-        if (selectedIndexes.count() == 1)
-        {
-            auto index = selectedIndexes.at(0);
-            if (index.isValid())
-            {
-                auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
-            }
-        }
+        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
     }
 }
 
 void ZapFR::Client::MainWindow::refreshAllFeeds()
 {
     ZapFR::Engine::Agent::getInstance()->queueRefreshAllFeeds([&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+}
+
+QModelIndex ZapFR::Client::MainWindow::selectedSourceTreeIndex() const
+{
+    auto selectionModel = ui->treeViewSources->selectionModel();
+    if (selectionModel != nullptr)
+    {
+        auto selectedIndexes = selectionModel->selectedIndexes();
+        if (selectedIndexes.count() == 1)
+        {
+            return selectedIndexes.at(0);
+        }
+    }
+    return QModelIndex();
 }
 
 void ZapFR::Client::MainWindow::createContextMenus()
