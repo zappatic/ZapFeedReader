@@ -132,7 +132,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
 
         item.datePublished = fetchNodeValue(itemNode, "pubDate");
         int tzDiff;
-        auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::RFC822_FORMAT, item.datePublished, tzDiff);
+        auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::RFC1123_FORMAT, item.datePublished, tzDiff);
         parsedDate.makeUTC(tzDiff);
         item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
 
