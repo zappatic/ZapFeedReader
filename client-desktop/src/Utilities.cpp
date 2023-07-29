@@ -27,7 +27,7 @@ QString ZapFR::Client::Utilities::prettyDate(const QString& iso8601Date)
     }
 
     auto locale = QLocale();
-    auto now = QDateTime();
+    auto now = QDateTime::currentDateTime();
 
     auto nowDate = now.date();
     auto yesterdayDate = nowDate.addDays(-1);
