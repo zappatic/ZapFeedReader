@@ -31,10 +31,26 @@ std::string ZapFR::Engine::Helpers::joinString(const std::vector<std::string>& s
         case 0:
             return "";
         case 1:
-            return sourceVector[0];
+            return sourceVector.at(0);
         default:
             std::ostringstream os;
             std::copy(sourceVector.begin(), sourceVector.end() - 1, std::ostream_iterator<std::string>(os, delimiter));
+            os << *sourceVector.rbegin();
+            return os.str();
+    }
+}
+
+std::string ZapFR::Engine::Helpers::joinIDNumbers(const std::vector<uint64_t>& sourceVector, const char* delimiter)
+{
+    switch (sourceVector.size())
+    {
+        case 0:
+            return "";
+        case 1:
+            return std::to_string(sourceVector.at(0));
+        default:
+            std::ostringstream os;
+            std::copy(sourceVector.begin(), sourceVector.end() - 1, std::ostream_iterator<uint64_t>(os, delimiter));
             os << *sourceVector.rbegin();
             return os.str();
     }

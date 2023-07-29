@@ -16,23 +16,32 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_HELPERS_H
-#define ZAPFR_ENGINE_HELPERS_H
+#ifndef ZAPFR_ENGINE_AGENTMARKSOURCEREAD_H
+#define ZAPFR_ENGINE_AGENTMARKSOURCEREAD_H
 
+#include "AgentRunnable.h"
 #include "Global.h"
+#include "Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Helpers
+        class Feed;
+
+        class AgentMarkSourceRead : public AgentRunnable
         {
           public:
-            static std::string joinString(const std::vector<std::string>& sourceVector, const char* delimiter);
-            static std::string joinIDNumbers(const std::vector<uint64_t>& sourceVector, const char* delimiter);
-            static std::string performHTTPRequest(const std::string& url, const std::string& method);
+            explicit AgentMarkSourceRead(uint64_t sourceID, std::function<void()> finishedCallback);
+            virtual ~AgentMarkSourceRead() = default;
+
+            void run() override;
+
+          private:
+            uint64_t mSourceID{0};
+            std::function<void()> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_HELPERS_H
+#endif // ZAPFR_ENGINE_AGENTMARKSOURCEREAD_H

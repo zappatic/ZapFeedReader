@@ -23,8 +23,10 @@
 #include "AgentGetPost.h"
 #include "AgentGetSourcePosts.h"
 #include "AgentMarkFeedRead.h"
+#include "AgentMarkFolderRead.h"
 #include "AgentMarkPostRead.h"
 #include "AgentMarkPostUnread.h"
+#include "AgentMarkSourceRead.h"
 #include "AgentMoveFeed.h"
 #include "AgentMoveFolder.h"
 #include "AgentRefreshFeed.h"
@@ -125,6 +127,16 @@ void ZapFR::Engine::Agent::queueMarkPostUnread(uint64_t sourceID, uint64_t feedI
 void ZapFR::Engine::Agent::queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkFeedRead>(sourceID, feedID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentMarkFolderRead>(sourceID, folderID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMarkSourceRead(uint64_t sourceID, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentMarkSourceRead>(sourceID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback)

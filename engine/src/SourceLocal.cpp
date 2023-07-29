@@ -348,35 +348,20 @@ void ZapFR::Engine::SourceLocal::removeFolder(uint64_t folder)
     {
         auto folderParent = f.value()->parentID();
 
-        // get all the ID's of the chosen folder and its subfolders
-        std::vector<uint64_t> folderIDs;
-        getSubfolderIDs(folder, folderIDs, folder != 0);
-        std::stringstream ss;
-        std::copy(folderIDs.begin(), folderIDs.end(), std::ostream_iterator<int>(ss, ","));
-        auto joinedFolderIDs = ss.str();
-        joinedFolderIDs = joinedFolderIDs.substr(0, joinedFolderIDs.length() - 1);
+        auto feedIDs = FolderLocal::feedIDsInFoldersAndSubfolders(folder);
+        auto folderIDs = FolderLocal::folderAndSubfolderIDs(folder);
 
-        // get all feeds that are in the (sub)folders
-        std::vector<std::string> affectedFeedIDs;
-        auto selectFeedsSQL = Poco::format("SELECT id FROM feeds WHERE folder IN (%s)", joinedFolderIDs);
-        uint64_t feedID{0};
-        Poco::Data::Statement selectStmt(*(msDatabase->session()));
-        selectStmt << selectFeedsSQL, into(feedID), range(0, 1);
-        while (!selectStmt.done())
+        // remove the icons from the cache
+        for (const auto& feedID : feedIDs)
         {
-            if (selectStmt.execute() > 0)
-            {
-                affectedFeedIDs.emplace_back(std::to_string(feedID));
-
-                auto feed = FeedLocal(feedID);
-                feed.removeIcon();
-            }
+            auto feed = FeedLocal(feedID);
+            feed.removeIcon();
         }
 
         // remove feeds and their posts
-        if (affectedFeedIDs.size() > 0)
+        if (feedIDs.size() > 0)
         {
-            auto joinedFeedIDs = Helpers::joinString(affectedFeedIDs, ",");
+            auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDs, ",");
 
             // remove all posts from the affected feeds
             auto deletePostsSQL = Poco::format("DELETE FROM posts WHERE feedID IN (%s)", joinedFeedIDs);
@@ -390,6 +375,7 @@ void ZapFR::Engine::SourceLocal::removeFolder(uint64_t folder)
         }
 
         // remove folders
+        auto joinedFolderIDs = Helpers::joinIDNumbers(folderIDs, ",");
         auto deleteFoldersSQL = Poco::format("DELETE FROM folders WHERE id IN (%s)", joinedFolderIDs);
         Poco::Data::Statement deleteFoldersStmt(*(msDatabase->session()));
         deleteFoldersStmt << deleteFoldersSQL, now;
@@ -640,4 +626,11 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceLocal::ge
         }
     }
     return posts;
+}
+
+void ZapFR::Engine::SourceLocal::markAllAsRead()
+{
+    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    updateStmt << "UPDATE posts SET isRead=TRUE", now;
+    updateStmt.execute();
 }

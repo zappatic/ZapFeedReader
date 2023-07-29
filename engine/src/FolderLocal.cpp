@@ -79,54 +79,12 @@ void ZapFR::Engine::FolderLocal::fetchSubfolders()
 
 std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page)
 {
-    // fetch all folderIDs of all the subfolders of this folder
-    std::unordered_set<uint64_t> folderIDs{};
-    std::function<void(uint64_t)> fetchSubfolderIDs;
-    fetchSubfolderIDs = [&](uint64_t parentFolderID)
-    {
-        folderIDs.insert(parentFolderID);
-        uint64_t folderID{0};
-        Poco::Data::Statement selectStmt(*(msDatabase->session()));
-        selectStmt << "SELECT id FROM folders WHERE parent=?", use(parentFolderID), into(folderID), range(0, 1);
-        while (!selectStmt.done())
-        {
-            if (selectStmt.execute() > 0)
-            {
-                fetchSubfolderIDs(folderID);
-            }
-        }
-    };
-    fetchSubfolderIDs(mID);
-    if (folderIDs.size() == 0)
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(mID), ",");
+    if (joinedFeedIDs.empty())
     {
         return {};
     }
 
-    std::stringstream ss;
-    std::copy(folderIDs.begin(), folderIDs.end(), std::ostream_iterator<int>(ss, ","));
-    auto joinedFolderIDs = ss.str();
-    joinedFolderIDs = joinedFolderIDs.substr(0, joinedFolderIDs.length() - 1);
-
-    // fetch all the feed ID's that are within the queried subfolders
-    std::vector<std::string> feedIDs;
-    auto selectFeedsSQL = Poco::format("SELECT id FROM feeds WHERE folder IN (%s)", joinedFolderIDs);
-    uint64_t feedID{0};
-    Poco::Data::Statement selectFeedsStmt(*(msDatabase->session()));
-    selectFeedsStmt << selectFeedsSQL, into(feedID), range(0, 1);
-    while (!selectFeedsStmt.done())
-    {
-        if (selectFeedsStmt.execute() > 0)
-        {
-            feedIDs.emplace_back(std::to_string(feedID));
-        }
-    }
-    if (feedIDs.size() == 0)
-    {
-        return {};
-    }
-    auto joinedFeedIDs = Helpers::joinString(feedIDs, ",");
-
-    // fetch the posts for all the queried feeds
     std::vector<std::unique_ptr<Post>> posts;
 
     auto offset = perPage * (page - 1);
@@ -197,4 +155,64 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::ge
         }
     }
     return posts;
+}
+
+void ZapFR::Engine::FolderLocal::markAllAsRead()
+{
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(mID), ",");
+    if (joinedFeedIDs.empty())
+    {
+        return;
+    }
+
+    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    updateStmt << Poco::format("UPDATE posts SET isRead=TRUE WHERE feedID IN (%s)", joinedFeedIDs), now;
+    updateStmt.execute();
+}
+
+std::vector<uint64_t> ZapFR::Engine::FolderLocal::folderAndSubfolderIDs(uint64_t parentFolderID)
+{
+    std::vector<uint64_t> folderIDs{};
+    std::function<void(uint64_t)> fetchSubfolderIDs;
+    fetchSubfolderIDs = [&](uint64_t parent)
+    {
+        folderIDs.emplace_back(parent);
+        uint64_t folderID{0};
+        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        selectStmt << "SELECT id FROM folders WHERE parent=?", use(parent), into(folderID), range(0, 1);
+        while (!selectStmt.done())
+        {
+            if (selectStmt.execute() > 0)
+            {
+                fetchSubfolderIDs(folderID);
+            }
+        }
+    };
+    fetchSubfolderIDs(parentFolderID);
+    return folderIDs;
+}
+
+std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders(uint64_t parentFolderID)
+{
+    auto folderIDs = folderAndSubfolderIDs(parentFolderID);
+    if (folderIDs.size() == 0)
+    {
+        return {};
+    }
+
+    auto joinedFolderIDs = Helpers::joinIDNumbers(folderIDs, ",");
+
+    std::vector<uint64_t> feedIDs;
+    auto selectFeedsSQL = Poco::format("SELECT id FROM feeds WHERE folder IN (%s)", joinedFolderIDs);
+    uint64_t feedID{0};
+    Poco::Data::Statement selectFeedsStmt(*(msDatabase->session()));
+    selectFeedsStmt << selectFeedsSQL, into(feedID), range(0, 1);
+    while (!selectFeedsStmt.done())
+    {
+        if (selectFeedsStmt.execute() > 0)
+        {
+            feedIDs.emplace_back(feedID);
+        }
+    }
+    return feedIDs;
 }

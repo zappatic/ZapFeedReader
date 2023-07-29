@@ -56,7 +56,7 @@ namespace ZapFR
             void addFeed();
             void addFolder();
             void importOPML();
-            void markFeedAsRead();
+            void markAsRead();
             void refreshAllFeeds();
 
             // events
@@ -101,6 +101,7 @@ namespace ZapFR
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
             uint64_t mCurrentPostID{0};
+            QStandardItem* mFirstSource{nullptr};
 
             QString dataDir() const;
             QString configDir() const;

@@ -33,8 +33,13 @@ namespace ZapFR
             virtual ~FolderLocal() = default;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
+            void markAllAsRead() override;
+
             void fetchSubfolders() override;
             bool fetchData() override;
+
+            static std::vector<uint64_t> folderAndSubfolderIDs(uint64_t parentFolderID);
+            static std::vector<uint64_t> feedIDsInFoldersAndSubfolders(uint64_t parentFolderID);
         };
     } // namespace Engine
 } // namespace ZapFR

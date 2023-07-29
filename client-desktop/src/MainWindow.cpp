@@ -44,7 +44,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
     connect(ui->action_Add_folder, &QAction::triggered, this, &MainWindow::addFolder);
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
-    connect(ui->action_Mark_feed_as_read, &QAction::triggered, this, &MainWindow::markFeedAsRead);
+    connect(ui->action_Mark_feed_as_read, &QAction::triggered, this, &MainWindow::markAsRead);
     connect(ui->action_Refresh_all_feeds, &QAction::triggered, this, &MainWindow::refreshAllFeeds);
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
@@ -56,6 +56,10 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     setupToolbarIcons();
     setupToolbarEnabledStates();
     reloadSources();
+    if (mFirstSource != nullptr)
+    {
+        ui->treeViewSources->selectionModel()->select(mItemModelSources->indexFromItem(mFirstSource), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    }
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
     ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
 
@@ -385,6 +389,7 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
     };
 
     // process all available sources
+    mFirstSource = nullptr;
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)
     {
@@ -394,6 +399,11 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
         sourceItem->setData(SOURCETREE_ENTRY_TYPE_SOURCE, SourceTreeEntryTypeRole);
         sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryIDRole);
         sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
+
+        if (mFirstSource == nullptr)
+        {
+            mFirstSource = sourceItem;
+        }
 
         // create all the folder and subfolder items
         auto rootFolders = source->getFolders(0);
@@ -824,7 +834,8 @@ void ZapFR::Client::MainWindow::folderMoved()
 
 void ZapFR::Client::MainWindow::folderRemoved()
 {
-    reloadSources(false);
+    reloadSources();
+    loadPosts({});
 }
 
 void ZapFR::Client::MainWindow::postMarkedRead(uint64_t postID)
@@ -926,28 +937,67 @@ void ZapFR::Client::MainWindow::setupToolbarIcons()
 void ZapFR::Client::MainWindow::setupToolbarEnabledStates()
 {
     bool anythingSelected{false};
-    bool feedSelected{false};
+    QString markAsReadCaption;
 
     auto index = selectedSourceTreeIndex();
     if (index.isValid())
     {
         anythingSelected = true;
-        feedSelected = (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED);
+
+        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+        switch (type)
+        {
+            case SOURCETREE_ENTRY_TYPE_FEED:
+            {
+                markAsReadCaption = tr("Mark feed as read");
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            {
+                markAsReadCaption = tr("Mark folder as read");
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_SOURCE:
+            {
+                markAsReadCaption = tr("Mark source as read");
+                break;
+            }
+        }
     }
 
-    ui->action_Mark_feed_as_read->setEnabled(feedSelected);
+    ui->action_Mark_feed_as_read->setEnabled(anythingSelected);
+    ui->action_Mark_feed_as_read->setText(markAsReadCaption);
     ui->action_Add_feed->setEnabled(anythingSelected);
     ui->action_Add_folder->setEnabled(anythingSelected);
 }
 
-void ZapFR::Client::MainWindow::markFeedAsRead()
+void ZapFR::Client::MainWindow::markAsRead()
 {
     auto index = selectedSourceTreeIndex();
     if (index.isValid())
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+        switch (type)
+        {
+            case SOURCETREE_ENTRY_TYPE_FEED:
+            {
+                auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+                ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            {
+                auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+                ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_SOURCE:
+            {
+                ZapFR::Engine::Agent::getInstance()->queueMarkSourceRead(sourceID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+                break;
+            }
+        }
     }
 }
 
@@ -1007,10 +1057,10 @@ void ZapFR::Client::MainWindow::createContextMenuFeed()
             });
     mSourceContextMenuFeed->addAction(refreshAction);
 
-    // Feed - Mark all as read
-    auto markAllAsReadAction = new QAction(tr("&Mark all as read"), this);
-    connect(markAllAsReadAction, &QAction::triggered, this, &MainWindow::markFeedAsRead);
-    mSourceContextMenuFeed->addAction(markAllAsReadAction);
+    // Feed - Mark as read
+    auto markAsReadAction = new QAction(tr("&Mark as read"), this);
+    connect(markAsReadAction, &QAction::triggered, this, &MainWindow::markAsRead);
+    mSourceContextMenuFeed->addAction(markAsReadAction);
 
     mSourceContextMenuFeed->addSeparator();
 

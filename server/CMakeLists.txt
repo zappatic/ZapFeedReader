@@ -45,6 +45,8 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/AgentMarkPostRead.cpp
     ../engine/src/AgentMarkPostUnread.cpp
     ../engine/src/AgentMarkFeedRead.cpp
+    ../engine/src/AgentMarkFolderRead.cpp
+    ../engine/src/AgentMarkSourceRead.cpp
     ../engine/src/AgentGetPost.cpp
     ../engine/src/Database.cpp
     ../engine/src/FeedFetcher.cpp
