@@ -17,25 +17,25 @@
 */
 
 #include "Agent.h"
-#include "AgentAddFolder.h"
-#include "AgentGetFeedPosts.h"
-#include "AgentGetFolderPosts.h"
-#include "AgentGetPost.h"
-#include "AgentGetSourcePosts.h"
-#include "AgentMarkFeedRead.h"
-#include "AgentMarkFolderRead.h"
-#include "AgentMarkPostRead.h"
-#include "AgentMarkPostUnread.h"
-#include "AgentMarkSourceRead.h"
-#include "AgentMoveFeed.h"
-#include "AgentMoveFolder.h"
-#include "AgentRefreshFeed.h"
-#include "AgentRemoveFeed.h"
-#include "AgentRemoveFolder.h"
-#include "AgentSubscribeFeed.h"
 #include "Feed.h"
 #include "Post.h"
 #include "Source.h"
+#include "agents/AgentAddFolder.h"
+#include "agents/AgentGetFeedPosts.h"
+#include "agents/AgentGetFolderPosts.h"
+#include "agents/AgentGetPost.h"
+#include "agents/AgentGetSourcePosts.h"
+#include "agents/AgentMarkFeedRead.h"
+#include "agents/AgentMarkFolderRead.h"
+#include "agents/AgentMarkPostRead.h"
+#include "agents/AgentMarkPostsUnread.h"
+#include "agents/AgentMarkSourceRead.h"
+#include "agents/AgentMoveFeed.h"
+#include "agents/AgentMoveFolder.h"
+#include "agents/AgentRefreshFeed.h"
+#include "agents/AgentRemoveFeed.h"
+#include "agents/AgentRemoveFolder.h"
+#include "agents/AgentSubscribeFeed.h"
 
 std::mutex ZapFR::Engine::Agent::msMutex{};
 
@@ -119,9 +119,10 @@ void ZapFR::Engine::Agent::queueMarkPostRead(uint64_t sourceID, uint64_t feedID,
     enqueue(std::make_unique<AgentMarkPostRead>(sourceID, feedID, postID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkPostUnread(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkPostsUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs,
+                                                std::function<void(std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentMarkPostUnread>(sourceID, feedID, postID, finishedCallback));
+    enqueue(std::make_unique<AgentMarkPostsUnread>(sourceID, feedAndPostIDs, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)

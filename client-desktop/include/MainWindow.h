@@ -77,7 +77,7 @@ namespace ZapFR
             void folderAdded();
             void loadPosts(const QList<QList<QStandardItem*>>& posts);
             void postMarkedRead(uint64_t postID);
-            void postMarkedUnread(uint64_t postID);
+            void postsMarkedUnread(std::vector<std::tuple<uint64_t, uint64_t>> postIDs);
             void feedMarkedRead();
             void setPostHTML(const QString& html);
             void postsRetrieved(uint64_t sourceID, const std::vector<ZapFR::Engine::Post*>& posts);

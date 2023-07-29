@@ -107,68 +107,75 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
     return feeds;
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID)
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID, bool fetchData)
 {
-    uint64_t id{0};
-    std::string url;
-    std::string iconURL;
-    std::string iconHash;
-    std::string iconLastFetched;
-    uint64_t folder;
-    std::string guid;
-    std::string title;
-    std::string subtitle;
-    std::string link;
-    std::string description;
-    std::string language;
-    std::string copyright;
-    std::string lastChecked;
-    uint64_t sortOrder;
-
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
-    selectStmt << "SELECT id"
-                  ",url"
-                  ",iconURL"
-                  ",iconHash"
-                  ",iconLastFetched"
-                  ",folder"
-                  ",guid"
-                  ",title"
-                  ",subtitle"
-                  ",link"
-                  ",description"
-                  ",language"
-                  ",copyright"
-                  ",lastChecked"
-                  ",sortOrder"
-                  " FROM feeds"
-                  " WHERE id=?",
-        use(feedID), into(id), into(url), into(iconURL), into(iconHash), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link),
-        into(description), into(language), into(copyright), into(lastChecked), into(sortOrder), now;
-
-    auto rs = Poco::Data::RecordSet(selectStmt);
-    if (rs.rowCount() == 1)
+    if (fetchData)
     {
-        auto f = std::make_unique<FeedLocal>(id);
-        f->setURL(url);
-        f->setIconURL(iconURL);
-        f->setIconHash(iconHash);
-        f->setIconLastFetched(iconLastFetched);
-        f->setFolder(folder);
-        f->setGuid(guid);
-        f->setTitle(title);
-        f->setSubtitle(subtitle);
-        f->setLink(link);
-        f->setDescription(description);
-        f->setLanguage(language);
-        f->setCopyright(copyright);
-        f->setLastChecked(lastChecked);
-        f->setSortOrder(sortOrder);
-        f->setDataFetched(true);
-        return f;
-    }
+        uint64_t id{0};
+        std::string url;
+        std::string iconURL;
+        std::string iconHash;
+        std::string iconLastFetched;
+        uint64_t folder;
+        std::string guid;
+        std::string title;
+        std::string subtitle;
+        std::string link;
+        std::string description;
+        std::string language;
+        std::string copyright;
+        std::string lastChecked;
+        uint64_t sortOrder;
 
-    return {};
+        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        selectStmt << "SELECT id"
+                      ",url"
+                      ",iconURL"
+                      ",iconHash"
+                      ",iconLastFetched"
+                      ",folder"
+                      ",guid"
+                      ",title"
+                      ",subtitle"
+                      ",link"
+                      ",description"
+                      ",language"
+                      ",copyright"
+                      ",lastChecked"
+                      ",sortOrder"
+                      " FROM feeds"
+                      " WHERE id=?",
+            use(feedID), into(id), into(url), into(iconURL), into(iconHash), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link),
+            into(description), into(language), into(copyright), into(lastChecked), into(sortOrder), now;
+
+        auto rs = Poco::Data::RecordSet(selectStmt);
+        if (rs.rowCount() == 1)
+        {
+            auto f = std::make_unique<FeedLocal>(id);
+            f->setURL(url);
+            f->setIconURL(iconURL);
+            f->setIconHash(iconHash);
+            f->setIconLastFetched(iconLastFetched);
+            f->setFolder(folder);
+            f->setGuid(guid);
+            f->setTitle(title);
+            f->setSubtitle(subtitle);
+            f->setLink(link);
+            f->setDescription(description);
+            f->setLanguage(language);
+            f->setCopyright(copyright);
+            f->setLastChecked(lastChecked);
+            f->setSortOrder(sortOrder);
+            f->setDataFetched(true);
+            return f;
+        }
+
+        return {};
+    }
+    else
+    {
+        return std::make_unique<FeedLocal>(feedID);
+    }
 }
 
 uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder)

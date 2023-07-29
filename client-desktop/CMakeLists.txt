@@ -96,22 +96,22 @@ target_link_libraries(zapfeedreader-client PRIVATE  Qt${QT_VERSION_MAJOR}::Widge
 target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/Helpers.cpp
                                 ../engine/src/Agent.cpp
-                                ../engine/src/AgentRefreshFeed.cpp
-                                ../engine/src/AgentRemoveFolder.cpp
-                                ../engine/src/AgentRemoveFeed.cpp
-                                ../engine/src/AgentSubscribeFeed.cpp
-                                ../engine/src/AgentGetFeedPosts.cpp
-                                ../engine/src/AgentGetFolderPosts.cpp
-                                ../engine/src/AgentGetSourcePosts.cpp
-                                ../engine/src/AgentAddFolder.cpp
-                                ../engine/src/AgentMoveFeed.cpp
-                                ../engine/src/AgentMoveFolder.cpp
-                                ../engine/src/AgentMarkPostRead.cpp
-                                ../engine/src/AgentMarkPostUnread.cpp
-                                ../engine/src/AgentMarkFeedRead.cpp
-                                ../engine/src/AgentMarkFolderRead.cpp
-                                ../engine/src/AgentMarkSourceRead.cpp
-                                ../engine/src/AgentGetPost.cpp
+                                ../engine/src/agents/AgentRefreshFeed.cpp
+                                ../engine/src/agents/AgentRemoveFolder.cpp
+                                ../engine/src/agents/AgentRemoveFeed.cpp
+                                ../engine/src/agents/AgentSubscribeFeed.cpp
+                                ../engine/src/agents/AgentGetFeedPosts.cpp
+                                ../engine/src/agents/AgentGetFolderPosts.cpp
+                                ../engine/src/agents/AgentGetSourcePosts.cpp
+                                ../engine/src/agents/AgentAddFolder.cpp
+                                ../engine/src/agents/AgentMoveFeed.cpp
+                                ../engine/src/agents/AgentMoveFolder.cpp
+                                ../engine/src/agents/AgentMarkPostRead.cpp
+                                ../engine/src/agents/AgentMarkPostsUnread.cpp
+                                ../engine/src/agents/AgentMarkFeedRead.cpp
+                                ../engine/src/agents/AgentMarkFolderRead.cpp
+                                ../engine/src/agents/AgentMarkSourceRead.cpp
+                                ../engine/src/agents/AgentGetPost.cpp
                                 ../engine/src/Database.cpp
                                 ../engine/src/FeedFetcher.cpp
                                 ../engine/src/FeedParser.cpp

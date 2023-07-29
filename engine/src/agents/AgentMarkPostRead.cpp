@@ -16,22 +16,26 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentMoveFolder.h"
+#include "agents/AgentMarkPostRead.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMoveFolder::AgentMoveFolder(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mNewFolderID(newFolder), mNewSortOrder(newSortOrder), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentMarkPostRead::AgentMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentMoveFolder::run()
+void ZapFR::Engine::AgentMarkPostRead::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->moveFolder(mFolderID, mNewFolderID, mNewSortOrder);
-        mFinishedCallback();
+        auto feed = source.value()->getFeed(mFeedID);
+        if (feed.has_value())
+        {
+            feed.value()->markAsRead(mPostID);
+            mFinishedCallback(mPostID);
+        }
     }
 
     mIsDone = true;

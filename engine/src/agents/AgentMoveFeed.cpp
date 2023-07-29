@@ -16,20 +16,20 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentRemoveFolder.h"
+#include "agents/AgentMoveFeed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentRemoveFolder::AgentRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folder), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentMoveFeed::AgentMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mNewFolderID(newFolder), mNewSortOrder(newSortOrder), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentRemoveFolder::run()
+void ZapFR::Engine::AgentMoveFeed::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->removeFolder(mFolderID);
+        source.value()->moveFeed(mFeedID, mNewFolderID, mNewSortOrder);
         mFinishedCallback();
     }
 

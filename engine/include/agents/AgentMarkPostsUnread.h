@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTMARKPOSTUNREAD_H
-#define ZAPFR_ENGINE_AGENTMARKPOSTUNREAD_H
+#ifndef ZAPFR_ENGINE_AGENTMARKPOSTSUNREAD_H
+#define ZAPFR_ENGINE_AGENTMARKPOSTSUNREAD_H
 
 #include "AgentRunnable.h"
 #include "Global.h"
@@ -29,21 +29,21 @@ namespace ZapFR
     {
         class Feed;
 
-        class AgentMarkPostUnread : public AgentRunnable
+        class AgentMarkPostsUnread : public AgentRunnable
         {
           public:
-            explicit AgentMarkPostUnread(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback);
-            virtual ~AgentMarkPostUnread() = default;
+            explicit AgentMarkPostsUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs,
+                                          std::function<void(std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback);
+            virtual ~AgentMarkPostsUnread() = default;
 
             void run() override;
 
           private:
             uint64_t mSourceID{0};
-            uint64_t mFeedID{0};
-            uint64_t mPostID{0};
-            std::function<void(uint64_t)> mFinishedCallback{};
+            std::vector<std::tuple<uint64_t, uint64_t>> mFeedAndPostIDs{};
+            std::function<void(std::vector<std::tuple<uint64_t, uint64_t>>)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTMARKPOSTUNREAD_H
+#endif // ZAPFR_ENGINE_AGENTMARKPOSTSUNREAD_H

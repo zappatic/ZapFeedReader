@@ -45,7 +45,7 @@ namespace ZapFR
             void setConfigData(const std::string& configData) { mConfigData = configData; }
 
             virtual std::vector<std::unique_ptr<Feed>> getFeeds() = 0;
-            virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) = 0;
+            virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, bool fetchData = true) = 0;
             virtual uint64_t addFeed(const std::string& url, uint64_t folder) = 0;
             virtual void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) = 0;
             virtual void removeFeed(uint64_t feedID) = 0;

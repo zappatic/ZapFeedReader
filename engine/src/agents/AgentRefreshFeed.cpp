@@ -16,28 +16,38 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentGetSourcePosts.h"
+#include "agents/AgentRefreshFeed.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentGetSourcePosts::AgentGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page,
-                                                        std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentRefreshFeed::AgentRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentGetSourcePosts::run()
+void ZapFR::Engine::AgentRefreshFeed::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto posts = source.value()->getPosts(mPerPage, mPage);
-        std::vector<Post*> postPointers;
-        for (const auto& post : posts)
+        auto feed = source.value()->getFeed(mFeedID);
+        if (feed.has_value())
         {
-            postPointers.emplace_back(post.get());
+            try
+            {
+                feed.value()->refresh();
+            }
+            catch (const Poco::Exception& e)
+            {
+                // TODO: log this
+                std::cerr << e.what() << "\n" << e.displayText() << "\n";
+            }
+            catch (const std::runtime_error& e)
+            {
+                std::cerr << e.what() << "\n";
+            }
+            mFinishedCallback(mFeedID);
         }
-        mFinishedCallback(source.value()->id(), postPointers);
     }
 
     mIsDone = true;

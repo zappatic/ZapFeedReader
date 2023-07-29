@@ -16,38 +16,23 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentRefreshFeed.h"
+#include "agents/AgentAddFolder.h"
 #include "Feed.h"
+#include "Post.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentRefreshFeed::AgentRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentAddFolder::AgentAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mParentFolderID(parentFolderID), mTitle(title), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentRefreshFeed::run()
+void ZapFR::Engine::AgentAddFolder::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
-        if (feed.has_value())
-        {
-            try
-            {
-                feed.value()->refresh();
-            }
-            catch (const Poco::Exception& e)
-            {
-                // TODO: log this
-                std::cerr << e.what() << "\n" << e.displayText() << "\n";
-            }
-            catch (const std::runtime_error& e)
-            {
-                std::cerr << e.what() << "\n";
-            }
-            mFinishedCallback(mFeedID);
-        }
+        source.value()->addFolder(mTitle, mParentFolderID);
+        mFinishedCallback();
     }
 
     mIsDone = true;

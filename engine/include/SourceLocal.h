@@ -35,7 +35,7 @@ namespace ZapFR
             ~SourceLocal() = default;
 
             std::vector<std::unique_ptr<Feed>> getFeeds() override;
-            std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID) override;
+            std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, bool fetchData = true) override;
             uint64_t addFeed(const std::string& url, uint64_t folder) override;
             void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) override;
             void removeFeed(uint64_t feedID) override;

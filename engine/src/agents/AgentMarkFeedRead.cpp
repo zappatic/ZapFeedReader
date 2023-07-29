@@ -16,24 +16,24 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentMarkFolderRead.h"
+#include "agents/AgentMarkFeedRead.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMarkFolderRead::AgentMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentMarkFeedRead::AgentMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentMarkFolderRead::run()
+void ZapFR::Engine::AgentMarkFeedRead::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto folder = source.value()->getFolder(mFolderID);
-        if (folder.has_value())
+        auto feed = source.value()->getFeed(mFeedID);
+        if (feed.has_value())
         {
-            folder.value()->markAllAsRead();
+            feed.value()->markAllAsRead();
             mFinishedCallback();
         }
     }

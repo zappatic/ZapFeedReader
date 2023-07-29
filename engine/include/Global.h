@@ -59,6 +59,7 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <unordered_map>
 #include <unordered_set>
 
 #include <fmt/core.h>

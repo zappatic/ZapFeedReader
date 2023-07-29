@@ -16,32 +16,22 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentGetFeedPosts.h"
+#include "agents/AgentRemoveFeed.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentGetFeedPosts::AgentGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
-                                                    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentRemoveFeed::AgentRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentGetFeedPosts::run()
+void ZapFR::Engine::AgentRemoveFeed::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
-        if (feed.has_value())
-        {
-            auto posts = feed.value()->getPosts(mPerPage, mPage);
-            std::vector<Post*> postPointers;
-            for (const auto& post : posts)
-            {
-                postPointers.emplace_back(post.get());
-            }
-            mFinishedCallback(source.value()->id(), postPointers);
-        }
+        source.value()->removeFeed(mFeedID);
+        mFinishedCallback();
     }
 
     mIsDone = true;

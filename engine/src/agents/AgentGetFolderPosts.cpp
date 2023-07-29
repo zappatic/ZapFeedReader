@@ -16,22 +16,32 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentRemoveFeed.h"
+#include "agents/AgentGetFolderPosts.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentRemoveFeed::AgentRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentGetFolderPosts::AgentGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
+                                                        std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentRemoveFeed::run()
+void ZapFR::Engine::AgentGetFolderPosts::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->removeFeed(mFeedID);
-        mFinishedCallback();
+        auto folder = source.value()->getFolder(mFolderID);
+        if (folder.has_value())
+        {
+            auto posts = folder.value()->getPosts(mPerPage, mPage);
+            std::vector<Post*> postPointers;
+            for (const auto& post : posts)
+            {
+                postPointers.emplace_back(post.get());
+            }
+            mFinishedCallback(source.value()->id(), postPointers);
+        }
     }
 
     mIsDone = true;

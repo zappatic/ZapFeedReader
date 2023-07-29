@@ -16,25 +16,30 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentMarkPostUnread.h"
+#include "agents/AgentSubscribeFeed.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMarkPostUnread::AgentMarkPostUnread(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentSubscribeFeed::AgentSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
+                                                      std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderID(folder), mNewFolderHierarchy(newFolderHierarchy), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentMarkPostUnread::run()
+void ZapFR::Engine::AgentSubscribeFeed::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
-        if (feed.has_value())
+        try
         {
-            feed.value()->markAsUnread(mPostID);
-            mFinishedCallback(mPostID);
+            auto subfolderID = source.value()->createFolderHierarchy(mFolderID, mNewFolderHierarchy);
+            source.value()->addFeed(mURL, subfolderID);
+            mFinishedCallback();
+        }
+        catch (Poco::Exception& e)
+        {
+            std::cout << "Poco Exception: " << e.what() << "\n" << e.displayText() << "\n";
         }
     }
 

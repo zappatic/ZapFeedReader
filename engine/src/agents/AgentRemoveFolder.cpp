@@ -16,31 +16,21 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentSubscribeFeed.h"
-#include "Feed.h"
+#include "agents/AgentRemoveFolder.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentSubscribeFeed::AgentSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
-                                                      std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderID(folder), mNewFolderHierarchy(newFolderHierarchy), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentRemoveFolder::AgentRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFolderID(folder), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSubscribeFeed::run()
+void ZapFR::Engine::AgentRemoveFolder::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        try
-        {
-            auto subfolderID = source.value()->createFolderHierarchy(mFolderID, mNewFolderHierarchy);
-            source.value()->addFeed(mURL, subfolderID);
-            mFinishedCallback();
-        }
-        catch (Poco::Exception& e)
-        {
-            std::cout << "Poco Exception: " << e.what() << "\n" << e.displayText() << "\n";
-        }
+        source.value()->removeFolder(mFolderID);
+        mFinishedCallback();
     }
 
     mIsDone = true;

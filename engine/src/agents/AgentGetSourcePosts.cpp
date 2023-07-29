@@ -16,26 +16,28 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentMarkFeedRead.h"
+#include "agents/AgentGetSourcePosts.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMarkFeedRead::AgentMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentGetSourcePosts::AgentGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page,
+                                                        std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentMarkFeedRead::run()
+void ZapFR::Engine::AgentGetSourcePosts::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
-        if (feed.has_value())
+        auto posts = source.value()->getPosts(mPerPage, mPage);
+        std::vector<Post*> postPointers;
+        for (const auto& post : posts)
         {
-            feed.value()->markAllAsRead();
-            mFinishedCallback();
+            postPointers.emplace_back(post.get());
         }
+        mFinishedCallback(source.value()->id(), postPointers);
     }
 
     mIsDone = true;

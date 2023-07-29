@@ -857,21 +857,23 @@ void ZapFR::Client::MainWindow::postMarkedRead(uint64_t postID)
     reloadSources(false);
 }
 
-void ZapFR::Client::MainWindow::postMarkedUnread(uint64_t postID)
+void ZapFR::Client::MainWindow::postsMarkedUnread(std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
 {
-    for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
+    for (const auto& [feedID, postID] : postIDs)
     {
-        auto index = mItemModelPosts->index(i, 0);
-        if (index.data(PostIDRole).toULongLong() == postID)
+        for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
         {
-            for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
+            auto index = mItemModelPosts->index(i, 0);
+            if (index.data(PostIDRole).toULongLong() == postID)
             {
-                auto item = mItemModelPosts->item(i, col);
-                item->setData(QVariant::fromValue<bool>(false), PostIsReadRole);
+                for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
+                {
+                    auto item = mItemModelPosts->item(i, col);
+                    item->setData(QVariant::fromValue<bool>(false), PostIsReadRole);
+                }
             }
         }
     }
-
     reloadSources(false);
 }
 
@@ -1149,17 +1151,24 @@ void ZapFR::Client::MainWindow::createContextMenuPost()
                 auto selectionModel = ui->tableViewPosts->selectionModel();
                 if (selectionModel != nullptr)
                 {
+                    uint64_t sourceID{0};
+                    std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs;
                     auto selectedIndexes = selectionModel->selectedIndexes();
                     for (const auto& index : selectedIndexes)
                     {
-                        mCurrentPostID = index.data(PostIDRole).toULongLong();
-                        mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
-                        mCurrentPostFeedID = index.data(PostFeedIDRole).toULongLong();
+                        if (index.column() == PostColumnUnread)
+                        {
+                            sourceID = index.data(PostSourceIDRole).toULongLong();
+                            auto feedID = index.data(PostFeedIDRole).toULongLong();
+                            auto postID = index.data(PostIDRole).toULongLong();
 
-                        ZapFR::Engine::Agent::getInstance()->queueMarkPostUnread(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
-                                                                                 [&](uint64_t postID)
-                                                                                 { QMetaObject::invokeMethod(this, "postMarkedUnread", Qt::AutoConnection, postID); });
+                            feedAndPostIDs.emplace_back(std::make_tuple(feedID, postID));
+                        }
                     }
+
+                    ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(sourceID, feedAndPostIDs,
+                                                                              [&](std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
+                                                                              { QMetaObject::invokeMethod(this, "postsMarkedUnread", Qt::AutoConnection, postIDs); });
                 }
             });
     mPostContextMenu->addAction(markPostUnreadAction);

@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentMarkSourceRead.h"
+#include "agents/AgentMarkSourceRead.h"
 #include "Feed.h"
 #include "Source.h"
 

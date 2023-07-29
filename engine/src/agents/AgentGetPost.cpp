@@ -16,21 +16,30 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AgentMoveFeed.h"
+#include "agents/AgentGetPost.h"
+#include "Feed.h"
+#include "Post.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMoveFeed::AgentMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mNewFolderID(newFolder), mNewSortOrder(newSortOrder), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentGetPost::AgentGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<ZapFR::Engine::Post>)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentMoveFeed::run()
+void ZapFR::Engine::AgentGetPost::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->moveFeed(mFeedID, mNewFolderID, mNewSortOrder);
-        mFinishedCallback();
+        auto feed = source.value()->getFeed(mFeedID);
+        if (feed.has_value())
+        {
+            auto post = feed.value()->getPost(mPostID);
+            if (post.has_value())
+            {
+                mFinishedCallback(std::move(post.value()));
+            }
+        }
     }
 
     mIsDone = true;
