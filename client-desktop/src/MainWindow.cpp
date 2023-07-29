@@ -790,9 +790,25 @@ void ZapFR::Client::MainWindow::postsTableViewContextMenuRequested(const QPoint&
     mPostContextMenu->popup(ui->tableViewPosts->viewport()->mapToGlobal(p));
 }
 
-void ZapFR::Client::MainWindow::feedRefreshed()
+void ZapFR::Client::MainWindow::feedRefreshed(uint64_t feedID)
 {
-    reloadSources();
+    // only 're-click' on the feed if the one that got refreshed is the currently selected feed
+    auto reclick{false};
+    auto selectionModel = ui->treeViewSources->selectionModel();
+    if (selectionModel)
+    {
+        auto selected = selectionModel->selectedIndexes();
+        if (selected.count() == 1)
+        {
+            auto selectedItem = selected.at(0);
+            if (selectedItem.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+            {
+                auto selectedFeedID = selectedItem.data(SourceTreeEntryIDRole).toULongLong();
+                reclick = (selectedFeedID == feedID);
+            }
+        }
+    }
+    reloadSources(reclick);
 }
 
 void ZapFR::Client::MainWindow::feedAdded()
@@ -962,7 +978,7 @@ void ZapFR::Client::MainWindow::markFeedAsRead()
 
 void ZapFR::Client::MainWindow::refreshAllFeeds()
 {
-    ZapFR::Engine::Agent::getInstance()->queueRefreshAllFeeds([&]() { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection); });
+    ZapFR::Engine::Agent::getInstance()->queueRefreshAllFeeds([&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
 }
 
 void ZapFR::Client::MainWindow::createContextMenus()
@@ -996,7 +1012,8 @@ void ZapFR::Client::MainWindow::createContextMenuFeed()
                 {
                     auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
                     auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                    ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection); });
+                    ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
+                        sourceID, feedID, [&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
                 }
             });
     mSourceContextMenuFeed->addAction(refreshAction);

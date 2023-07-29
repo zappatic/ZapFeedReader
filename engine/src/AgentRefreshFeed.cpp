@@ -20,7 +20,7 @@
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentRefreshFeed::AgentRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentRefreshFeed::AgentRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
@@ -46,7 +46,7 @@ void ZapFR::Engine::AgentRefreshFeed::run()
             {
                 std::cerr << e.what() << "\n";
             }
-            mFinishedCallback();
+            mFinishedCallback(mFeedID);
         }
     }
 

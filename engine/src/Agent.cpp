@@ -51,12 +51,12 @@ ZapFR::Engine::Agent* ZapFR::Engine::Agent::getInstance()
     return &instance;
 }
 
-void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentRefreshFeed>(sourceID, feedID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueRefreshAllFeeds(std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueRefreshAllFeeds(std::function<void(uint64_t)> finishedCallback)
 {
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)

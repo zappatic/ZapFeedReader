@@ -68,7 +68,7 @@ namespace ZapFR
             void postLinkHovered(const QString& url);
 
             // callbacks
-            void feedRefreshed();
+            void feedRefreshed(uint64_t feedID);
             void feedAdded();
             void feedRemoved();
             void feedMoved();

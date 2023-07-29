@@ -38,8 +38,8 @@ namespace ZapFR
 
             static Agent* getInstance();
 
-            void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
-            void queueRefreshAllFeeds(std::function<void()> finishedCallback);
+            void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t)> finishedCallback);
+            void queueRefreshAllFeeds(std::function<void(uint64_t)> finishedCallback);
             void queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
                                     std::function<void()> finishedCallback);
             void queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
