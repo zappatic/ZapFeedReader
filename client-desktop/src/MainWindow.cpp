@@ -351,14 +351,13 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
     auto expandedItems = expandedSourceTreeItems();
     uint64_t selectedSourceID = 0;
     uint64_t selectedID = 0;
+    uint32_t selectedType = 0;
     auto index = selectedSourceTreeIndex();
     if (index.isValid())
     {
-        if (index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
-        {
-            selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            selectedID = index.data(SourceTreeEntryIDRole).toULongLong();
-        }
+        selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        selectedID = index.data(SourceTreeEntryIDRole).toULongLong();
+        selectedType = index.data(SourceTreeEntryTypeRole).toUInt();
     }
 
     // recreate the model
@@ -470,8 +469,8 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
         std::function<void(QStandardItem*)> selectIndex;
         selectIndex = [&](QStandardItem* parent)
         {
-            if (parent->data(SourceTreeEntryTypeRole).toInt() == SOURCETREE_ENTRY_TYPE_FEED &&
-                parent->data(SourceTreeEntryParentSourceIDRole).toULongLong() == selectedSourceID && parent->data(SourceTreeEntryIDRole).toULongLong() == selectedID)
+            if (parent->data(SourceTreeEntryTypeRole).toUInt() == selectedType && parent->data(SourceTreeEntryParentSourceIDRole).toULongLong() == selectedSourceID &&
+                parent->data(SourceTreeEntryIDRole).toULongLong() == selectedID)
             {
                 auto indexToSelect = mItemModelSources->indexFromItem(parent);
                 ui->treeViewSources->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
