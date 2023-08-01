@@ -684,6 +684,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
     }
 
     ui->labelPageNumber->setText(QString("%1 / %2").arg(mCurrentPostPage).arg(mCurrentPostPageCount));
+    ui->labelTotalPostCount->setText(tr("%n post(s)", "", static_cast<int32_t>(mCurrentPostCount)));
 }
 
 void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndexList& selected)
@@ -993,6 +994,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     labelFont.setPointSizeF(10.0f);
     ui->labelPage->setFont(labelFont);
     ui->labelPageNumber->setFont(labelFont);
+    ui->labelTotalPostCount->setFont(labelFont);
 
     ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
                                        "QToolButton:disabled { color:%1; }\n")

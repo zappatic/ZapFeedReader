@@ -51,15 +51,10 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(zapfeedreader-client
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+    qt_add_executable(zapfeedreader-client MANUAL_FINALIZATION ${PROJECT_SOURCES})
+    qt6_add_translations(zapfeedreader-client TS_FILES ${TS_FILES} RESOURCE_PREFIX "i18n")
 else()
-        add_executable(zapfeedreader-client
-            ${PROJECT_SOURCES}
-        )
+    add_executable(zapfeedreader-client ${PROJECT_SOURCES} )
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
