@@ -216,3 +216,17 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders(
     }
     return feedIDs;
 }
+
+uint64_t ZapFR::Engine::FolderLocal::getTotalPostCount()
+{
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(mID), ",");
+    if (joinedFeedIDs.empty())
+    {
+        return 0;
+    }
+
+    uint64_t postCount;
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << Poco::format("SELECT COUNT(*) FROM posts WHERE feedID IN (%s)", joinedFeedIDs), into(postCount), now;
+    return postCount;
+}

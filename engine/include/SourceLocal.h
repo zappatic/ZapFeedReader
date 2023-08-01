@@ -49,6 +49,7 @@ namespace ZapFR
             uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy) override;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
+            uint64_t getTotalPostCount() override;
             void markAllAsRead() override;
 
           private:

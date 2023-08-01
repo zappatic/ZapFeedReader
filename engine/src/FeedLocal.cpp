@@ -409,3 +409,11 @@ Poco::File ZapFR::Engine::FeedLocal::iconFile() const
 
     return Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
 }
+
+uint64_t ZapFR::Engine::FeedLocal::getTotalPostCount()
+{
+    uint64_t postCount;
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT COUNT(*) FROM posts WHERE feedID=?", use(mID), into(postCount), now;
+    return postCount;
+}

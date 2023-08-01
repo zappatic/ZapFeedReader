@@ -641,3 +641,11 @@ void ZapFR::Engine::SourceLocal::markAllAsRead()
     updateStmt << "UPDATE posts SET isRead=TRUE", now;
     updateStmt.execute();
 }
+
+uint64_t ZapFR::Engine::SourceLocal::getTotalPostCount()
+{
+    uint64_t postCount;
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT COUNT(*) FROM posts", into(postCount), now;
+    return postCount;
+}

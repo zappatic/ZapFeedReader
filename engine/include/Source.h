@@ -59,6 +59,7 @@ namespace ZapFR
             virtual uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy) = 0;
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) = 0;
+            virtual uint64_t getTotalPostCount() = 0;
             virtual void markAllAsRead() = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);

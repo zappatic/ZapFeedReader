@@ -58,6 +58,11 @@ namespace ZapFR
             void importOPML();
             void markAsRead();
             void refreshAllFeeds();
+            void reloadPosts();
+            void navigateNextPostPage();
+            void navigatePreviousPostPage();
+            void navigateFirstPostPage();
+            void navigateLastPostPage();
 
             // events
             void sourceTreeViewItemSelected(const QModelIndex& index);
@@ -75,12 +80,11 @@ namespace ZapFR
             void folderRemoved();
             void folderMoved();
             void folderAdded();
-            void loadPosts(const QList<QList<QStandardItem*>>& posts);
             void postMarkedRead(uint64_t postID);
             void postsMarkedUnread(std::vector<std::tuple<uint64_t, uint64_t>> postIDs);
             void feedMarkedRead();
             void setPostHTML(const QString& html);
-            void postsRetrieved(uint64_t sourceID, const std::vector<ZapFR::Engine::Post*>& posts);
+            void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 1);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -101,7 +105,11 @@ namespace ZapFR
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
             uint64_t mCurrentPostID{0};
+            uint64_t mCurrentPostPage{1};
+            uint64_t mCurrentPostCount{1};
+            uint64_t mCurrentPostPageCount{1};
             QStandardItem* mFirstSource{nullptr};
+            bool mReclickOnSource{true};
 
             QString dataDir() const;
             QString configDir() const;
@@ -117,7 +125,7 @@ namespace ZapFR
             void reloadCurrentPost();
             QString postStyles() const;
             QString textMessageHTML(const QString& message) const;
-            void setupToolbarIcons();
+            void configureIcons();
             void setupToolbarEnabledStates();
             void createContextMenus();
             void createContextMenuSource();
@@ -125,6 +133,8 @@ namespace ZapFR
             void createContextMenuFolder();
             void createContextMenuPost();
             QModelIndex selectedSourceTreeIndex() const;
+
+            static constexpr uint64_t msPostsPerPage{100};
         };
     } // namespace Client
 } // namespace ZapFR

@@ -21,7 +21,7 @@
 #include "Source.h"
 
 ZapFR::Engine::AgentGetFeedPosts::AgentGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
-                                                    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> finishedCallback)
+                                                    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
 {
 }
@@ -40,7 +40,8 @@ void ZapFR::Engine::AgentGetFeedPosts::run()
             {
                 postPointers.emplace_back(post.get());
             }
-            mFinishedCallback(source.value()->id(), postPointers);
+
+            mFinishedCallback(source.value()->id(), postPointers, mPage, feed.value()->getTotalPostCount());
         }
     }
 

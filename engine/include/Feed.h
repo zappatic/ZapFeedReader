@@ -69,6 +69,7 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) = 0;
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
+            virtual uint64_t getTotalPostCount() = 0;
 
             virtual void refresh() = 0;
             virtual void markAllAsRead() = 0;

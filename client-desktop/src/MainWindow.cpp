@@ -50,10 +50,14 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
     connect(ui->tableViewPosts, &TableViewPosts::selectedPostsChanged, this, &MainWindow::postsTableViewSelectionChanged);
     connect(ui->tableViewPosts, &TableViewPosts::customContextMenuRequested, this, &MainWindow::postsTableViewContextMenuRequested);
+    connect(ui->pushButtonPreviousPage, &QPushButton::clicked, this, &MainWindow::navigatePreviousPostPage);
+    connect(ui->pushButtonNextPage, &QPushButton::clicked, this, &MainWindow::navigateNextPostPage);
+    connect(ui->pushButtonFirstPage, &QPushButton::clicked, this, &MainWindow::navigateFirstPostPage);
+    connect(ui->pushButtonLastPage, &QPushButton::clicked, this, &MainWindow::navigateLastPostPage);
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
     fixPalette();
-    setupToolbarIcons();
+    configureIcons();
     setupToolbarEnabledStates();
     reloadSources();
     if (mFirstSource != nullptr)
@@ -85,7 +89,7 @@ void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
 void ZapFR::Client::MainWindow::colorSchemeChanged(Qt::ColorScheme /*scheme*/)
 {
     reloadCurrentPost();
-    setupToolbarIcons();
+    configureIcons();
 }
 
 void ZapFR::Client::MainWindow::saveSettings() const
@@ -473,11 +477,8 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
                 parent->data(SourceTreeEntryIDRole).toULongLong() == selectedID)
             {
                 auto indexToSelect = mItemModelSources->indexFromItem(parent);
-                ui->treeViewSources->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-                if (performClickOnSelection)
-                {
-                    ui->treeViewSources->setCurrentIndex(indexToSelect);
-                }
+                mReclickOnSource = performClickOnSelection;
+                ui->treeViewSources->setCurrentIndex(indexToSelect);
                 return;
             }
             else
@@ -543,35 +544,45 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
 {
     if (index.isValid())
     {
-        if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+        if (mReclickOnSource)
         {
-            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, 100, 1, std::bind(&MainWindow::postsRetrieved, this, _1, _2));
+            mCurrentPostPage = 1;
+            // have to do this with a timer because a this point the selectionModel() hasn't updated yet
+            // which is queried in reloadPosts()
+            QTimer::singleShot(0, [&]() { reloadPosts(); });
         }
-        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
-        {
-            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, 100, 1, std::bind(&MainWindow::postsRetrieved, this, _1, _2));
-        }
-        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
-        {
-            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, 100, 1, std::bind(&MainWindow::postsRetrieved, this, _1, _2));
-        }
-        else
-        {
-            loadPosts({});
-        }
-        QTimer::singleShot(0, [&]() { setupToolbarEnabledStates(); });
+        mReclickOnSource = true;
     }
 }
 
-void ZapFR::Client::MainWindow::postsRetrieved(uint64_t sourceID, const std::vector<ZapFR::Engine::Post*>& posts)
+void ZapFR::Client::MainWindow::navigateNextPostPage()
 {
-    std::function<void(QStandardItem*, ZapFR::Engine::Post*)> setItemData;
-    setItemData = [&](QStandardItem* item, ZapFR::Engine::Post* post)
+    mCurrentPostPage = std::min(mCurrentPostPageCount, mCurrentPostPage + 1);
+    reloadPosts();
+}
+
+void ZapFR::Client::MainWindow::navigatePreviousPostPage()
+{
+    mCurrentPostPage = std::max(1ul, mCurrentPostPage - 1);
+    reloadPosts();
+}
+
+void ZapFR::Client::MainWindow::navigateFirstPostPage()
+{
+    mCurrentPostPage = 1;
+    reloadPosts();
+}
+
+void ZapFR::Client::MainWindow::navigateLastPostPage()
+{
+    mCurrentPostPage = mCurrentPostPageCount;
+    reloadPosts();
+}
+
+void ZapFR::Client::MainWindow::reloadPosts()
+{
+    // lambda to assign the correct role data to the table entries
+    auto setItemData = [&](QStandardItem* item, ZapFR::Engine::Post* post, uint64_t sourceID)
     {
         item->setData(QVariant::fromValue<uint64_t>(post->id()), PostIDRole);
         item->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
@@ -579,32 +590,63 @@ void ZapFR::Client::MainWindow::postsRetrieved(uint64_t sourceID, const std::vec
         item->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
     };
 
-    QList<QList<QStandardItem*>> rows;
-    for (const auto& post : posts)
+    // lambda for the callback, retrieving the posts
+    auto processPosts = [&](uint64_t sourceID, const std::vector<ZapFR::Engine::Post*>& posts, uint64_t pageNumber, uint64_t totalPostCount)
     {
-        auto unreadItem = new QStandardItem("");
-        setItemData(unreadItem, post);
+        QList<QList<QStandardItem*>> rows;
+        for (const auto& post : posts)
+        {
+            auto unreadItem = new QStandardItem("");
+            setItemData(unreadItem, post, sourceID);
 
-        auto feedItem = new QStandardItem("");
-        setItemData(feedItem, post);
+            auto feedItem = new QStandardItem("");
+            setItemData(feedItem, post, sourceID);
 
-        auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
-        setItemData(titleItem, post);
+            auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
+            setItemData(titleItem, post, sourceID);
 
-        auto datePublished = QString::fromUtf8(post->datePublished());
-        auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
-        dateItem->setData(datePublished, PostISODateRole);
-        setItemData(dateItem, post);
+            auto datePublished = QString::fromUtf8(post->datePublished());
+            auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
+            dateItem->setData(datePublished, PostISODateRole);
+            setItemData(dateItem, post, sourceID);
 
-        QList<QStandardItem*> rowData;
-        rowData << unreadItem << feedItem << titleItem << dateItem;
-        rows << rowData;
+            QList<QStandardItem*> rowData;
+            rowData << unreadItem << feedItem << titleItem << dateItem;
+            rows << rowData;
+        }
+
+        QMetaObject::invokeMethod(this, "populatePosts", Qt::AutoConnection, rows, pageNumber, totalPostCount);
+    };
+
+    auto index = selectedSourceTreeIndex();
+    if (index.isValid())
+    {
+        if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, processPosts);
+        }
+        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, processPosts);
+        }
+        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, processPosts);
+        }
+        else
+        {
+            populatePosts();
+        }
+        setupToolbarEnabledStates();
     }
-
-    QMetaObject::invokeMethod(this, "loadPosts", Qt::AutoConnection, rows);
 }
 
-void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& posts)
+void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>& posts, uint64_t pageNumber, uint64_t totalPostCount)
 {
     mItemModelPosts = std::make_unique<QStandardItemModel>(this);
     ui->tableViewPosts->setModel(mItemModelPosts.get());
@@ -632,6 +674,16 @@ void ZapFR::Client::MainWindow::loadPosts(const QList<QList<QStandardItem*>>& po
             ui->tableViewPosts->setColumnHidden(PostColumnFeed, true);
         }
     }
+
+    mCurrentPostCount = totalPostCount;
+    mCurrentPostPage = pageNumber;
+    mCurrentPostPageCount = 1;
+    if (mCurrentPostCount > 0)
+    {
+        mCurrentPostPageCount = static_cast<uint64_t>(std::ceil(static_cast<float>(mCurrentPostCount) / static_cast<float>(msPostsPerPage)));
+    }
+
+    ui->labelPageNumber->setText(QString("%1 / %2").arg(mCurrentPostPage).arg(mCurrentPostPageCount));
 }
 
 void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndexList& selected)
@@ -649,9 +701,13 @@ void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndex
             mCurrentPostSourceID = index.data(PostSourceIDRole).toULongLong();
             mCurrentPostFeedID = index.data(PostFeedIDRole).toULongLong();
 
-            ZapFR::Engine::Agent::getInstance()->queueMarkPostRead(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
-                                                                   [&](uint64_t postID) { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection, postID); });
-
+            auto isRead = index.data(PostIsReadRole).toBool();
+            if (!isRead)
+            {
+                ZapFR::Engine::Agent::getInstance()->queueMarkPostRead(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
+                                                                       [&](uint64_t postID)
+                                                                       { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection, postID); });
+            }
             reloadCurrentPost();
         }
     }
@@ -818,7 +874,7 @@ void ZapFR::Client::MainWindow::feedAdded()
 void ZapFR::Client::MainWindow::feedRemoved()
 {
     reloadSources();
-    loadPosts({});
+    populatePosts();
 }
 
 void ZapFR::Client::MainWindow::feedMoved()
@@ -834,7 +890,7 @@ void ZapFR::Client::MainWindow::folderMoved()
 void ZapFR::Client::MainWindow::folderRemoved()
 {
     reloadSources();
-    loadPosts({});
+    populatePosts();
 }
 
 void ZapFR::Client::MainWindow::postMarkedRead(uint64_t postID)
@@ -886,7 +942,7 @@ void ZapFR::Client::MainWindow::folderAdded()
     reloadSources(false);
 }
 
-void ZapFR::Client::MainWindow::setupToolbarIcons()
+void ZapFR::Client::MainWindow::configureIcons()
 {
     // the defaults are for the light theme
     auto color = QString("#000");
@@ -898,37 +954,45 @@ void ZapFR::Client::MainWindow::setupToolbarIcons()
         colorDisabled = "#555";
     }
 
-    std::function<void(const QString&, QAction*)> installIcon;
-    installIcon = [&](const QString& svgResource, QAction* action)
+    std::function<QIcon(const QString&)> configureIcon;
+    configureIcon = [&](const QString& svgResource)
     {
         auto svgFile = QFile(svgResource);
         svgFile.open(QIODeviceBase::ReadOnly);
         auto svgContents = QString(svgFile.readAll());
         svgFile.close();
 
-        auto icon = QIcon();
+        QIcon icon;
 
-        // Icon Normal On
+        // Normal On
         QImage normalOn;
         auto svg = svgContents;
         svg.replace("{#color}", color);
         normalOn.loadFromData(svg.toUtf8());
         icon.addPixmap(QPixmap::fromImage(normalOn), QIcon::Normal, QIcon::On);
 
-        // Icon Disabled On
+        // Disabled On
         QImage disabledOn;
         svg = svgContents;
         svg.replace("{#color}", colorDisabled);
         disabledOn.loadFromData(svg.toUtf8());
         icon.addPixmap(QPixmap::fromImage(disabledOn), QIcon::Disabled, QIcon::On);
-
-        action->setIcon(icon);
+        return icon;
     };
 
-    installIcon(":/refreshFeed.svg", ui->action_Refresh_all_feeds);
-    installIcon(":/markAsRead.svg", ui->action_Mark_feed_as_read);
-    installIcon(":/addFeed.svg", ui->action_Add_feed);
-    installIcon(":/addFolder.svg", ui->action_Add_folder);
+    ui->action_Refresh_all_feeds->setIcon(configureIcon(":/refreshFeed.svg"));
+    ui->action_Mark_feed_as_read->setIcon(configureIcon(":/markAsRead.svg"));
+    ui->action_Add_feed->setIcon(configureIcon(":/addFeed.svg"));
+    ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
+    ui->pushButtonPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
+    ui->pushButtonFirstPage->setIcon(configureIcon(":/firstPage.svg"));
+    ui->pushButtonNextPage->setIcon(configureIcon(":/nextPage.svg"));
+    ui->pushButtonLastPage->setIcon(configureIcon(":/lastPage.svg"));
+
+    auto labelFont = ui->labelPage->font();
+    labelFont.setPointSizeF(10.0f);
+    ui->labelPage->setFont(labelFont);
+    ui->labelPageNumber->setFont(labelFont);
 
     ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
                                        "QToolButton:disabled { color:%1; }\n")

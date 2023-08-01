@@ -37,6 +37,7 @@ namespace ZapFR
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
             std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
+            uint64_t getTotalPostCount() override;
             bool fetchData() override;
             void refresh() override;
             void markAllAsRead() override;

@@ -33,7 +33,7 @@ namespace ZapFR
         {
           public:
             explicit AgentGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page,
-                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> finishedCallback);
+                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentGetSourcePosts() = default;
 
             void run() override;
@@ -42,7 +42,7 @@ namespace ZapFR
             uint64_t mSourceID{0};
             uint64_t mPerPage{0};
             uint64_t mPage{0};
-            std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&)> mFinishedCallback{};
+            std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

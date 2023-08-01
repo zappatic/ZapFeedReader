@@ -33,6 +33,7 @@ namespace ZapFR
             virtual ~FolderLocal() = default;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
+            uint64_t getTotalPostCount() override;
             void markAllAsRead() override;
 
             void fetchSubfolders() override;
