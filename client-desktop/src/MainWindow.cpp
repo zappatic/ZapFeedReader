@@ -54,7 +54,8 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->pushButtonNextPage, &QPushButton::clicked, this, &MainWindow::navigateNextPostPage);
     connect(ui->pushButtonFirstPage, &QPushButton::clicked, this, &MainWindow::navigateFirstPostPage);
     connect(ui->pushButtonLastPage, &QPushButton::clicked, this, &MainWindow::navigateLastPostPage);
-    connect(ui->checkBoxShowOnlyUnread, &QCheckBox::stateChanged, this, &MainWindow::showOnlyUnreadStateChanged);
+    connect(ui->pushButtonToggleShowUnread, &QPushButton::clicked, this, &MainWindow::toggleShowOnlyUnread);
+    connect(ui->pushButtonPageNumber, &QPushButton::clicked, this, &MainWindow::postPageNumberClicked);
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
     fixPalette();
@@ -580,10 +581,37 @@ void ZapFR::Client::MainWindow::navigateLastPostPage()
     reloadPosts();
 }
 
-void ZapFR::Client::MainWindow::showOnlyUnreadStateChanged(int32_t state)
+void ZapFR::Client::MainWindow::toggleShowOnlyUnread()
 {
-    mShowOnlyUnreadPosts = (state == Qt::Checked);
+    mShowOnlyUnreadPosts = !mShowOnlyUnreadPosts;
+    if (mShowOnlyUnreadPosts)
+    {
+        ui->pushButtonToggleShowUnread->setText(tr("Show all posts"));
+    }
+    else
+    {
+        ui->pushButtonToggleShowUnread->setText(tr("Show only unread posts"));
+    }
     reloadPosts();
+}
+
+void ZapFR::Client::MainWindow::postPageNumberClicked()
+{
+    if (mDialogJumpToPostPage == nullptr)
+    {
+        mDialogJumpToPostPage = std::make_unique<DialogJumpToPostPage>(this);
+        connect(mDialogJumpToPostPage.get(), &QDialog::finished,
+                [&](int result)
+                {
+                    if (result == QDialog::DialogCode::Accepted)
+                    {
+                        mCurrentPostPage = mDialogJumpToPostPage->pageToJumpTo();
+                        reloadPosts();
+                    }
+                });
+    }
+    mDialogJumpToPostPage->reset(mCurrentPostPage, mCurrentPostPageCount);
+    mDialogJumpToPostPage->open();
 }
 
 void ZapFR::Client::MainWindow::reloadPosts()
@@ -690,7 +718,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
         mCurrentPostPageCount = static_cast<uint64_t>(std::ceil(static_cast<float>(mCurrentPostCount) / static_cast<float>(msPostsPerPage)));
     }
 
-    ui->labelPageNumber->setText(QString("%1 / %2").arg(mCurrentPostPage).arg(mCurrentPostPageCount));
+    ui->pushButtonPageNumber->setText(QString("%1 %2 / %3").arg(tr("Page")).arg(mCurrentPostPage).arg(mCurrentPostPageCount));
     ui->labelTotalPostCount->setText(tr("%n post(s)", "", static_cast<int32_t>(mCurrentPostCount)));
 }
 
@@ -997,12 +1025,11 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->pushButtonNextPage->setIcon(configureIcon(":/nextPage.svg"));
     ui->pushButtonLastPage->setIcon(configureIcon(":/lastPage.svg"));
 
-    auto labelFont = ui->labelPage->font();
+    auto labelFont = ui->labelTotalPostCount->font();
     labelFont.setPointSizeF(10.0f);
-    ui->labelPage->setFont(labelFont);
-    ui->labelPageNumber->setFont(labelFont);
+    ui->pushButtonPageNumber->setFont(labelFont);
     ui->labelTotalPostCount->setFont(labelFont);
-    ui->checkBoxShowOnlyUnread->setFont(labelFont);
+    ui->pushButtonToggleShowUnread->setFont(labelFont);
 
     ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
                                        "QToolButton:disabled { color:%1; }\n")

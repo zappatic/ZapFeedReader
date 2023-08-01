@@ -24,6 +24,7 @@
 #include "DialogAddFeed.h"
 #include "DialogAddFolder.h"
 #include "DialogImportOPML.h"
+#include "DialogJumpToPostPage.h"
 #include "Global.h"
 
 QT_BEGIN_NAMESPACE
@@ -63,7 +64,6 @@ namespace ZapFR
             void navigatePreviousPostPage();
             void navigateFirstPostPage();
             void navigateLastPostPage();
-            void showOnlyUnreadStateChanged(int32_t state);
 
             // events
             void sourceTreeViewItemSelected(const QModelIndex& index);
@@ -72,6 +72,8 @@ namespace ZapFR
             void sourceTreeViewContextMenuRequested(const QPoint& p);
             void postsTableViewContextMenuRequested(const QPoint& p);
             void postLinkHovered(const QString& url);
+            void toggleShowOnlyUnread();
+            void postPageNumberClicked();
 
             // callbacks
             void feedRefreshed(uint64_t feedID);
@@ -98,6 +100,7 @@ namespace ZapFR
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
             std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
+            std::unique_ptr<DialogJumpToPostPage> mDialogJumpToPostPage{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuSource{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
