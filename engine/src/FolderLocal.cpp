@@ -79,7 +79,7 @@ void ZapFR::Engine::FolderLocal::fetchSubfolders()
 
 std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page)
 {
-    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(mID), ",");
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
     if (joinedFeedIDs.empty())
     {
         return {};
@@ -159,7 +159,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::ge
 
 void ZapFR::Engine::FolderLocal::markAllAsRead()
 {
-    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(mID), ",");
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
     if (joinedFeedIDs.empty())
     {
         return;
@@ -170,7 +170,7 @@ void ZapFR::Engine::FolderLocal::markAllAsRead()
     updateStmt.execute();
 }
 
-std::vector<uint64_t> ZapFR::Engine::FolderLocal::folderAndSubfolderIDs(uint64_t parentFolderID)
+std::vector<uint64_t> ZapFR::Engine::FolderLocal::folderAndSubfolderIDs() const
 {
     std::vector<uint64_t> folderIDs{};
     std::function<void(uint64_t)> fetchSubfolderIDs;
@@ -188,13 +188,13 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::folderAndSubfolderIDs(uint64_t
             }
         }
     };
-    fetchSubfolderIDs(parentFolderID);
+    fetchSubfolderIDs(mID);
     return folderIDs;
 }
 
-std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders(uint64_t parentFolderID)
+std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders() const
 {
-    auto folderIDs = folderAndSubfolderIDs(parentFolderID);
+    auto folderIDs = folderAndSubfolderIDs();
     if (folderIDs.size() == 0)
     {
         return {};
@@ -219,7 +219,7 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders(
 
 uint64_t ZapFR::Engine::FolderLocal::getTotalPostCount()
 {
-    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(mID), ",");
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
     if (joinedFeedIDs.empty())
     {
         return 0;

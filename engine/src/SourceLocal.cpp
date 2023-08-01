@@ -355,8 +355,8 @@ void ZapFR::Engine::SourceLocal::removeFolder(uint64_t folder)
     {
         auto folderParent = f.value()->parentID();
 
-        auto feedIDs = FolderLocal::feedIDsInFoldersAndSubfolders(folder);
-        auto folderIDs = FolderLocal::folderAndSubfolderIDs(folder);
+        auto feedIDs = f.value()->feedIDsInFoldersAndSubfolders();
+        auto folderIDs = f.value()->folderAndSubfolderIDs();
 
         // remove the icons from the cache
         for (const auto& feedID : feedIDs)

@@ -1107,7 +1107,7 @@ void ZapFR::Client::MainWindow::createContextMenuFeed()
     mSourceContextMenuFeed = std::make_unique<QMenu>(nullptr);
 
     // Feed - Refresh
-    auto refreshAction = new QAction(tr("&Refresh"), this);
+    auto refreshAction = new QAction(tr("&Refresh feed"), this);
     connect(refreshAction, &QAction::triggered,
             [&]()
             {
@@ -1164,10 +1164,30 @@ void ZapFR::Client::MainWindow::createContextMenuFolder()
 {
     mSourceContextMenuFolder = std::make_unique<QMenu>(nullptr);
 
+    // Folder - Refresh
+    auto refreshAction = new QAction(tr("&Refresh folder"), this);
+    connect(refreshAction, &QAction::triggered,
+            [&]()
+            {
+                auto index = ui->treeViewSources->currentIndex();
+                if (index.isValid())
+                {
+                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                    auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+                    ZapFR::Engine::Agent::getInstance()->queueRefreshFolder(
+                        sourceID, folderID, [&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+                }
+            });
+    mSourceContextMenuFolder->addAction(refreshAction);
+
+    mSourceContextMenuFolder->addSeparator();
+
     // Folder - Add subfolder
     auto addFolderAction = new QAction(tr("Add &subfolder"), this);
     connect(addFolderAction, &QAction::triggered, this, &MainWindow::addFolder);
     mSourceContextMenuFolder->addAction(addFolderAction);
+
+    mSourceContextMenuFolder->addSeparator();
 
     // Folder - Remove
     auto removeFolderAction = new QAction(tr("Remo&ve"), this);

@@ -53,6 +53,9 @@ namespace ZapFR
             virtual bool fetchData() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }
 
+            virtual std::vector<uint64_t> folderAndSubfolderIDs() const = 0;
+            virtual std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const = 0;
+
             static void registerDatabaseInstance(Database* db);
 
           protected:
