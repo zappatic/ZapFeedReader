@@ -1097,6 +1097,29 @@ void ZapFR::Client::MainWindow::createContextMenuSource()
 {
     mSourceContextMenuSource = std::make_unique<QMenu>(nullptr);
 
+    // Source - Refresh
+    auto refreshAction = new QAction(tr("&Refresh source"), this);
+    connect(refreshAction, &QAction::triggered,
+            [&]()
+            {
+                auto index = ui->treeViewSources->currentIndex();
+                if (index.isValid())
+                {
+                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                    ZapFR::Engine::Agent::getInstance()->queueRefreshSource(sourceID, [&](uint64_t feedID)
+                                                                            { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+                }
+            });
+    mSourceContextMenuSource->addAction(refreshAction);
+
+    // Source - Mark as read
+    auto markAsReadAction = new QAction(tr("&Mark source as read"), this);
+    connect(markAsReadAction, &QAction::triggered, this, &MainWindow::markAsRead);
+    mSourceContextMenuSource->addAction(markAsReadAction);
+
+    mSourceContextMenuSource->addSeparator();
+
+    // Source - Add folder
     auto addFolderAction = new QAction(tr("Add &folder"), this);
     connect(addFolderAction, &QAction::triggered, this, &MainWindow::addFolder);
     mSourceContextMenuSource->addAction(addFolderAction);
@@ -1123,14 +1146,14 @@ void ZapFR::Client::MainWindow::createContextMenuFeed()
     mSourceContextMenuFeed->addAction(refreshAction);
 
     // Feed - Mark as read
-    auto markAsReadAction = new QAction(tr("&Mark as read"), this);
+    auto markAsReadAction = new QAction(tr("&Mark feed as read"), this);
     connect(markAsReadAction, &QAction::triggered, this, &MainWindow::markAsRead);
     mSourceContextMenuFeed->addAction(markAsReadAction);
 
     mSourceContextMenuFeed->addSeparator();
 
     // Feed - Remove
-    auto removeAction = new QAction(tr("Remo&ve"), this);
+    auto removeAction = new QAction(tr("Remo&ve feed"), this);
     connect(removeAction, &QAction::triggered,
             [&]()
             {
@@ -1180,6 +1203,11 @@ void ZapFR::Client::MainWindow::createContextMenuFolder()
             });
     mSourceContextMenuFolder->addAction(refreshAction);
 
+    // Folder - Mark as read
+    auto markAsReadAction = new QAction(tr("&Mark folder as read"), this);
+    connect(markAsReadAction, &QAction::triggered, this, &MainWindow::markAsRead);
+    mSourceContextMenuFolder->addAction(markAsReadAction);
+
     mSourceContextMenuFolder->addSeparator();
 
     // Folder - Add subfolder
@@ -1190,7 +1218,7 @@ void ZapFR::Client::MainWindow::createContextMenuFolder()
     mSourceContextMenuFolder->addSeparator();
 
     // Folder - Remove
-    auto removeFolderAction = new QAction(tr("Remo&ve"), this);
+    auto removeFolderAction = new QAction(tr("Remo&ve folder"), this);
     connect(removeFolderAction, &QAction::triggered,
             [&]()
             {

@@ -70,6 +70,7 @@ namespace ZapFR
 
             // source manipulation
             void queueMarkSourceRead(uint64_t sourceID, std::function<void()> finishedCallback);
+            void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
 
           private:
             explicit Agent();
