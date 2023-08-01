@@ -20,9 +20,9 @@
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentGetFolderPosts::AgentGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
+ZapFR::Engine::AgentGetFolderPosts::AgentGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -34,14 +34,14 @@ void ZapFR::Engine::AgentGetFolderPosts::run()
         auto folder = source.value()->getFolder(mFolderID);
         if (folder.has_value())
         {
-            auto posts = folder.value()->getPosts(mPerPage, mPage);
+            auto posts = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread);
             std::vector<Post*> postPointers;
             for (const auto& post : posts)
             {
                 postPointers.emplace_back(post.get());
             }
 
-            mFinishedCallback(source.value()->id(), postPointers, mPage, folder.value()->getTotalPostCount());
+            mFinishedCallback(source.value()->id(), postPointers, mPage, folder.value()->getTotalPostCount(mShowOnlyUnread));
         }
     }
 

@@ -39,11 +39,11 @@ namespace ZapFR
             static Agent* getInstance();
 
             // querying posts
-            void queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+            void queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                    std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback);
-            void queueGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
+            void queueGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                      std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback);
-            void queueGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page,
+            void queueGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                      std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback);
             void queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback);
 

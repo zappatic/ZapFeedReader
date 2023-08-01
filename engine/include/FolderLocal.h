@@ -32,8 +32,8 @@ namespace ZapFR
             explicit FolderLocal(uint64_t id, uint64_t parent);
             virtual ~FolderLocal() = default;
 
-            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
-            uint64_t getTotalPostCount() override;
+            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) override;
+            uint64_t getTotalPostCount(bool showOnlyUnread) override;
             void markAllAsRead() override;
 
             void fetchSubfolders() override;

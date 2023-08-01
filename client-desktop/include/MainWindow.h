@@ -63,6 +63,7 @@ namespace ZapFR
             void navigatePreviousPostPage();
             void navigateFirstPostPage();
             void navigateLastPostPage();
+            void showOnlyUnreadStateChanged(int32_t state);
 
             // events
             void sourceTreeViewItemSelected(const QModelIndex& index);
@@ -108,6 +109,7 @@ namespace ZapFR
             uint64_t mCurrentPostPage{1};
             uint64_t mCurrentPostCount{1};
             uint64_t mCurrentPostPageCount{1};
+            bool mShowOnlyUnreadPosts{false};
             QStandardItem* mFirstSource{nullptr};
             bool mReclickOnSource{true};
 

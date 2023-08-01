@@ -110,22 +110,22 @@ void ZapFR::Engine::Agent::queueRemoveFolder(uint64_t sourceID, uint64_t folder,
     enqueue(std::make_unique<AgentRemoveFolder>(sourceID, folder, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+void ZapFR::Engine::Agent::queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                              std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentGetFeedPosts>(sourceID, feedID, perPage, page, finishedCallback));
+    enqueue(std::make_unique<AgentGetFeedPosts>(sourceID, feedID, perPage, page, showOnlyUnread, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
+void ZapFR::Engine::Agent::queueGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                                std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentGetFolderPosts>(sourceID, folderID, perPage, page, finishedCallback));
+    enqueue(std::make_unique<AgentGetFolderPosts>(sourceID, folderID, perPage, page, showOnlyUnread, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page,
+void ZapFR::Engine::Agent::queueGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                                std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentGetSourcePosts>(sourceID, perPage, page, finishedCallback));
+    enqueue(std::make_unique<AgentGetSourcePosts>(sourceID, perPage, page, showOnlyUnread, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback)

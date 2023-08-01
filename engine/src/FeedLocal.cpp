@@ -30,7 +30,7 @@ ZapFR::Engine::FeedLocal::FeedLocal(uint64_t id) : Feed(id)
 {
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getPosts(uint64_t perPage, uint64_t page)
+std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread)
 {
     std::vector<std::unique_ptr<Post>> posts;
 
@@ -51,27 +51,30 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
     std::string datePublished{""};
     std::string sourceURL{""};
     std::string sourceTitle{""};
+    std::string whereClause = showOnlyUnread ? "AND isRead=FALSE" : "";
 
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
-    selectStmt << "SELECT id"
-                  ",isRead"
-                  ",title"
-                  ",link"
-                  ",description"
-                  ",author"
-                  ",commentsURL"
-                  ",enclosureURL"
-                  ",enclosureLength"
-                  ",enclosureMimeType"
-                  ",guid"
-                  ",guidIsPermalink"
-                  ",datePublished"
-                  ",sourceURL"
-                  ",sourceTitle"
-                  " FROM posts"
-                  " WHERE feedID=?"
-                  " ORDER BY datePublished DESC"
-                  " LIMIT ? OFFSET ?",
+    selectStmt << Poco::format("SELECT id"
+                               ",isRead"
+                               ",title"
+                               ",link"
+                               ",description"
+                               ",author"
+                               ",commentsURL"
+                               ",enclosureURL"
+                               ",enclosureLength"
+                               ",enclosureMimeType"
+                               ",guid"
+                               ",guidIsPermalink"
+                               ",datePublished"
+                               ",sourceURL"
+                               ",sourceTitle"
+                               " FROM posts"
+                               " WHERE feedID=?"
+                               "       %s"
+                               " ORDER BY datePublished DESC"
+                               " LIMIT ? OFFSET ?",
+                               whereClause),
         use(mID), use(perPage), use(offset), into(id), into(isRead), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL),
         into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), range(0, 1);
 
@@ -410,10 +413,12 @@ Poco::File ZapFR::Engine::FeedLocal::iconFile() const
     return Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
 }
 
-uint64_t ZapFR::Engine::FeedLocal::getTotalPostCount()
+uint64_t ZapFR::Engine::FeedLocal::getTotalPostCount(bool showOnlyUnread)
 {
+    std::string whereClause = showOnlyUnread ? " AND isRead=FALSE" : "";
+
     uint64_t postCount;
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
-    selectStmt << "SELECT COUNT(*) FROM posts WHERE feedID=?", use(mID), into(postCount), now;
+    selectStmt << Poco::format("SELECT COUNT(*) FROM posts WHERE feedID=? %s", whereClause), use(mID), into(postCount), now;
     return postCount;
 }

@@ -67,9 +67,9 @@ namespace ZapFR
             void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
             void setUnreadCount(uint64_t unreadCount) noexcept { mUnreadCount = unreadCount; }
 
-            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) = 0;
+            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
-            virtual uint64_t getTotalPostCount() = 0;
+            virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
 
             virtual void refresh() = 0;
             virtual void markAllAsRead() = 0;

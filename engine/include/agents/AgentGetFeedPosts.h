@@ -32,7 +32,7 @@ namespace ZapFR
         class AgentGetFeedPosts : public AgentRunnable
         {
           public:
-            explicit AgentGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+            explicit AgentGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                        std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentGetFeedPosts() = default;
 
@@ -43,6 +43,7 @@ namespace ZapFR
             uint64_t mFeedID{0};
             uint64_t mPerPage{0};
             uint64_t mPage{0};
+            bool mShowOnlyUnread{false};
             std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine

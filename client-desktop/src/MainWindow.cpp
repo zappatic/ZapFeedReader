@@ -54,6 +54,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->pushButtonNextPage, &QPushButton::clicked, this, &MainWindow::navigateNextPostPage);
     connect(ui->pushButtonFirstPage, &QPushButton::clicked, this, &MainWindow::navigateFirstPostPage);
     connect(ui->pushButtonLastPage, &QPushButton::clicked, this, &MainWindow::navigateLastPostPage);
+    connect(ui->checkBoxShowOnlyUnread, &QCheckBox::stateChanged, this, &MainWindow::showOnlyUnreadStateChanged);
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
     fixPalette();
@@ -579,6 +580,12 @@ void ZapFR::Client::MainWindow::navigateLastPostPage()
     reloadPosts();
 }
 
+void ZapFR::Client::MainWindow::showOnlyUnreadStateChanged(int32_t state)
+{
+    mShowOnlyUnreadPosts = (state == Qt::Checked);
+    reloadPosts();
+}
+
 void ZapFR::Client::MainWindow::reloadPosts()
 {
     // lambda to assign the correct role data to the table entries
@@ -625,18 +632,18 @@ void ZapFR::Client::MainWindow::reloadPosts()
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
             auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, processPosts);
+            ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
         }
         else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
             auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, processPosts);
+            ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
         }
         else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, processPosts);
+            ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
         }
         else
         {
@@ -995,6 +1002,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->labelPage->setFont(labelFont);
     ui->labelPageNumber->setFont(labelFont);
     ui->labelTotalPostCount->setFont(labelFont);
+    ui->checkBoxShowOnlyUnread->setFont(labelFont);
 
     ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
                                        "QToolButton:disabled { color:%1; }\n")

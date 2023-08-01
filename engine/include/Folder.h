@@ -46,8 +46,8 @@ namespace ZapFR
             virtual void fetchSubfolders() = 0;
             bool hasSubfolders();
 
-            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) = 0;
-            virtual uint64_t getTotalPostCount() = 0;
+            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
+            virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
             virtual void markAllAsRead() = 0;
 
             virtual bool fetchData() = 0;

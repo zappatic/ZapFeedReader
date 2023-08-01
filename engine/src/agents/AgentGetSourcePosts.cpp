@@ -20,9 +20,9 @@
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentGetSourcePosts::AgentGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page,
+ZapFR::Engine::AgentGetSourcePosts::AgentGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -31,14 +31,14 @@ void ZapFR::Engine::AgentGetSourcePosts::run()
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto posts = source.value()->getPosts(mPerPage, mPage);
+        auto posts = source.value()->getPosts(mPerPage, mPage, mShowOnlyUnread);
         std::vector<Post*> postPointers;
         for (const auto& post : posts)
         {
             postPointers.emplace_back(post.get());
         }
 
-        mFinishedCallback(source.value()->id(), postPointers, mPage, source.value()->getTotalPostCount());
+        mFinishedCallback(source.value()->id(), postPointers, mPage, source.value()->getTotalPostCount(mShowOnlyUnread));
     }
 
     mIsDone = true;

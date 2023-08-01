@@ -35,9 +35,9 @@ namespace ZapFR
             explicit FeedLocal(uint64_t id);
             virtual ~FeedLocal() = default;
 
-            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page) override;
+            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) override;
             std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
-            uint64_t getTotalPostCount() override;
+            uint64_t getTotalPostCount(bool showOnlyUnread) override;
             bool fetchData() override;
             void refresh() override;
             void markAllAsRead() override;
