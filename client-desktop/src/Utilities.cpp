@@ -25,6 +25,7 @@ QString ZapFR::Client::Utilities::prettyDate(const QString& iso8601Date)
     {
         return QObject::tr("Invalid date");
     }
+    dateTime = dateTime.toLocalTime();
 
     auto locale = QLocale();
     auto now = QDateTime::currentDateTime();
@@ -37,16 +38,13 @@ QString ZapFR::Client::Utilities::prettyDate(const QString& iso8601Date)
 
     auto datePart = locale.toString(date, QLocale::ShortFormat);
 
-    if (nowDate.year() == date.year() && nowDate.month() == date.month())
+    if (nowDate.year() == date.year() && nowDate.month() == date.month() && nowDate.day() == date.day())
     {
-        if (nowDate.day() == date.day())
-        {
-            datePart = QObject::tr("Today,");
-        }
-        else if (yesterdayDate.day() == date.day())
-        {
-            datePart = QObject::tr("Yesterday,");
-        }
+        datePart = QObject::tr("Today,");
+    }
+    else if (yesterdayDate.year() == date.year() && yesterdayDate.month() == date.month() && yesterdayDate.day() == date.day())
+    {
+        datePart = QObject::tr("Yesterday,");
     }
 
     auto timePart = locale.toString(time, QLocale::ShortFormat);
