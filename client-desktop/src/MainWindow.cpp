@@ -22,8 +22,10 @@
 #include "FeedIconCache.h"
 #include "FeedLocal.h"
 #include "Folder.h"
+#include "ItemDelegateLog.h"
 #include "ItemDelegatePost.h"
 #include "ItemDelegateSource.h"
+#include "Post.h"
 #include "StandardItemModelSources.h"
 #include "Utilities.h"
 #include "WebEnginePagePost.h"
@@ -46,6 +48,8 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
     connect(ui->action_Mark_feed_as_read, &QAction::triggered, this, &MainWindow::markAsRead);
     connect(ui->action_Refresh_all_feeds, &QAction::triggered, this, &MainWindow::refreshAllFeeds);
+    connect(ui->action_View_logs, &QAction::triggered, this, &MainWindow::viewLogs);
+    connect(ui->action_Back_to_posts, &QAction::triggered, this, &MainWindow::exitLogs);
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
     connect(ui->tableViewPosts, &TableViewPosts::selectedPostsChanged, this, &MainWindow::postsTableViewSelectionChanged);
@@ -56,11 +60,12 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     connect(ui->pushButtonLastPage, &QPushButton::clicked, this, &MainWindow::navigateLastPostPage);
     connect(ui->pushButtonToggleShowUnread, &QPushButton::clicked, this, &MainWindow::toggleShowOnlyUnread);
     connect(ui->pushButtonPageNumber, &QPushButton::clicked, this, &MainWindow::postPageNumberClicked);
+    connect(ui->stackedWidgetRight, &QStackedWidget::currentChanged, [&]() { updateToolbar(); });
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
 
     fixPalette();
     configureIcons();
-    setupToolbarEnabledStates();
+    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
     reloadSources();
     if (mFirstSource != nullptr)
     {
@@ -68,6 +73,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     }
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
     ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
+    ui->tableViewLogs->setItemDelegate(new ItemDelegateLog(ui->tableViewLogs));
 
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
     ui->webViewPost->setPage(mPostWebEnginePage.get());
@@ -76,8 +82,6 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     restoreSettings();
     reloadCurrentPost();
     createContextMenus();
-
-    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
 }
 
 ZapFR::Client::MainWindow::~MainWindow()
@@ -548,14 +552,26 @@ void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& in
 {
     if (index.isValid())
     {
-        if (mReclickOnSource)
+        // have to do the call to the reload function with a timer because a this point the selectionModel() hasn't updated yet
+        switch (ui->stackedWidgetRight->currentIndex())
         {
-            mCurrentPostPage = 1;
-            // have to do this with a timer because a this point the selectionModel() hasn't updated yet
-            // which is queried in reloadPosts()
-            QTimer::singleShot(0, [&]() { reloadPosts(); });
+            case StackedPanePosts:
+            {
+                if (mReclickOnSource)
+                {
+                    mCurrentPostPage = 1;
+                    QTimer::singleShot(0, [&]() { reloadPosts(); });
+                }
+                mReclickOnSource = true;
+                break;
+            }
+            case StackedPaneLogs:
+            {
+                mCurrentLogPage = 1;
+                QTimer::singleShot(0, [&]() { reloadLogs(); });
+                break;
+            }
         }
-        mReclickOnSource = true;
     }
 }
 
@@ -679,7 +695,7 @@ void ZapFR::Client::MainWindow::reloadPosts()
         {
             populatePosts();
         }
-        setupToolbarEnabledStates();
+        updateToolbar();
     }
 }
 
@@ -729,7 +745,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
 void ZapFR::Client::MainWindow::reloadLogs()
 {
     // lambda for the callback, retrieving the logs
-    auto processLogs = [&](uint64_t /*sourceID*/, std::optional<uint64_t> feedID, const std::vector<ZapFR::Engine::Log*> logs, uint64_t page, uint64_t totalRecordCount)
+    auto processLogs = [&](uint64_t /*sourceID*/, const std::vector<ZapFR::Engine::Log*> logs, uint64_t page, uint64_t totalRecordCount)
     {
         QList<QList<QStandardItem*>> rows;
         for (const auto& log : logs)
@@ -739,15 +755,19 @@ void ZapFR::Client::MainWindow::reloadLogs()
             dateItem->setData(QVariant::fromValue<uint64_t>(log->id()), LogIDRole);
 
             auto feedItem = new QStandardItem("");
-            if (feedID.has_value())
+            if (log->feedID().has_value())
             {
-                dateItem->setData(QVariant::fromValue<uint64_t>(feedID.value()), LogFeedIDRole);
+                feedItem->setData(QVariant::fromValue<uint64_t>(log->feedID().value()), LogFeedIDRole);
+            }
+            else
+            {
+                feedItem->setData(QVariant(), LogFeedIDRole);
             }
 
             auto titleItem = new QStandardItem(QString::fromUtf8(log->message()));
 
             QList<QStandardItem*> rowData;
-            rowData << dateItem << feedItem << titleItem;
+            rowData << feedItem << dateItem << titleItem;
             rows << rowData;
         }
 
@@ -759,26 +779,37 @@ void ZapFR::Client::MainWindow::reloadLogs()
     {
         if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
         {
-            // auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            // auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            // ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueGetFeedLogs(sourceID, feedID, msLogsPerPage, mCurrentLogPage, processLogs);
         }
         else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
         {
-            // auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            // auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-            // ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueGetFolderLogs(sourceID, folderID, msLogsPerPage, mCurrentLogPage, processLogs);
         }
         else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetLogs(sourceID, {}, msLogsPerPage, mCurrentLogPage, processLogs);
+            ZapFR::Engine::Agent::getInstance()->queueGetSourceLogs(sourceID, msLogsPerPage, mCurrentLogPage, processLogs);
         }
         else
         {
-            populatePosts();
+            populateLogs();
         }
     }
+}
+
+void ZapFR::Client::MainWindow::viewLogs()
+{
+    mCurrentLogPage = 1;
+    reloadLogs();
+}
+
+void ZapFR::Client::MainWindow::exitLogs()
+{
+    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
 }
 
 void ZapFR::Client::MainWindow::populateLogs(const QList<QList<QStandardItem*>>& logs, uint64_t pageNumber, uint64_t totalLogCount)
@@ -1105,6 +1136,8 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Mark_feed_as_read->setIcon(configureIcon(":/markAsRead.svg"));
     ui->action_Add_feed->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
+    ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
+    ui->action_Back_to_posts->setIcon(configureIcon(":/back.svg"));
     ui->pushButtonPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
     ui->pushButtonFirstPage->setIcon(configureIcon(":/firstPage.svg"));
     ui->pushButtonNextPage->setIcon(configureIcon(":/nextPage.svg"));
@@ -1121,41 +1154,67 @@ void ZapFR::Client::MainWindow::configureIcons()
                                    .arg(colorDisabled));
 }
 
-void ZapFR::Client::MainWindow::setupToolbarEnabledStates()
+void ZapFR::Client::MainWindow::updateToolbar()
 {
-    bool anythingSelected{false};
-    QString markAsReadCaption;
-
-    auto index = selectedSourceTreeIndex();
-    if (index.isValid())
+    // hide all actions
+    for (const auto& action : ui->toolBar->actions())
     {
-        anythingSelected = true;
-
-        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
-        switch (type)
-        {
-            case SOURCETREE_ENTRY_TYPE_FEED:
-            {
-                markAsReadCaption = tr("Mark feed as read");
-                break;
-            }
-            case SOURCETREE_ENTRY_TYPE_FOLDER:
-            {
-                markAsReadCaption = tr("Mark folder as read");
-                break;
-            }
-            case SOURCETREE_ENTRY_TYPE_SOURCE:
-            {
-                markAsReadCaption = tr("Mark source as read");
-                break;
-            }
-        }
+        action->setVisible(false);
     }
 
-    ui->action_Mark_feed_as_read->setEnabled(anythingSelected);
-    ui->action_Mark_feed_as_read->setText(markAsReadCaption);
-    ui->action_Add_feed->setEnabled(anythingSelected);
-    ui->action_Add_folder->setEnabled(anythingSelected);
+    switch (ui->stackedWidgetRight->currentIndex())
+    {
+        case StackedPanePosts:
+        {
+            bool anythingSelected{false};
+            QString markAsReadCaption;
+
+            auto index = selectedSourceTreeIndex();
+            if (index.isValid())
+            {
+                anythingSelected = true;
+
+                auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+                switch (type)
+                {
+                    case SOURCETREE_ENTRY_TYPE_FEED:
+                    {
+                        markAsReadCaption = tr("Mark feed as read");
+                        break;
+                    }
+                    case SOURCETREE_ENTRY_TYPE_FOLDER:
+                    {
+                        markAsReadCaption = tr("Mark folder as read");
+                        break;
+                    }
+                    case SOURCETREE_ENTRY_TYPE_SOURCE:
+                    {
+                        markAsReadCaption = tr("Mark source as read");
+                        break;
+                    }
+                }
+            }
+
+            ui->action_Add_feed->setVisible(true);
+            ui->action_Add_folder->setVisible(true);
+            ui->action_Refresh_all_feeds->setVisible(true);
+            ui->action_Mark_feed_as_read->setVisible(true);
+            ui->action_View_logs->setVisible(true);
+
+            ui->action_Add_feed->setEnabled(anythingSelected);
+            ui->action_Add_folder->setEnabled(anythingSelected);
+            ui->action_Mark_feed_as_read->setEnabled(anythingSelected);
+            ui->action_Mark_feed_as_read->setText(markAsReadCaption);
+            ui->action_View_logs->setEnabled(anythingSelected);
+            break;
+        }
+        case StackedPaneLogs:
+        {
+            ui->action_Back_to_posts->setVisible(true);
+
+            break;
+        }
+    }
 }
 
 void ZapFR::Client::MainWindow::markAsRead()
@@ -1209,6 +1268,7 @@ QModelIndex ZapFR::Client::MainWindow::selectedSourceTreeIndex() const
 
 void ZapFR::Client::MainWindow::createContextMenus()
 {
+    // TODO: replace all these freshly made actions with the existing Qt Creator actions
     createContextMenuSource();
     createContextMenuFeed();
     createContextMenuFolder();
@@ -1248,12 +1308,7 @@ void ZapFR::Client::MainWindow::createContextMenuSource()
 
     // Source - View logs
     auto viewLogsAction = new QAction(tr("View &Logs"), this);
-    connect(viewLogsAction, &QAction::triggered,
-            [&]()
-            {
-                mCurrentLogPage = 1;
-                reloadLogs();
-            });
+    connect(viewLogsAction, &QAction::triggered, this, &MainWindow::viewLogs);
     mSourceContextMenuSource->addAction(viewLogsAction);
 }
 
@@ -1281,6 +1336,11 @@ void ZapFR::Client::MainWindow::createContextMenuFeed()
     auto markAsReadAction = new QAction(tr("&Mark feed as read"), this);
     connect(markAsReadAction, &QAction::triggered, this, &MainWindow::markAsRead);
     mSourceContextMenuFeed->addAction(markAsReadAction);
+
+    // Feed - View logs
+    auto viewLogsAction = new QAction(tr("View &Logs"), this);
+    connect(viewLogsAction, &QAction::triggered, this, &MainWindow::viewLogs);
+    mSourceContextMenuFeed->addAction(viewLogsAction);
 
     mSourceContextMenuFeed->addSeparator();
 
@@ -1346,6 +1406,11 @@ void ZapFR::Client::MainWindow::createContextMenuFolder()
     auto addFolderAction = new QAction(tr("Add &subfolder"), this);
     connect(addFolderAction, &QAction::triggered, this, &MainWindow::addFolder);
     mSourceContextMenuFolder->addAction(addFolderAction);
+
+    // Folder - View logs
+    auto viewLogsAction = new QAction(tr("View &Logs"), this);
+    connect(viewLogsAction, &QAction::triggered, this, &MainWindow::viewLogs);
+    mSourceContextMenuFolder->addAction(viewLogsAction);
 
     mSourceContextMenuFolder->addSeparator();
 

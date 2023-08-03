@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTGETLOGS_H
-#define ZAPFR_ENGINE_AGENTGETLOGS_H
+#ifndef ZAPFR_ENGINE_AGENTGETSOURCELOGS_H
+#define ZAPFR_ENGINE_AGENTGETSOURCELOGS_H
 
 #include "AgentRunnable.h"
 #include "Global.h"
@@ -29,23 +29,22 @@ namespace ZapFR
     {
         class Log;
 
-        class AgentGetLogs : public AgentRunnable
+        class AgentGetSourceLogs : public AgentRunnable
         {
           public:
-            explicit AgentGetLogs(uint64_t sourceID, std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page,
-                                  std::function<void(uint64_t, std::optional<uint64_t>, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
-            virtual ~AgentGetLogs() = default;
+            explicit AgentGetSourceLogs(uint64_t sourceID, uint64_t perPage, uint64_t page,
+                                        std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
+            virtual ~AgentGetSourceLogs() = default;
 
             void run() override;
 
           private:
             uint64_t mSourceID{0};
-            std::optional<uint64_t> mFeedID{0};
             uint64_t mPerPage{0};
             uint64_t mPage{0};
-            std::function<void(uint64_t, std::optional<uint64_t>, const std::vector<Log*>&, uint64_t, uint64_t)> mFinishedCallback{};
+            std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTGETLOGS_H
+#endif // ZAPFR_ENGINE_AGENTGETSOURCELOGS_H

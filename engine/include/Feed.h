@@ -20,13 +20,15 @@
 #define ZAPFR_ENGINE_FEED_H
 
 #include "Global.h"
-#include "Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
         class Database;
+        class Post;
+        class Log;
+
         class Feed
         {
           public:
@@ -70,6 +72,8 @@ namespace ZapFR
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
             virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
+
+            virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
 
             virtual void refresh(const std::optional<std::string>& feedXML) = 0;
             virtual void markAllAsRead() = 0;

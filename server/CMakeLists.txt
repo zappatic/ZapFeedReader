@@ -50,7 +50,9 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/agents/AgentMarkFolderRead.cpp
     ../engine/src/agents/AgentMarkSourceRead.cpp
     ../engine/src/agents/AgentGetPost.cpp
-    ../engine/src/agents/AgentGetLogs.cpp
+    ../engine/src/agents/AgentGetSourceLogs.cpp
+    ../engine/src/agents/AgentGetFolderLogs.cpp
+    ../engine/src/agents/AgentGetFeedLogs.cpp
     ../engine/src/Database.cpp
     ../engine/src/FeedFetcher.cpp
     ../engine/src/FeedParser.cpp

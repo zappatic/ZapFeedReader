@@ -48,6 +48,14 @@ namespace ZapFR
                                      std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback);
             void queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback);
 
+            // querying logs
+            void queueGetSourceLogs(uint64_t sourceID, uint64_t perPage, uint64_t page,
+                                    std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
+            void queueGetFolderLogs(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
+                                    std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
+            void queueGetFeedLogs(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+                                  std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
+
             // post manipulation
             void queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback);
             void queueMarkPostsUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs,
@@ -72,10 +80,6 @@ namespace ZapFR
             // source manipulation
             void queueMarkSourceRead(uint64_t sourceID, std::function<void()> finishedCallback);
             void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
-
-            // logs
-            void queueGetLogs(uint64_t sourceID, std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page,
-                              std::function<void(uint64_t, std::optional<uint64_t>, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
 
           private:
             explicit Agent();

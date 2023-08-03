@@ -52,7 +52,7 @@ namespace ZapFR
             uint64_t getTotalPostCount(bool showOnlyUnread) override;
             void markAllAsRead() override;
 
-            std::vector<std::unique_ptr<Log>> getLogs(std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page) override;
+            std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
 
           private:
             static std::mutex msAddFeedMutex;

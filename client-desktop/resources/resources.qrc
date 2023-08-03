@@ -10,5 +10,7 @@
         <file>firstPage.svg</file>
         <file>nextPage.svg</file>
         <file>lastPage.svg</file>
+        <file>viewLogs.svg</file>
+        <file>back.svg</file>
     </qresource>
 </RCC>

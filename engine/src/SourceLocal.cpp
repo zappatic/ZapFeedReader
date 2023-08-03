@@ -23,6 +23,7 @@
 #include "FolderLocal.h"
 #include "Helpers.h"
 #include "Log.h"
+#include "Post.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -661,7 +662,7 @@ uint64_t ZapFR::Engine::SourceLocal::getTotalPostCount(bool showOnlyUnread)
     return postCount;
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::getLogs(std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page)
+std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::getLogs(uint64_t perPage, uint64_t page)
 {
     std::vector<std::unique_ptr<Log>> logs;
 
@@ -671,22 +672,18 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::get
     std::string timestamp{""};
     uint64_t level;
     std::string message{""};
-    Poco::Nullable<uint64_t> logFeedID{};
-
-    std::string whereClause = feedID.has_value() ? fmt::format("WHERE feedID={}", feedID.value()) : "";
+    Poco::Nullable<uint64_t> feedID{0};
 
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
-    selectStmt << Poco::format("SELECT id"
-                               ",timestamp"
-                               ",level"
-                               ",message"
-                               ",feedID"
-                               " FROM logs"
-                               " %s"
-                               " ORDER BY id DESC"
-                               " LIMIT ? OFFSET ?",
-                               whereClause),
-        use(perPage), use(offset), into(id), into(timestamp), into(level), into(message), into(logFeedID), range(0, 1);
+    selectStmt << "SELECT id"
+                  ",timestamp"
+                  ",level"
+                  ",message"
+                  ",feedID"
+                  " FROM logs"
+                  " ORDER BY id DESC"
+                  " LIMIT ? OFFSET ?",
+        use(perPage), use(offset), into(id), into(timestamp), into(level), into(message), into(feedID), range(0, 1);
 
     while (!selectStmt.done())
     {
@@ -696,9 +693,9 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::get
             l->setTimestamp(timestamp);
             l->setLevel(level);
             l->setMessage(message);
-            if (!logFeedID.isNull())
+            if (!feedID.isNull())
             {
-                l->setFeedID(logFeedID.value());
+                l->setFeedID(feedID.value());
             }
             logs.emplace_back(std::move(l));
         }

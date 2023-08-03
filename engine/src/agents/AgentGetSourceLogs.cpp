@@ -16,22 +16,22 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetLogs.h"
+#include "agents/AgentGetSourceLogs.h"
 #include "Log.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentGetLogs::AgentGetLogs(uint64_t sourceID, std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page,
-                                          std::function<void(uint64_t, std::optional<uint64_t>, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentGetSourceLogs::AgentGetSourceLogs(uint64_t sourceID, uint64_t perPage, uint64_t page,
+                                                      std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentGetLogs::run()
+void ZapFR::Engine::AgentGetSourceLogs::run()
 {
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto logs = source.value()->getLogs(mFeedID, mPerPage, mPage);
+        auto logs = source.value()->getLogs(mPerPage, mPage);
         std::vector<Log*> logPointers;
         for (const auto& log : logs)
         {
@@ -39,7 +39,7 @@ void ZapFR::Engine::AgentGetLogs::run()
         }
 
         // TODO: total log record count
-        mFinishedCallback(mSourceID, mFeedID, logPointers, mPage, 10000 /*folder.value()->getTotalPostCount(mShowOnlyUnread)*/);
+        mFinishedCallback(mSourceID, logPointers, mPage, 10000 /*folder.value()->getTotalPostCount(mShowOnlyUnread)*/);
     }
 
     mIsDone = true;

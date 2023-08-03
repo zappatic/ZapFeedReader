@@ -65,6 +65,8 @@ namespace ZapFR
             void navigateFirstPostPage();
             void navigateLastPostPage();
             void reloadLogs();
+            void viewLogs();
+            void exitLogs();
 
             // events
             void sourceTreeViewItemSelected(const QModelIndex& index);
@@ -139,7 +141,7 @@ namespace ZapFR
             QString postStyles() const;
             QString textMessageHTML(const QString& message) const;
             void configureIcons();
-            void setupToolbarEnabledStates();
+            void updateToolbar();
             void createContextMenus();
             void createContextMenuSource();
             void createContextMenuFeed();

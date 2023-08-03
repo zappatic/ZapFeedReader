@@ -27,6 +27,7 @@ namespace ZapFR
     namespace Engine
     {
         class Post;
+        class Log;
 
         class Folder
         {
@@ -49,6 +50,8 @@ namespace ZapFR
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
             virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
             virtual void markAllAsRead() = 0;
+
+            virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
 
             virtual bool fetchData() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }

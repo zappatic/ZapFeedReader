@@ -21,6 +21,8 @@
 #include "FavIconParser.h"
 #include "FeedFetcher.h"
 #include "Helpers.h"
+#include "Log.h"
+#include "Post.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -436,4 +438,47 @@ uint64_t ZapFR::Engine::FeedLocal::getTotalPostCount(bool showOnlyUnread)
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
     selectStmt << Poco::format("SELECT COUNT(*) FROM posts WHERE feedID=? %s", whereClause), use(mID), into(postCount), now;
     return postCount;
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FeedLocal::getLogs(uint64_t perPage, uint64_t page)
+{
+    std::vector<std::unique_ptr<Log>> logs;
+
+    auto offset = perPage * (page - 1);
+
+    uint64_t id{0};
+    std::string timestamp{""};
+    uint64_t level;
+    std::string message{""};
+    Poco::Nullable<uint64_t> feedID{0};
+
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << "SELECT id"
+                  ",timestamp"
+                  ",level"
+                  ",message"
+                  ",feedID"
+                  " FROM logs"
+                  " WHERE feedID=?"
+                  " ORDER BY id DESC"
+                  " LIMIT ? OFFSET ?",
+        use(mID), use(perPage), use(offset), into(id), into(timestamp), into(level), into(message), into(feedID), range(0, 1);
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            auto l = std::make_unique<Log>(id);
+            l->setTimestamp(timestamp);
+            l->setLevel(level);
+            l->setMessage(message);
+            if (!feedID.isNull())
+            {
+                l->setFeedID(feedID.value());
+            }
+            logs.emplace_back(std::move(l));
+        }
+    }
+
+    return logs;
 }

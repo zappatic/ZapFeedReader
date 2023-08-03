@@ -16,35 +16,36 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FOLDERLOCAL_H
-#define ZAPFR_ENGINE_FOLDERLOCAL_H
+#ifndef ZAPFR_ENGINE_AGENTGETFOLDERLOGS_H
+#define ZAPFR_ENGINE_AGENTGETFOLDERLOGS_H
 
-#include "Folder.h"
+#include "AgentRunnable.h"
 #include "Global.h"
+#include "Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class FolderLocal : public Folder
+        class Log;
+
+        class AgentGetFolderLogs : public AgentRunnable
         {
           public:
-            explicit FolderLocal(uint64_t id, uint64_t parent);
-            virtual ~FolderLocal() = default;
+            explicit AgentGetFolderLogs(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
+                                        std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
+            virtual ~AgentGetFolderLogs() = default;
 
-            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) override;
-            uint64_t getTotalPostCount(bool showOnlyUnread) override;
-            void markAllAsRead() override;
+            void run() override;
 
-            std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
-
-            void fetchSubfolders() override;
-            bool fetchData() override;
-
-            std::vector<uint64_t> folderAndSubfolderIDs() const override;
-            std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const override;
+          private:
+            uint64_t mSourceID{0};
+            uint64_t mFolderID{0};
+            uint64_t mPerPage{0};
+            uint64_t mPage{0};
+            std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FOLDERLOCAL_H
+#endif // ZAPFR_ENGINE_AGENTGETLOGS_H

@@ -21,10 +21,12 @@
 #include "Post.h"
 #include "Source.h"
 #include "agents/AgentAddFolder.h"
+#include "agents/AgentGetFeedLogs.h"
 #include "agents/AgentGetFeedPosts.h"
+#include "agents/AgentGetFolderLogs.h"
 #include "agents/AgentGetFolderPosts.h"
-#include "agents/AgentGetLogs.h"
 #include "agents/AgentGetPost.h"
+#include "agents/AgentGetSourceLogs.h"
 #include "agents/AgentGetSourcePosts.h"
 #include "agents/AgentMarkFeedRead.h"
 #include "agents/AgentMarkFolderRead.h"
@@ -165,10 +167,22 @@ void ZapFR::Engine::Agent::queueAddFolder(uint64_t sourceID, uint64_t parentFold
     enqueue(std::make_unique<AgentAddFolder>(sourceID, parentFolderID, title, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueGetLogs(uint64_t sourceID, std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page,
-                                        std::function<void(uint64_t, std::optional<uint64_t>, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueGetSourceLogs(uint64_t sourceID, uint64_t perPage, uint64_t page,
+                                              std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentGetLogs>(sourceID, feedID, perPage, page, finishedCallback));
+    enqueue(std::make_unique<AgentGetSourceLogs>(sourceID, perPage, page, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetFolderLogs(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
+                                              std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetFolderLogs>(sourceID, folderID, perPage, page, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetFeedLogs(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+                                            std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetFeedLogs>(sourceID, feedID, perPage, page, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
