@@ -37,6 +37,7 @@
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/Nullable.h>
 #include <Poco/NumberParser.h>
 #include <Poco/RegularExpression.h>
 #include <Poco/Runnable.h>

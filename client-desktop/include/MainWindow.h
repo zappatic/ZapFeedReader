@@ -64,6 +64,7 @@ namespace ZapFR
             void navigatePreviousPostPage();
             void navigateFirstPostPage();
             void navigateLastPostPage();
+            void reloadLogs();
 
             // events
             void sourceTreeViewItemSelected(const QModelIndex& index);
@@ -87,7 +88,8 @@ namespace ZapFR
             void postsMarkedUnread(std::vector<std::tuple<uint64_t, uint64_t>> postIDs);
             void feedMarkedRead();
             void setPostHTML(const QString& html);
-            void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 1);
+            void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
+            void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -96,6 +98,7 @@ namespace ZapFR
             Ui::MainWindow* ui;
             std::unique_ptr<StandardItemModelSources> mItemModelSources{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
+            std::unique_ptr<QStandardItemModel> mItemModelLogs{nullptr};
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
             std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};
@@ -106,15 +109,20 @@ namespace ZapFR
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFolder{nullptr};
             std::unique_ptr<QMenu> mPostContextMenu{nullptr};
+
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
             uint64_t mCurrentPostID{0};
             uint64_t mCurrentPostPage{1};
-            uint64_t mCurrentPostCount{1};
+            uint64_t mCurrentPostCount{0};
             uint64_t mCurrentPostPageCount{1};
             bool mShowOnlyUnreadPosts{false};
             QStandardItem* mFirstSource{nullptr};
             bool mReclickOnSource{true};
+
+            uint64_t mCurrentLogPage{1};
+            uint64_t mCurrentLogCount{0};
+            uint64_t mCurrentLogPageCount{1};
 
             QString dataDir() const;
             QString configDir() const;
@@ -140,6 +148,7 @@ namespace ZapFR
             QModelIndex selectedSourceTreeIndex() const;
 
             static constexpr uint64_t msPostsPerPage{100};
+            static constexpr uint64_t msLogsPerPage{100};
         };
     } // namespace Client
 } // namespace ZapFR

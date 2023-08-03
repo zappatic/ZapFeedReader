@@ -71,7 +71,7 @@ namespace ZapFR
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
             virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
 
-            virtual void refresh() = 0;
+            virtual void refresh(const std::optional<std::string>& feedXML) = 0;
             virtual void markAllAsRead() = 0;
             virtual void markAsRead(uint64_t postID) = 0;
             virtual void markAsUnread(uint64_t postID) = 0;

@@ -28,6 +28,7 @@ namespace ZapFR
     {
         class Feed;
         class Post;
+        class Log;
 
         class Agent
         {
@@ -71,6 +72,10 @@ namespace ZapFR
             // source manipulation
             void queueMarkSourceRead(uint64_t sourceID, std::function<void()> finishedCallback);
             void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
+
+            // logs
+            void queueGetLogs(uint64_t sourceID, std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page,
+                              std::function<void(uint64_t, std::optional<uint64_t>, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
 
           private:
             explicit Agent();

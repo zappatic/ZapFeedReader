@@ -34,7 +34,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
 {
     ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
     mDatabase = std::make_unique<ZapFR::Engine::Database>(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader-client.db").toStdString());
-    ZapFR::Engine::Source::registerDatabaseInstance(mDatabase.get());
+    ZapFR::Engine::Source::registerDatabaseInstance(mDatabase.get()); // TODO : change this to Database::getInstance()
     ZapFR::Engine::Feed::registerDatabaseInstance(mDatabase.get());
     ZapFR::Engine::Post::registerDatabaseInstance(mDatabase.get());
     ZapFR::Engine::Folder::registerDatabaseInstance(mDatabase.get());
@@ -76,6 +76,8 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     restoreSettings();
     reloadCurrentPost();
     createContextMenus();
+
+    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
 }
 
 ZapFR::Client::MainWindow::~MainWindow()
@@ -683,6 +685,8 @@ void ZapFR::Client::MainWindow::reloadPosts()
 
 void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>& posts, uint64_t pageNumber, uint64_t totalPostCount)
 {
+    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
+
     mItemModelPosts = std::make_unique<QStandardItemModel>(this);
     ui->tableViewPosts->setModel(mItemModelPosts.get());
     mItemModelPosts->setHorizontalHeaderItem(PostColumnUnread, new QStandardItem(tr("Unread")));
@@ -693,7 +697,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
     {
         mItemModelPosts->appendRow(post);
     }
-    ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(PostColumnTitle, QHeaderView::Stretch);
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnUnread, 50);
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFeed, 40);
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnDate, 200);
@@ -720,6 +724,87 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
 
     ui->pushButtonPageNumber->setText(QString("%1 %2 / %3").arg(tr("Page")).arg(mCurrentPostPage).arg(mCurrentPostPageCount));
     ui->labelTotalPostCount->setText(tr("%n post(s)", "", static_cast<int32_t>(mCurrentPostCount)));
+}
+
+void ZapFR::Client::MainWindow::reloadLogs()
+{
+    // lambda for the callback, retrieving the logs
+    auto processLogs = [&](uint64_t /*sourceID*/, std::optional<uint64_t> feedID, const std::vector<ZapFR::Engine::Log*> logs, uint64_t page, uint64_t totalRecordCount)
+    {
+        QList<QList<QStandardItem*>> rows;
+        for (const auto& log : logs)
+        {
+            auto dateLog = QString::fromUtf8(log->timestamp());
+            auto dateItem = new QStandardItem(Utilities::prettyDate(dateLog));
+            dateItem->setData(QVariant::fromValue<uint64_t>(log->id()), LogIDRole);
+
+            auto feedItem = new QStandardItem("");
+            if (feedID.has_value())
+            {
+                dateItem->setData(QVariant::fromValue<uint64_t>(feedID.value()), LogFeedIDRole);
+            }
+
+            auto titleItem = new QStandardItem(QString::fromUtf8(log->message()));
+
+            QList<QStandardItem*> rowData;
+            rowData << dateItem << feedItem << titleItem;
+            rows << rowData;
+        }
+
+        QMetaObject::invokeMethod(this, "populateLogs", Qt::AutoConnection, rows, page, totalRecordCount);
+    };
+
+    auto index = selectedSourceTreeIndex();
+    if (index.isValid())
+    {
+        if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+        {
+            // auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            // auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            // ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+        }
+        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+        {
+            // auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            // auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+            // ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+        }
+        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueGetLogs(sourceID, {}, msLogsPerPage, mCurrentLogPage, processLogs);
+        }
+        else
+        {
+            populatePosts();
+        }
+    }
+}
+
+void ZapFR::Client::MainWindow::populateLogs(const QList<QList<QStandardItem*>>& logs, uint64_t pageNumber, uint64_t totalLogCount)
+{
+    ui->stackedWidgetRight->setCurrentIndex(StackedPaneLogs);
+
+    mItemModelLogs = std::make_unique<QStandardItemModel>(this);
+    ui->tableViewLogs->setModel(mItemModelLogs.get());
+    mItemModelLogs->setHorizontalHeaderItem(LogsColumnTimestamp, new QStandardItem(tr("Timestamp")));
+    mItemModelLogs->setHorizontalHeaderItem(LogsColumnFeed, new QStandardItem(tr("Feed")));
+    mItemModelLogs->setHorizontalHeaderItem(LogsColumnMessage, new QStandardItem(tr("Message")));
+    for (auto log : logs)
+    {
+        mItemModelLogs->appendRow(log);
+    }
+    ui->tableViewLogs->horizontalHeader()->setSectionResizeMode(LogsColumnMessage, QHeaderView::Stretch);
+    ui->tableViewLogs->horizontalHeader()->resizeSection(LogsColumnTimestamp, 200);
+    ui->tableViewLogs->horizontalHeader()->resizeSection(LogsColumnFeed, 40);
+
+    mCurrentLogCount = totalLogCount;
+    mCurrentLogPage = pageNumber;
+    mCurrentLogPageCount = 1;
+    if (mCurrentLogCount > 0)
+    {
+        mCurrentLogPageCount = static_cast<uint64_t>(std::ceil(static_cast<float>(mCurrentLogCount) / static_cast<float>(msLogsPerPage)));
+    }
 }
 
 void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndexList& selected)
@@ -1160,6 +1245,16 @@ void ZapFR::Client::MainWindow::createContextMenuSource()
     auto addFolderAction = new QAction(tr("Add &folder"), this);
     connect(addFolderAction, &QAction::triggered, this, &MainWindow::addFolder);
     mSourceContextMenuSource->addAction(addFolderAction);
+
+    // Source - View logs
+    auto viewLogsAction = new QAction(tr("View &Logs"), this);
+    connect(viewLogsAction, &QAction::triggered,
+            [&]()
+            {
+                mCurrentLogPage = 1;
+                reloadLogs();
+            });
+    mSourceContextMenuSource->addAction(viewLogsAction);
 }
 
 void ZapFR::Client::MainWindow::createContextMenuFeed()

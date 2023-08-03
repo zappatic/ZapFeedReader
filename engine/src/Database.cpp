@@ -36,6 +36,31 @@ Poco::Data::Session* ZapFR::Engine::Database::session() const noexcept
     return mSession.get();
 }
 
+void ZapFR::Engine::Database::log(LogLevel level, const std::string& message, std::optional<uint64_t> feedID)
+{
+    // TODO: filter out logging in case the level is not high enough
+    if (message.empty())
+    {
+        return;
+    }
+
+    Poco::Nullable<uint64_t> pocoFeedID;
+    if (feedID.has_value())
+    {
+        pocoFeedID.assign(feedID.value());
+    }
+
+    auto nowDate = Poco::DateTimeFormatter::format(Poco::DateTime(), Poco::DateTimeFormat::ISO8601_FORMAT);
+
+    (*mSession) << "INSERT INTO logs ("
+                   " timestamp"
+                   ",level"
+                   ",message"
+                   ",feedID"
+                   ") VALUES (?, ?, ?, ?)",
+        useRef(nowDate), use(level), useRef(message), use(pocoFeedID), now;
+}
+
 void ZapFR::Engine::Database::upgrade()
 {
     // check if we have a config table, which contains the current version of the database
@@ -140,5 +165,17 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                       "type,title,sortOrder"
                       ") VALUES (?,?,?)",
             useRef(localType), useRef(localSourceName), use(localSortOrder), now;
+    }
+
+    // LOGS TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS logs ("
+                       " id INTEGER PRIMARY KEY"
+                       ",timestamp TEXT"
+                       ",level INTEGER NOT NULL"
+                       ",message TEXT NOT NULL"
+                       ",feedID INTEGER"
+                       ")",
+            now;
     }
 }

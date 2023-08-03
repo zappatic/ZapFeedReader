@@ -196,14 +196,37 @@ bool ZapFR::Engine::FeedLocal::fetchData()
     return true;
 }
 
-void ZapFR::Engine::FeedLocal::refresh()
+void ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML)
 {
+    msDatabase->log(LogLevel::Info, "Refreshing feed", mID);
     fetchData();
-
-    FeedFetcher ff;
-    auto parsedFeed = ff.parse(mURL);
-    processItems(parsedFeed.get());
-    refreshIcon();
+    try
+    {
+        FeedFetcher ff;
+        if (feedXML.has_value())
+        {
+            auto parsedFeed = ff.parseString(feedXML.value(), mURL);
+            processItems(parsedFeed.get());
+        }
+        else
+        {
+            auto parsedFeed = ff.parseURL(mURL);
+            processItems(parsedFeed.get());
+        }
+        refreshIcon();
+    }
+    catch (const Poco::Exception& e)
+    {
+        msDatabase->log(LogLevel::Error, e.displayText(), mID);
+    }
+    catch (const std::runtime_error& e)
+    {
+        msDatabase->log(LogLevel::Error, e.what(), mID);
+    }
+    catch (...)
+    {
+        msDatabase->log(LogLevel::Error, "Unknown exception", mID);
+    }
 }
 
 void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
@@ -308,38 +331,30 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
     }
 
     std::string iconData;
-    try
+    if (mIconURL.empty())
     {
-        if (mIconURL.empty())
+        auto link = mLink;
+        // in case no link is provided in the feed details, try a favicon located on the index page of the domain that hosts the feed itself
+        if (link.empty())
         {
-            auto link = mLink;
-            // in case no link is provided in the feed details, try a favicon located on the index page of the domain that hosts the feed itself
-            if (link.empty())
-            {
-                auto indexPage = Poco::URI(mURL);
-                indexPage.setPath("/");
-                link = indexPage.toString();
-            }
-            auto p = FavIconParser(link);
-            auto favIconURL = p.favIcon();
-            if (!favIconURL.empty())
-            {
-                iconData = Helpers::performHTTPRequest(favIconURL, "GET");
-            }
+            auto indexPage = Poco::URI(mURL);
+            indexPage.setPath("/");
+            link = indexPage.toString();
         }
-        else
+        auto p = FavIconParser(link);
+        auto favIconURL = p.favIcon();
+        if (!favIconURL.empty())
         {
-            iconData = Helpers::performHTTPRequest(mIconURL, "GET");
+            iconData = Helpers::performHTTPRequest(favIconURL, "GET");
         }
     }
-    catch (const Poco::Exception& e)
+    else
     {
-        // todo: log complaint
+        iconData = Helpers::performHTTPRequest(mIconURL, "GET");
     }
-    catch (const std::runtime_error& e)
-    {
-        // todo: log complaint
-    }
+
+    // TODO: when the above throws an exception (e.g. because file doesn't exist), catch this, as a missing icon shouldn't
+    // trigger an error state for the feed
 
     std::string iconHash;
     if (!iconData.empty())

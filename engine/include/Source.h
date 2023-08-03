@@ -22,6 +22,7 @@
 #include "Feed.h"
 #include "Folder.h"
 #include "Global.h"
+#include "Log.h"
 
 namespace ZapFR
 {
@@ -61,6 +62,8 @@ namespace ZapFR
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
             virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
             virtual void markAllAsRead() = 0;
+
+            virtual std::vector<std::unique_ptr<Log>> getLogs(std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page) = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

@@ -16,31 +16,36 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FEEDFETCHER_H
-#define ZAPFR_ENGINE_FEEDFETCHER_H
+#ifndef ZAPFR_ENGINE_AGENTGETLOGS_H
+#define ZAPFR_ENGINE_AGENTGETLOGS_H
 
-#include "Database.h"
+#include "AgentRunnable.h"
 #include "Global.h"
+#include "Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class FeedFetcher
+        class Log;
+
+        class AgentGetLogs : public AgentRunnable
         {
           public:
-            FeedFetcher() = default;
-            virtual ~FeedFetcher() = default;
+            explicit AgentGetLogs(uint64_t sourceID, std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page,
+                                  std::function<void(uint64_t, std::optional<uint64_t>, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
+            virtual ~AgentGetLogs() = default;
 
-            std::unique_ptr<FeedParser> parseURL(const std::string& url);
-            std::unique_ptr<FeedParser> parseString(const std::string& xml, const std::string& originalURL);
-
-            std::string xml() const noexcept;
+            void run() override;
 
           private:
-            std::string mXML;
+            uint64_t mSourceID{0};
+            std::optional<uint64_t> mFeedID{0};
+            uint64_t mPerPage{0};
+            uint64_t mPage{0};
+            std::function<void(uint64_t, std::optional<uint64_t>, const std::vector<Log*>&, uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FEEDFETCHER_H
+#endif // ZAPFR_ENGINE_AGENTGETLOGS_H

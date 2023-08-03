@@ -22,9 +22,15 @@
 #include "FeedParserRSS20.h"
 #include "Helpers.h"
 
-std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parse(const std::string& url)
+std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseURL(const std::string& url)
 {
     auto xml = Helpers::performHTTPRequest(url, "GET");
+    return parseString(xml, url);
+}
+
+std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseString(const std::string& xml, const std::string& originalURL)
+{
+    mXML = xml;
 
     Poco::XML::DOMParser parser;
     auto xmlDoc = parser.parseString(xml);
@@ -34,17 +40,22 @@ std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parse(con
     {
         if (docEl->hasAttribute("version") && docEl->getAttribute("version") == "2.0")
         {
-            return std::make_unique<FeedParserRSS20>(xmlDoc, url);
+            return std::make_unique<FeedParserRSS20>(xmlDoc, originalURL);
         }
         // TODO: rss 1.0
     }
     else if (docEl->nodeName() == "feed")
     {
-        return std::make_unique<FeedParserAtom10>(xmlDoc, url);
+        return std::make_unique<FeedParserAtom10>(xmlDoc, originalURL);
     }
     else
     {
         throw std::runtime_error("Unkown feed type");
     }
     return nullptr;
+}
+
+std::string ZapFR::Engine::FeedFetcher::xml() const noexcept
+{
+    return mXML;
 }

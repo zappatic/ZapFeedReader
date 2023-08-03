@@ -22,6 +22,7 @@
 #include "FeedLocal.h"
 #include "FolderLocal.h"
 #include "Helpers.h"
+#include "Log.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -180,9 +181,10 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
 
 uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder)
 {
+    msDatabase->log(LogLevel::Info, fmt::format("Adding feed at {}", url));
 
     FeedFetcher ff;
-    auto parsedFeed = ff.parse(url);
+    auto parsedFeed = ff.parseURL(url);
 
     auto guid = parsedFeed->guid();
     auto title = parsedFeed->title();
@@ -224,7 +226,7 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
     auto feed = getFeed(feedID);
     if (feed.has_value())
     {
-        feed.value()->refresh();
+        feed.value()->refresh(ff.xml());
     }
     return feedID;
 }
@@ -657,4 +659,50 @@ uint64_t ZapFR::Engine::SourceLocal::getTotalPostCount(bool showOnlyUnread)
     }
     selectStmt << sql, into(postCount), now;
     return postCount;
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::getLogs(std::optional<uint64_t> feedID, uint64_t perPage, uint64_t page)
+{
+    std::vector<std::unique_ptr<Log>> logs;
+
+    auto offset = perPage * (page - 1);
+
+    uint64_t id{0};
+    std::string timestamp{""};
+    uint64_t level;
+    std::string message{""};
+    Poco::Nullable<uint64_t> logFeedID{};
+
+    std::string whereClause = feedID.has_value() ? fmt::format("WHERE feedID={}", feedID.value()) : "";
+
+    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    selectStmt << Poco::format("SELECT id"
+                               ",timestamp"
+                               ",level"
+                               ",message"
+                               ",feedID"
+                               " FROM logs"
+                               " %s"
+                               " ORDER BY id DESC"
+                               " LIMIT ? OFFSET ?",
+                               whereClause),
+        use(perPage), use(offset), into(id), into(timestamp), into(level), into(message), into(logFeedID), range(0, 1);
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            auto l = std::make_unique<Log>(id);
+            l->setTimestamp(timestamp);
+            l->setLevel(level);
+            l->setMessage(message);
+            if (!logFeedID.isNull())
+            {
+                l->setFeedID(logFeedID.value());
+            }
+            logs.emplace_back(std::move(l));
+        }
+    }
+
+    return logs;
 }

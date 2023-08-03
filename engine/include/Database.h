@@ -29,11 +29,21 @@ namespace ZapFR
         class Source;
         class Feed;
 
+        enum LogLevel
+        {
+            Debug = 100,
+            Info = 200,
+            Warning = 300,
+            Error = 400
+        };
+
         class Database
         {
           public:
             explicit Database(const std::string& dbPath);
             Poco::Data::Session* session() const noexcept;
+
+            void log(LogLevel level, const std::string& message, std::optional<uint64_t> feedID = {});
 
           private:
             std::unique_ptr<Poco::Data::Session> mSession{nullptr};

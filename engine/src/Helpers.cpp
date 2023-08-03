@@ -81,7 +81,7 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, c
     }
     else
     {
-        throw std::runtime_error("Unknown scheme in URL");
+        throw std::runtime_error(fmt::format("Unknown scheme in URL: ", url));
     }
 
     auto path = uri.getPathAndQuery();
@@ -118,7 +118,7 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, c
 
     if (status < 200 || status > 299)
     {
-        throw std::runtime_error(fmt::format("Fetching feed, status {} received", static_cast<uint32_t>(response.getStatus())));
+        throw std::runtime_error(fmt::format("HTTP status {} received for {} {}", static_cast<uint32_t>(response.getStatus()), method, url));
     }
 
     std::string resultStr;

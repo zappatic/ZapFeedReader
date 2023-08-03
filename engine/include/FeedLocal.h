@@ -39,7 +39,7 @@ namespace ZapFR
             std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
             uint64_t getTotalPostCount(bool showOnlyUnread) override;
             bool fetchData() override;
-            void refresh() override;
+            void refresh(const std::optional<std::string>& feedXML) override;
             void markAllAsRead() override;
             void markAsRead(uint64_t postID) override;
             void markAsUnread(uint64_t postID) override;

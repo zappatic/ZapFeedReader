@@ -31,16 +31,9 @@ void ZapFR::Engine::AgentSubscribeFeed::run()
     auto source = ZapFR::Engine::Source::getSource(mSourceID);
     if (source.has_value())
     {
-        try
-        {
-            auto subfolderID = source.value()->createFolderHierarchy(mFolderID, mNewFolderHierarchy);
-            source.value()->addFeed(mURL, subfolderID);
-            mFinishedCallback();
-        }
-        catch (Poco::Exception& e)
-        {
-            std::cout << "Poco Exception: " << e.what() << "\n" << e.displayText() << "\n";
-        }
+        auto subfolderID = source.value()->createFolderHierarchy(mFolderID, mNewFolderHierarchy);
+        source.value()->addFeed(mURL, subfolderID);
+        mFinishedCallback();
     }
 
     mIsDone = true;
