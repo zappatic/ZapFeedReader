@@ -536,8 +536,8 @@
    </attribute>
    <addaction name="action_Add_feed"/>
    <addaction name="action_Add_folder"/>
-   <addaction name="action_Refresh_all_feeds"/>
-   <addaction name="action_Mark_feed_as_read"/>
+   <addaction name="action_Refresh_feeds"/>
+   <addaction name="action_Mark_as_read"/>
    <addaction name="action_View_logs"/>
    <addaction name="action_Back_to_posts"/>
   </widget>
@@ -556,20 +556,14 @@
     <string>Import OPML</string>
    </property>
   </action>
-  <action name="action_Mark_feed_as_read">
-   <property name="text">
-    <string>Mark feed as read</string>
-   </property>
+  <action name="action_Mark_as_read">
    <property name="toolTip">
-    <string>Mark feed as read</string>
+    <string>Mark as read</string>
    </property>
   </action>
-  <action name="action_Refresh_all_feeds">
-   <property name="text">
-    <string>Refresh all feeds</string>
-   </property>
+  <action name="action_Refresh_feeds">
    <property name="toolTip">
-    <string>Refresh all feeds</string>
+    <string>Refresh</string>
    </property>
   </action>
   <action name="action_Add_folder">
@@ -594,6 +588,21 @@
    </property>
    <property name="toolTip">
     <string>Back to posts</string>
+   </property>
+  </action>
+  <action name="action_Mark_as_unread">
+   <property name="text">
+    <string>Mark as unread</string>
+   </property>
+  </action>
+  <action name="action_Remove_folder">
+   <property name="text">
+    <string>Remove folder</string>
+   </property>
+  </action>
+  <action name="action_Remove_feed">
+   <property name="text">
+    <string>Remove feed</string>
    </property>
   </action>
  </widget>

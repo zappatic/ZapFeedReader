@@ -58,7 +58,10 @@ namespace ZapFR
             void addFolder();
             void importOPML();
             void markAsRead();
-            void refreshAllFeeds();
+            void markAsUnread();
+            void removeFolder();
+            void removeFeed();
+            void refreshFeeds();
             void reloadPosts();
             void reloadLogs();
 
@@ -131,10 +134,6 @@ namespace ZapFR
             void configureIcons();
             void updateToolbar();
             void createContextMenus();
-            void createContextMenuSource();
-            void createContextMenuFeed();
-            void createContextMenuFolder();
-            void createContextMenuPost();
             QModelIndex selectedSourceTreeIndex() const;
             void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
 

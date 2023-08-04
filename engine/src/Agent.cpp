@@ -73,20 +73,6 @@ void ZapFR::Engine::Agent::queueRefreshSource(uint64_t sourceID, std::function<v
     enqueue(std::make_unique<AgentRefreshSource>(sourceID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueRefreshAllFeeds(std::function<void(uint64_t)> finishedCallback)
-{
-    // todo : move this into the agent
-    auto sources = ZapFR::Engine::Source::getSources({});
-    for (const auto& source : sources)
-    {
-        auto feeds = source->getFeeds();
-        for (const auto& feed : feeds)
-        {
-            enqueue(std::make_unique<AgentRefreshFeed>(source->id(), feed->id(), finishedCallback));
-        }
-    }
-}
-
 void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
                                               std::function<void()> finishedCallback)
 {

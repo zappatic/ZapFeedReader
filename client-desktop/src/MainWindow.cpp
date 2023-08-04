@@ -996,8 +996,8 @@ void ZapFR::Client::MainWindow::configureIcons()
         return icon;
     };
 
-    ui->action_Refresh_all_feeds->setIcon(configureIcon(":/refreshFeed.svg"));
-    ui->action_Mark_feed_as_read->setIcon(configureIcon(":/markAsRead.svg"));
+    ui->action_Refresh_feeds->setIcon(configureIcon(":/refreshFeed.svg"));
+    ui->action_Mark_as_read->setIcon(configureIcon(":/markAsRead.svg"));
     ui->action_Add_feed->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
     ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
@@ -1037,6 +1037,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
         {
             bool anythingSelected{false};
             QString markAsReadCaption;
+            QString refreshFeedsCaption;
 
             auto index = selectedSourceTreeIndex();
             if (index.isValid())
@@ -1049,16 +1050,19 @@ void ZapFR::Client::MainWindow::updateToolbar()
                     case SOURCETREE_ENTRY_TYPE_FEED:
                     {
                         markAsReadCaption = tr("Mark feed as read");
+                        refreshFeedsCaption = tr("Refresh feed");
                         break;
                     }
                     case SOURCETREE_ENTRY_TYPE_FOLDER:
                     {
                         markAsReadCaption = tr("Mark folder as read");
+                        refreshFeedsCaption = tr("Refresh folder");
                         break;
                     }
                     case SOURCETREE_ENTRY_TYPE_SOURCE:
                     {
                         markAsReadCaption = tr("Mark source as read");
+                        refreshFeedsCaption = tr("Refresh source");
                         break;
                     }
                 }
@@ -1066,15 +1070,17 @@ void ZapFR::Client::MainWindow::updateToolbar()
 
             ui->action_Add_feed->setVisible(true);
             ui->action_Add_folder->setVisible(true);
-            ui->action_Refresh_all_feeds->setVisible(true);
-            ui->action_Mark_feed_as_read->setVisible(true);
+            ui->action_Refresh_feeds->setVisible(true);
+            ui->action_Mark_as_read->setVisible(true);
             ui->action_View_logs->setVisible(true);
 
             ui->action_Add_feed->setEnabled(anythingSelected);
             ui->action_Add_folder->setEnabled(anythingSelected);
-            ui->action_Mark_feed_as_read->setEnabled(anythingSelected);
-            ui->action_Mark_feed_as_read->setText(markAsReadCaption);
+            ui->action_Mark_as_read->setEnabled(anythingSelected);
+            ui->action_Mark_as_read->setText(markAsReadCaption);
             ui->action_View_logs->setEnabled(anythingSelected);
+            ui->action_Refresh_feeds->setEnabled(anythingSelected);
+            ui->action_Refresh_feeds->setText(refreshFeedsCaption);
             break;
         }
         case StackedPaneLogs:
@@ -1116,9 +1122,117 @@ void ZapFR::Client::MainWindow::markAsRead()
     }
 }
 
-void ZapFR::Client::MainWindow::refreshAllFeeds()
+void ZapFR::Client::MainWindow::markAsUnread()
 {
-    ZapFR::Engine::Agent::getInstance()->queueRefreshAllFeeds([&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+    auto selectionModel = ui->tableViewPosts->selectionModel();
+    if (selectionModel != nullptr)
+    {
+        uint64_t sourceID{0};
+        std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs;
+        auto selectedIndexes = selectionModel->selectedIndexes();
+        for (const auto& index : selectedIndexes)
+        {
+            if (index.column() == PostColumnUnread)
+            {
+                sourceID = index.data(PostSourceIDRole).toULongLong();
+                auto feedID = index.data(PostFeedIDRole).toULongLong();
+                auto postID = index.data(PostIDRole).toULongLong();
+
+                feedAndPostIDs.emplace_back(std::make_tuple(feedID, postID));
+            }
+        }
+
+        if (feedAndPostIDs.size() > 0)
+        {
+            ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(sourceID, feedAndPostIDs,
+                                                                      [&](std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
+                                                                      { QMetaObject::invokeMethod(this, "postsMarkedUnread", Qt::AutoConnection, postIDs); });
+        }
+    }
+}
+
+void ZapFR::Client::MainWindow::removeFolder()
+{
+    QMessageBox messageBox;
+    messageBox.setText(tr("Remove folder"));
+    messageBox.setWindowTitle(tr("Remove folder"));
+    messageBox.setInformativeText(tr("Are you sure you want to remove this folder, all its subfolders, and all feeds they contain? All associated posts will be removed!"));
+    messageBox.setIcon(QMessageBox::Warning);
+    auto yesButton = messageBox.addButton(QMessageBox::StandardButton::Yes);
+    yesButton->setText(tr("Remove"));
+    messageBox.addButton(QMessageBox::StandardButton::Cancel);
+    auto messageBoxLayout = qobject_cast<QGridLayout*>(messageBox.layout());
+    messageBoxLayout->addItem(new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), messageBoxLayout->rowCount(), 0, 1, messageBoxLayout->columnCount());
+    messageBox.exec();
+    if (messageBox.buttonRole(messageBox.clickedButton()) == QMessageBox::YesRole)
+    {
+        auto index = ui->treeViewSources->currentIndex();
+        if (index.isValid())
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto folder = index.data(SourceTreeEntryIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueRemoveFolder(sourceID, folder, [&]() { QMetaObject::invokeMethod(this, "folderRemoved", Qt::AutoConnection); });
+        }
+    }
+}
+
+void ZapFR::Client::MainWindow::removeFeed()
+{
+    QMessageBox messageBox;
+    messageBox.setText(tr("Remove feed"));
+    messageBox.setWindowTitle(tr("Remove feed"));
+    messageBox.setInformativeText(tr("Are you sure you want to remove this feed? All associated posts will be removed!"));
+    messageBox.setIcon(QMessageBox::Warning);
+    auto yesButton = messageBox.addButton(QMessageBox::StandardButton::Yes);
+    yesButton->setText(tr("Remove"));
+    messageBox.addButton(QMessageBox::StandardButton::Cancel);
+    auto messageBoxLayout = qobject_cast<QGridLayout*>(messageBox.layout());
+    messageBoxLayout->addItem(new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), messageBoxLayout->rowCount(), 0, 1, messageBoxLayout->columnCount());
+    messageBox.exec();
+    if (messageBox.buttonRole(messageBox.clickedButton()) == QMessageBox::YesRole)
+    {
+        auto index = ui->treeViewSources->currentIndex();
+        if (index.isValid())
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueRemoveFeed(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedRemoved", Qt::AutoConnection); });
+        }
+    }
+}
+
+void ZapFR::Client::MainWindow::refreshFeeds()
+{
+    auto index = ui->treeViewSources->currentIndex();
+    if (index.isValid())
+    {
+        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+        switch (type)
+        {
+            case SOURCETREE_ENTRY_TYPE_FEED:
+            {
+                auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+                ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(sourceID, feedID,
+                                                                      [&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            {
+                auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+                ZapFR::Engine::Agent::getInstance()->queueRefreshFolder(
+                    sourceID, folderID, [&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_SOURCE:
+            {
+                ZapFR::Engine::Agent::getInstance()->queueRefreshSource(sourceID, [&](uint64_t feedID)
+                                                                        { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+
+                break;
+            }
+        }
+    }
 }
 
 QModelIndex ZapFR::Client::MainWindow::selectedSourceTreeIndex() const
@@ -1155,212 +1269,35 @@ void ZapFR::Client::MainWindow::showJumpToPageDialog(uint64_t currentPage, uint6
 
 void ZapFR::Client::MainWindow::createContextMenus()
 {
-    // TODO: replace all these freshly made actions with the existing Qt Creator actions
-    createContextMenuSource();
-    createContextMenuFeed();
-    createContextMenuFolder();
-    createContextMenuPost();
-}
-
-void ZapFR::Client::MainWindow::createContextMenuSource()
-{
+    // SOURCE
     mSourceContextMenuSource = std::make_unique<QMenu>(nullptr);
-
-    // Source - Refresh
-    auto refreshAction = new QAction(tr("&Refresh source"), this);
-    connect(refreshAction, &QAction::triggered,
-            [&]()
-            {
-                auto index = ui->treeViewSources->currentIndex();
-                if (index.isValid())
-                {
-                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                    ZapFR::Engine::Agent::getInstance()->queueRefreshSource(sourceID, [&](uint64_t feedID)
-                                                                            { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
-                }
-            });
-    mSourceContextMenuSource->addAction(refreshAction);
-
-    // Source - Mark as read
-    auto markAsReadAction = new QAction(tr("&Mark source as read"), this);
-    connect(markAsReadAction, &QAction::triggered, this, &MainWindow::markAsRead);
-    mSourceContextMenuSource->addAction(markAsReadAction);
-
+    mSourceContextMenuSource->addAction(ui->action_Refresh_feeds);
+    mSourceContextMenuSource->addAction(ui->action_Mark_as_read);
     mSourceContextMenuSource->addSeparator();
-
-    // Source - Add folder
-    auto addFolderAction = new QAction(tr("Add &folder"), this);
-    connect(addFolderAction, &QAction::triggered, this, &MainWindow::addFolder);
-    mSourceContextMenuSource->addAction(addFolderAction);
-
-    // Source - View logs
+    mSourceContextMenuSource->addAction(ui->action_Add_folder);
     mSourceContextMenuSource->addAction(ui->action_View_logs);
-}
 
-void ZapFR::Client::MainWindow::createContextMenuFeed()
-{
+    // FEED
     mSourceContextMenuFeed = std::make_unique<QMenu>(nullptr);
-
-    // Feed - Refresh
-    auto refreshAction = new QAction(tr("&Refresh feed"), this);
-    connect(refreshAction, &QAction::triggered,
-            [&]()
-            {
-                auto index = ui->treeViewSources->currentIndex();
-                if (index.isValid())
-                {
-                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                    auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                    ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
-                        sourceID, feedID, [&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
-                }
-            });
-    mSourceContextMenuFeed->addAction(refreshAction);
-
-    // Feed - Mark as read
-    auto markAsReadAction = new QAction(tr("&Mark feed as read"), this);
-    connect(markAsReadAction, &QAction::triggered, this, &MainWindow::markAsRead);
-    mSourceContextMenuFeed->addAction(markAsReadAction);
-
-    // Feed - View logs
+    mSourceContextMenuFeed->addAction(ui->action_Refresh_feeds);
+    mSourceContextMenuFeed->addAction(ui->action_Mark_as_read);
     mSourceContextMenuFeed->addAction(ui->action_View_logs);
-
     mSourceContextMenuFeed->addSeparator();
+    mSourceContextMenuFeed->addAction(ui->action_Remove_feed);
 
-    // Feed - Remove
-    auto removeAction = new QAction(tr("Remo&ve feed"), this);
-    connect(removeAction, &QAction::triggered,
-            [&]()
-            {
-                QMessageBox messageBox;
-                messageBox.setText(tr("Remove feed"));
-                messageBox.setWindowTitle(tr("Remove feed"));
-                messageBox.setInformativeText(tr("Are you sure you want to remove this feed? All associated posts will be removed!"));
-                messageBox.setIcon(QMessageBox::Warning);
-                auto yesButton = messageBox.addButton(QMessageBox::StandardButton::Yes);
-                yesButton->setText(tr("Remove"));
-                messageBox.addButton(QMessageBox::StandardButton::Cancel);
-                auto messageBoxLayout = qobject_cast<QGridLayout*>(messageBox.layout());
-                messageBoxLayout->addItem(new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), messageBoxLayout->rowCount(), 0, 1,
-                                          messageBoxLayout->columnCount());
-                messageBox.exec();
-                if (messageBox.buttonRole(messageBox.clickedButton()) == QMessageBox::YesRole)
-                {
-                    auto index = ui->treeViewSources->currentIndex();
-                    if (index.isValid())
-                    {
-                        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                        auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                        ZapFR::Engine::Agent::getInstance()->queueRemoveFeed(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedRemoved", Qt::AutoConnection); });
-                    }
-                }
-            });
-    mSourceContextMenuFeed->addAction(removeAction);
-}
-
-void ZapFR::Client::MainWindow::createContextMenuFolder()
-{
+    // FOLDER
     mSourceContextMenuFolder = std::make_unique<QMenu>(nullptr);
-
-    // Folder - Refresh
-    auto refreshAction = new QAction(tr("&Refresh folder"), this);
-    connect(refreshAction, &QAction::triggered,
-            [&]()
-            {
-                auto index = ui->treeViewSources->currentIndex();
-                if (index.isValid())
-                {
-                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                    auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-                    ZapFR::Engine::Agent::getInstance()->queueRefreshFolder(
-                        sourceID, folderID, [&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
-                }
-            });
-    mSourceContextMenuFolder->addAction(refreshAction);
-
-    // Folder - Mark as read
-    auto markAsReadAction = new QAction(tr("&Mark folder as read"), this);
-    connect(markAsReadAction, &QAction::triggered, this, &MainWindow::markAsRead);
-    mSourceContextMenuFolder->addAction(markAsReadAction);
-
+    mSourceContextMenuFolder->addAction(ui->action_Refresh_feeds);
+    mSourceContextMenuFolder->addAction(ui->action_Mark_as_read);
     mSourceContextMenuFolder->addSeparator();
-
-    // Folder - Add subfolder
-    auto addFolderAction = new QAction(tr("Add &subfolder"), this);
-    connect(addFolderAction, &QAction::triggered, this, &MainWindow::addFolder);
-    mSourceContextMenuFolder->addAction(addFolderAction);
-
-    // Folder - View logs
+    mSourceContextMenuFolder->addAction(ui->action_Add_folder);
     mSourceContextMenuFolder->addAction(ui->action_View_logs);
-
     mSourceContextMenuFolder->addSeparator();
+    mSourceContextMenuFolder->addAction(ui->action_Remove_folder);
 
-    // Folder - Remove
-    auto removeFolderAction = new QAction(tr("Remo&ve folder"), this);
-    connect(removeFolderAction, &QAction::triggered,
-            [&]()
-            {
-                QMessageBox messageBox;
-                messageBox.setText(tr("Remove folder"));
-                messageBox.setWindowTitle(tr("Remove folder"));
-                messageBox.setInformativeText(
-                    tr("Are you sure you want to remove this folder, all its subfolders, and all feeds they contain? All associated posts will be removed!"));
-                messageBox.setIcon(QMessageBox::Warning);
-                auto yesButton = messageBox.addButton(QMessageBox::StandardButton::Yes);
-                yesButton->setText(tr("Remove"));
-                messageBox.addButton(QMessageBox::StandardButton::Cancel);
-                auto messageBoxLayout = qobject_cast<QGridLayout*>(messageBox.layout());
-                messageBoxLayout->addItem(new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), messageBoxLayout->rowCount(), 0, 1,
-                                          messageBoxLayout->columnCount());
-                messageBox.exec();
-                if (messageBox.buttonRole(messageBox.clickedButton()) == QMessageBox::YesRole)
-                {
-                    auto index = ui->treeViewSources->currentIndex();
-                    if (index.isValid())
-                    {
-                        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                        auto folder = index.data(SourceTreeEntryIDRole).toULongLong();
-
-                        ZapFR::Engine::Agent::getInstance()->queueRemoveFolder(sourceID, folder,
-                                                                               [&]() { QMetaObject::invokeMethod(this, "folderRemoved", Qt::AutoConnection); });
-                    }
-                }
-            });
-    mSourceContextMenuFolder->addAction(removeFolderAction);
-}
-
-void ZapFR::Client::MainWindow::createContextMenuPost()
-{
+    // POST
     mPostContextMenu = std::make_unique<QMenu>(nullptr);
-
-    auto markPostUnreadAction = new QAction(tr("&Mark as unread"), this);
-    connect(markPostUnreadAction, &QAction::triggered,
-            [&]()
-            {
-                auto selectionModel = ui->tableViewPosts->selectionModel();
-                if (selectionModel != nullptr)
-                {
-                    uint64_t sourceID{0};
-                    std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs;
-                    auto selectedIndexes = selectionModel->selectedIndexes();
-                    for (const auto& index : selectedIndexes)
-                    {
-                        if (index.column() == PostColumnUnread)
-                        {
-                            sourceID = index.data(PostSourceIDRole).toULongLong();
-                            auto feedID = index.data(PostFeedIDRole).toULongLong();
-                            auto postID = index.data(PostIDRole).toULongLong();
-
-                            feedAndPostIDs.emplace_back(std::make_tuple(feedID, postID));
-                        }
-                    }
-
-                    ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(sourceID, feedAndPostIDs,
-                                                                              [&](std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
-                                                                              { QMetaObject::invokeMethod(this, "postsMarkedUnread", Qt::AutoConnection, postIDs); });
-                }
-            });
-    mPostContextMenu->addAction(markPostUnreadAction);
+    mPostContextMenu->addAction(ui->action_Mark_as_unread);
 }
 
 void ZapFR::Client::MainWindow::configureConnects()
@@ -1369,8 +1306,11 @@ void ZapFR::Client::MainWindow::configureConnects()
     connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
     connect(ui->action_Add_folder, &QAction::triggered, this, &MainWindow::addFolder);
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
-    connect(ui->action_Mark_feed_as_read, &QAction::triggered, this, &MainWindow::markAsRead);
-    connect(ui->action_Refresh_all_feeds, &QAction::triggered, this, &MainWindow::refreshAllFeeds);
+    connect(ui->action_Mark_as_read, &QAction::triggered, this, &MainWindow::markAsRead);
+    connect(ui->action_Refresh_feeds, &QAction::triggered, this, &MainWindow::refreshFeeds);
+    connect(ui->action_Mark_as_unread, &QAction::triggered, this, &MainWindow::markAsUnread);
+    connect(ui->action_Remove_folder, &QAction::triggered, this, &MainWindow::removeFolder);
+    connect(ui->action_Remove_feed, &QAction::triggered, this, &MainWindow::removeFeed);
 
     connect(ui->action_View_logs, &QAction::triggered,
             [&]()
