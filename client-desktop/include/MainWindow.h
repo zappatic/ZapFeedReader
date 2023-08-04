@@ -24,7 +24,7 @@
 #include "DialogAddFeed.h"
 #include "DialogAddFolder.h"
 #include "DialogImportOPML.h"
-#include "DialogJumpToPostPage.h"
+#include "DialogJumpToPage.h"
 #include "Global.h"
 
 QT_BEGIN_NAMESPACE
@@ -60,23 +60,10 @@ namespace ZapFR
             void markAsRead();
             void refreshAllFeeds();
             void reloadPosts();
-            void navigateNextPostPage();
-            void navigatePreviousPostPage();
-            void navigateFirstPostPage();
-            void navigateLastPostPage();
             void reloadLogs();
-            void viewLogs();
-            void exitLogs();
 
             // events
-            void sourceTreeViewItemSelected(const QModelIndex& index);
             void postsTableViewSelectionChanged(const QModelIndexList& selected);
-            void colorSchemeChanged(Qt::ColorScheme scheme);
-            void sourceTreeViewContextMenuRequested(const QPoint& p);
-            void postsTableViewContextMenuRequested(const QPoint& p);
-            void postLinkHovered(const QString& url);
-            void toggleShowOnlyUnread();
-            void postPageNumberClicked();
 
             // callbacks
             void feedRefreshed(uint64_t feedID);
@@ -105,7 +92,7 @@ namespace ZapFR
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
             std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
-            std::unique_ptr<DialogJumpToPostPage> mDialogJumpToPostPage{nullptr};
+            std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuSource{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
@@ -130,6 +117,7 @@ namespace ZapFR
             QString configDir() const;
             QString settingsFile() const;
 
+            void configureConnects();
             void fixPalette() const;
             void saveSettings() const;
             void restoreSettings();
@@ -148,6 +136,7 @@ namespace ZapFR
             void createContextMenuFolder();
             void createContextMenuPost();
             QModelIndex selectedSourceTreeIndex() const;
+            void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
 
             static constexpr uint64_t msPostsPerPage{100};
             static constexpr uint64_t msLogsPerPage{100};

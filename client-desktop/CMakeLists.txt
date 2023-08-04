@@ -22,7 +22,7 @@ set(PROJECT_SOURCES
         src/DialogAddFeed.cpp
         src/DialogAddFolder.cpp
         src/DialogImportOPML.cpp
-        src/DialogJumpToPostPage.cpp
+        src/DialogJumpToPage.cpp
         src/Utilities.cpp
         src/WebEnginePagePost.cpp
         src/WebEngineViewPost.cpp
@@ -40,7 +40,7 @@ set(PROJECT_SOURCES
         include/DialogAddFeed.h
         include/DialogAddFolder.h
         include/DialogImportOPML.h
-        include/DialogJumpToPostPage.h
+        include/DialogJumpToPage.h
         include/WebEnginePagePost.h
         include/WebEngineViewPost.h
         include/StandardItemModelSources.h
@@ -52,7 +52,7 @@ set(PROJECT_SOURCES
         src/DialogAddFeed.ui
         src/DialogAddFolder.ui
         src/DialogImportOPML.ui
-        src/DialogJumpToPostPage.ui
+        src/DialogJumpToPage.ui
         resources/resources.qrc
         ${TS_FILES}
 )

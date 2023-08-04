@@ -253,19 +253,22 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FolderLocal::get
     uint64_t level;
     std::string message{""};
     Poco::Nullable<uint64_t> feedID{0};
+    Poco::Nullable<std::string> feedTitle{};
 
     Poco::Data::Statement selectStmt(*(msDatabase->session()));
-    selectStmt << Poco::format("SELECT id"
-                               ",timestamp"
-                               ",level"
-                               ",message"
-                               ",feedID"
+    selectStmt << Poco::format("SELECT logs.id"
+                               ",logs.timestamp"
+                               ",logs.level"
+                               ",logs.message"
+                               ",logs.feedID"
+                               ",feeds.title"
                                " FROM logs"
-                               " WHERE feedID IN (%s)"
-                               " ORDER BY id DESC"
+                               " LEFT JOIN feeds ON feeds.id = logs.feedID"
+                               " WHERE logs.feedID IN (%s)"
+                               " ORDER BY logs.id DESC"
                                " LIMIT ? OFFSET ?",
                                joinedFeedIDs),
-        use(perPage), use(offset), into(id), into(timestamp), into(level), into(message), into(feedID), range(0, 1);
+        use(perPage), use(offset), into(id), into(timestamp), into(level), into(message), into(feedID), into(feedTitle), range(0, 1);
 
     while (!selectStmt.done())
     {
@@ -278,6 +281,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FolderLocal::get
             if (!feedID.isNull())
             {
                 l->setFeedID(feedID.value());
+            }
+            if (!feedTitle.isNull())
+            {
+                l->setFeedTitle(feedTitle.value());
             }
             logs.emplace_back(std::move(l));
         }

@@ -40,48 +40,27 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ZapFR::Engine::Feed::registerDatabaseInstance(mDatabase.get());
     ZapFR::Engine::Post::registerDatabaseInstance(mDatabase.get());
     ZapFR::Engine::Folder::registerDatabaseInstance(mDatabase.get());
+    mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
 
     ui->setupUi(this);
-    connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
-    connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
-    connect(ui->action_Add_folder, &QAction::triggered, this, &MainWindow::addFolder);
-    connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
-    connect(ui->action_Mark_feed_as_read, &QAction::triggered, this, &MainWindow::markAsRead);
-    connect(ui->action_Refresh_all_feeds, &QAction::triggered, this, &MainWindow::refreshAllFeeds);
-    connect(ui->action_View_logs, &QAction::triggered, this, &MainWindow::viewLogs);
-    connect(ui->action_Back_to_posts, &QAction::triggered, this, &MainWindow::exitLogs);
-    connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested, this, &MainWindow::sourceTreeViewContextMenuRequested);
-    connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged, this, &MainWindow::sourceTreeViewItemSelected);
-    connect(ui->tableViewPosts, &TableViewPosts::selectedPostsChanged, this, &MainWindow::postsTableViewSelectionChanged);
-    connect(ui->tableViewPosts, &TableViewPosts::customContextMenuRequested, this, &MainWindow::postsTableViewContextMenuRequested);
-    connect(ui->pushButtonPreviousPage, &QPushButton::clicked, this, &MainWindow::navigatePreviousPostPage);
-    connect(ui->pushButtonNextPage, &QPushButton::clicked, this, &MainWindow::navigateNextPostPage);
-    connect(ui->pushButtonFirstPage, &QPushButton::clicked, this, &MainWindow::navigateFirstPostPage);
-    connect(ui->pushButtonLastPage, &QPushButton::clicked, this, &MainWindow::navigateLastPostPage);
-    connect(ui->pushButtonToggleShowUnread, &QPushButton::clicked, this, &MainWindow::toggleShowOnlyUnread);
-    connect(ui->pushButtonPageNumber, &QPushButton::clicked, this, &MainWindow::postPageNumberClicked);
-    connect(ui->stackedWidgetRight, &QStackedWidget::currentChanged, [&]() { updateToolbar(); });
-    connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::colorSchemeChanged);
-
+    configureConnects();
+    createContextMenus();
     fixPalette();
     configureIcons();
-    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
     reloadSources();
+    ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
+    ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
+    ui->tableViewLogs->setItemDelegate(new ItemDelegateLog(ui->tableViewLogs));
+    ui->webViewPost->setPage(mPostWebEnginePage.get());
+
+    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
     if (mFirstSource != nullptr)
     {
         ui->treeViewSources->selectionModel()->select(mItemModelSources->indexFromItem(mFirstSource), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
-    ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
-    ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
-    ui->tableViewLogs->setItemDelegate(new ItemDelegateLog(ui->tableViewLogs));
-
-    mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
-    ui->webViewPost->setPage(mPostWebEnginePage.get());
-    connect(mPostWebEnginePage.get(), &QWebEnginePage::linkHovered, this, &MainWindow::postLinkHovered);
 
     restoreSettings();
     reloadCurrentPost();
-    createContextMenus();
 }
 
 ZapFR::Client::MainWindow::~MainWindow()
@@ -92,12 +71,6 @@ ZapFR::Client::MainWindow::~MainWindow()
 void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
 {
     saveSettings();
-}
-
-void ZapFR::Client::MainWindow::colorSchemeChanged(Qt::ColorScheme /*scheme*/)
-{
-    reloadCurrentPost();
-    configureIcons();
 }
 
 void ZapFR::Client::MainWindow::saveSettings() const
@@ -548,90 +521,6 @@ void ZapFR::Client::MainWindow::fixPalette() const
     ui->tableViewPosts->setPalette(palette);
 }
 
-void ZapFR::Client::MainWindow::sourceTreeViewItemSelected(const QModelIndex& index)
-{
-    if (index.isValid())
-    {
-        // have to do the call to the reload function with a timer because a this point the selectionModel() hasn't updated yet
-        switch (ui->stackedWidgetRight->currentIndex())
-        {
-            case StackedPanePosts:
-            {
-                if (mReclickOnSource)
-                {
-                    mCurrentPostPage = 1;
-                    QTimer::singleShot(0, [&]() { reloadPosts(); });
-                }
-                mReclickOnSource = true;
-                break;
-            }
-            case StackedPaneLogs:
-            {
-                mCurrentLogPage = 1;
-                QTimer::singleShot(0, [&]() { reloadLogs(); });
-                break;
-            }
-        }
-    }
-}
-
-void ZapFR::Client::MainWindow::navigateNextPostPage()
-{
-    mCurrentPostPage = std::min(mCurrentPostPageCount, mCurrentPostPage + 1);
-    reloadPosts();
-}
-
-void ZapFR::Client::MainWindow::navigatePreviousPostPage()
-{
-    mCurrentPostPage = std::max(1ul, mCurrentPostPage - 1);
-    reloadPosts();
-}
-
-void ZapFR::Client::MainWindow::navigateFirstPostPage()
-{
-    mCurrentPostPage = 1;
-    reloadPosts();
-}
-
-void ZapFR::Client::MainWindow::navigateLastPostPage()
-{
-    mCurrentPostPage = mCurrentPostPageCount;
-    reloadPosts();
-}
-
-void ZapFR::Client::MainWindow::toggleShowOnlyUnread()
-{
-    mShowOnlyUnreadPosts = !mShowOnlyUnreadPosts;
-    if (mShowOnlyUnreadPosts)
-    {
-        ui->pushButtonToggleShowUnread->setText(tr("Show all posts"));
-    }
-    else
-    {
-        ui->pushButtonToggleShowUnread->setText(tr("Show only unread posts"));
-    }
-    reloadPosts();
-}
-
-void ZapFR::Client::MainWindow::postPageNumberClicked()
-{
-    if (mDialogJumpToPostPage == nullptr)
-    {
-        mDialogJumpToPostPage = std::make_unique<DialogJumpToPostPage>(this);
-        connect(mDialogJumpToPostPage.get(), &QDialog::finished,
-                [&](int result)
-                {
-                    if (result == QDialog::DialogCode::Accepted)
-                    {
-                        mCurrentPostPage = mDialogJumpToPostPage->pageToJumpTo();
-                        reloadPosts();
-                    }
-                });
-    }
-    mDialogJumpToPostPage->reset(mCurrentPostPage, mCurrentPostPageCount);
-    mDialogJumpToPostPage->open();
-}
-
 void ZapFR::Client::MainWindow::reloadPosts()
 {
     // lambda to assign the correct role data to the table entries
@@ -738,7 +627,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
         mCurrentPostPageCount = static_cast<uint64_t>(std::ceil(static_cast<float>(mCurrentPostCount) / static_cast<float>(msPostsPerPage)));
     }
 
-    ui->pushButtonPageNumber->setText(QString("%1 %2 / %3").arg(tr("Page")).arg(mCurrentPostPage).arg(mCurrentPostPageCount));
+    ui->pushButtonPostPageNumber->setText(QString("%1 %2 / %3").arg(tr("Page")).arg(mCurrentPostPage).arg(mCurrentPostPageCount));
     ui->labelTotalPostCount->setText(tr("%n post(s)", "", static_cast<int32_t>(mCurrentPostCount)));
 }
 
@@ -801,17 +690,6 @@ void ZapFR::Client::MainWindow::reloadLogs()
     }
 }
 
-void ZapFR::Client::MainWindow::viewLogs()
-{
-    mCurrentLogPage = 1;
-    reloadLogs();
-}
-
-void ZapFR::Client::MainWindow::exitLogs()
-{
-    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
-}
-
 void ZapFR::Client::MainWindow::populateLogs(const QList<QList<QStandardItem*>>& logs, uint64_t pageNumber, uint64_t totalLogCount)
 {
     ui->stackedWidgetRight->setCurrentIndex(StackedPaneLogs);
@@ -836,6 +714,8 @@ void ZapFR::Client::MainWindow::populateLogs(const QList<QList<QStandardItem*>>&
     {
         mCurrentLogPageCount = static_cast<uint64_t>(std::ceil(static_cast<float>(mCurrentLogCount) / static_cast<float>(msLogsPerPage)));
     }
+
+    ui->pushButtonLogPageNumber->setText(QString("%1 %2 / %3").arg(tr("Page")).arg(mCurrentLogPage).arg(mCurrentLogPageCount));
 }
 
 void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndexList& selected)
@@ -959,50 +839,6 @@ QString ZapFR::Client::MainWindow::textMessageHTML(const QString& message) const
     html << "</body></html>";
 
     return htmlStr;
-}
-
-void ZapFR::Client::MainWindow::postLinkHovered(const QString& url)
-{
-    if (!url.isEmpty())
-    {
-        ui->statusbar->showMessage(url);
-    }
-    else
-    {
-        ui->statusbar->clearMessage();
-    }
-}
-
-void ZapFR::Client::MainWindow::sourceTreeViewContextMenuRequested(const QPoint& p)
-{
-    auto index = ui->treeViewSources->indexAt(p);
-    if (index.isValid())
-    {
-        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
-        switch (type)
-        {
-            case SOURCETREE_ENTRY_TYPE_FEED:
-            {
-                mSourceContextMenuFeed->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
-                break;
-            }
-            case SOURCETREE_ENTRY_TYPE_FOLDER:
-            {
-                mSourceContextMenuFolder->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
-                break;
-            }
-            case SOURCETREE_ENTRY_TYPE_SOURCE:
-            {
-                mSourceContextMenuSource->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
-                break;
-            }
-        }
-    }
-}
-
-void ZapFR::Client::MainWindow::postsTableViewContextMenuRequested(const QPoint& p)
-{
-    mPostContextMenu->popup(ui->tableViewPosts->viewport()->mapToGlobal(p));
 }
 
 void ZapFR::Client::MainWindow::feedRefreshed(uint64_t feedID)
@@ -1138,14 +974,19 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
     ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
     ui->action_Back_to_posts->setIcon(configureIcon(":/back.svg"));
-    ui->pushButtonPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
-    ui->pushButtonFirstPage->setIcon(configureIcon(":/firstPage.svg"));
-    ui->pushButtonNextPage->setIcon(configureIcon(":/nextPage.svg"));
-    ui->pushButtonLastPage->setIcon(configureIcon(":/lastPage.svg"));
+    ui->pushButtonPostPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
+    ui->pushButtonPostFirstPage->setIcon(configureIcon(":/firstPage.svg"));
+    ui->pushButtonPostNextPage->setIcon(configureIcon(":/nextPage.svg"));
+    ui->pushButtonPostLastPage->setIcon(configureIcon(":/lastPage.svg"));
+    ui->pushButtonLogPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
+    ui->pushButtonLogFirstPage->setIcon(configureIcon(":/firstPage.svg"));
+    ui->pushButtonLogNextPage->setIcon(configureIcon(":/nextPage.svg"));
+    ui->pushButtonLogLastPage->setIcon(configureIcon(":/lastPage.svg"));
 
     auto labelFont = ui->labelTotalPostCount->font();
     labelFont.setPointSizeF(10.0f);
-    ui->pushButtonPageNumber->setFont(labelFont);
+    ui->pushButtonPostPageNumber->setFont(labelFont);
+    ui->pushButtonLogPageNumber->setFont(labelFont);
     ui->labelTotalPostCount->setFont(labelFont);
     ui->pushButtonToggleShowUnread->setFont(labelFont);
 
@@ -1266,6 +1107,24 @@ QModelIndex ZapFR::Client::MainWindow::selectedSourceTreeIndex() const
     return QModelIndex();
 }
 
+void ZapFR::Client::MainWindow::showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback)
+{
+    if (mDialogJumpToPage == nullptr)
+    {
+        mDialogJumpToPage = std::make_unique<DialogJumpToPage>(this);
+        connect(mDialogJumpToPage.get(), &QDialog::finished,
+                [&](int result)
+                {
+                    if (result == QDialog::DialogCode::Accepted)
+                    {
+                        mDialogJumpToPage->callback()(mDialogJumpToPage->pageToJumpTo());
+                    }
+                });
+    }
+    mDialogJumpToPage->reset(currentPage, pageCount, callback);
+    mDialogJumpToPage->open();
+}
+
 void ZapFR::Client::MainWindow::createContextMenus()
 {
     // TODO: replace all these freshly made actions with the existing Qt Creator actions
@@ -1307,9 +1166,7 @@ void ZapFR::Client::MainWindow::createContextMenuSource()
     mSourceContextMenuSource->addAction(addFolderAction);
 
     // Source - View logs
-    auto viewLogsAction = new QAction(tr("View &Logs"), this);
-    connect(viewLogsAction, &QAction::triggered, this, &MainWindow::viewLogs);
-    mSourceContextMenuSource->addAction(viewLogsAction);
+    mSourceContextMenuSource->addAction(ui->action_View_logs);
 }
 
 void ZapFR::Client::MainWindow::createContextMenuFeed()
@@ -1338,9 +1195,7 @@ void ZapFR::Client::MainWindow::createContextMenuFeed()
     mSourceContextMenuFeed->addAction(markAsReadAction);
 
     // Feed - View logs
-    auto viewLogsAction = new QAction(tr("View &Logs"), this);
-    connect(viewLogsAction, &QAction::triggered, this, &MainWindow::viewLogs);
-    mSourceContextMenuFeed->addAction(viewLogsAction);
+    mSourceContextMenuFeed->addAction(ui->action_View_logs);
 
     mSourceContextMenuFeed->addSeparator();
 
@@ -1408,9 +1263,7 @@ void ZapFR::Client::MainWindow::createContextMenuFolder()
     mSourceContextMenuFolder->addAction(addFolderAction);
 
     // Folder - View logs
-    auto viewLogsAction = new QAction(tr("View &Logs"), this);
-    connect(viewLogsAction, &QAction::triggered, this, &MainWindow::viewLogs);
-    mSourceContextMenuFolder->addAction(viewLogsAction);
+    mSourceContextMenuFolder->addAction(ui->action_View_logs);
 
     mSourceContextMenuFolder->addSeparator();
 
@@ -1480,4 +1333,199 @@ void ZapFR::Client::MainWindow::createContextMenuPost()
                 }
             });
     mPostContextMenu->addAction(markPostUnreadAction);
+}
+
+void ZapFR::Client::MainWindow::configureConnects()
+{
+    connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
+    connect(ui->action_Add_feed, &QAction::triggered, this, &MainWindow::addFeed);
+    connect(ui->action_Add_folder, &QAction::triggered, this, &MainWindow::addFolder);
+    connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
+    connect(ui->action_Mark_feed_as_read, &QAction::triggered, this, &MainWindow::markAsRead);
+    connect(ui->action_Refresh_all_feeds, &QAction::triggered, this, &MainWindow::refreshAllFeeds);
+
+    connect(ui->action_View_logs, &QAction::triggered,
+            [&]()
+            {
+                mCurrentLogPage = 1;
+                reloadLogs();
+            });
+
+    connect(ui->action_Back_to_posts, &QAction::triggered, [&]() { ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts); });
+
+    connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged,
+            [&](const QModelIndex& index)
+            {
+                if (index.isValid())
+                {
+                    // have to do the call to the reload function with a timer because a this point the selectionModel() hasn't updated yet
+                    switch (ui->stackedWidgetRight->currentIndex())
+                    {
+                        case StackedPanePosts:
+                        {
+                            if (mReclickOnSource)
+                            {
+                                mCurrentPostPage = 1;
+                                QTimer::singleShot(0, [&]() { reloadPosts(); });
+                            }
+                            mReclickOnSource = true;
+                            break;
+                        }
+                        case StackedPaneLogs:
+                        {
+                            mCurrentLogPage = 1;
+                            QTimer::singleShot(0, [&]() { reloadLogs(); });
+                            break;
+                        }
+                    }
+                }
+            });
+
+    connect(ui->tableViewPosts, &TableViewPosts::selectedPostsChanged, this, &MainWindow::postsTableViewSelectionChanged);
+
+    connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested,
+            [&](const QPoint& p)
+            {
+                auto index = ui->treeViewSources->indexAt(p);
+                if (index.isValid())
+                {
+                    auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+                    switch (type)
+                    {
+                        case SOURCETREE_ENTRY_TYPE_FEED:
+                        {
+                            mSourceContextMenuFeed->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                            break;
+                        }
+                        case SOURCETREE_ENTRY_TYPE_FOLDER:
+                        {
+                            mSourceContextMenuFolder->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                            break;
+                        }
+                        case SOURCETREE_ENTRY_TYPE_SOURCE:
+                        {
+                            mSourceContextMenuSource->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                            break;
+                        }
+                    }
+                }
+            });
+
+    connect(ui->tableViewPosts, &TableViewPosts::customContextMenuRequested,
+            [&](const QPoint& p) { mPostContextMenu->popup(ui->tableViewPosts->viewport()->mapToGlobal(p)); });
+
+    connect(ui->pushButtonPostPreviousPage, &QPushButton::clicked,
+            [&]()
+            {
+                mCurrentPostPage = std::max(1ul, mCurrentPostPage - 1);
+                reloadPosts();
+            });
+
+    connect(ui->pushButtonPostNextPage, &QPushButton::clicked,
+            [&]()
+            {
+                mCurrentPostPage = std::min(mCurrentPostPageCount, mCurrentPostPage + 1);
+                reloadPosts();
+            });
+
+    connect(ui->pushButtonPostFirstPage, &QPushButton::clicked,
+            [&]()
+            {
+                mCurrentPostPage = 1;
+                reloadPosts();
+            });
+
+    connect(ui->pushButtonPostLastPage, &QPushButton::clicked,
+            [&]()
+            {
+                mCurrentPostPage = mCurrentPostPageCount;
+                reloadPosts();
+            });
+
+    connect(ui->pushButtonPostPageNumber, &QPushButton::clicked,
+            [&]()
+            {
+                showJumpToPageDialog(mCurrentPostPage, mCurrentPostPageCount,
+                                     [&](uint64_t page)
+                                     {
+                                         mCurrentPostPage = page;
+                                         reloadPosts();
+                                     });
+            });
+
+    connect(ui->pushButtonToggleShowUnread, &QPushButton::clicked,
+            [&]()
+            {
+                mShowOnlyUnreadPosts = !mShowOnlyUnreadPosts;
+                if (mShowOnlyUnreadPosts)
+                {
+                    ui->pushButtonToggleShowUnread->setText(tr("Show all posts"));
+                }
+                else
+                {
+                    ui->pushButtonToggleShowUnread->setText(tr("Show only unread posts"));
+                }
+                reloadPosts();
+            });
+
+    connect(ui->pushButtonLogPreviousPage, &QPushButton::clicked,
+            [&]()
+            {
+                mCurrentLogPage = std::max(1ul, mCurrentLogPage - 1);
+                reloadLogs();
+            });
+
+    connect(ui->pushButtonLogNextPage, &QPushButton::clicked,
+            [&]()
+            {
+                mCurrentLogPage = std::min(mCurrentLogPageCount, mCurrentLogPage + 1);
+                reloadLogs();
+            });
+
+    connect(ui->pushButtonLogFirstPage, &QPushButton::clicked,
+            [&]()
+            {
+                mCurrentLogPage = 1;
+                reloadLogs();
+            });
+
+    connect(ui->pushButtonLogLastPage, &QPushButton::clicked,
+            [&]()
+            {
+                mCurrentLogPage = mCurrentLogPageCount;
+                reloadLogs();
+            });
+
+    connect(ui->pushButtonLogPageNumber, &QPushButton::clicked,
+            [&]()
+            {
+                showJumpToPageDialog(mCurrentLogPage, mCurrentLogPageCount,
+                                     [&](uint64_t page)
+                                     {
+                                         mCurrentLogPage = page;
+                                         reloadLogs();
+                                     });
+            });
+
+    connect(ui->stackedWidgetRight, &QStackedWidget::currentChanged, [&]() { updateToolbar(); });
+
+    connect(mPostWebEnginePage.get(), &QWebEnginePage::linkHovered,
+            [&](const QString& url)
+            {
+                if (!url.isEmpty())
+                {
+                    ui->statusbar->showMessage(url);
+                }
+                else
+                {
+                    ui->statusbar->clearMessage();
+                }
+            });
+
+    connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged,
+            [&](Qt::ColorScheme /*scheme*/)
+            {
+                reloadCurrentPost();
+                configureIcons();
+            });
 }

@@ -16,40 +16,43 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_DIALOGJUMPTOPOSTPAGE_H
-#define ZAPFR_CLIENT_DIALOGJUMPTOPOSTPAGE_H
+#ifndef ZAPFR_CLIENT_DIALOGJUMPTOPAGE_H
+#define ZAPFR_CLIENT_DIALOGJUMPTOPAGE_H
 
 #include "ClientGlobal.h"
 
 namespace Ui
 {
-    class DialogJumpToPostPage;
+    class DialogJumpToPage;
 }
 
 namespace ZapFR
 {
     namespace Client
     {
-        class DialogJumpToPostPage : public QDialog
+        class DialogJumpToPage : public QDialog
         {
             Q_OBJECT
 
           public:
-            explicit DialogJumpToPostPage(QWidget* parent = nullptr);
-            ~DialogJumpToPostPage();
+            explicit DialogJumpToPage(QWidget* parent = nullptr);
+            ~DialogJumpToPage();
 
-            void reset(uint64_t currentPage, uint64_t totalPageCount);
+            void reset(uint64_t currentPage, uint64_t totalPageCount, std::function<void(uint64_t)> callback);
+
             uint64_t pageToJumpTo() const;
+            std::function<void(uint64_t)> callback() const;
 
           private slots:
             void jumpTextChanged(const QString& text);
 
           private:
-            Ui::DialogJumpToPostPage* ui;
+            Ui::DialogJumpToPage* ui;
             uint64_t mCurrentPage{1};
             uint64_t mTotalPageCount{1};
+            std::function<void(uint64_t)> mCallback{};
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_DIALOGJUMPTOPOSTPAGE_H
+#endif // ZAPFR_CLIENT_DIALOGJUMPTOPAGE_H

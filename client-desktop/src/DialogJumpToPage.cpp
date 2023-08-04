@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "DialogJumpToPostPage.h"
-#include "ui_DialogJumpToPostPage.h"
+#include "DialogJumpToPage.h"
+#include "ui_DialogJumpToPage.h"
 
-ZapFR::Client::DialogJumpToPostPage::DialogJumpToPostPage(QWidget* parent) : QDialog(parent), ui(new Ui::DialogJumpToPostPage)
+ZapFR::Client::DialogJumpToPage::DialogJumpToPage(QWidget* parent) : QDialog(parent), ui(new Ui::DialogJumpToPage)
 {
     ui->setupUi(this);
 
@@ -32,18 +32,19 @@ ZapFR::Client::DialogJumpToPostPage::DialogJumpToPostPage(QWidget* parent) : QDi
         }
     }
 
-    connect(ui->lineEditJumpToPage, &QLineEdit::textChanged, this, &DialogJumpToPostPage::jumpTextChanged);
+    connect(ui->lineEditJumpToPage, &QLineEdit::textChanged, this, &DialogJumpToPage::jumpTextChanged);
 }
 
-ZapFR::Client::DialogJumpToPostPage::~DialogJumpToPostPage()
+ZapFR::Client::DialogJumpToPage::~DialogJumpToPage()
 {
     delete ui;
 }
 
-void ZapFR::Client::DialogJumpToPostPage::reset(uint64_t currentPage, uint64_t totalPageCount)
+void ZapFR::Client::DialogJumpToPage::reset(uint64_t currentPage, uint64_t totalPageCount, std::function<void(uint64_t)> callback)
 {
     mCurrentPage = currentPage;
     mTotalPageCount = totalPageCount;
+    mCallback = callback;
 
     ui->labelTotalPageCount->setText(QString("/ %1").arg(mTotalPageCount));
     ui->lineEditJumpToPage->setText(QString::number(mCurrentPage));
@@ -51,7 +52,7 @@ void ZapFR::Client::DialogJumpToPostPage::reset(uint64_t currentPage, uint64_t t
     ui->lineEditJumpToPage->selectAll();
 }
 
-uint64_t ZapFR::Client::DialogJumpToPostPage::pageToJumpTo() const
+uint64_t ZapFR::Client::DialogJumpToPage::pageToJumpTo() const
 {
     auto text = ui->lineEditJumpToPage->text();
 
@@ -69,7 +70,7 @@ uint64_t ZapFR::Client::DialogJumpToPostPage::pageToJumpTo() const
     return parsedValue;
 }
 
-void ZapFR::Client::DialogJumpToPostPage::jumpTextChanged(const QString& text)
+void ZapFR::Client::DialogJumpToPage::jumpTextChanged(const QString& text)
 {
     QAbstractButton* okButton{nullptr};
     for (const auto& button : ui->buttonBox->buttons())
@@ -87,4 +88,9 @@ void ZapFR::Client::DialogJumpToPostPage::jumpTextChanged(const QString& text)
 
     uint64_t parsedValue{0};
     okButton->setEnabled(Poco::NumberParser::tryParseUnsigned64(text.toStdString(), parsedValue));
+}
+
+std::function<void(uint64_t)> ZapFR::Client::DialogJumpToPage::callback() const
+{
+    return mCallback;
 }
