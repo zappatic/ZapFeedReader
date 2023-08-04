@@ -52,6 +52,7 @@ namespace ZapFR
             virtual void markAllAsRead() = 0;
 
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
+            virtual uint64_t getTotalLogCount() = 0;
 
             virtual bool fetchData() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }

@@ -292,3 +292,16 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FolderLocal::get
 
     return logs;
 }
+
+uint64_t ZapFR::Engine::FolderLocal::getTotalLogCount()
+{
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
+    if (joinedFeedIDs.empty())
+    {
+        return 0;
+    }
+    uint64_t logCount;
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << Poco::format("SELECT COUNT(*) FROM logs WHERE feedID IN (%s)", joinedFeedIDs), into(logCount), now;
+    return logCount;
+}

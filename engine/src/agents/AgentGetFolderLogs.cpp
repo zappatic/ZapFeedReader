@@ -41,8 +41,7 @@ void ZapFR::Engine::AgentGetFolderLogs::run()
                 logPointers.emplace_back(log.get());
             }
 
-            // TODO: total log record count
-            mFinishedCallback(mSourceID, logPointers, mPage, 10000 /*folder.value()->getTotalPostCount(mShowOnlyUnread)*/);
+            mFinishedCallback(mSourceID, logPointers, mPage, folder.value()->getTotalLogCount());
         }
     }
 

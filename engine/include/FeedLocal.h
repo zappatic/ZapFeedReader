@@ -40,6 +40,7 @@ namespace ZapFR
             uint64_t getTotalPostCount(bool showOnlyUnread) override;
 
             std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
+            uint64_t getTotalLogCount() override;
 
             bool fetchData() override;
             void refresh(const std::optional<std::string>& feedXML) override;

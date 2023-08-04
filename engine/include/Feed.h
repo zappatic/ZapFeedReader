@@ -74,6 +74,7 @@ namespace ZapFR
             virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
 
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
+            virtual uint64_t getTotalLogCount() = 0;
 
             virtual void refresh(const std::optional<std::string>& feedXML) = 0;
             virtual void markAllAsRead() = 0;

@@ -37,6 +37,7 @@ namespace ZapFR
             void markAllAsRead() override;
 
             std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
+            uint64_t getTotalLogCount() override;
 
             void fetchSubfolders() override;
             bool fetchData() override;

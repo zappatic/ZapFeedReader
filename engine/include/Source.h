@@ -64,6 +64,7 @@ namespace ZapFR
             virtual void markAllAsRead() = 0;
 
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
+            virtual uint64_t getTotalLogCount() = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

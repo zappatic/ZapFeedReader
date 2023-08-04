@@ -489,3 +489,11 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FeedLocal::getLo
 
     return logs;
 }
+
+uint64_t ZapFR::Engine::FeedLocal::getTotalLogCount()
+{
+    uint64_t logCount;
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT COUNT(*) FROM logs WHERE feedID=?", use(mID), into(logCount), now;
+    return logCount;
+}
