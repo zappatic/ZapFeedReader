@@ -676,7 +676,10 @@ void ZapFR::Client::MainWindow::reloadLogs()
                 feedItem->setData(QString::fromUtf8(log->feedTitle().value()), Qt::ToolTipRole);
             }
 
-            auto titleItem = new QStandardItem(QString::fromUtf8(log->message()));
+            auto message = QString::fromUtf8(log->message());
+            static auto whitespaceRe = QRegularExpression(R"(\s+)");
+            message.replace(whitespaceRe, " ");
+            auto titleItem = new QStandardItem(message);
 
             QList<QStandardItem*> rowData;
             rowData << logLevelItem << feedItem << dateItem << titleItem;

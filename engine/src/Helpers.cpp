@@ -81,7 +81,7 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, c
     }
     else
     {
-        throw std::runtime_error(fmt::format("Unknown scheme in URL: ", url));
+        throw std::runtime_error(fmt::format("Unknown scheme in URL: {}", url));
     }
 
     auto path = uri.getPathAndQuery();
