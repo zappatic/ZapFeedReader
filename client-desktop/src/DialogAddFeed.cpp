@@ -44,8 +44,9 @@ ZapFR::Client::DialogAddFeed::~DialogAddFeed()
 
 void ZapFR::Client::DialogAddFeed::reset(uint64_t selectedSourceID, uint64_t selectedFolderID)
 {
-    ui->lineEditURL->setText("");
     setPreselectedSourceAndFolderIDs(selectedSourceID, selectedFolderID);
+    ui->lineEditURL->setText("");
+    ui->lineEditURL->setFocus();
 }
 
 QString ZapFR::Client::DialogAddFeed::url() const

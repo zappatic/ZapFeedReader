@@ -1274,8 +1274,20 @@ void ZapFR::Client::MainWindow::createContextMenus()
     mSourceContextMenuSource->addAction(ui->action_Refresh_feeds);
     mSourceContextMenuSource->addAction(ui->action_Mark_as_read);
     mSourceContextMenuSource->addSeparator();
+    mSourceContextMenuSource->addAction(ui->action_Add_feed);
     mSourceContextMenuSource->addAction(ui->action_Add_folder);
     mSourceContextMenuSource->addAction(ui->action_View_logs);
+
+    // FOLDER
+    mSourceContextMenuFolder = std::make_unique<QMenu>(nullptr);
+    mSourceContextMenuFolder->addAction(ui->action_Refresh_feeds);
+    mSourceContextMenuFolder->addAction(ui->action_Mark_as_read);
+    mSourceContextMenuFolder->addSeparator();
+    mSourceContextMenuFolder->addAction(ui->action_Add_feed);
+    mSourceContextMenuFolder->addAction(ui->action_Add_folder);
+    mSourceContextMenuFolder->addAction(ui->action_View_logs);
+    mSourceContextMenuFolder->addSeparator();
+    mSourceContextMenuFolder->addAction(ui->action_Remove_folder);
 
     // FEED
     mSourceContextMenuFeed = std::make_unique<QMenu>(nullptr);
@@ -1284,16 +1296,6 @@ void ZapFR::Client::MainWindow::createContextMenus()
     mSourceContextMenuFeed->addAction(ui->action_View_logs);
     mSourceContextMenuFeed->addSeparator();
     mSourceContextMenuFeed->addAction(ui->action_Remove_feed);
-
-    // FOLDER
-    mSourceContextMenuFolder = std::make_unique<QMenu>(nullptr);
-    mSourceContextMenuFolder->addAction(ui->action_Refresh_feeds);
-    mSourceContextMenuFolder->addAction(ui->action_Mark_as_read);
-    mSourceContextMenuFolder->addSeparator();
-    mSourceContextMenuFolder->addAction(ui->action_Add_folder);
-    mSourceContextMenuFolder->addAction(ui->action_View_logs);
-    mSourceContextMenuFolder->addSeparator();
-    mSourceContextMenuFolder->addAction(ui->action_Remove_folder);
 
     // POST
     mPostContextMenu = std::make_unique<QMenu>(nullptr);

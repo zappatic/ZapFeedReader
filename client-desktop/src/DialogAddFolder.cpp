@@ -47,6 +47,7 @@ QString ZapFR::Client::DialogAddFolder::title() const
 
 void ZapFR::Client::DialogAddFolder::reset(uint64_t selectedSourceID, uint64_t selectedFolderID)
 {
-    ui->lineEditTitle->setText("");
     setPreselectedSourceAndFolderIDs(selectedSourceID, selectedFolderID);
+    ui->lineEditTitle->setText("");
+    ui->lineEditTitle->setFocus();
 }
