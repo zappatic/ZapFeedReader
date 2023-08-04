@@ -635,6 +635,33 @@ void ZapFR::Client::MainWindow::reloadLogs()
         QList<QList<QStandardItem*>> rows;
         for (const auto& log : logs)
         {
+            auto logLevelItem = new QStandardItem("");
+            auto logLevel = log->level();
+            logLevelItem->setData(QVariant::fromValue<uint64_t>(logLevel), LogLevelRole);
+            switch (logLevel)
+            {
+                case ZapFR::Engine::LogLevel::Debug:
+                {
+                    logLevelItem->setData(tr("Debug"), Qt::ToolTipRole);
+                    break;
+                }
+                case ZapFR::Engine::LogLevel::Info:
+                {
+                    logLevelItem->setData(tr("Info"), Qt::ToolTipRole);
+                    break;
+                }
+                case ZapFR::Engine::LogLevel::Warning:
+                {
+                    logLevelItem->setData(tr("Warning"), Qt::ToolTipRole);
+                    break;
+                }
+                case ZapFR::Engine::LogLevel::Error:
+                {
+                    logLevelItem->setData(tr("Error"), Qt::ToolTipRole);
+                    break;
+                }
+            }
+
             auto dateLog = QString::fromUtf8(log->timestamp());
             auto dateItem = new QStandardItem(Utilities::prettyDate(dateLog));
             dateItem->setData(QVariant::fromValue<uint64_t>(log->id()), LogIDRole);
@@ -652,7 +679,7 @@ void ZapFR::Client::MainWindow::reloadLogs()
             auto titleItem = new QStandardItem(QString::fromUtf8(log->message()));
 
             QList<QStandardItem*> rowData;
-            rowData << feedItem << dateItem << titleItem;
+            rowData << logLevelItem << feedItem << dateItem << titleItem;
             rows << rowData;
         }
 
@@ -692,6 +719,7 @@ void ZapFR::Client::MainWindow::populateLogs(const QList<QList<QStandardItem*>>&
 
     mItemModelLogs = std::make_unique<QStandardItemModel>(this);
     ui->tableViewLogs->setModel(mItemModelLogs.get());
+    mItemModelLogs->setHorizontalHeaderItem(LogsColumnLogLevel, new QStandardItem(tr("Level")));
     mItemModelLogs->setHorizontalHeaderItem(LogsColumnTimestamp, new QStandardItem(tr("Timestamp")));
     mItemModelLogs->setHorizontalHeaderItem(LogsColumnFeed, new QStandardItem(tr("Feed")));
     mItemModelLogs->setHorizontalHeaderItem(LogsColumnMessage, new QStandardItem(tr("Message")));
@@ -702,6 +730,7 @@ void ZapFR::Client::MainWindow::populateLogs(const QList<QList<QStandardItem*>>&
     ui->tableViewLogs->horizontalHeader()->setSectionResizeMode(LogsColumnMessage, QHeaderView::Stretch);
     ui->tableViewLogs->horizontalHeader()->resizeSection(LogsColumnTimestamp, 200);
     ui->tableViewLogs->horizontalHeader()->resizeSection(LogsColumnFeed, 40);
+    ui->tableViewLogs->horizontalHeader()->resizeSection(LogsColumnLogLevel, 40);
 
     mCurrentLogCount = totalLogCount;
     mCurrentLogPage = pageNumber;

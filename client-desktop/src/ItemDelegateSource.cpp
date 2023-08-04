@@ -40,7 +40,9 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
     auto titleRect = option.rect;
     titleRect.adjust(0, 0, -5 - unreadBadgeWidthWithMargin, 0);
 
-    painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+    painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter->setRenderHint(QPainter::TextAntialiasing, true);
+    painter->setRenderHint(QPainter::Antialiasing, true);
 
     // determine colors to use
     auto palette = qobject_cast<QWidget*>(parent())->palette();

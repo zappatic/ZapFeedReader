@@ -33,7 +33,9 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
         initDone = true;
     }
 
-    painter->setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+    painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter->setRenderHint(QPainter::TextAntialiasing, true);
+    painter->setRenderHint(QPainter::Antialiasing, true);
     auto regularFont = qobject_cast<QWidget*>(parent())->font();
     auto boldFont = regularFont;
     boldFont.setBold(true);

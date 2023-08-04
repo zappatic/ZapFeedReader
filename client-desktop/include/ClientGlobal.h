@@ -96,13 +96,15 @@ namespace ZapFR
 
         static constexpr uint32_t LogIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t LogFeedIDRole{Qt::ItemDataRole::UserRole + 2};
+        static constexpr uint32_t LogLevelRole{Qt::ItemDataRole::UserRole + 3};
 
         static constexpr uint32_t StackedPanePosts = 0;
         static constexpr uint32_t StackedPaneLogs = 1;
 
-        static constexpr uint32_t LogsColumnFeed = 0;
-        static constexpr uint32_t LogsColumnTimestamp = 1;
-        static constexpr uint32_t LogsColumnMessage = 2;
+        static constexpr uint32_t LogsColumnLogLevel = 0;
+        static constexpr uint32_t LogsColumnFeed = 1;
+        static constexpr uint32_t LogsColumnTimestamp = 2;
+        static constexpr uint32_t LogsColumnMessage = 3;
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";

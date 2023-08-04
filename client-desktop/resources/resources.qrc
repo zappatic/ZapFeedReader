@@ -12,5 +12,9 @@
         <file>lastPage.svg</file>
         <file>viewLogs.svg</file>
         <file>back.svg</file>
+        <file>logLevelDebug.svg</file>
+        <file>logLevelInfo.svg</file>
+        <file>logLevelWarning.svg</file>
+        <file>logLevelError.svg</file>
     </qresource>
 </RCC>
