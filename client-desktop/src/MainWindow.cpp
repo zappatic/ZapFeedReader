@@ -1535,7 +1535,25 @@ void ZapFR::Client::MainWindow::configureConnects()
                                      });
             });
 
-    connect(ui->stackedWidgetRight, &QStackedWidget::currentChanged, [&]() { updateToolbar(); });
+    connect(ui->stackedWidgetRight, &QStackedWidget::currentChanged,
+            [&]()
+            {
+                updateToolbar();
+                switch (ui->stackedWidgetRight->currentIndex())
+                {
+                    case StackedPanePosts:
+                    {
+                        ui->treeViewSources->setShowUnreadBadges(true);
+                        break;
+                    }
+                    case StackedPaneLogs:
+                    {
+                        ui->treeViewSources->setShowUnreadBadges(false);
+                        break;
+                    }
+                }
+                reloadSources(false);
+            });
 
     connect(mPostWebEnginePage.get(), &QWebEnginePage::linkHovered,
             [&](const QString& url)

@@ -33,12 +33,18 @@ namespace ZapFR
             TreeViewSources(QWidget* parent = nullptr);
             ~TreeViewSources() = default;
 
+            void setShowUnreadBadges(bool b) noexcept { mShowUnreadBadges = b; }
+            bool showUnreadBadges() const noexcept { return mShowUnreadBadges; }
+
           signals:
             void currentSourceChanged(const QModelIndex&);
 
           protected:
             void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
             bool viewportEvent(QEvent* event) override;
+
+          private:
+            bool mShowUnreadBadges{true};
         };
     } // namespace Client
 } // namespace ZapFR

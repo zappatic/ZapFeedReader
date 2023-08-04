@@ -17,6 +17,7 @@
 */
 
 #include "ItemDelegateSource.h"
+#include "TreeViewSources.h"
 
 ZapFR::Client::ItemDelegateSource::ItemDelegateSource(QObject* parent) : QStyledItemDelegate(parent)
 {
@@ -36,6 +37,8 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         initDone = true;
     }
 
+    auto parentTreeView = qobject_cast<TreeViewSources*>(parent());
+
     // the area where the title is drawn
     auto titleRect = option.rect;
     titleRect.adjust(0, 0, -5 - unreadBadgeWidthWithMargin, 0);
@@ -45,7 +48,7 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
     painter->setRenderHint(QPainter::Antialiasing, true);
 
     // determine colors to use
-    auto palette = qobject_cast<QWidget*>(parent())->palette();
+    auto palette = parentTreeView->palette();
     QBrush brushBackground;
     auto brushText = palette.text();
     auto brushUnreadBadgeBackground = palette.highlight();
@@ -94,7 +97,7 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
     painter->drawText(titleRect, elidedTitle, titleTextOptions);
 
     // draw the unread amount badge
-    if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+    if (parentTreeView->showUnreadBadges() && index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
     {
         auto unreadCount = index.data(SourceTreeEntryUnreadCount).toULongLong();
         if (unreadCount > 0)
