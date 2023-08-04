@@ -54,17 +54,16 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/agents/AgentGetFolderLogs.cpp
     ../engine/src/agents/AgentGetFeedLogs.cpp
     ../engine/src/Database.cpp
+    ../engine/src/Log.cpp
     ../engine/src/FeedFetcher.cpp
     ../engine/src/FeedParser.cpp
     ../engine/src/FeedParserRSS20.cpp
     ../engine/src/FeedParserATOM10.cpp
     ../engine/src/Source.cpp
     ../engine/src/SourceLocal.cpp
-    ../engine/src/Feed.cpp
     ../engine/src/FeedLocal.cpp
     ../engine/src/Folder.cpp
     ../engine/src/FolderLocal.cpp
-    ../engine/src/Post.cpp
     ../engine/src/OPMLParser.cpp
     ../engine/src/FavIconParser.cpp
 )

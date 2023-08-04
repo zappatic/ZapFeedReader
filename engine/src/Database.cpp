@@ -23,7 +23,18 @@
 
 using namespace Poco::Data::Keywords;
 
-ZapFR::Engine::Database::Database(const std::string& dbPath)
+ZapFR::Engine::Database* ZapFR::Engine::Database::getInstance()
+{
+    static Database instance{};
+    return &instance;
+}
+
+void ZapFR::Engine::Database::setDatabasePath(const std::string& dbPath)
+{
+    Database::getInstance()->initialize(dbPath);
+}
+
+void ZapFR::Engine::Database::initialize(const std::string& dbPath)
 {
     Poco::Data::SQLite::Connector::registerConnector();
     mSession = std::make_unique<Poco::Data::Session>("SQLite", dbPath);
@@ -34,31 +45,6 @@ ZapFR::Engine::Database::Database(const std::string& dbPath)
 Poco::Data::Session* ZapFR::Engine::Database::session() const noexcept
 {
     return mSession.get();
-}
-
-void ZapFR::Engine::Database::log(LogLevel level, const std::string& message, std::optional<uint64_t> feedID)
-{
-    // TODO: filter out logging in case the level is not high enough
-    if (message.empty())
-    {
-        return;
-    }
-
-    Poco::Nullable<uint64_t> pocoFeedID;
-    if (feedID.has_value())
-    {
-        pocoFeedID.assign(feedID.value());
-    }
-
-    auto nowDate = Poco::DateTimeFormatter::format(Poco::DateTime(), Poco::DateTimeFormat::ISO8601_FORMAT);
-
-    (*mSession) << "INSERT INTO logs ("
-                   " timestamp"
-                   ",level"
-                   ",message"
-                   ",feedID"
-                   ") VALUES (?, ?, ?, ?)",
-        useRef(nowDate), use(level), useRef(message), use(pocoFeedID), now;
 }
 
 void ZapFR::Engine::Database::upgrade()

@@ -32,7 +32,7 @@ namespace ZapFR
         class Feed
         {
           public:
-            explicit Feed(uint64_t id);
+            explicit Feed(uint64_t id) : mID(id) {}
             virtual ~Feed() = default;
 
             uint64_t id() const noexcept { return mID; }
@@ -85,8 +85,6 @@ namespace ZapFR
             virtual bool fetchData() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }
 
-            static void registerDatabaseInstance(Database* db);
-
           protected:
             uint64_t mID{0};
             std::string mURL{""};
@@ -106,9 +104,6 @@ namespace ZapFR
             uint64_t mUnreadCount{0};
 
             bool mDataFetched{false};
-
-            static Database* database() noexcept;
-            static Database* msDatabase;
         };
     } // namespace Engine
 } // namespace ZapFR

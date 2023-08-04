@@ -59,8 +59,6 @@ namespace ZapFR
             virtual std::vector<uint64_t> folderAndSubfolderIDs() const = 0;
             virtual std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const = 0;
 
-            static void registerDatabaseInstance(Database* db);
-
           protected:
             uint64_t mID{0};
             std::string mTitle{""};
@@ -70,9 +68,6 @@ namespace ZapFR
 
             bool mDataFetched{false};
             bool mSubfoldersFetched{false};
-
-            static Database* msDatabase;
-            static Database* database() noexcept;
         };
     } // namespace Engine
 } // namespace ZapFR

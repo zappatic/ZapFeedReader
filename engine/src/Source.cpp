@@ -22,18 +22,6 @@
 
 using namespace Poco::Data::Keywords;
 
-ZapFR::Engine::Database* ZapFR::Engine::Source::msDatabase{nullptr};
-
-void ZapFR::Engine::Source::registerDatabaseInstance(Database* db)
-{
-    msDatabase = db;
-}
-
-ZapFR::Engine::Database* ZapFR::Engine::Source::database() noexcept
-{
-    return msDatabase;
-}
-
 std::unique_ptr<ZapFR::Engine::Source> ZapFR::Engine::Source::createSourceInstance(uint64_t id, const std::string& type)
 {
     if (type == "local")
@@ -56,7 +44,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSo
     uint64_t sourceSortOrder;
     std::string sourceConfigData;
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     if (typeFilter.has_value())
     {
         selectStmt << "SELECT id"
@@ -99,7 +87,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::get
     uint64_t sourceSortOrder;
     std::string sourceConfigData;
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT type"
                   ",title"
                   ",sortOrder"

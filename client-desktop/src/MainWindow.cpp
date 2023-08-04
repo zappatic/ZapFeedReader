@@ -35,11 +35,7 @@ using namespace std::placeholders;
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
-    mDatabase = std::make_unique<ZapFR::Engine::Database>(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader-client.db").toStdString());
-    ZapFR::Engine::Source::registerDatabaseInstance(mDatabase.get()); // TODO : change this to Database::getInstance()
-    ZapFR::Engine::Feed::registerDatabaseInstance(mDatabase.get());
-    ZapFR::Engine::Post::registerDatabaseInstance(mDatabase.get());
-    ZapFR::Engine::Folder::registerDatabaseInstance(mDatabase.get());
+    ZapFR::Engine::Database::setDatabasePath(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader-client.db").toStdString());
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
 
     ui->setupUi(this);

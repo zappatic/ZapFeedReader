@@ -25,6 +25,14 @@ namespace ZapFR
 {
     namespace Engine
     {
+        enum LogLevel
+        {
+            Debug = 100,
+            Info = 200,
+            Warning = 300,
+            Error = 400
+        };
+
         class Log
         {
           public:
@@ -43,6 +51,8 @@ namespace ZapFR
             void setMessage(const std::string& message) { mMessage = message; }
             void setFeedID(uint64_t feedID) { mFeedID = feedID; }
             void setFeedTitle(std::string feedTitle) { mFeedTitle = feedTitle; }
+
+            static void log(LogLevel level, const std::string& message, std::optional<uint64_t> feedID = {});
 
           protected:
             uint64_t mID{0};

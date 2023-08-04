@@ -29,7 +29,7 @@ namespace ZapFR
         class Post
         {
           public:
-            explicit Post(uint64_t id);
+            explicit Post(uint64_t id) : mID(id) {}
             virtual ~Post() = default;
 
             uint64_t id() const noexcept { return mID; }
@@ -65,8 +65,6 @@ namespace ZapFR
             void setSourceURL(const std::string& sourceURL) { mSourceURL = sourceURL; }
             void setSourceTitle(const std::string& sourceTitle) { mSourceTitle = sourceTitle; }
 
-            static void registerDatabaseInstance(Database* db);
-
           protected:
             uint64_t mID{0};
             bool mIsRead{false};
@@ -84,9 +82,6 @@ namespace ZapFR
             std::string mDatePublished{""};
             std::string mSourceURL{""};
             std::string mSourceTitle{""};
-
-            static Database* database() noexcept;
-            static Database* msDatabase;
         };
     } // namespace Engine
 } // namespace ZapFR

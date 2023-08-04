@@ -67,7 +67,6 @@ namespace ZapFR
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);
-            static void registerDatabaseInstance(Database* db);
             static std::unique_ptr<ZapFR::Engine::Source> createSourceInstance(uint64_t id, const std::string& type);
 
           protected:
@@ -75,9 +74,6 @@ namespace ZapFR
             std::string mTitle{""};
             uint64_t mSortOrder{0};
             std::string mConfigData{""};
-
-            static Database* database() noexcept;
-            static Database* msDatabase;
         };
     } // namespace Engine
 } // namespace ZapFR

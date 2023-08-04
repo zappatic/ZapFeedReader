@@ -55,7 +55,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
     std::string lastChecked;
     uint64_t sortOrder;
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT id"
                   ",url"
                   ",iconURL"
@@ -99,7 +99,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
 
             // fetch the unread count
             uint64_t unreadCount{0};
-            Poco::Data::Statement selectUnreadStmt(*(msDatabase->session()));
+            Poco::Data::Statement selectUnreadStmt(*(Database::getInstance()->session()));
             selectUnreadStmt << "SELECT COUNT(*) FROM posts WHERE feedID=? AND isRead=FALSE", use(id), into(unreadCount), now;
             f->setUnreadCount(unreadCount);
 
@@ -129,7 +129,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
         std::string lastChecked;
         uint64_t sortOrder;
 
-        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
         selectStmt << "SELECT id"
                       ",url"
                       ",iconURL"
@@ -182,7 +182,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
 
 uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder)
 {
-    msDatabase->log(LogLevel::Info, fmt::format("Adding feed at {}", url));
+    Log::log(LogLevel::Info, fmt::format("Adding feed at {}", url));
 
     FeedFetcher ff;
     auto parsedFeed = ff.parseURL(url);
@@ -200,7 +200,7 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
 
     // scope for insert feed mutex lock
     {
-        Poco::Data::Statement insertStmt(*(msDatabase->session()));
+        Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
         insertStmt << "INSERT INTO feeds ("
                       " url"
                       ",iconURL"
@@ -219,7 +219,7 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
             use(sortOrder);
         const std::lock_guard<std::mutex> lock(msAddFeedMutex);
         insertStmt.execute();
-        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
         selectStmt << "SELECT last_insert_rowid()", into(feedID), range(0, 1);
         selectStmt.execute();
     }
@@ -235,7 +235,7 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
 uint64_t ZapFR::Engine::SourceLocal::getNextFeedSortOrder(uint64_t folder) const
 {
     uint64_t sortOrder{0};
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT MAX(sortOrder) FROM feeds WHERE folder=?", into(sortOrder), use(folder), now;
     return sortOrder + 10;
 }
@@ -243,7 +243,7 @@ uint64_t ZapFR::Engine::SourceLocal::getNextFeedSortOrder(uint64_t folder) const
 uint64_t ZapFR::Engine::SourceLocal::getNextFolderSortOrder(uint64_t folder) const
 {
     uint64_t sortOrder{0};
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT MAX(sortOrder) FROM folders WHERE parent=?", into(sortOrder), use(folder), now;
     return sortOrder + 10;
 }
@@ -251,10 +251,10 @@ uint64_t ZapFR::Engine::SourceLocal::getNextFolderSortOrder(uint64_t folder) con
 void ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
 {
     uint64_t oldFolder{0};
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT folder FROM feeds WHERE id=?", use(feedID), into(oldFolder), now;
 
-    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE feeds SET folder=?, sortOrder=? WHERE id=?", use(newFolder), use(newSortOrder), use(feedID), now;
 
     resortFeeds(newFolder);
@@ -269,7 +269,7 @@ void ZapFR::Engine::SourceLocal::moveFolder(uint64_t folderID, uint64_t newParen
     auto f = getFolder(folderID);
     if (f.has_value())
     {
-        Poco::Data::Statement updateStmt(*(msDatabase->session()));
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
         updateStmt << "UPDATE folders SET parent=?, sortOrder=? WHERE id=?", use(newParent), use(newSortOrder), use(folderID), now;
 
         auto oldParent = f.value()->parentID();
@@ -286,7 +286,7 @@ void ZapFR::Engine::SourceLocal::resortFeeds(uint64_t folder) const
     std::vector<uint64_t> feedIDs;
 
     uint64_t feedID{0};
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT id FROM feeds WHERE folder=? ORDER BY sortOrder ASC", use(folder), into(feedID), range(0, 1);
     while (!selectStmt.done())
     {
@@ -299,7 +299,7 @@ void ZapFR::Engine::SourceLocal::resortFeeds(uint64_t folder) const
     uint64_t sortOrder = 10;
     for (auto f : feedIDs)
     {
-        Poco::Data::Statement updateStmt(*(msDatabase->session()));
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
         updateStmt << "UPDATE feeds SET sortOrder=? WHERE id=?", use(sortOrder), use(f), now;
         sortOrder += 10;
     }
@@ -310,7 +310,7 @@ void ZapFR::Engine::SourceLocal::resortFolders(uint64_t folder) const
     std::vector<uint64_t> folderIDs;
 
     uint64_t folderID{0};
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT id FROM folders WHERE parent=? ORDER BY sortOrder ASC", use(folder), into(folderID), range(0, 1);
     while (!selectStmt.done())
     {
@@ -322,7 +322,7 @@ void ZapFR::Engine::SourceLocal::resortFolders(uint64_t folder) const
     uint64_t sortOrder = 10;
     for (auto f : folderIDs)
     {
-        Poco::Data::Statement updateStmt(*(msDatabase->session()));
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
         updateStmt << "UPDATE folders SET sortOrder=? WHERE id=?", use(sortOrder), use(f), now;
         sortOrder += 10;
     }
@@ -337,12 +337,12 @@ void ZapFR::Engine::SourceLocal::removeFeed(uint64_t feedID)
         feed.value()->removeIcon();
 
         {
-            Poco::Data::Statement deleteStmt(*(msDatabase->session()));
+            Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
             deleteStmt << "DELETE FROM feeds WHERE id=?", use(feedID), now;
         }
 
         {
-            Poco::Data::Statement deleteStmt(*(msDatabase->session()));
+            Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
             deleteStmt << "DELETE FROM posts WHERE feedID=?", use(feedID), now;
         }
 
@@ -375,19 +375,19 @@ void ZapFR::Engine::SourceLocal::removeFolder(uint64_t folder)
 
             // remove all posts from the affected feeds
             auto deletePostsSQL = Poco::format("DELETE FROM posts WHERE feedID IN (%s)", joinedFeedIDs);
-            Poco::Data::Statement deletePostsStmt(*(msDatabase->session()));
+            Poco::Data::Statement deletePostsStmt(*(Database::getInstance()->session()));
             deletePostsStmt << deletePostsSQL, now;
 
             // remove all affected feeds
             auto deleteFeedsSQL = Poco::format("DELETE FROM feeds WHERE id IN (%s)", joinedFeedIDs);
-            Poco::Data::Statement deleteFeedsStmt(*(msDatabase->session()));
+            Poco::Data::Statement deleteFeedsStmt(*(Database::getInstance()->session()));
             deleteFeedsStmt << deleteFeedsSQL, now;
         }
 
         // remove folders
         auto joinedFolderIDs = Helpers::joinIDNumbers(folderIDs, ",");
         auto deleteFoldersSQL = Poco::format("DELETE FROM folders WHERE id IN (%s)", joinedFolderIDs);
-        Poco::Data::Statement deleteFoldersStmt(*(msDatabase->session()));
+        Poco::Data::Statement deleteFoldersStmt(*(Database::getInstance()->session()));
         deleteFoldersStmt << deleteFoldersSQL, now;
         resortFolders(folderParent);
     }
@@ -401,7 +401,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::
     uint64_t sortOrder{0};
     std::string title{""};
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT id"
                   ",title"
                   ",sortOrder"
@@ -430,7 +430,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal
     std::string title{""};
     uint64_t sortOrder{0};
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT"
                   " parent"
                   ",title"
@@ -459,7 +459,7 @@ void ZapFR::Engine::SourceLocal::getSubfolderIDs(uint64_t parent, std::vector<ui
         ids.emplace_back(parent);
     }
     uint64_t id{0};
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT id"
                   " FROM folders"
                   " WHERE parent=?",
@@ -476,12 +476,12 @@ void ZapFR::Engine::SourceLocal::getSubfolderIDs(uint64_t parent, std::vector<ui
 uint64_t ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_t parentID)
 {
     auto sortOrder = getNextFolderSortOrder(parentID);
-    Poco::Data::Statement insertStmt(*(msDatabase->session()));
+    Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
     insertStmt << "INSERT INTO folders (parent,title,sortOrder) VALUES (?, ?, ?)", use(parentID), useRef(title), use(sortOrder);
     const std::lock_guard<std::mutex> lock(msAddFolderMutex);
     insertStmt.execute();
     uint64_t newFolderID{0};
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT last_insert_rowid()", into(newFolderID), range(0, 1);
     selectStmt.execute();
     return newFolderID;
@@ -591,7 +591,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceLocal::ge
 
     std::string whereClause = showOnlyUnread ? "WHERE isRead=FALSE" : "";
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << Poco::format("SELECT id"
                                ",feedID"
                                ",isRead"
@@ -644,7 +644,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceLocal::ge
 
 void ZapFR::Engine::SourceLocal::markAllAsRead()
 {
-    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET isRead=TRUE", now;
     updateStmt.execute();
 }
@@ -652,7 +652,7 @@ void ZapFR::Engine::SourceLocal::markAllAsRead()
 uint64_t ZapFR::Engine::SourceLocal::getTotalPostCount(bool showOnlyUnread)
 {
     uint64_t postCount;
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     std::string sql = "SELECT COUNT(*) FROM posts";
     if (showOnlyUnread)
     {
@@ -675,7 +675,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::get
     Poco::Nullable<uint64_t> feedID{0};
     Poco::Nullable<std::string> feedTitle{};
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT logs.id"
                   ",logs.timestamp"
                   ",logs.level"

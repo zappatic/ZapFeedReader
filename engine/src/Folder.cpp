@@ -18,15 +18,8 @@
 
 #include "Folder.h"
 
-ZapFR::Engine::Database* ZapFR::Engine::Folder::msDatabase{nullptr};
-
 ZapFR::Engine::Folder::Folder(uint64_t id, uint64_t parent) : mID(id), mParent(parent)
 {
-}
-
-void ZapFR::Engine::Folder::registerDatabaseInstance(Database* db)
-{
-    msDatabase = db;
 }
 
 bool ZapFR::Engine::Folder::hasSubfolders()

@@ -55,7 +55,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
     std::string sourceTitle{""};
     std::string whereClause = showOnlyUnread ? "AND isRead=FALSE" : "";
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << Poco::format("SELECT id"
                                ",isRead"
                                ",title"
@@ -123,7 +123,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
     std::string sourceURL{""};
     std::string sourceTitle{""};
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT "
                   " isRead"
                   ",title"
@@ -174,7 +174,7 @@ bool ZapFR::Engine::FeedLocal::fetchData()
 {
     if (!mDataFetched)
     {
-        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
         selectStmt << "SELECT url"
                       ",folder"
                       ",guid"
@@ -200,7 +200,7 @@ bool ZapFR::Engine::FeedLocal::fetchData()
 
 void ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML)
 {
-    msDatabase->log(LogLevel::Info, "Refreshing feed", mID);
+    Log::log(LogLevel::Info, "Refreshing feed", mID);
     fetchData();
     try
     {
@@ -219,15 +219,15 @@ void ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML
     }
     catch (const Poco::Exception& e)
     {
-        msDatabase->log(LogLevel::Error, e.displayText(), mID);
+        Log::log(LogLevel::Error, e.displayText(), mID);
     }
     catch (const std::runtime_error& e)
     {
-        msDatabase->log(LogLevel::Error, e.what(), mID);
+        Log::log(LogLevel::Error, e.what(), mID);
     }
     catch (...)
     {
-        msDatabase->log(LogLevel::Error, "Unknown exception", mID);
+        Log::log(LogLevel::Error, "Unknown exception", mID);
     }
 }
 
@@ -239,13 +239,13 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         auto guid = item.guid;
 
         // see if it already exists
-        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
         selectStmt << "SELECT id FROM posts WHERE feedID=? AND guid=?", use(mID), useRef(guid), now;
         selectStmt.execute();
         auto rs = Poco::Data::RecordSet(selectStmt);
         if (rs.rowCount() == 1)
         {
-            Poco::Data::Statement updateStmt(*(msDatabase->session()));
+            Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
             updateStmt << "UPDATE posts SET"
                           " title=?"
                           ",link=?"
@@ -268,7 +268,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         }
         else
         {
-            Poco::Data::Statement insertStmt(*(msDatabase->session()));
+            Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
             insertStmt << "INSERT INTO posts ("
                           " feedID"
                           ",title"
@@ -295,21 +295,21 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
 
 void ZapFR::Engine::FeedLocal::markAllAsRead()
 {
-    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=?", use(mID), now;
     updateStmt.execute();
 }
 
 void ZapFR::Engine::FeedLocal::markAsRead(uint64_t postID)
 {
-    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=? AND id=?", use(mID), use(postID), now;
     updateStmt.execute();
 }
 
 void ZapFR::Engine::FeedLocal::markAsUnread(uint64_t postID)
 {
-    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET isRead=FALSE WHERE feedID=? AND id=?", use(mID), use(postID), now;
     updateStmt.execute();
 }
@@ -375,7 +375,7 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
 
     // update icon last fetched time and md5 hash
     {
-        Poco::Data::Statement updateStmt(*(msDatabase->session()));
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
         updateStmt << "UPDATE feeds SET iconLastFetched=datetime('now'), iconHash=? WHERE id=?", useRef(iconHash), use(mID), now;
         updateStmt.execute();
     }
@@ -435,7 +435,7 @@ uint64_t ZapFR::Engine::FeedLocal::getTotalPostCount(bool showOnlyUnread)
     std::string whereClause = showOnlyUnread ? " AND isRead=FALSE" : "";
 
     uint64_t postCount;
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << Poco::format("SELECT COUNT(*) FROM posts WHERE feedID=? %s", whereClause), use(mID), into(postCount), now;
     return postCount;
 }
@@ -453,7 +453,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FeedLocal::getLo
     Poco::Nullable<uint64_t> feedID{0};
     Poco::Nullable<std::string> feedTitle{};
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT logs.id"
                   ",logs.timestamp"
                   ",logs.level"

@@ -31,7 +31,7 @@ bool ZapFR::Engine::FolderLocal::fetchData()
 {
     if (!mDataFetched)
     {
-        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
         selectStmt << "SELECT title"
                       ",sortOrder"
                       " FROM folders"
@@ -53,7 +53,7 @@ void ZapFR::Engine::FolderLocal::fetchSubfolders()
         uint64_t subSortOrder;
         std::string subTitle;
 
-        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
         selectStmt << "SELECT id"
                       ",title"
                       ",sortOrder"
@@ -108,7 +108,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::ge
     std::string sourceTitle{""};
     std::string whereClause = showOnlyUnread ? "AND isRead=FALSE" : "";
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << Poco::format("SELECT id"
                                ",feedID"
                                ",isRead"
@@ -168,7 +168,7 @@ void ZapFR::Engine::FolderLocal::markAllAsRead()
         return;
     }
 
-    Poco::Data::Statement updateStmt(*(msDatabase->session()));
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << Poco::format("UPDATE posts SET isRead=TRUE WHERE feedID IN (%s)", joinedFeedIDs), now;
     updateStmt.execute();
 }
@@ -181,7 +181,7 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::folderAndSubfolderIDs() const
     {
         folderIDs.emplace_back(parent);
         uint64_t folderID{0};
-        Poco::Data::Statement selectStmt(*(msDatabase->session()));
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
         selectStmt << "SELECT id FROM folders WHERE parent=?", use(parent), into(folderID), range(0, 1);
         while (!selectStmt.done())
         {
@@ -208,7 +208,7 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders(
     std::vector<uint64_t> feedIDs;
     auto selectFeedsSQL = Poco::format("SELECT id FROM feeds WHERE folder IN (%s)", joinedFolderIDs);
     uint64_t feedID{0};
-    Poco::Data::Statement selectFeedsStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectFeedsStmt(*(Database::getInstance()->session()));
     selectFeedsStmt << selectFeedsSQL, into(feedID), range(0, 1);
     while (!selectFeedsStmt.done())
     {
@@ -231,7 +231,7 @@ uint64_t ZapFR::Engine::FolderLocal::getTotalPostCount(bool showOnlyUnread)
     std::string whereClause = showOnlyUnread ? " AND isRead=FALSE" : "";
 
     uint64_t postCount;
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << Poco::format("SELECT COUNT(*) FROM posts WHERE feedID IN (%s) %s", joinedFeedIDs, whereClause), into(postCount), now;
     return postCount;
 }
@@ -255,7 +255,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FolderLocal::get
     Poco::Nullable<uint64_t> feedID{0};
     Poco::Nullable<std::string> feedTitle{};
 
-    Poco::Data::Statement selectStmt(*(msDatabase->session()));
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << Poco::format("SELECT logs.id"
                                ",logs.timestamp"
                                ",logs.level"
