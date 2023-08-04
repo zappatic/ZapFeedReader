@@ -759,9 +759,9 @@ void ZapFR::Client::MainWindow::reloadLogs()
             {
                 feedItem->setData(QVariant::fromValue<uint64_t>(log->feedID().value()), LogFeedIDRole);
             }
-            else
+            if (log->feedTitle().has_value())
             {
-                feedItem->setData(QVariant(), LogFeedIDRole);
+                feedItem->setData(QString::fromUtf8(log->feedTitle().value()), Qt::ToolTipRole);
             }
 
             auto titleItem = new QStandardItem(QString::fromUtf8(log->message()));

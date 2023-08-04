@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_FEEDICONCACHE_H
-#define ZAPFR_CLIENT_FEEDICONCACHE_H
+#ifndef ZAPFR_CLIENT_TABLEVIEWLOGS_H
+#define ZAPFR_CLIENT_TABLEVIEWLOGS_H
 
 #include "ClientGlobal.h"
 
@@ -25,21 +25,18 @@ namespace ZapFR
 {
     namespace Client
     {
-        // TODO: check whether we need the sourceID too to ensure uniqueness of cache
-        class FeedIconCache
+        class TableViewLogs : public QTableView
         {
-          public:
-            static void cache(uint64_t feedID, const std::string& hash, const QPixmap& pixmap);
-            static QPixmap icon(uint64_t feedID);
-            static bool isCached(uint64_t feedID);
-            static bool isSameHash(uint64_t feedID, const std::string& hash);
+            Q_OBJECT
 
-          private:
-            static std::unordered_map<uint64_t, QPixmap> msPixmapCache;
-            static std::unordered_map<uint64_t, std::string> msHashCache;
-            static std::mutex msCacheMutex;
+          public:
+            TableViewLogs(QWidget* parent = nullptr);
+            ~TableViewLogs() = default;
+
+          protected:
+            bool viewportEvent(QEvent* event) override;
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_FEEDICONCACHE_H
+#endif // ZAPFR_CLIENT_TABLEVIEWLOGS_H

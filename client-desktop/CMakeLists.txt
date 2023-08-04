@@ -28,6 +28,7 @@ set(PROJECT_SOURCES
         src/WebEngineViewPost.cpp
         src/StandardItemModelSources.cpp
         src/TableViewPosts.cpp
+        src/TableViewLogs.cpp
         src/TreeViewSources.cpp
         src/FeedIconCache.cpp
         include/ClientGlobal.h
@@ -44,6 +45,7 @@ set(PROJECT_SOURCES
         include/WebEngineViewPost.h
         include/StandardItemModelSources.h
         include/TableViewPosts.h
+        include/TableViewLogs.h
         include/TreeViewSources.h
         include/FeedIconCache.h
         src/MainWindow.ui

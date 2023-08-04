@@ -30,14 +30,18 @@ void ZapFR::Client::ItemDelegateLog::paint(QPainter* painter, const QStyleOption
     {
         case LogsColumnFeed:
         {
-            auto pixmap = FeedIconCache::icon(index.data(LogFeedIDRole).toULongLong());
-            if (!pixmap.isNull())
+            auto feedIDVariant = index.data(LogFeedIDRole);
+            if (!feedIDVariant.isNull() && feedIDVariant.isValid())
             {
-                auto targetWidth = static_cast<float>(option.rect.height()) * 0.6f;
-                auto targetX = static_cast<float>(option.rect.left()) + ((static_cast<float>(option.rect.width()) / 2.0f) - (targetWidth / 2.0f));
-                auto targetY = option.rect.top() + ((option.rect.height() / 2.0) - (targetWidth / 2.0f));
-                auto target = QRectF(targetX, targetY, targetWidth, targetWidth);
-                painter->drawPixmap(target, pixmap, pixmap.rect());
+                auto pixmap = FeedIconCache::icon(feedIDVariant.toULongLong());
+                if (!pixmap.isNull())
+                {
+                    auto targetWidth = static_cast<float>(option.rect.height()) * 0.6f;
+                    auto targetX = static_cast<float>(option.rect.left()) + ((static_cast<float>(option.rect.width()) / 2.0f) - (targetWidth / 2.0f));
+                    auto targetY = option.rect.top() + ((option.rect.height() / 2.0) - (targetWidth / 2.0f));
+                    auto target = QRectF(targetX, targetY, targetWidth, targetWidth);
+                    painter->drawPixmap(target, pixmap, pixmap.rect());
+                }
             }
             break;
         }

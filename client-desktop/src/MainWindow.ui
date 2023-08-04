@@ -346,7 +346,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QTableView" name="tableViewLogs">
+          <widget class="ZapFR::Client::TableViewLogs" name="tableViewLogs">
            <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>
            </property>
@@ -506,6 +506,11 @@
    <extends>QWidget</extends>
    <header>WebEngineViewPost.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::TableViewLogs</class>
+   <extends>QTableView</extends>
+   <header>TableViewLogs.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

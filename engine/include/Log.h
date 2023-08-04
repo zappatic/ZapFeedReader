@@ -36,11 +36,13 @@ namespace ZapFR
             uint64_t level() const noexcept { return mLevel; }
             std::string message() const noexcept { return mMessage; }
             std::optional<uint64_t> feedID() const noexcept { return mFeedID; }
+            std::optional<std::string> feedTitle() const noexcept { return mFeedTitle; }
 
             void setTimestamp(const std::string& timeStamp) { mTimestamp = timeStamp; }
             void setLevel(uint64_t level) { mLevel = level; }
             void setMessage(const std::string& message) { mMessage = message; }
             void setFeedID(uint64_t feedID) { mFeedID = feedID; }
+            void setFeedTitle(std::string feedTitle) { mFeedTitle = feedTitle; }
 
           protected:
             uint64_t mID{0};
@@ -48,6 +50,7 @@ namespace ZapFR
             uint64_t mLevel{0};
             std::string mMessage{""};
             std::optional<uint64_t> mFeedID{};
+            std::optional<std::string> mFeedTitle{};
         };
     } // namespace Engine
 } // namespace ZapFR
