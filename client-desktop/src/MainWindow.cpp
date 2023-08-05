@@ -51,6 +51,12 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     // prevent the left splitter from resizing while the window resizes
     ui->splitterLeft->setStretchFactor(1, 100);
 
+    // add a spacer in the toolbar
+    auto spacerWidget = new QWidget();
+    spacerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto action = ui->toolBar->insertWidget(ui->action_View_logs, spacerWidget);
+    action->setProperty("postPaneToolbarSpacer", true);
+
     ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
     if (mFirstSource != nullptr)
     {
@@ -1070,6 +1076,15 @@ void ZapFR::Client::MainWindow::updateToolbar()
             ui->action_View_logs->setEnabled(anythingSelected);
             ui->action_Refresh_feeds->setEnabled(anythingSelected);
             ui->action_Refresh_feeds->setText(refreshFeedsCaption);
+
+            for (const auto& action : ui->toolBar->actions())
+            {
+                if (action->property("postPaneToolbarSpacer").isValid())
+                {
+                    action->setVisible(true);
+                    break;
+                }
+            }
             break;
         }
         case StackedPaneLogs:
