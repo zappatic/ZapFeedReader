@@ -38,6 +38,7 @@ namespace ZapFR
 
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
+            bool viewportEvent(QEvent* event) override;
         };
     } // namespace Client
 } // namespace ZapFR

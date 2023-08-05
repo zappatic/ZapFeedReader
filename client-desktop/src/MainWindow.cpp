@@ -539,6 +539,7 @@ void ZapFR::Client::MainWindow::reloadPosts()
 
             auto feedItem = new QStandardItem("");
             setItemData(feedItem, post, sourceID);
+            feedItem->setData(QString::fromUtf8(post->feedTitle()), Qt::ToolTipRole);
 
             auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
             setItemData(titleItem, post, sourceID);

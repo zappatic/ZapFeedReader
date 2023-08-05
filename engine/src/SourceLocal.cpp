@@ -611,33 +611,37 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceLocal::ge
     std::string datePublished{""};
     std::string sourceURL{""};
     std::string sourceTitle{""};
+    std::string feedTitle{""};
 
-    std::string whereClause = showOnlyUnread ? "WHERE isRead=FALSE" : "";
+    std::string whereClause = showOnlyUnread ? "WHERE posts.isRead=FALSE" : "";
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << Poco::format("SELECT id"
-                               ",feedID"
-                               ",isRead"
-                               ",title"
-                               ",link"
-                               ",description"
-                               ",author"
-                               ",commentsURL"
-                               ",enclosureURL"
-                               ",enclosureLength"
-                               ",enclosureMimeType"
-                               ",guid"
-                               ",guidIsPermalink"
-                               ",datePublished"
-                               ",sourceURL"
-                               ",sourceTitle"
+    selectStmt << Poco::format("SELECT posts.id"
+                               ",posts.feedID"
+                               ",posts.isRead"
+                               ",posts.title"
+                               ",posts.link"
+                               ",posts.description"
+                               ",posts.author"
+                               ",posts.commentsURL"
+                               ",posts.enclosureURL"
+                               ",posts.enclosureLength"
+                               ",posts.enclosureMimeType"
+                               ",posts.guid"
+                               ",posts.guidIsPermalink"
+                               ",posts.datePublished"
+                               ",posts.sourceURL"
+                               ",posts.sourceTitle"
+                               ",feeds.title"
                                " FROM posts"
+                               " LEFT JOIN feeds ON feeds.id = posts.feedID"
                                " %s"
-                               " ORDER BY datePublished DESC"
+                               " ORDER BY posts.datePublished DESC"
                                " LIMIT ? OFFSET ?",
                                whereClause),
         use(perPage), use(offset), into(id), into(postFeedID), into(isRead), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL),
-        into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), range(0, 1);
+        into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), into(feedTitle),
+        range(0, 1);
 
     while (!selectStmt.done())
     {
@@ -646,6 +650,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceLocal::ge
             auto p = std::make_unique<Post>(id);
             p->setIsRead(isRead);
             p->setFeedID(postFeedID);
+            p->setFeedTitle(feedTitle);
             p->setTitle(title);
             p->setLink(link);
             p->setDescription(description);

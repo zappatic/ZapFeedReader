@@ -36,3 +36,15 @@ void ZapFR::Client::TableViewPosts::selectionChanged(const QItemSelection& selec
     }
     emit selectedPostsChanged(list);
 }
+
+bool ZapFR::Client::TableViewPosts::viewportEvent(QEvent* event)
+{
+    if (event->type() == QEvent::ToolTip)
+    {
+        // workaround for qt bug showing tooltip text as gray on light yellow background in dark mode
+        auto tooltipPalette = QToolTip::palette();
+        tooltipPalette.setColor(QPalette::Inactive, QPalette::ToolTipText, Qt::black);
+        QToolTip::setPalette(tooltipPalette);
+    }
+    return QTableView::viewportEvent(event);
+}
