@@ -41,7 +41,6 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ui->setupUi(this);
     configureConnects();
     createContextMenus();
-    fixPalette();
     configureIcons();
     reloadSources();
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
@@ -500,21 +499,6 @@ QString ZapFR::Client::MainWindow::configDir() const
 QString ZapFR::Client::MainWindow::settingsFile() const
 {
     return QDir::cleanPath(configDir() + QDir::separator() + "zapfeedreader-client.conf");
-}
-
-void ZapFR::Client::MainWindow::fixPalette() const
-{
-    // overwrite the inactive palette with the active palette colors to get rid of the stupid unreadable gray on blue text when focus is lost on
-    // the sources tree view and posts table view
-    auto palette = QPalette(ui->treeViewSources->palette());
-    palette.setColor(QPalette::Inactive, QPalette::Highlight, palette.color(QPalette::Active, QPalette::Highlight));
-    palette.setColor(QPalette::Inactive, QPalette::HighlightedText, palette.color(QPalette::Active, QPalette::HighlightedText));
-    ui->treeViewSources->setPalette(palette);
-
-    palette = QPalette(ui->tableViewPosts->palette());
-    palette.setColor(QPalette::Inactive, QPalette::Highlight, palette.color(QPalette::Active, QPalette::Highlight));
-    palette.setColor(QPalette::Inactive, QPalette::HighlightedText, palette.color(QPalette::Active, QPalette::HighlightedText));
-    ui->tableViewPosts->setPalette(palette);
 }
 
 void ZapFR::Client::MainWindow::reloadPosts()

@@ -121,7 +121,6 @@ namespace ZapFR
             QString settingsFile() const;
 
             void configureConnects();
-            void fixPalette() const;
             void saveSettings() const;
             void restoreSettings();
             QJsonArray expandedSourceTreeItems() const;
