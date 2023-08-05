@@ -27,6 +27,8 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : QTableView(pare
     p.setColor(QPalette::Inactive, QPalette::Button, p.color(QPalette::Active, QPalette::Button));
     p.setColor(QPalette::Inactive, QPalette::ButtonText, p.color(QPalette::Active, QPalette::ButtonText));
     setPalette(p);
+
+    connect(this, &QTableView::doubleClicked, this, &TableViewPosts::doubleClickedRow);
 }
 
 void ZapFR::Client::TableViewPosts::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
@@ -54,4 +56,16 @@ bool ZapFR::Client::TableViewPosts::viewportEvent(QEvent* event)
         QToolTip::setPalette(tooltipPalette);
     }
     return QTableView::viewportEvent(event);
+}
+
+void ZapFR::Client::TableViewPosts::doubleClickedRow(const QModelIndex& index)
+{
+    if (index.isValid())
+    {
+        auto link = index.data(PostLinkRole).toString();
+        if (!link.isEmpty() && link.startsWith("http"))
+        {
+            QDesktopServices::openUrl(link);
+        }
+    }
 }

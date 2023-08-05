@@ -513,6 +513,7 @@ void ZapFR::Client::MainWindow::reloadPosts()
         item->setData(QVariant::fromValue<uint64_t>(sourceID), PostSourceIDRole);
         item->setData(QVariant::fromValue<uint64_t>(post->feedID()), PostFeedIDRole);
         item->setData(QVariant::fromValue<bool>(post->isRead()), PostIsReadRole);
+        item->setData(QString::fromUtf8(post->link()), PostLinkRole);
     };
 
     // lambda for the callback, retrieving the posts

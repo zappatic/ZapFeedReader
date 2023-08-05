@@ -36,6 +36,9 @@ namespace ZapFR
           signals:
             void selectedPostsChanged(const QModelIndexList&);
 
+          private slots:
+            void doubleClickedRow(const QModelIndex& index);
+
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
             bool viewportEvent(QEvent* event) override;
