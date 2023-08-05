@@ -18,7 +18,7 @@
 
 #include "FeedFetcher.h"
 #include "FeedLocal.h"
-#include "FeedParserAtom10.h"
+#include "FeedParserATOM10.h"
 #include "FeedParserRSS20.h"
 #include "Helpers.h"
 
@@ -46,7 +46,7 @@ std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseStri
     }
     else if (docEl->nodeName() == "feed")
     {
-        return std::make_unique<FeedParserAtom10>(xmlDoc, originalURL);
+        return std::make_unique<FeedParserATOM10>(xmlDoc, originalURL);
     }
     else
     {

@@ -25,11 +25,11 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class FeedParserAtom10 : public FeedParser
+        class FeedParserATOM10 : public FeedParser
         {
           public:
-            FeedParserAtom10(Poco::XML::Document* xmlDoc, const std::string& url);
-            virtual ~FeedParserAtom10() = default;
+            FeedParserATOM10(Poco::XML::Document* xmlDoc, const std::string& url);
+            virtual ~FeedParserATOM10() = default;
 
             std::string guid() const override;
             std::string title() const override;

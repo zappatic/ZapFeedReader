@@ -16,28 +16,28 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "FeedParserAtom10.h"
+#include "FeedParserATOM10.h"
 
-ZapFR::Engine::FeedParserAtom10::FeedParserAtom10(Poco::XML::Document* xmlDoc, const std::string& url) : FeedParser(xmlDoc, url)
+ZapFR::Engine::FeedParserATOM10::FeedParserATOM10(Poco::XML::Document* xmlDoc, const std::string& url) : FeedParser(xmlDoc, url)
 {
 }
 
-std::string ZapFR::Engine::FeedParserAtom10::guid() const
+std::string ZapFR::Engine::FeedParserATOM10::guid() const
 {
     return fetchNodeValue("/id");
 }
 
-std::string ZapFR::Engine::FeedParserAtom10::title() const
+std::string ZapFR::Engine::FeedParserATOM10::title() const
 {
     return fetchNodeValue("/title");
 }
 
-std::string ZapFR::Engine::FeedParserAtom10::subtitle() const
+std::string ZapFR::Engine::FeedParserATOM10::subtitle() const
 {
     return fetchNodeValue("/subtitle");
 }
 
-std::string ZapFR::Engine::FeedParserAtom10::link() const
+std::string ZapFR::Engine::FeedParserATOM10::link() const
 {
     std::string link;
     auto linkNodes = mXMLDoc->documentElement()->getElementsByTagName("link");
@@ -58,17 +58,17 @@ std::string ZapFR::Engine::FeedParserAtom10::link() const
     return link;
 }
 
-std::string ZapFR::Engine::FeedParserAtom10::description() const
+std::string ZapFR::Engine::FeedParserATOM10::description() const
 {
     return "";
 }
 
-std::string ZapFR::Engine::FeedParserAtom10::iconURL() const
+std::string ZapFR::Engine::FeedParserATOM10::iconURL() const
 {
     return "";
 }
 
-std::string ZapFR::Engine::FeedParserAtom10::language() const
+std::string ZapFR::Engine::FeedParserATOM10::language() const
 {
     auto docEl = mXMLDoc->documentElement();
     if (docEl->hasAttributeNS("xml", "lang"))
@@ -78,12 +78,12 @@ std::string ZapFR::Engine::FeedParserAtom10::language() const
     return "";
 }
 
-std::string ZapFR::Engine::FeedParserAtom10::copyright() const
+std::string ZapFR::Engine::FeedParserATOM10::copyright() const
 {
     return fetchNodeValue("/rights");
 }
 
-std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserAtom10::items() const
+std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::items() const
 {
     std::vector<Item> items;
 
