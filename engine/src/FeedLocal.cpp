@@ -332,7 +332,7 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
         }
     }
 
-    std::string iconData;
+    std::string iconURLToQuery;
     if (mIconURL.empty())
     {
         auto link = mLink;
@@ -344,19 +344,25 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
             link = indexPage.toString();
         }
         auto p = FavIconParser(link);
-        auto favIconURL = p.favIcon();
-        if (!favIconURL.empty())
-        {
-            iconData = Helpers::performHTTPRequest(favIconURL, "GET");
-        }
+        iconURLToQuery = p.favIcon();
     }
     else
     {
-        iconData = Helpers::performHTTPRequest(mIconURL, "GET");
+        iconURLToQuery = mIconURL;
     }
 
-    // TODO: when the above throws an exception (e.g. because file doesn't exist), catch this, as a missing icon shouldn't
-    // trigger an error state for the feed
+    std::string iconData;
+    if (!iconURLToQuery.empty())
+    {
+        try
+        {
+            iconData = Helpers::performHTTPRequest(iconURLToQuery, "GET");
+        }
+        catch (...) // we ignore errors here because a missing favicon shouldn't put the feed in error state
+        {
+            Log::log(LogLevel::Debug, fmt::format("Failed to download feed icon: {}", iconURLToQuery), mID);
+        }
+    }
 
     std::string iconHash;
     if (!iconData.empty())
