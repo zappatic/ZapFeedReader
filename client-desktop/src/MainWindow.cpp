@@ -786,10 +786,30 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
                                                               QString htmlStr;
                                                               QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
 
-                                                              html << "<!DOCTYPE html>\n<html><head><style type='text/css'>\n" << postStyles() << "\n</style></head><body>";
-                                                              html << "<h1 class='zapfr_title'>" << QString::fromUtf8(post->title()) << "</h1>";
-                                                              html << QString::fromUtf8(post->description());
-                                                              html << "</body></html>";
+                                                              auto postTitle = QString::fromUtf8(post->title());
+                                                              auto postLink = QString::fromUtf8(post->link());
+
+                                                              html << "<!DOCTYPE html>\n"
+                                                                   << "<html>\n"
+                                                                   << " <head>\n"
+                                                                   << "     <style type='text/css'>\n"
+                                                                   << postStyles() << "\n"
+                                                                   << "     </style>\n"
+                                                                   << " </head>\n"
+                                                                   << " <body>\n";
+
+                                                              if (postLink.isEmpty())
+                                                              {
+                                                                  html << R"(<h1 class="zapfr_title">)" << postTitle << "</h1>\n";
+                                                              }
+                                                              else
+                                                              {
+                                                                  html << R"(<a class="zapfr_title" href=")" << postLink << R"(">)" << postTitle << "</a>\n";
+                                                              }
+
+                                                              html << QString::fromUtf8(post->description()) << "\n"
+                                                                   << " </body>\n"
+                                                                   << "</html>";
 
                                                               QMetaObject::invokeMethod(this, "setPostHTML", Qt::AutoConnection, htmlStr);
                                                           });
@@ -840,7 +860,8 @@ QString ZapFR::Client::MainWindow::postStyles() const
 
     return QString(R"(body { font-family: "%1", sans-serif; background-color: %2; color: %3; })"
                    "\n"
-                   "a { color: %4; }\n")
+                   "a { color: %4; }\n"
+                   ".zapfr_title { color: %3; font-size: 36px; font-weight: bold; text-decoration: none; display: block; margin: 25px 0; user-select:none; }\n")
         .arg(font.family())
         .arg(backgroundColor)
         .arg(textColor)

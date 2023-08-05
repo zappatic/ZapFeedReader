@@ -43,11 +43,15 @@ std::string ZapFR::Engine::FeedParserAtom10::link() const
     auto linkNodes = mXMLDoc->documentElement()->getElementsByTagName("link");
     for (size_t i = 0; i < linkNodes->length(); ++i)
     {
-        auto linkEl = dynamic_cast<Poco::XML::Element*>(linkNodes->item(i));
-        if (linkEl->hasAttribute("rel") && linkEl->getAttribute("rel") == "alternate")
+        auto linkNode = linkNodes->item(i);
+        if (linkNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
         {
-            link = linkEl->innerText();
-            break;
+            auto linkEl = dynamic_cast<Poco::XML::Element*>(linkNode);
+            if (linkEl->hasAttribute("rel") && linkEl->getAttribute("rel") == "alternate")
+            {
+                link = linkEl->innerText();
+                break;
+            }
         }
     }
     linkNodes->release();
@@ -87,64 +91,84 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserAtom10::it
     for (size_t i = 0; i < entryList->length(); ++i)
     {
         auto entryNode = entryList->item(i);
+        if (entryNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
+        {
+            auto entryEl = dynamic_cast<Poco::XML::Element*>(entryNode);
 
-        Item item;
-        item.title = fetchNodeValue(entryNode, "title");
-        // item.link = fetchNodeValue(entryNode, "link");
-        item.description = fetchNodeValue(entryNode, "summary");
-        // todo: content
-        // item.author = fetchNodeValue(entryNode, "author");
+            Item item;
+            item.title = fetchNodeValue(entryNode, "title");
 
-        // std::stringstream categories;
-        // auto catList = dynamic_cast<Poco::XML::Element*>(entryNode)->getElementsByTagName("category");
-        // for (size_t j = 0; j < catList->length(); ++j)
-        // {
-        //     auto catNode = catList->item(j);
-        //     categories << catNode->innerText() << ", ";
-        // }
-        // item.category = categories.str();
-        // Poco::trimInPlace(item.category);
-        // catList->release();
+            auto linkNodes = entryEl->getElementsByTagName("link");
+            for (size_t j = 0; j < linkNodes->length(); ++j)
+            {
+                auto linkNode = linkNodes->item(j);
+                if (linkNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
+                {
+                    auto linkEl = dynamic_cast<Poco::XML::Element*>(linkNode);
+                    if (linkEl->hasAttribute("rel") && linkEl->getAttribute("rel") == "alternate" && linkEl->hasAttribute("href"))
+                    {
+                        item.link = linkEl->getAttribute("href");
+                        break;
+                    }
+                }
+            }
+            linkNodes->release();
 
-        // item.commentsURL = fetchNodeValue(entryNode, "comments");
+            item.description = fetchNodeValue(entryNode, "summary");
+            // todo: content
+            // item.author = fetchNodeValue(entryNode, "author");
 
-        // auto enclosureNode = fetchNode(entryNode, "enclosure");
-        // if (enclosureNode != nullptr)
-        // {
-        //     auto enclosureEl = dynamic_cast<Poco::XML::Element*>(enclosureNode);
-        //     item.enclosureURL = enclosureEl->hasAttribute("url") ? enclosureEl->getAttribute("url") : "";
-        //     item.enclosureLength = enclosureEl->hasAttribute("length") ? enclosureEl->getAttribute("length") : "";
-        //     item.enclosureMimeType = enclosureEl->hasAttribute("type") ? enclosureEl->getAttribute("type") : "";
-        // }
+            // std::stringstream categories;
+            // auto catList = dynamic_cast<Poco::XML::Element*>(entryNode)->getElementsByTagName("category");
+            // for (size_t j = 0; j < catList->length(); ++j)
+            // {
+            //     auto catNode = catList->item(j);
+            //     categories << catNode->innerText() << ", ";
+            // }
+            // item.category = categories.str();
+            // Poco::trimInPlace(item.category);
+            // catList->release();
 
-        item.guid = fetchNodeValue(entryNode, "id");
-        item.guidIsPermalink = true;
-        // auto guidNode = fetchNode(entryNode, "guid");
-        // if (guidNode != nullptr)
-        // {
-        //     auto guidEl = dynamic_cast<Poco::XML::Element*>(guidNode);
-        //     item.guid = guidNode->innerText();
-        //     if (guidEl->hasAttribute("isPermaLink"))
-        //     {
-        //         item.guidIsPermalink = guidEl->getAttribute("isPermaLink") == "true";
-        //     }
-        // }
+            // item.commentsURL = fetchNodeValue(entryNode, "comments");
 
-        item.datePublished = fetchNodeValue(entryNode, "updated");
-        int tzDiff;
-        auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, item.datePublished, tzDiff); // actually RFC 3339
-        parsedDate.makeUTC(tzDiff);
-        item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+            // auto enclosureNode = fetchNode(entryNode, "enclosure");
+            // if (enclosureNode != nullptr)
+            // {
+            //     auto enclosureEl = dynamic_cast<Poco::XML::Element*>(enclosureNode);
+            //     item.enclosureURL = enclosureEl->hasAttribute("url") ? enclosureEl->getAttribute("url") : "";
+            //     item.enclosureLength = enclosureEl->hasAttribute("length") ? enclosureEl->getAttribute("length") : "";
+            //     item.enclosureMimeType = enclosureEl->hasAttribute("type") ? enclosureEl->getAttribute("type") : "";
+            // }
 
-        // auto sourceNode = fetchNode(entryNode, "source");
-        // if (sourceNode != nullptr)
-        // {
-        //     auto sourceEl = dynamic_cast<Poco::XML::Element*>(sourceNode);
-        //     item.sourceURL = sourceEl->hasAttribute("url") ? sourceEl->getAttribute("url") : "";
-        //     item.sourceTitle = sourceNode->innerText();
-        // }
+            item.guid = fetchNodeValue(entryNode, "id");
+            item.guidIsPermalink = true;
+            // auto guidNode = fetchNode(entryNode, "guid");
+            // if (guidNode != nullptr)
+            // {
+            //     auto guidEl = dynamic_cast<Poco::XML::Element*>(guidNode);
+            //     item.guid = guidNode->innerText();
+            //     if (guidEl->hasAttribute("isPermaLink"))
+            //     {
+            //         item.guidIsPermalink = guidEl->getAttribute("isPermaLink") == "true";
+            //     }
+            // }
 
-        items.emplace_back(item);
+            item.datePublished = fetchNodeValue(entryNode, "updated");
+            int tzDiff;
+            auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, item.datePublished, tzDiff); // actually RFC 3339
+            parsedDate.makeUTC(tzDiff);
+            item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+
+            // auto sourceNode = fetchNode(entryNode, "source");
+            // if (sourceNode != nullptr)
+            // {
+            //     auto sourceEl = dynamic_cast<Poco::XML::Element*>(sourceNode);
+            //     item.sourceURL = sourceEl->hasAttribute("url") ? sourceEl->getAttribute("url") : "";
+            //     item.sourceTitle = sourceNode->innerText();
+            // }
+
+            items.emplace_back(item);
+        }
     }
     entryList->release();
 
