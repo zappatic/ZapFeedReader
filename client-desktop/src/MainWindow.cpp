@@ -48,6 +48,9 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ui->tableViewLogs->setItemDelegate(new ItemDelegateLog(ui->tableViewLogs));
     ui->webViewPost->setPage(mPostWebEnginePage.get());
 
+    // prevent the left splitter from resizing while the window resizes
+    ui->splitterLeft->setStretchFactor(1, 100);
+
     ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
     if (mFirstSource != nullptr)
     {
