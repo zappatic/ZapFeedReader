@@ -1345,26 +1345,29 @@ void ZapFR::Client::MainWindow::configureConnects()
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested,
             [&](const QPoint& p)
             {
-                auto index = ui->treeViewSources->indexAt(p);
-                if (index.isValid())
+                if (ui->stackedWidgetRight->currentIndex() == StackedPanePosts)
                 {
-                    auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
-                    switch (type)
+                    auto index = ui->treeViewSources->indexAt(p);
+                    if (index.isValid())
                     {
-                        case SOURCETREE_ENTRY_TYPE_FEED:
+                        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+                        switch (type)
                         {
-                            mSourceContextMenuFeed->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
-                            break;
-                        }
-                        case SOURCETREE_ENTRY_TYPE_FOLDER:
-                        {
-                            mSourceContextMenuFolder->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
-                            break;
-                        }
-                        case SOURCETREE_ENTRY_TYPE_SOURCE:
-                        {
-                            mSourceContextMenuSource->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
-                            break;
+                            case SOURCETREE_ENTRY_TYPE_FEED:
+                            {
+                                mSourceContextMenuFeed->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                                break;
+                            }
+                            case SOURCETREE_ENTRY_TYPE_FOLDER:
+                            {
+                                mSourceContextMenuFolder->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                                break;
+                            }
+                            case SOURCETREE_ENTRY_TYPE_SOURCE:
+                            {
+                                mSourceContextMenuSource->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                                break;
+                            }
                         }
                     }
                 }
