@@ -19,14 +19,14 @@
 #include "FavIconParser.h"
 #include "Helpers.h"
 
-ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url) : mURL(url), mFavIcon("")
+ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t associatedFeedID) : mURL(url), mFavIcon("")
 {
     if (url.empty())
     {
         return;
     }
 
-    auto html = Helpers::performHTTPRequest(url, "GET");
+    auto html = Helpers::performHTTPRequest(url, "GET", associatedFeedID);
 
     // try to locate <link rel="icon" href="..."> with a sax parser
     FavIconSaxParser handler;

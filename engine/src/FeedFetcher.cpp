@@ -22,9 +22,9 @@
 #include "FeedParserRSS20.h"
 #include "Helpers.h"
 
-std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseURL(const std::string& url)
+std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseURL(const std::string& url, uint64_t associatedFeedID)
 {
-    auto xml = Helpers::performHTTPRequest(url, "GET");
+    auto xml = Helpers::performHTTPRequest(url, "GET", associatedFeedID);
     return parseString(xml, url);
 }
 

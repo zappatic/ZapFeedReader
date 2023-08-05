@@ -212,7 +212,7 @@ void ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML
         }
         else
         {
-            auto parsedFeed = ff.parseURL(mURL);
+            auto parsedFeed = ff.parseURL(mURL, mID);
             processItems(parsedFeed.get());
         }
         refreshIcon();
@@ -343,7 +343,7 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
             indexPage.setPath("/");
             link = indexPage.toString();
         }
-        auto p = FavIconParser(link);
+        auto p = FavIconParser(link, mID);
         iconURLToQuery = p.favIcon();
     }
     else
@@ -356,7 +356,7 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
     {
         try
         {
-            iconData = Helpers::performHTTPRequest(iconURLToQuery, "GET");
+            iconData = Helpers::performHTTPRequest(iconURLToQuery, "GET", mID);
         }
         catch (...) // we ignore errors here because a missing favicon shouldn't put the feed in error state
         {

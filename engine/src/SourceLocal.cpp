@@ -184,51 +184,74 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
 {
     Log::log(LogLevel::Info, fmt::format("Adding feed at {}", url));
 
-    FeedFetcher ff;
-    auto parsedFeed = ff.parseURL(url);
-
-    auto guid = parsedFeed->guid();
-    auto title = parsedFeed->title();
-    auto subtitle = parsedFeed->subtitle();
-    auto link = parsedFeed->link();
-    auto description = parsedFeed->description();
-    auto language = parsedFeed->language();
-    auto copyright = parsedFeed->copyright();
-    auto iconURL = parsedFeed->iconURL();
     uint64_t feedID{0};
-    auto sortOrder = getNextFeedSortOrder(folder);
-
-    // scope for insert feed mutex lock
+    try
     {
-        Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
-        insertStmt << "INSERT INTO feeds ("
-                      " url"
-                      ",iconURL"
-                      ",folder"
-                      ",guid"
-                      ",title"
-                      ",subtitle"
-                      ",link"
-                      ",description"
-                      ",language"
-                      ",copyright"
-                      ",sortOrder"
-                      ",lastChecked"
-                      ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
-            useRef(url), useRef(iconURL), use(folder), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright),
-            use(sortOrder);
-        const std::lock_guard<std::mutex> lock(msAddFeedMutex);
-        insertStmt.execute();
-        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-        selectStmt << "SELECT last_insert_rowid()", into(feedID), range(0, 1);
-        selectStmt.execute();
+        // create the record in the database first, so we have a feed ID, before actually parsing the feed XML
+        {
+            // scope for insert feed mutex lock
+            auto sortOrder = getNextFeedSortOrder(folder);
+            auto nowDate = Poco::DateTimeFormatter::format(Poco::DateTime(), Poco::DateTimeFormat::ISO8601_FORMAT);
+
+            Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+            insertStmt << "INSERT INTO feeds ("
+                          " url"
+                          ",folder"
+                          ",sortOrder"
+                          ",lastChecked"
+                          ",title"
+                          ") VALUES (?, ?, ?, ?, '')",
+                useRef(url), use(folder), use(sortOrder), useRef(nowDate);
+            const std::lock_guard<std::mutex> lock(msAddFeedMutex);
+            insertStmt.execute();
+            Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+            selectStmt << "SELECT last_insert_rowid()", into(feedID), now;
+        }
+
+        FeedFetcher ff;
+        auto parsedFeed = ff.parseURL(url, feedID);
+
+        auto guid = parsedFeed->guid();
+        auto title = parsedFeed->title();
+        auto subtitle = parsedFeed->subtitle();
+        auto link = parsedFeed->link();
+        auto description = parsedFeed->description();
+        auto language = parsedFeed->language();
+        auto copyright = parsedFeed->copyright();
+        auto iconURL = parsedFeed->iconURL();
+
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+        updateStmt << "UPDATE feeds SET "
+                      " iconURL=?"
+                      ",guid=?"
+                      ",title=?"
+                      ",subtitle=?"
+                      ",link=?"
+                      ",description=?"
+                      ",language=?"
+                      ",copyright=?"
+                      " WHERE id=?",
+            useRef(iconURL), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright), use(feedID), now;
+
+        auto feed = getFeed(feedID);
+        if (feed.has_value())
+        {
+            feed.value()->refresh(ff.xml());
+        }
+    }
+    catch (const Poco::Exception& e)
+    {
+        Log::log(LogLevel::Error, e.displayText(), feedID);
+    }
+    catch (const std::runtime_error& e)
+    {
+        Log::log(LogLevel::Error, e.what(), feedID);
+    }
+    catch (...)
+    {
+        Log::log(LogLevel::Error, "Unknown exception while adding feed", feedID);
     }
 
-    auto feed = getFeed(feedID);
-    if (feed.has_value())
-    {
-        feed.value()->refresh(ff.xml());
-    }
     return feedID;
 }
 

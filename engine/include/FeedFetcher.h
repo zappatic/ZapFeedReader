@@ -32,7 +32,7 @@ namespace ZapFR
             FeedFetcher() = default;
             virtual ~FeedFetcher() = default;
 
-            std::unique_ptr<FeedParser> parseURL(const std::string& url);
+            std::unique_ptr<FeedParser> parseURL(const std::string& url, uint64_t associatedFeedID);
             std::unique_ptr<FeedParser> parseString(const std::string& xml, const std::string& originalURL);
 
             std::string xml() const noexcept;

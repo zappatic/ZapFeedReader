@@ -28,7 +28,7 @@ namespace ZapFR
         class FavIconParser
         {
           public:
-            FavIconParser(const std::string& url);
+            FavIconParser(const std::string& url, uint64_t associatedFeedID);
             virtual ~FavIconParser() = default;
 
             std::string favIcon() const noexcept;

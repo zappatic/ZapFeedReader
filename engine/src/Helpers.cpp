@@ -17,6 +17,7 @@
 */
 
 #include "Helpers.h"
+#include "Log.h"
 
 namespace
 {
@@ -56,7 +57,7 @@ std::string ZapFR::Engine::Helpers::joinIDNumbers(const std::vector<uint64_t>& s
     }
 }
 
-std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, const std::string& method)
+std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, const std::string& method, std::optional<uint64_t> associatedFeedID)
 {
     {
         std::lock_guard<std::mutex> lock(gsSSLContextMutex);
@@ -65,6 +66,21 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, c
             gsSSLContext = new Poco::Net::Context(Poco::Net::Context::TLS_CLIENT_USE, "", Poco::Net::Context::VERIFY_NONE);
         }
     }
+
+    // lambda to convert relative url to absolute url, in case a 301/302 redirect is received
+    const auto ensureRedirectLocationIsAbsolute = [](const std::string& originalURL, const std::string& newLocation) -> std::string
+    {
+        Poco::URI newURI(originalURL);
+        if (!newLocation.starts_with("http"))
+        {
+            newURI.setPathEtc(newLocation);
+        }
+        else
+        {
+            newURI = Poco::URI(newLocation);
+        }
+        return newURI.toString();
+    };
 
     Poco::URI uri(url);
 
@@ -103,17 +119,17 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, c
 
     if (status == 301)
     {
-        auto newURL = response.get("Location");
-        std::cout << "Moved permanently to " << newURL << "\n";
+        auto newURL = ensureRedirectLocationIsAbsolute(url, response.get("Location"));
+        Log::log(LogLevel::Info, fmt::format("Moved permanently to {}", newURL), associatedFeedID);
         // TODO: limit amount of redirects
-        return performHTTPRequest(newURL, method);
+        return performHTTPRequest(newURL, method, associatedFeedID);
     }
     else if (status == 302)
     {
-        auto newURL = response.get("Location");
-        std::cout << "Moved temporarily to " << newURL << "\n";
+        auto newURL = ensureRedirectLocationIsAbsolute(url, response.get("Location"));
+        Log::log(LogLevel::Info, fmt::format("Moved temporarily to {}", newURL), associatedFeedID);
         // TODO: limit amount of redirects
-        return performHTTPRequest(newURL, method);
+        return performHTTPRequest(newURL, method, associatedFeedID);
     }
 
     if (status < 200 || status > 299)
