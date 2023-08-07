@@ -89,11 +89,13 @@ namespace ZapFR
         static constexpr uint32_t PostISODateRole{Qt::ItemDataRole::UserRole + 4};
         static constexpr uint32_t PostIsReadRole{Qt::ItemDataRole::UserRole + 5};
         static constexpr uint32_t PostLinkRole{Qt::ItemDataRole::UserRole + 6};
+        static constexpr uint32_t PostAppliedFlagsRole{Qt::ItemDataRole::UserRole + 7};
 
         static constexpr uint32_t PostColumnUnread = 0;
-        static constexpr uint32_t PostColumnFeed = 1;
-        static constexpr uint32_t PostColumnTitle = 2;
-        static constexpr uint32_t PostColumnDate = 3;
+        static constexpr uint32_t PostColumnFlag = 1;
+        static constexpr uint32_t PostColumnFeed = 2;
+        static constexpr uint32_t PostColumnTitle = 3;
+        static constexpr uint32_t PostColumnDate = 4;
 
         static constexpr uint32_t LogIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t LogFeedIDRole{Qt::ItemDataRole::UserRole + 2};

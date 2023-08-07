@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PopupFlagChooser</class>
+ <widget class="QWidget" name="PopupFlagChooser">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>300</width>
+    <height>46</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>300</width>
+    <height>46</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>300</width>
+    <height>46</height>
+   </size>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
+  </property>
+  <property name="windowTitle">
+   <string notr="true"/>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="ZapFR::Client::PopupFlag" name="flagBlue" native="true"/>
+   </item>
+   <item>
+    <widget class="ZapFR::Client::PopupFlag" name="flagGreen" native="true"/>
+   </item>
+   <item>
+    <widget class="ZapFR::Client::PopupFlag" name="flagYellow" native="true"/>
+   </item>
+   <item>
+    <widget class="ZapFR::Client::PopupFlag" name="flagOrange" native="true"/>
+   </item>
+   <item>
+    <widget class="ZapFR::Client::PopupFlag" name="flagRed" native="true"/>
+   </item>
+   <item>
+    <widget class="ZapFR::Client::PopupFlag" name="flagPurple" native="true"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZapFR::Client::PopupFlag</class>
+   <extends>QWidget</extends>
+   <header>PopupFlagChooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

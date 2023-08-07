@@ -18,6 +18,8 @@
 
 #include "ItemDelegatePost.h"
 #include "FeedIconCache.h"
+#include "TableViewPosts.h"
+#include "Utilities.h"
 
 ZapFR::Client::ItemDelegatePost::ItemDelegatePost(QObject* parent) : QStyledItemDelegate(parent)
 {
@@ -33,15 +35,17 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
         initDone = true;
     }
 
+    auto parentTableView = qobject_cast<TableViewPosts*>(parent());
+
     painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter->setRenderHint(QPainter::TextAntialiasing, true);
     painter->setRenderHint(QPainter::Antialiasing, true);
-    auto regularFont = qobject_cast<QWidget*>(parent())->font();
+    auto regularFont = parentTableView->font();
     auto boldFont = regularFont;
     boldFont.setBold(true);
 
     // determine colors to use
-    auto palette = qobject_cast<QWidget*>(parent())->palette();
+    auto palette = parentTableView->palette();
     QBrush brushBackground;
     QBrush brushUnreadIndicator = palette.highlight();
     QBrush brushText = palette.text();
@@ -68,12 +72,8 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
         {
             if (!index.data(PostIsReadRole).toBool())
             {
-                auto targetWidth = static_cast<float>(option.rect.height()) * 0.4f;
-                auto targetX = static_cast<float>(option.rect.left()) + ((static_cast<float>(option.rect.width()) / 2.0f) - (targetWidth / 2.0f));
-                auto targetY = option.rect.top() + ((option.rect.height() / 2.0) - (targetWidth / 2.0f));
-                auto target = QRectF(targetX, targetY, targetWidth, targetWidth);
                 QPainterPath p;
-                p.addEllipse(target);
+                p.addEllipse(Utilities::centeredSquareInRectangle(option.rect, 0.4f));
                 painter->setBrush(brushUnreadIndicator);
                 painter->setPen(Qt::PenStyle::NoPen);
                 painter->drawPath(p);
@@ -85,11 +85,27 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
             auto pixmap = FeedIconCache::icon(index.data(PostFeedIDRole).toULongLong());
             if (!pixmap.isNull())
             {
-                auto targetWidth = static_cast<float>(option.rect.height()) * 0.6f;
-                auto targetX = static_cast<float>(option.rect.left()) + ((static_cast<float>(option.rect.width()) / 2.0f) - (targetWidth / 2.0f));
-                auto targetY = option.rect.top() + ((option.rect.height() / 2.0) - (targetWidth / 2.0f));
-                auto target = QRectF(targetX, targetY, targetWidth, targetWidth);
-                painter->drawPixmap(target, pixmap, pixmap.rect());
+                painter->drawPixmap(Utilities::centeredSquareInRectangle(option.rect, 0.6f), pixmap, pixmap.rect());
+            }
+            break;
+        }
+        case PostColumnFlag:
+        {
+            QPixmap flagToDraw;
+            auto flagColors = index.data(PostAppliedFlagsRole).toList();
+            if (flagColors.count() > 0)
+            {
+                auto mainFlagColor = static_cast<ZapFR::Engine::FlagColor>(flagColors.at(0).toUInt());
+                flagToDraw = Utilities::flag(mainFlagColor, Utilities::FlagStyle::Filled);
+            }
+            else if ((option.state & QStyle::State_MouseOver) == QStyle::State_MouseOver)
+            {
+                flagToDraw = Utilities::flag(ZapFR::Engine::FlagColor::Gray, Utilities::FlagStyle::Unfilled);
+            }
+
+            if (!flagToDraw.isNull())
+            {
+                painter->drawPixmap(Utilities::centeredSquareInRectangle(option.rect, 0.75f), flagToDraw, flagToDraw.rect());
             }
             break;
         }

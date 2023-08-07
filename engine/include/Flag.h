@@ -16,34 +16,39 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_UTILITIES_H
-#define ZAPFR_CLIENT_UTILITIES_H
+#ifndef ZAPFR_ENGINE_FLAG_H
+#define ZAPFR_ENGINE_FLAG_H
 
-#include "ClientGlobal.h"
-#include "Flag.h"
+#include "Database.h"
+#include "Global.h"
 
 namespace ZapFR
 {
-    namespace Client
+    namespace Engine
     {
-        class Utilities
+        enum class FlagColor
+        {
+            Gray,
+            Blue,
+            Green,
+            Yellow,
+            Orange,
+            Red,
+            Purple
+        };
+
+        class Flag
         {
           public:
-            static QString prettyDate(const QString& iso8601Date);
-            static QRectF centeredSquareInRectangle(const QRectF& sourceRect, float heightFactor);
-
-            enum class FlagStyle
-            {
-                Filled,
-                Unfilled
-            };
-            static const QPixmap& flag(ZapFR::Engine::FlagColor color, FlagStyle flagStyle);
+            static std::tuple<uint8_t, uint8_t, uint8_t> rgbForColor(FlagColor color);
 
           private:
-            static std::unordered_map<ZapFR::Engine::FlagColor, QPixmap> msFilledFlagCache;
-            static std::unordered_map<ZapFR::Engine::FlagColor, QPixmap> msUnfilledFlagCache;
+            static std::unordered_map<FlagColor, std::tuple<uint8_t, uint8_t, uint8_t>> msColorRGBMapping;
+            static std::unordered_map<FlagColor, uint8_t> msColorIDMapping;
+            static std::unordered_map<uint8_t, FlagColor> msIDColorMapping;
         };
-    } // namespace Client
+
+    } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_UTILITIES_H
+#endif // ZAPFR_ENGINE_FLAG_H

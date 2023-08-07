@@ -16,5 +16,7 @@
         <file>logLevelInfo.svg</file>
         <file>logLevelWarning.svg</file>
         <file>logLevelError.svg</file>
+        <file>flagFilled.svg</file>
+        <file>flagUnfilled.svg</file>
     </qresource>
 </RCC>

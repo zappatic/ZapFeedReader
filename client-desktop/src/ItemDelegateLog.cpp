@@ -19,6 +19,7 @@
 #include "ItemDelegateLog.h"
 #include "FeedIconCache.h"
 #include "Log.h"
+#include "Utilities.h"
 
 ZapFR::Client::ItemDelegateLog::ItemDelegateLog(QObject* parent) : QStyledItemDelegate(parent)
 {
@@ -41,11 +42,7 @@ void ZapFR::Client::ItemDelegateLog::paint(QPainter* painter, const QStyleOption
                 auto pixmap = FeedIconCache::icon(feedIDVariant.toULongLong());
                 if (!pixmap.isNull())
                 {
-                    auto targetWidth = static_cast<float>(option.rect.height()) * 0.6f;
-                    auto targetX = static_cast<float>(option.rect.left()) + ((static_cast<float>(option.rect.width()) / 2.0f) - (targetWidth / 2.0f));
-                    auto targetY = option.rect.top() + ((option.rect.height() / 2.0) - (targetWidth / 2.0f));
-                    auto target = QRectF(targetX, targetY, targetWidth, targetWidth);
-                    painter->drawPixmap(target, pixmap, pixmap.rect());
+                    painter->drawPixmap(Utilities::centeredSquareInRectangle(option.rect, 0.6f), pixmap, pixmap.rect());
                 }
             }
             break;

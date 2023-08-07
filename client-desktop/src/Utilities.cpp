@@ -18,6 +18,9 @@
 
 #include "Utilities.h"
 
+std::unordered_map<ZapFR::Engine::FlagColor, QPixmap> ZapFR::Client::Utilities::msFilledFlagCache{};
+std::unordered_map<ZapFR::Engine::FlagColor, QPixmap> ZapFR::Client::Utilities::msUnfilledFlagCache{};
+
 QString ZapFR::Client::Utilities::prettyDate(const QString& iso8601Date)
 {
     auto dateTime = QDateTime::fromString(iso8601Date, Qt::ISODate);
@@ -49,4 +52,62 @@ QString ZapFR::Client::Utilities::prettyDate(const QString& iso8601Date)
 
     auto timePart = locale.toString(time, QLocale::ShortFormat);
     return datePart + " " + timePart;
+}
+
+QRectF ZapFR::Client::Utilities::centeredSquareInRectangle(const QRectF& sourceRect, float heightFactor)
+{
+    auto targetWidth = static_cast<float>(sourceRect.height()) * heightFactor;
+    auto targetX = static_cast<float>(sourceRect.left()) + ((static_cast<float>(sourceRect.width()) / 2.0f) - (targetWidth / 2.0f));
+    auto targetY = sourceRect.top() + ((sourceRect.height() / 2.0) - (targetWidth / 2.0f));
+    return QRectF(targetX, targetY, targetWidth, targetWidth);
+}
+
+const QPixmap& ZapFR::Client::Utilities::flag(ZapFR::Engine::FlagColor color, FlagStyle flagStyle)
+{
+    switch (flagStyle)
+    {
+        case FlagStyle::Filled:
+        {
+            if (msFilledFlagCache.contains(color))
+            {
+                return msFilledFlagCache.at(color);
+            }
+            break;
+        }
+        case FlagStyle::Unfilled:
+        {
+            if (msUnfilledFlagCache.contains(color))
+            {
+                return msUnfilledFlagCache.at(color);
+            }
+            break;
+        }
+    }
+
+    auto [red, green, blue] = ZapFR::Engine::Flag::rgbForColor(color);
+    QColor c(red, green, blue);
+
+    auto svgFile = QFile(flagStyle == FlagStyle::Filled ? ":/flagFilled.svg" : ":/flagUnfilled.svg");
+    svgFile.open(QIODeviceBase::ReadOnly);
+    auto svgContents = QString(svgFile.readAll());
+    svgFile.close();
+    svgContents.replace("{#color}", c.name());
+
+    QImage img;
+    img.loadFromData(svgContents.toUtf8());
+
+    auto pixmap = QPixmap::fromImage(img);
+    switch (flagStyle)
+    {
+        case FlagStyle::Filled:
+        {
+            msFilledFlagCache[color] = pixmap;
+            return msFilledFlagCache.at(color);
+        }
+        case FlagStyle::Unfilled:
+        {
+            msUnfilledFlagCache[color] = pixmap;
+            return msUnfilledFlagCache.at(color);
+        }
+    }
 }

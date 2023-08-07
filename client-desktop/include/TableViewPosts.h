@@ -25,6 +25,8 @@ namespace ZapFR
 {
     namespace Client
     {
+        class PopupFlagChooser;
+
         class TableViewPosts : public QTableView
         {
             Q_OBJECT
@@ -42,6 +44,11 @@ namespace ZapFR
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
             bool viewportEvent(QEvent* event) override;
+            void mouseMoveEvent(QMouseEvent* event) override;
+            void mouseReleaseEvent(QMouseEvent* event) override;
+
+          private:
+            std::unique_ptr<PopupFlagChooser> mPopupFlagChooser{nullptr};
         };
     } // namespace Client
 } // namespace ZapFR

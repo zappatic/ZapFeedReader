@@ -17,6 +17,7 @@
 */
 
 #include "TableViewPosts.h"
+#include "PopupFlagChooser.h"
 
 ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : QTableView(parent)
 {
@@ -29,6 +30,8 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : QTableView(pare
     setPalette(p);
 
     connect(this, &QTableView::doubleClicked, this, &TableViewPosts::doubleClickedRow);
+    viewport()->setAttribute(Qt::WA_Hover);
+    setMouseTracking(true);
 }
 
 void ZapFR::Client::TableViewPosts::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
@@ -56,6 +59,36 @@ bool ZapFR::Client::TableViewPosts::viewportEvent(QEvent* event)
         QToolTip::setPalette(tooltipPalette);
     }
     return QTableView::viewportEvent(event);
+}
+
+void ZapFR::Client::TableViewPosts::mouseMoveEvent(QMouseEvent* event)
+{
+    auto index = indexAt(event->pos());
+    if (index.isValid() && index.column() == PostColumnFlag)
+    {
+        setCursor(Qt::PointingHandCursor);
+    }
+    else
+    {
+        setCursor(Qt::ArrowCursor);
+    }
+    QTableView::mouseMoveEvent(event);
+}
+
+void ZapFR::Client::TableViewPosts::mouseReleaseEvent(QMouseEvent* event)
+{
+    auto index = indexAt(event->pos());
+    if (index.isValid() && index.column() == PostColumnFlag)
+    {
+        if (mPopupFlagChooser == nullptr)
+        {
+            mPopupFlagChooser = std::make_unique<PopupFlagChooser>(this);
+        }
+        auto clickLocation = mapToGlobal(event->pos());
+        mPopupFlagChooser->setGeometry(clickLocation.x(), clickLocation.y(), 200, 75);
+        mPopupFlagChooser->showWithSelectedColors(index.data(PostAppliedFlagsRole).toList());
+    }
+    QTableView::mouseReleaseEvent(event);
 }
 
 void ZapFR::Client::TableViewPosts::doubleClickedRow(const QModelIndex& index)

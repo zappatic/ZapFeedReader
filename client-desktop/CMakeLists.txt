@@ -31,6 +31,7 @@ set(PROJECT_SOURCES
         src/TableViewLogs.cpp
         src/TreeViewSources.cpp
         src/FeedIconCache.cpp
+        src/PopupFlagChooser.cpp
         include/ClientGlobal.h
         include/MainWindow.h
         include/ItemDelegateSource.h
@@ -48,11 +49,13 @@ set(PROJECT_SOURCES
         include/TableViewLogs.h
         include/TreeViewSources.h
         include/FeedIconCache.h
+        include/PopupFlagChooser.h
         src/MainWindow.ui
         src/DialogAddFeed.ui
         src/DialogAddFolder.ui
         src/DialogImportOPML.ui
         src/DialogJumpToPage.ui
+        src/PopupFlagChooser.ui
         resources/resources.qrc
         ${TS_FILES}
 )
@@ -132,6 +135,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/FeedLocal.cpp
                                 ../engine/src/OPMLParser.cpp
                                 ../engine/src/FavIconParser.cpp
+                                ../engine/src/Flag.cpp
 )
 
 install(TARGETS zapfeedreader-client

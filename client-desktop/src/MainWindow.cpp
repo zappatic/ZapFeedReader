@@ -21,6 +21,7 @@
 #include "Agent.h"
 #include "FeedIconCache.h"
 #include "FeedLocal.h"
+#include "Flag.h"
 #include "Folder.h"
 #include "ItemDelegateLog.h"
 #include "ItemDelegatePost.h"
@@ -531,6 +532,15 @@ void ZapFR::Client::MainWindow::reloadPosts()
             auto unreadItem = new QStandardItem("");
             setItemData(unreadItem, post, sourceID);
 
+            auto flagItem = new QStandardItem("");
+            setItemData(flagItem, post, sourceID);
+            QList<QVariant> flagColors;
+            if (post->id() % 5 == 0)
+            {
+                flagColors << QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(ZapFR::Engine::FlagColor::Red));
+            }
+            flagItem->setData(flagColors, PostAppliedFlagsRole);
+
             auto feedItem = new QStandardItem("");
             setItemData(feedItem, post, sourceID);
             feedItem->setData(QString::fromUtf8(post->feedTitle()), Qt::ToolTipRole);
@@ -544,7 +554,7 @@ void ZapFR::Client::MainWindow::reloadPosts()
             setItemData(dateItem, post, sourceID);
 
             QList<QStandardItem*> rowData;
-            rowData << unreadItem << feedItem << titleItem << dateItem;
+            rowData << unreadItem << flagItem << feedItem << titleItem << dateItem;
             rows << rowData;
         }
 
@@ -586,6 +596,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
     mItemModelPosts = std::make_unique<QStandardItemModel>(this);
     ui->tableViewPosts->setModel(mItemModelPosts.get());
     mItemModelPosts->setHorizontalHeaderItem(PostColumnUnread, new QStandardItem(tr("Unread")));
+    mItemModelPosts->setHorizontalHeaderItem(PostColumnFlag, new QStandardItem(tr("Flag")));
     mItemModelPosts->setHorizontalHeaderItem(PostColumnFeed, new QStandardItem(tr("Feed")));
     mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title")));
     mItemModelPosts->setHorizontalHeaderItem(PostColumnDate, new QStandardItem(tr("Date")));
@@ -595,6 +606,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
     }
     ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(PostColumnTitle, QHeaderView::Stretch);
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnUnread, 50);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFlag, 40);
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFeed, 40);
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnDate, 200);
     postsTableViewSelectionChanged({});

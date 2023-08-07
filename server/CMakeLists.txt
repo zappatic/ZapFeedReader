@@ -66,4 +66,5 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/FolderLocal.cpp
     ../engine/src/OPMLParser.cpp
     ../engine/src/FavIconParser.cpp
+    ../engine/src/Flag.cpp
 )
