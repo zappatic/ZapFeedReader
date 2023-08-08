@@ -95,8 +95,9 @@ const QPixmap& ZapFR::Client::Utilities::flag(ZapFR::Engine::FlagColor color, Fl
 
     QImage img;
     img.loadFromData(svgContents.toUtf8());
+    auto scaledFlag = img.scaled(50, 50, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-    auto pixmap = QPixmap::fromImage(img);
+    auto pixmap = QPixmap::fromImage(scaledFlag);
     switch (flagStyle)
     {
         case FlagStyle::Filled:

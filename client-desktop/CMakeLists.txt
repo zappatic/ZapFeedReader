@@ -122,6 +122,8 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/agents/AgentGetSourceLogs.cpp
                                 ../engine/src/agents/AgentGetFolderLogs.cpp
                                 ../engine/src/agents/AgentGetFeedLogs.cpp
+                                ../engine/src/agents/AgentMarkPostFlagged.cpp
+                                ../engine/src/agents/AgentMarkPostUnflagged.cpp
                                 ../engine/src/Database.cpp
                                 ../engine/src/Log.cpp
                                 ../engine/src/FeedFetcher.cpp
@@ -133,6 +135,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/Folder.cpp
                                 ../engine/src/FolderLocal.cpp
                                 ../engine/src/FeedLocal.cpp
+                                ../engine/src/PostLocal.cpp
                                 ../engine/src/OPMLParser.cpp
                                 ../engine/src/FavIconParser.cpp
                                 ../engine/src/Flag.cpp

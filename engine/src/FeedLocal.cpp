@@ -22,7 +22,7 @@
 #include "FeedFetcher.h"
 #include "Helpers.h"
 #include "Log.h"
-#include "Post.h"
+#include "PostLocal.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -88,7 +88,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
     {
         if (selectStmt.execute() > 0)
         {
-            auto p = std::make_unique<Post>(id);
+            auto p = std::make_unique<PostLocal>(id);
             p->setIsRead(isRead);
             p->setFeedID(mID);
             p->setFeedTitle(feedTitle);
@@ -105,6 +105,21 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
             p->setDatePublished(datePublished);
             p->setSourceURL(sourceURL);
             p->setSourceTitle(sourceTitle);
+
+            // query flags
+            std::unordered_set<FlagColor> flags;
+            uint8_t flagID{0};
+            Poco::Data::Statement selectFlagsStmt(*(Database::getInstance()->session()));
+            selectFlagsStmt << "SELECT DISTINCT(flagID) FROM flags WHERE postID=?", use(id), into(flagID), range(0, 1);
+            while (!selectFlagsStmt.done())
+            {
+                if (selectFlagsStmt.execute() > 0)
+                {
+                    flags.insert(static_cast<FlagColor>(flagID));
+                }
+            }
+            p->setFlagColors(flags);
+
             posts.emplace_back(std::move(p));
         }
     }
@@ -156,7 +171,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
     auto rs = Poco::Data::RecordSet(selectStmt);
     if (rs.rowCount() == 1)
     {
-        auto p = std::make_unique<Post>(postID);
+        auto p = std::make_unique<PostLocal>(postID);
         p->setFeedID(mID);
         p->setFeedTitle(feedTitle);
         p->setIsRead(isRead);
@@ -173,6 +188,21 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
         p->setDatePublished(datePublished);
         p->setSourceURL(sourceURL);
         p->setSourceTitle(sourceTitle);
+
+        // query flags
+        std::unordered_set<FlagColor> flags;
+        uint8_t flagID{0};
+        Poco::Data::Statement selectFlagsStmt(*(Database::getInstance()->session()));
+        selectFlagsStmt << "SELECT DISTINCT(flagID) FROM flags WHERE postID=?", use(postID), into(flagID), range(0, 1);
+        while (!selectFlagsStmt.done())
+        {
+            if (selectFlagsStmt.execute() > 0)
+            {
+                flags.insert(static_cast<FlagColor>(flagID));
+            }
+        }
+        p->setFlagColors(flags);
+
         return p;
     }
 

@@ -19,13 +19,13 @@
 #ifndef ZAPFR_ENGINE_POST_H
 #define ZAPFR_ENGINE_POST_H
 
+#include "Flag.h"
 #include "Global.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Database;
         class Post
         {
           public:
@@ -49,6 +49,7 @@ namespace ZapFR
             std::string datePublished() const noexcept { return mDatePublished; }
             std::string sourceURL() const noexcept { return mSourceURL; }
             std::string sourceTitle() const noexcept { return mSourceTitle; }
+            std::unordered_set<FlagColor> flagColors() { return mFlagColors; }
 
             void setIsRead(bool b) { mIsRead = b; }
             void setFeedID(uint64_t feedID) { mFeedID = feedID; }
@@ -66,6 +67,10 @@ namespace ZapFR
             void setDatePublished(const std::string& datePublished) { mDatePublished = datePublished; }
             void setSourceURL(const std::string& sourceURL) { mSourceURL = sourceURL; }
             void setSourceTitle(const std::string& sourceTitle) { mSourceTitle = sourceTitle; }
+            void setFlagColors(const std::unordered_set<FlagColor>& flagColors) { mFlagColors = flagColors; }
+
+            virtual void markFlagged(FlagColor flagColor) = 0;
+            virtual void markUnflagged(FlagColor flagColor) = 0;
 
           protected:
             uint64_t mID{0};
@@ -85,6 +90,7 @@ namespace ZapFR
             std::string mDatePublished{""};
             std::string mSourceURL{""};
             std::string mSourceTitle{""};
+            std::unordered_set<FlagColor> mFlagColors{};
         };
     } // namespace Engine
 } // namespace ZapFR

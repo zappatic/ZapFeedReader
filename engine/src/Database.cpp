@@ -164,4 +164,14 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ")",
             now;
     }
+
+    // FLAGS TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS flags ("
+                       " id INTEGER PRIMARY KEY"
+                       ",postID INTEGER NOT NULL"
+                       ",flagID INTEGER NOT NULL"
+                       ")",
+            now;
+    }
 }

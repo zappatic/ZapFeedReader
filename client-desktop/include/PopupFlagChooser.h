@@ -43,8 +43,12 @@ namespace ZapFR
             ZapFR::Engine::FlagColor flagColor() const noexcept;
             void setFlagStyle(Utilities::FlagStyle flagStyle);
 
+          signals:
+            void flagClicked(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle);
+
           protected:
             void paintEvent(QPaintEvent* event) override;
+            void mouseReleaseEvent(QMouseEvent* event) override;
 
           private:
             ZapFR::Engine::FlagColor mFlagColor;
@@ -60,6 +64,9 @@ namespace ZapFR
             ~PopupFlagChooser();
 
             void showWithSelectedColors(const QList<QVariant> flagColors);
+
+          signals:
+            void flagToggled(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle);
 
           protected:
             void focusOutEvent(QFocusEvent* event) override;

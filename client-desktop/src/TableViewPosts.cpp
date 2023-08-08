@@ -17,6 +17,7 @@
 */
 
 #include "TableViewPosts.h"
+#include "Agent.h"
 #include "PopupFlagChooser.h"
 
 ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : QTableView(parent)
@@ -29,7 +30,11 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : QTableView(pare
     p.setColor(QPalette::Inactive, QPalette::ButtonText, p.color(QPalette::Active, QPalette::ButtonText));
     setPalette(p);
 
+    mPopupFlagChooser = std::make_unique<PopupFlagChooser>(this);
+
     connect(this, &QTableView::doubleClicked, this, &TableViewPosts::doubleClickedRow);
+    connect(mPopupFlagChooser.get(), &PopupFlagChooser::flagToggled, this, &TableViewPosts::processFlagToggle);
+
     viewport()->setAttribute(Qt::WA_Hover);
     setMouseTracking(true);
 }
@@ -80,10 +85,6 @@ void ZapFR::Client::TableViewPosts::mouseReleaseEvent(QMouseEvent* event)
     auto index = indexAt(event->pos());
     if (index.isValid() && index.column() == PostColumnFlag)
     {
-        if (mPopupFlagChooser == nullptr)
-        {
-            mPopupFlagChooser = std::make_unique<PopupFlagChooser>(this);
-        }
         auto clickLocation = mapToGlobal(event->pos());
         mPopupFlagChooser->setGeometry(clickLocation.x(), clickLocation.y(), 200, 75);
         mPopupFlagChooser->showWithSelectedColors(index.data(PostAppliedFlagsRole).toList());
@@ -99,6 +100,52 @@ void ZapFR::Client::TableViewPosts::doubleClickedRow(const QModelIndex& index)
         if (!link.isEmpty() && link.startsWith("http"))
         {
             QDesktopServices::openUrl(link);
+        }
+    }
+}
+
+void ZapFR::Client::TableViewPosts::processFlagToggle(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle)
+{
+    QModelIndex index;
+    auto sm = selectionModel();
+    if (sm != nullptr)
+    {
+        auto selectedIndexes = sm->selectedIndexes();
+        for (const auto& selectedIndex : selectedIndexes)
+        {
+            if (selectedIndex.column() == PostColumnFlag)
+            {
+                index = selectedIndex;
+                break;
+            }
+        }
+    }
+
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    auto sourceID = index.data(PostSourceIDRole).toULongLong();
+    auto feedID = index.data(PostFeedIDRole).toULongLong();
+    auto postID = index.data(PostIDRole).toULongLong();
+    auto flags = index.data(PostAppliedFlagsRole).toList();
+
+    switch (flagStyle)
+    {
+        case Utilities::FlagStyle::Filled:
+        {
+            ZapFR::Engine::Agent::getInstance()->queueMarkPostFlagged(sourceID, feedID, postID, flagColor, [&]() {});
+            flags << QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(flagColor));
+            qobject_cast<QStandardItemModel*>(model())->itemFromIndex(index)->setData(flags, PostAppliedFlagsRole);
+            break;
+        }
+        case Utilities::FlagStyle::Unfilled:
+        {
+            ZapFR::Engine::Agent::getInstance()->queueMarkPostUnflagged(sourceID, feedID, postID, flagColor, [&]() {});
+            flags.removeIf([&](const QVariant& v) { return flagColor == static_cast<ZapFR::Engine::FlagColor>(v.toInt()); });
+            qobject_cast<QStandardItemModel*>(model())->itemFromIndex(index)->setData(flags, PostAppliedFlagsRole);
+            break;
         }
     }
 }

@@ -20,6 +20,8 @@
 #define ZAPFR_CLIENT_TABLEVIEWPOSTS_H
 
 #include "ClientGlobal.h"
+#include "Flag.h"
+#include "Utilities.h"
 
 namespace ZapFR
 {
@@ -40,6 +42,7 @@ namespace ZapFR
 
           private slots:
             void doubleClickedRow(const QModelIndex& index);
+            void processFlagToggle(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle);
 
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;

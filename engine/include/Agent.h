@@ -20,6 +20,7 @@
 #define ZAPFR_ENGINE_AGENT_H
 
 #include "AgentRunnable.h"
+#include "Flag.h"
 #include "Global.h"
 
 namespace ZapFR
@@ -60,6 +61,8 @@ namespace ZapFR
             void queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback);
             void queueMarkPostsUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs,
                                       std::function<void(std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback);
+            void queueMarkPostFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback);
+            void queueMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback);
 
             // feed manipulation
             void queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);

@@ -535,9 +535,9 @@ void ZapFR::Client::MainWindow::reloadPosts()
             auto flagItem = new QStandardItem("");
             setItemData(flagItem, post, sourceID);
             QList<QVariant> flagColors;
-            if (post->id() % 5 == 0)
+            for (const auto& flag : post->flagColors())
             {
-                flagColors << QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(ZapFR::Engine::FlagColor::Red));
+                flagColors << QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(flag));
             }
             flagItem->setData(flagColors, PostAppliedFlagsRole);
 

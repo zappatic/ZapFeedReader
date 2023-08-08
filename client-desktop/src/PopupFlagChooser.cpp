@@ -34,6 +34,12 @@ ZapFR::Client::PopupFlagChooser::PopupFlagChooser(QWidget* parent) : QWidget(par
     ui->flagOrange->setFlagColor(ZapFR::Engine::FlagColor::Orange);
     ui->flagRed->setFlagColor(ZapFR::Engine::FlagColor::Red);
     ui->flagPurple->setFlagColor(ZapFR::Engine::FlagColor::Purple);
+
+    const auto emitFlagToggled = [&](ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle) { emit flagToggled(flagColor, flagStyle); };
+    for (const auto& flag : mFlags)
+    {
+        connect(flag, &PopupFlag::flagClicked, emitFlagToggled);
+    }
 }
 
 ZapFR::Client::PopupFlagChooser::~PopupFlagChooser()
@@ -99,4 +105,11 @@ void ZapFR::Client::PopupFlag::paintEvent(QPaintEvent* /*event*/)
     auto targetRect = QRect(0, 0, g.width(), g.height());
     auto flag = Utilities::flag(mFlagColor, mFlagStyle);
     painter.drawPixmap(Utilities::centeredSquareInRectangle(targetRect, 0.75f), flag, flag.rect());
+}
+
+void ZapFR::Client::PopupFlag::mouseReleaseEvent(QMouseEvent* /*event*/)
+{
+    mFlagStyle = (mFlagStyle == Utilities::FlagStyle::Filled) ? Utilities::FlagStyle::Unfilled : Utilities::FlagStyle::Filled;
+    emit flagClicked(mFlagColor, mFlagStyle);
+    update();
 }

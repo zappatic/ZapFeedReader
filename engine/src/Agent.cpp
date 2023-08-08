@@ -30,7 +30,9 @@
 #include "agents/AgentGetSourcePosts.h"
 #include "agents/AgentMarkFeedRead.h"
 #include "agents/AgentMarkFolderRead.h"
+#include "agents/AgentMarkPostFlagged.h"
 #include "agents/AgentMarkPostRead.h"
+#include "agents/AgentMarkPostUnflagged.h"
 #include "agents/AgentMarkPostsUnread.h"
 #include "agents/AgentMarkSourceRead.h"
 #include "agents/AgentMoveFeed.h"
@@ -169,6 +171,16 @@ void ZapFR::Engine::Agent::queueGetFeedLogs(uint64_t sourceID, uint64_t feedID, 
                                             std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentGetFeedLogs>(sourceID, feedID, perPage, page, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMarkPostFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentMarkPostFlagged>(sourceID, feedID, postID, flagColor, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentMarkPostUnflagged>(sourceID, feedID, postID, flagColor, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
