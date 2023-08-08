@@ -1359,7 +1359,12 @@ void ZapFR::Client::MainWindow::configureConnects()
                 reloadLogs();
             });
 
-    connect(ui->action_Back_to_posts, &QAction::triggered, [&]() { ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts); });
+    connect(ui->action_Back_to_posts, &QAction::triggered,
+            [&]()
+            {
+                ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
+                reloadSources();
+            });
 
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged,
             [&](const QModelIndex& index)
