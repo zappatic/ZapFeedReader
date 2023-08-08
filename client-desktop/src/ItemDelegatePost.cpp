@@ -91,22 +91,9 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
         }
         case PostColumnFlag:
         {
-            QPixmap flagToDraw;
+            auto isHovering = ((option.state & QStyle::State_MouseOver) == QStyle::State_MouseOver);
             auto flagColors = index.data(PostAppliedFlagsRole).toList();
-            if (flagColors.count() > 0)
-            {
-                auto mainFlagColor = static_cast<ZapFR::Engine::FlagColor>(flagColors.at(0).toUInt());
-                flagToDraw = Utilities::flag(mainFlagColor, Utilities::FlagStyle::Filled);
-            }
-            else if ((option.state & QStyle::State_MouseOver) == QStyle::State_MouseOver)
-            {
-                flagToDraw = Utilities::flag(ZapFR::Engine::FlagColor::Gray, Utilities::FlagStyle::Unfilled);
-            }
-
-            if (!flagToDraw.isNull())
-            {
-                painter->drawPixmap(Utilities::centeredSquareInRectangle(option.rect, 0.75f), flagToDraw, flagToDraw.rect());
-            }
+            renderFlags(painter, isHovering, flagColors, option.rect);
             break;
         }
         default:
@@ -123,5 +110,48 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
             painter->drawText(titleRect, elidedTitle, titleTextOptions);
             break;
         }
+    }
+}
+
+void ZapFR::Client::ItemDelegatePost::renderFlags(QPainter* painter, bool isHovering, QVariantList& flagsToRender, const QRect& destinationRect) const
+{
+    auto flagCount = flagsToRender.size();
+    if (flagCount == 0 && isHovering)
+    {
+        auto flag = Utilities::flag(ZapFR::Engine::FlagColor::Gray, Utilities::FlagStyle::Unfilled);
+        painter->drawPixmap(Utilities::centeredSquareInRectangle(destinationRect, FlagHeightFactor), flag, flag.rect());
+    }
+
+    if (flagCount > 0)
+    {
+        // sort the flags so they are always in the same color order
+        std::sort(flagsToRender.begin(), flagsToRender.end(), [](const QVariant& a, const QVariant& b) { return a.toUInt() < b.toUInt(); });
+
+        // determine whether to draw the flags centered in the column (if there is room to spare and all can fit in the available space)
+        // or to just draw the from the left boundary onwards
+        auto flagWidth = FlagHeightFactor * static_cast<float>(destinationRect.height());
+        auto visibleFlagCount = static_cast<int64_t>(std::floor(static_cast<float>(destinationRect.width()) / flagWidth));
+        auto shouldCenter = (flagCount <= visibleFlagCount);
+
+        // calculate the starting x-coord and y coord of the flags
+        float top = static_cast<float>(destinationRect.top()) + (static_cast<float>(destinationRect.height()) / 2.0f) - (flagWidth / 2.0f);
+        float left = static_cast<float>(destinationRect.left());
+        if (shouldCenter)
+        {
+            left = static_cast<float>(destinationRect.left()) + (static_cast<float>(destinationRect.width()) / 2.0f) - ((static_cast<float>(flagCount) * flagWidth) / 2.0f);
+        }
+
+        painter->save();
+        painter->setClipRect(destinationRect);
+        for (const auto& flagColorVariant : flagsToRender)
+        {
+            auto flagColor = static_cast<ZapFR::Engine::FlagColor>(flagColorVariant.toUInt());
+            auto flag = Utilities::flag(flagColor, Utilities::FlagStyle::Filled);
+            auto r = QRectF(left, top, flagWidth, flagWidth);
+            painter->drawPixmap(r, flag, flag.rect());
+
+            left += flagWidth;
+        }
+        painter->restore();
     }
 }

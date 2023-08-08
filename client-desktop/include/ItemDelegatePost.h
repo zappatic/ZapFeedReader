@@ -35,6 +35,11 @@ namespace ZapFR
             ~ItemDelegatePost() = default;
 
             void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+
+          private:
+            void renderFlags(QPainter* painter, bool isHovering, QVariantList& flagsToRender, const QRect& destinationRect) const;
+
+            static constexpr float FlagHeightFactor{0.75f};
         };
     } // namespace Client
 } // namespace ZapFR

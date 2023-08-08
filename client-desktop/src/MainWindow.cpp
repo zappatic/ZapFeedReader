@@ -604,6 +604,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
     {
         mItemModelPosts->appendRow(post);
     }
+    ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(PostColumnTitle, QHeaderView::Stretch);
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnUnread, 50);
     ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFlag, 40);
