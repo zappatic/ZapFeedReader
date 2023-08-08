@@ -196,12 +196,13 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
             Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
             insertStmt << "INSERT INTO feeds ("
                           " url"
+                          ",title"
                           ",folder"
                           ",sortOrder"
                           ",lastChecked"
                           ",title"
-                          ") VALUES (?, ?, ?, ?, '')",
-                useRef(url), use(folder), use(sortOrder), useRef(nowDate);
+                          ") VALUES (?, ?, ?, ?, ?, '')",
+                useRef(url), useRef(url), use(folder), use(sortOrder), useRef(nowDate);
             const std::lock_guard<std::mutex> lock(msAddFeedMutex);
             insertStmt.execute();
             Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
