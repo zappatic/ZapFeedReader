@@ -43,6 +43,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     configureConnects();
     createContextMenus();
     configureIcons();
+    restoreSettings();
     reloadSources();
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
     ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
@@ -59,12 +60,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     action->setProperty("postPaneToolbarSpacer", true);
 
     ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
-    if (mFirstSource != nullptr)
-    {
-        ui->treeViewSources->selectionModel()->select(mItemModelSources->indexFromItem(mFirstSource), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    }
 
-    restoreSettings();
     reloadCurrentPost();
 }
 
@@ -124,7 +120,13 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 }
                 if (root.contains(SETTING_SOURCETREEVIEW_EXPANSION))
                 {
-                    expandSourceTreeItems(root.value(SETTING_SOURCETREEVIEW_EXPANSION).toArray());
+                    // instead of doing this immediately, write the array to mReloadSourcesExpansionSelectionState
+                    // so that it will get picked up by reloadSources(), which happens after restoring the settings
+                    mReloadSourcesExpansionSelectionState = std::make_unique<QJsonObject>();
+                    mReloadSourcesExpansionSelectionState->insert("expanded", root.value(SETTING_SOURCETREEVIEW_EXPANSION).toArray());
+                    mReloadSourcesExpansionSelectionState->insert("selectedSourceID", 0);
+                    mReloadSourcesExpansionSelectionState->insert("selectedID", 0);
+                    mReloadSourcesExpansionSelectionState->insert("selectedType", 0);
                 }
             }
         }
@@ -338,16 +340,24 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
 void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
 {
     // preserve the expansion of the source items and selected item data
-    auto expandedItems = expandedSourceTreeItems();
-    uint64_t selectedSourceID = 0;
-    uint64_t selectedID = 0;
-    uint32_t selectedType = 0;
-    auto index = selectedSourceTreeIndex();
-    if (index.isValid())
+    if (mReloadSourcesExpansionSelectionState == nullptr)
     {
-        selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        selectedID = index.data(SourceTreeEntryIDRole).toULongLong();
-        selectedType = index.data(SourceTreeEntryTypeRole).toUInt();
+        // we only do this if this state hasn't been set before (which it has after app launch, when the settings are loaded from disk)
+        mReloadSourcesExpansionSelectionState = std::make_unique<QJsonObject>();
+        mReloadSourcesExpansionSelectionState->insert("expanded", expandedSourceTreeItems());
+        uint64_t selectedSourceID = 0;
+        uint64_t selectedID = 0;
+        uint32_t selectedType = 0;
+        auto index = selectedSourceTreeIndex();
+        if (index.isValid())
+        {
+            selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            selectedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            selectedType = index.data(SourceTreeEntryTypeRole).toUInt();
+        }
+        mReloadSourcesExpansionSelectionState->insert("selectedSourceID", static_cast<qint64>(selectedSourceID));
+        mReloadSourcesExpansionSelectionState->insert("selectedID", static_cast<qint64>(selectedID));
+        mReloadSourcesExpansionSelectionState->insert("selectedType", static_cast<int32_t>(selectedType));
     }
 
     // recreate the model
@@ -355,131 +365,213 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
     ui->treeViewSources->setModel(mItemModelSources.get());
     mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
 
-    // lambda to recursively create folder items
-    std::unordered_map<uint64_t, QStandardItem*> folderIDToItemMapping; // a map to quickly look up folder items when adding feed items
-    std::function<void(ZapFR::Engine::Folder*, uint64_t, QStandardItem*)> createFolderItems;
-    createFolderItems = [&](ZapFR::Engine::Folder* folder, uint64_t sourceID, QStandardItem* parentItem)
-    {
-        auto folderItem = new QStandardItem(QString::fromUtf8(folder->title()));
-        folderItem->setData(SOURCETREE_ENTRY_TYPE_FOLDER, SourceTreeEntryTypeRole);
-        folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), SourceTreeEntryIDRole);
-        folderItem->setData(QVariant::fromValue<uint64_t>(folder->parentID()), SourceTreeEntryParentFolderIDRole);
-        folderItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryParentSourceIDRole);
-        parentItem->appendRow(folderItem);
-
-        if (folder->hasSubfolders())
-        {
-            for (const auto& subfolder : folder->subfolders())
-            {
-                createFolderItems(subfolder, sourceID, folderItem);
-            }
-        }
-        folderIDToItemMapping[folder->id()] = folderItem;
-    };
-
-    // process all available sources
-    mFirstSource = nullptr;
+    // get the trees of all the sources
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)
     {
-        // create the parent source item
-        auto sourceItem = new QStandardItem(QString::fromUtf8(source->title()));
-        mItemModelSources->appendRow(sourceItem);
-        sourceItem->setData(SOURCETREE_ENTRY_TYPE_SOURCE, SourceTreeEntryTypeRole);
-        sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryIDRole);
-        sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
-
-        if (mFirstSource == nullptr)
-        {
-            mFirstSource = sourceItem;
-        }
-
-        // create all the folder and subfolder items
-        auto rootFolders = source->getFolders(0);
-        for (const auto& folder : rootFolders)
-        {
-            createFolderItems(folder.get(), source->id(), sourceItem);
-        }
-
-        // create the subfolder items
-        auto feeds = source->getFeeds();
-        for (const auto& feed : feeds)
-        {
-            // look up the folder to which this feed belongs, default to source item
-            auto parentItem = sourceItem;
-            auto folderID = feed->folder();
-            if (folderIDToItemMapping.contains(folderID))
+        ZapFR::Engine::Agent::getInstance()->queueGetSourceTree(
+            source->id(),
+            [&](uint64_t sourceID, const std::string& sourceTitle, const std::vector<ZapFR::Engine::Folder*>& rootFolders, const std::vector<ZapFR::Engine::Feed*>& feeds)
             {
-                parentItem = folderIDToItemMapping.at(folderID);
-            }
-
-            // create the feed item
-            auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
-            feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
-            feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), SourceTreeEntryIDRole);
-            feedItem->setData(QVariant::fromValue<uint64_t>(source->id()), SourceTreeEntryParentSourceIDRole);
-            feedItem->setData(QVariant::fromValue<uint64_t>(folderID), SourceTreeEntryParentFolderIDRole);
-            auto unreadCount = feed->unreadCount();
-            feedItem->setData(QVariant::fromValue<uint64_t>(unreadCount), SourceTreeEntryUnreadCount);
-            if (unreadCount >= 999)
-            {
-                feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
-            }
-
-            if (!FeedIconCache::isCached(feed->id()) || !FeedIconCache::isSameHash(feed->id(), feed->iconHash()))
-            {
-                auto iconData = feed->icon();
-                if (!iconData.empty())
+                // lambda to recursively create folder items
+                std::unordered_map<uint64_t, QStandardItem*> folderIDToItemMapping; // a map to quickly look up folder items when adding feed items
+                std::function<void(ZapFR::Engine::Folder*, uint64_t, QStandardItem*)> createFolderItems;
+                createFolderItems = [&](ZapFR::Engine::Folder* folder, uint64_t sourceID, QStandardItem* parentItem)
                 {
-                    QPixmap icon;
-                    icon.loadFromData(QByteArray(iconData.c_str(), static_cast<int64_t>(iconData.length())));
-                    if (!icon.isNull())
+                    auto folderItem = new QStandardItem(QString::fromUtf8(folder->title()));
+                    folderItem->setData(SOURCETREE_ENTRY_TYPE_FOLDER, SourceTreeEntryTypeRole);
+                    folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), SourceTreeEntryIDRole);
+                    folderItem->setData(QVariant::fromValue<uint64_t>(folder->parentID()), SourceTreeEntryParentFolderIDRole);
+                    folderItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryParentSourceIDRole);
+                    parentItem->appendRow(folderItem);
+
+                    if (folder->hasSubfolders())
                     {
-                        Poco::MD5Engine md5;
-                        Poco::DigestOutputStream ds(md5);
-                        ds << iconData;
-                        ds.close();
-                        auto iconHash = Poco::DigestEngine::digestToHex(md5.digest());
-
-                        FeedIconCache::cache(feed->id(), iconHash, icon);
+                        for (const auto& subfolder : folder->subfolders())
+                        {
+                            createFolderItems(subfolder, sourceID, folderItem);
+                        }
                     }
+                    folderIDToItemMapping[folder->id()] = folderItem;
+                };
+                // create the parent source item
+                auto sourceItem = new QStandardItem(QString::fromUtf8(sourceTitle));
+                sourceItem->setData(SOURCETREE_ENTRY_TYPE_SOURCE, SourceTreeEntryTypeRole);
+                sourceItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryIDRole);
+                sourceItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryParentSourceIDRole);
+
+                // add all the folders and subfolders
+                for (const auto& folder : rootFolders)
+                {
+                    createFolderItems(folder, sourceID, sourceItem);
                 }
-            }
 
-            feedItem->setData(FeedIconCache::icon(feed->id()), SourceTreeEntryIcon);
+                // add all the feeds
+                for (const auto& feed : feeds)
+                {
+                    // look up the folder to which this feed belongs, default to source item
+                    auto parentItem = sourceItem;
+                    auto folderID = feed->folder();
+                    if (folderIDToItemMapping.contains(folderID))
+                    {
+                        parentItem = folderIDToItemMapping.at(folderID);
+                    }
 
-            parentItem->appendRow(feedItem);
-        }
+                    // create the feed item
+                    auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
+                    feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
+                    feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), SourceTreeEntryIDRole);
+                    feedItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryParentSourceIDRole);
+                    feedItem->setData(QVariant::fromValue<uint64_t>(folderID), SourceTreeEntryParentFolderIDRole);
+                    auto unreadCount = feed->unreadCount();
+                    feedItem->setData(QVariant::fromValue<uint64_t>(unreadCount), SourceTreeEntryUnreadCount);
+                    if (unreadCount >= 999)
+                    {
+                        feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
+                    }
+
+                    if (!FeedIconCache::isCached(feed->id()) || !FeedIconCache::isSameHash(feed->id(), feed->iconHash()))
+                    {
+                        auto iconData = feed->icon();
+                        if (!iconData.empty())
+                        {
+                            QPixmap icon;
+                            icon.loadFromData(QByteArray(iconData.c_str(), static_cast<int64_t>(iconData.length())));
+                            if (!icon.isNull())
+                            {
+                                Poco::MD5Engine md5;
+                                Poco::DigestOutputStream ds(md5);
+                                ds << iconData;
+                                ds.close();
+                                auto iconHash = Poco::DigestEngine::digestToHex(md5.digest());
+
+                                FeedIconCache::cache(feed->id(), iconHash, icon);
+                            }
+                        }
+                    }
+
+                    feedItem->setData(FeedIconCache::icon(feed->id()), SourceTreeEntryIcon);
+
+                    parentItem->appendRow(feedItem);
+                }
+                QMetaObject::invokeMethod(this, "populateSources", Qt::AutoConnection, sourceID, sourceItem, performClickOnSelection);
+            });
     }
+}
+
+void ZapFR::Client::MainWindow::populateSources(uint64_t /*sourceID*/, QStandardItem* sourceItem, bool performClickOnSelection)
+{
+    mItemModelSources->appendRow(sourceItem);
 
     // restore source item expansion and selection
-    expandSourceTreeItems(expandedItems);
-    if (selectedSourceID != 0 && selectedID != 0)
+    if (mReloadSourcesExpansionSelectionState != nullptr)
     {
-        std::function<void(QStandardItem*)> selectIndex;
-        selectIndex = [&](QStandardItem* parent)
+        auto expandedItems = mReloadSourcesExpansionSelectionState->value("expanded").toArray();
+        auto selectedSourceID = mReloadSourcesExpansionSelectionState->value("selectedSourceID").toInteger();
+        auto selectedID = mReloadSourcesExpansionSelectionState->value("selectedID").toInteger();
+        auto selectedType = mReloadSourcesExpansionSelectionState->value("selectedType").toInteger();
+
+        expandSourceTreeItems(expandedItems);
+        if (selectedSourceID != 0 && selectedID != 0)
         {
-            if (parent->data(SourceTreeEntryTypeRole).toUInt() == selectedType && parent->data(SourceTreeEntryParentSourceIDRole).toULongLong() == selectedSourceID &&
-                parent->data(SourceTreeEntryIDRole).toULongLong() == selectedID)
+            std::function<void(QStandardItem*)> selectIndex;
+            selectIndex = [&](QStandardItem* parent)
             {
-                auto indexToSelect = mItemModelSources->indexFromItem(parent);
-                mReclickOnSource = performClickOnSelection;
-                ui->treeViewSources->setCurrentIndex(indexToSelect);
-                return;
-            }
-            else
-            {
-                if (parent->hasChildren())
+                if (parent->data(SourceTreeEntryTypeRole).toUInt() == selectedType && parent->data(SourceTreeEntryParentSourceIDRole).toLongLong() == selectedSourceID &&
+                    parent->data(SourceTreeEntryIDRole).toLongLong() == selectedID)
                 {
-                    for (int i = 0; i < parent->rowCount(); ++i)
+                    auto indexToSelect = mItemModelSources->indexFromItem(parent);
+                    mReclickOnSource = performClickOnSelection;
+                    ui->treeViewSources->setCurrentIndex(indexToSelect);
+                    return;
+                }
+                else
+                {
+                    if (parent->hasChildren())
                     {
-                        selectIndex(parent->child(i));
+                        for (int i = 0; i < parent->rowCount(); ++i)
+                        {
+                            selectIndex(parent->child(i));
+                        }
+                    }
+                }
+            };
+            selectIndex(mItemModelSources->invisibleRootItem());
+        }
+        mReloadSourcesExpansionSelectionState = nullptr;
+
+        if (!ui->treeViewSources->currentIndex().isValid())
+        {
+            ui->treeViewSources->setCurrentIndex(mItemModelSources->indexFromItem(sourceItem));
+        }
+    }
+}
+
+void ZapFR::Client::MainWindow::updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount)
+{
+    // find the correct source
+    QStandardItem* sourceItem{nullptr};
+    auto root = mItemModelSources->invisibleRootItem();
+    for (int32_t i = 0; i < root->rowCount(); ++i)
+    {
+        auto child = root->child(i, 0);
+        if (child != nullptr)
+        {
+            auto index = mItemModelSources->indexFromItem(child);
+            if (index.isValid())
+            {
+                auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+                if (type == SOURCETREE_ENTRY_TYPE_SOURCE)
+                {
+                    auto id = index.data(SourceTreeEntryIDRole).toULongLong();
+                    if (sourceID == id)
+                    {
+                        sourceItem = child;
+                        break;
                     }
                 }
             }
-        };
-        selectIndex(mItemModelSources->invisibleRootItem());
+        }
     }
+    if (sourceItem == nullptr)
+    {
+        return;
+    }
+
+    // recursively seek for the correct feed, and update its unread badge value
+    std::function<void(QStandardItem*)> updateBadgeInSource;
+    updateBadgeInSource = [&](QStandardItem* parent)
+    {
+        auto index = mItemModelSources->indexFromItem(parent);
+        if (index.isValid())
+        {
+            auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+            switch (type)
+            {
+                case SOURCETREE_ENTRY_TYPE_SOURCE:
+                case SOURCETREE_ENTRY_TYPE_FOLDER:
+                {
+                    for (int32_t i = 0; i < parent->rowCount(); ++i)
+                    {
+                        updateBadgeInSource(parent->child(i, 0));
+                    }
+
+                    break;
+                }
+                case SOURCETREE_ENTRY_TYPE_FEED:
+                {
+                    auto id = index.data(SourceTreeEntryIDRole).toULongLong();
+                    if (markEntireSourceAsRead || feedIDs.contains(id))
+                    {
+                        parent->setData(QVariant::fromValue<uint64_t>(unreadCount), SourceTreeEntryUnreadCount);
+                    }
+                    break;
+                }
+            }
+        }
+    };
+
+    updateBadgeInSource(sourceItem);
 }
 
 QString ZapFR::Client::MainWindow::dataDir() const
@@ -773,8 +865,8 @@ void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndex
             if (!isRead)
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkPostRead(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
-                                                                       [&](uint64_t postID)
-                                                                       { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection, postID); });
+                                                                       [&](uint64_t sourceID, uint64_t feedID, uint64_t postID)
+                                                                       { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection, sourceID, feedID, postID); });
             }
             reloadCurrentPost();
         }
@@ -932,13 +1024,18 @@ void ZapFR::Client::MainWindow::folderMoved()
     reloadSources();
 }
 
+void ZapFR::Client::MainWindow::folderAdded()
+{
+    reloadSources(false);
+}
+
 void ZapFR::Client::MainWindow::folderRemoved()
 {
     reloadSources();
     populatePosts();
 }
 
-void ZapFR::Client::MainWindow::postMarkedRead(uint64_t postID)
+void ZapFR::Client::MainWindow::postMarkedRead(uint64_t sourceID, uint64_t feedID, uint64_t postID)
 {
     for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
     {
@@ -954,13 +1051,23 @@ void ZapFR::Client::MainWindow::postMarkedRead(uint64_t postID)
         }
     }
 
-    reloadSources(false);
+    ZapFR::Engine::Agent::getInstance()->queueGetFeedUnreadCount(sourceID, feedID,
+                                                                 [&](uint64_t sourceID, uint64_t feedID, uint64_t unreadCount)
+                                                                 {
+                                                                     std::unordered_set<uint64_t> feedIDs;
+                                                                     feedIDs.insert(feedID);
+                                                                     QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, sourceID, feedIDs,
+                                                                                               false, unreadCount);
+                                                                 });
 }
 
-void ZapFR::Client::MainWindow::postsMarkedUnread(std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
+void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
 {
+    std::unordered_set<uint64_t> uniqueFeedIDs{};
+
     for (const auto& [feedID, postID] : postIDs)
     {
+        uniqueFeedIDs.insert(feedID);
         for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
         {
             auto index = mItemModelPosts->index(i, 0);
@@ -974,17 +1081,39 @@ void ZapFR::Client::MainWindow::postsMarkedUnread(std::vector<std::tuple<uint64_
             }
         }
     }
-    reloadSources(false);
+
+    for (const auto& feedID : uniqueFeedIDs)
+    {
+        ZapFR::Engine::Agent::getInstance()->queueGetFeedUnreadCount(sourceID, feedID,
+                                                                     [&](uint64_t sourceID, uint64_t feedID, uint64_t unreadCount)
+                                                                     {
+                                                                         std::unordered_set<uint64_t> feedIDs;
+                                                                         feedIDs.insert(feedID);
+                                                                         QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, sourceID, feedIDs,
+                                                                                                   false, unreadCount);
+                                                                     });
+    }
 }
 
-void ZapFR::Client::MainWindow::feedMarkedRead()
+void ZapFR::Client::MainWindow::feedMarkedRead(uint64_t sourceID, uint64_t feedID)
 {
-    reloadSources();
+    updateFeedUnreadCountBadge(sourceID, {feedID}, false, 0);
+    mCurrentPostPage = 1;
+    reloadPosts();
 }
 
-void ZapFR::Client::MainWindow::folderAdded()
+void ZapFR::Client::MainWindow::folderMarkedRead(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs)
 {
-    reloadSources(false);
+    updateFeedUnreadCountBadge(sourceID, feedIDs, false, 0);
+    mCurrentPostPage = 1;
+    reloadPosts();
+}
+
+void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
+{
+    updateFeedUnreadCountBadge(sourceID, {}, true, 0);
+    mCurrentPostPage = 1;
+    reloadPosts();
 }
 
 void ZapFR::Client::MainWindow::configureIcons()
@@ -1142,18 +1271,22 @@ void ZapFR::Client::MainWindow::markAsRead()
             case SOURCETREE_ENTRY_TYPE_FEED:
             {
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(
+                    sourceID, feedID, [&](uint64_t sourceID, uint64_t feedID) { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection, sourceID, feedID); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
             {
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID,
+                                                                         [&](uint64_t sourceID, std::unordered_set<uint64_t> feedIDs)
+                                                                         { QMetaObject::invokeMethod(this, "folderMarkedRead", Qt::AutoConnection, sourceID, feedIDs); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_SOURCE:
             {
-                ZapFR::Engine::Agent::getInstance()->queueMarkSourceRead(sourceID, [&]() { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkSourceRead(sourceID, [&](uint64_t sourceID)
+                                                                         { QMetaObject::invokeMethod(this, "sourceMarkedRead", Qt::AutoConnection, sourceID); });
                 break;
             }
         }
@@ -1183,8 +1316,8 @@ void ZapFR::Client::MainWindow::markAsUnread()
         if (feedAndPostIDs.size() > 0)
         {
             ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(sourceID, feedAndPostIDs,
-                                                                      [&](std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
-                                                                      { QMetaObject::invokeMethod(this, "postsMarkedUnread", Qt::AutoConnection, postIDs); });
+                                                                      [&](uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
+                                                                      { QMetaObject::invokeMethod(this, "postsMarkedUnread", Qt::AutoConnection, sourceID, postIDs); });
         }
     }
 }

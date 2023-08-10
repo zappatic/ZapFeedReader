@@ -16,22 +16,25 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentRemoveFeed.h"
+#include "agents/AgentGetFeedUnreadCount.h"
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentRemoveFeed::AgentRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentGetFeedUnreadCount::AgentGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentRemoveFeed::run()
+void ZapFR::Engine::AgentGetFeedUnreadCount::run()
 {
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->removeFeed(mFeedID);
-        mFinishedCallback();
+        auto feed = source.value()->getFeed(mFeedID);
+        if (feed.has_value())
+        {
+            mFinishedCallback(source.value()->id(), feed.value()->id(), feed.value()->unreadCount());
+        }
     }
 
     mIsDone = true;

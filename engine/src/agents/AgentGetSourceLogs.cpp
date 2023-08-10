@@ -28,7 +28,7 @@ ZapFR::Engine::AgentGetSourceLogs::AgentGetSourceLogs(uint64_t sourceID, uint64_
 
 void ZapFR::Engine::AgentGetSourceLogs::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         auto logs = source.value()->getLogs(mPerPage, mPage);

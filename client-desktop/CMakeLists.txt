@@ -110,6 +110,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/agents/AgentGetFeedPosts.cpp
                                 ../engine/src/agents/AgentGetFolderPosts.cpp
                                 ../engine/src/agents/AgentGetSourcePosts.cpp
+                                ../engine/src/agents/AgentGetSourceTree.cpp
                                 ../engine/src/agents/AgentAddFolder.cpp
                                 ../engine/src/agents/AgentMoveFeed.cpp
                                 ../engine/src/agents/AgentMoveFolder.cpp
@@ -124,6 +125,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/agents/AgentGetFeedLogs.cpp
                                 ../engine/src/agents/AgentMarkPostFlagged.cpp
                                 ../engine/src/agents/AgentMarkPostUnflagged.cpp
+                                ../engine/src/agents/AgentGetFeedUnreadCount.cpp
                                 ../engine/src/Database.cpp
                                 ../engine/src/Log.cpp
                                 ../engine/src/FeedFetcher.cpp

@@ -20,18 +20,18 @@
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMarkSourceRead::AgentMarkSourceRead(uint64_t sourceID, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentMarkSourceRead::AgentMarkSourceRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
 void ZapFR::Engine::AgentMarkSourceRead::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         source.value()->markAllAsRead();
-        mFinishedCallback();
+        mFinishedCallback(mSourceID);
     }
 
     mIsDone = true;

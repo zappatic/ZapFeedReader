@@ -32,7 +32,7 @@ namespace ZapFR
         class AgentMarkFolderRead : public AgentRunnable
         {
           public:
-            explicit AgentMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void()> finishedCallback);
+            explicit AgentMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
             virtual ~AgentMarkFolderRead() = default;
 
             void run() override;
@@ -40,7 +40,7 @@ namespace ZapFR
           private:
             uint64_t mSourceID{0};
             uint64_t mFolderID{0};
-            std::function<void()> mFinishedCallback{};
+            std::function<void(uint64_t, std::unordered_set<uint64_t>)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -28,7 +28,7 @@ ZapFR::Engine::AgentSubscribeFeed::AgentSubscribeFeed(uint64_t sourceID, const s
 
 void ZapFR::Engine::AgentSubscribeFeed::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         auto subfolderID = source.value()->createFolderHierarchy(mFolderID, mNewFolderHierarchy);

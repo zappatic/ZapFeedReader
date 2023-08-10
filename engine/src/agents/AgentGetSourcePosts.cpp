@@ -28,7 +28,7 @@ ZapFR::Engine::AgentGetSourcePosts::AgentGetSourcePosts(uint64_t sourceID, uint6
 
 void ZapFR::Engine::AgentGetSourcePosts::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         auto posts = source.value()->getPosts(mPerPage, mPage, mShowOnlyUnread);

@@ -21,14 +21,14 @@
 #include "Source.h"
 
 ZapFR::Engine::AgentMarkPostsUnread::AgentMarkPostsUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs,
-                                                          std::function<void(std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback)
+                                                          std::function<void(uint64_t, std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFinishedCallback(finishedCallback)
 {
 }
 
 void ZapFR::Engine::AgentMarkPostsUnread::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         // remap the vector of tuples to feed -> [post, ...] map, so we can handle it one feed at a time
@@ -56,7 +56,7 @@ void ZapFR::Engine::AgentMarkPostsUnread::run()
                 feed.value()->markAsUnread(postID);
             }
         }
-        mFinishedCallback(mFeedAndPostIDs);
+        mFinishedCallback(mSourceID, mFeedAndPostIDs);
     }
 
     mIsDone = true;

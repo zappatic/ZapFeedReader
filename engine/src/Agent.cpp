@@ -23,11 +23,13 @@
 #include "agents/AgentAddFolder.h"
 #include "agents/AgentGetFeedLogs.h"
 #include "agents/AgentGetFeedPosts.h"
+#include "agents/AgentGetFeedUnreadCount.h"
 #include "agents/AgentGetFolderLogs.h"
 #include "agents/AgentGetFolderPosts.h"
 #include "agents/AgentGetPost.h"
 #include "agents/AgentGetSourceLogs.h"
 #include "agents/AgentGetSourcePosts.h"
+#include "agents/AgentGetSourceTree.h"
 #include "agents/AgentMarkFeedRead.h"
 #include "agents/AgentMarkFolderRead.h"
 #include "agents/AgentMarkPostFlagged.h"
@@ -119,28 +121,28 @@ void ZapFR::Engine::Agent::queueGetSourcePosts(uint64_t sourceID, uint64_t perPa
     enqueue(std::make_unique<AgentGetSourcePosts>(sourceID, perPage, page, showOnlyUnread, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkPostRead>(sourceID, feedID, postID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueMarkPostsUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs,
-                                                std::function<void(std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback)
+                                                std::function<void(uint64_t, std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkPostsUnread>(sourceID, feedAndPostIDs, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkFeedRead>(sourceID, feedID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkFolderRead>(sourceID, folderID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkSourceRead(uint64_t sourceID, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkSourceRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkSourceRead>(sourceID, finishedCallback));
 }
@@ -181,6 +183,17 @@ void ZapFR::Engine::Agent::queueMarkPostFlagged(uint64_t sourceID, uint64_t feed
 void ZapFR::Engine::Agent::queueMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkPostUnflagged>(sourceID, feedID, postID, flagColor, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetSourceTree(uint64_t sourceID,
+                                              std::function<void(uint64_t, const std::string&, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetSourceTree>(sourceID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetFeedUnreadCount>(sourceID, feedID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)

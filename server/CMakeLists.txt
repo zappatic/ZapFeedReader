@@ -44,6 +44,7 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/agents/AgentGetFeedPosts.cpp
     ../engine/src/agents/AgentGetFolderPosts.cpp
     ../engine/src/agents/AgentGetSourcePosts.cpp
+    ../engine/src/agents/AgentGetSourceTree.cpp
     ../engine/src/agents/AgentMarkPostRead.cpp
     ../engine/src/agents/AgentMarkPostsUnread.cpp
     ../engine/src/agents/AgentMarkFeedRead.cpp
@@ -55,6 +56,7 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/agents/AgentGetFeedLogs.cpp
     ../engine/src/agents/AgentMarkPostFlagged.cpp
     ../engine/src/agents/AgentMarkPostUnflagged.cpp
+    ../engine/src/agents/AgentGetFeedUnreadCount.cpp
     ../engine/src/Database.cpp
     ../engine/src/Log.cpp
     ../engine/src/FeedFetcher.cpp

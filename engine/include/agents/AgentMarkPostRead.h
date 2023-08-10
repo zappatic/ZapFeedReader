@@ -32,7 +32,7 @@ namespace ZapFR
         class AgentMarkPostRead : public AgentRunnable
         {
           public:
-            explicit AgentMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback);
+            explicit AgentMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentMarkPostRead() = default;
 
             void run() override;
@@ -41,7 +41,7 @@ namespace ZapFR
             uint64_t mSourceID{0};
             uint64_t mFeedID{0};
             uint64_t mPostID{0};
-            std::function<void(uint64_t)> mFinishedCallback{};
+            std::function<void(uint64_t, uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

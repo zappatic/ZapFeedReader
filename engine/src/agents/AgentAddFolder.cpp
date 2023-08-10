@@ -28,7 +28,7 @@ ZapFR::Engine::AgentAddFolder::AgentAddFolder(uint64_t sourceID, uint64_t parent
 
 void ZapFR::Engine::AgentAddFolder::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         source.value()->addFolder(mTitle, mParentFolderID);

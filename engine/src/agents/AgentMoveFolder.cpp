@@ -27,7 +27,7 @@ ZapFR::Engine::AgentMoveFolder::AgentMoveFolder(uint64_t sourceID, uint64_t fold
 
 void ZapFR::Engine::AgentMoveFolder::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         source.value()->moveFolder(mFolderID, mNewFolderID, mNewSortOrder);

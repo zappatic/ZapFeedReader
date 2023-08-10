@@ -30,6 +30,7 @@ namespace ZapFR
         class Feed;
         class Post;
         class Log;
+        class Folder;
 
         class Agent
         {
@@ -57,30 +58,35 @@ namespace ZapFR
             void queueGetFeedLogs(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
                                   std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
 
+            // querying sources
+            void queueGetSourceTree(uint64_t sourceID,
+                                    std::function<void(uint64_t, const std::string&, const std::vector<Folder*>&, const std::vector<Feed*>&)> finishedCallback);
+
             // post manipulation
-            void queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t)> finishedCallback);
+            void queueMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
             void queueMarkPostsUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs,
-                                      std::function<void(std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback);
+                                      std::function<void(uint64_t, std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback);
             void queueMarkPostFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback);
             void queueMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback);
 
             // feed manipulation
-            void queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
+            void queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
+            void queueGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
             void queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t)> finishedCallback);
             void queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
                                     std::function<void()> finishedCallback);
 
             // folder manipulation
-            void queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void()> finishedCallback);
+            void queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
             void queueMoveFolder(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
             void queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback);
             void queueRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
             void queueRefreshFolder(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t)> finishedCallback);
 
             // source manipulation
-            void queueMarkSourceRead(uint64_t sourceID, std::function<void()> finishedCallback);
+            void queueMarkSourceRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
             void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
 
           private:

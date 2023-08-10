@@ -26,7 +26,7 @@ ZapFR::Engine::AgentMoveFeed::AgentMoveFeed(uint64_t sourceID, uint64_t feedID, 
 
 void ZapFR::Engine::AgentMoveFeed::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         source.value()->moveFeed(mFeedID, mNewFolderID, mNewSortOrder);

@@ -28,7 +28,7 @@ ZapFR::Engine::AgentGetFolderPosts::AgentGetFolderPosts(uint64_t sourceID, uint6
 
 void ZapFR::Engine::AgentGetFolderPosts::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         auto folder = source.value()->getFolder(mFolderID);

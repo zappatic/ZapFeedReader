@@ -28,7 +28,7 @@ ZapFR::Engine::AgentGetPost::AgentGetPost(uint64_t sourceID, uint64_t feedID, ui
 
 void ZapFR::Engine::AgentGetPost::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         auto feed = source.value()->getFeed(mFeedID);

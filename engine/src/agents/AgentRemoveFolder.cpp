@@ -26,7 +26,7 @@ ZapFR::Engine::AgentRemoveFolder::AgentRemoveFolder(uint64_t sourceID, uint64_t 
 
 void ZapFR::Engine::AgentRemoveFolder::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         source.value()->removeFolder(mFolderID);

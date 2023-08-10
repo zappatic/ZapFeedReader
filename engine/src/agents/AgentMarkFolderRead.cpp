@@ -20,21 +20,21 @@
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMarkFolderRead::AgentMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentMarkFolderRead::AgentMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
 {
 }
 
 void ZapFR::Engine::AgentMarkFolderRead::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         auto folder = source.value()->getFolder(mFolderID);
         if (folder.has_value())
         {
-            folder.value()->markAllAsRead();
-            mFinishedCallback();
+            auto feedIDs = folder.value()->markAllAsRead();
+            mFinishedCallback(mSourceID, feedIDs);
         }
     }
 

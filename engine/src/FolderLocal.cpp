@@ -180,17 +180,20 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::ge
     return posts;
 }
 
-void ZapFR::Engine::FolderLocal::markAllAsRead()
+std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAllAsRead()
 {
-    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
+    auto feedIDs = feedIDsInFoldersAndSubfolders();
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDs, ",");
     if (joinedFeedIDs.empty())
     {
-        return;
+        return {};
     }
 
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << Poco::format("UPDATE posts SET isRead=TRUE WHERE feedID IN (%s)", joinedFeedIDs), now;
     updateStmt.execute();
+
+    return std::unordered_set<uint64_t>(feedIDs.begin(), feedIDs.end());
 }
 
 std::vector<uint64_t> ZapFR::Engine::FolderLocal::folderAndSubfolderIDs() const

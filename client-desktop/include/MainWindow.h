@@ -49,8 +49,6 @@ namespace ZapFR
             MainWindow(QWidget* parent = nullptr);
             ~MainWindow();
 
-            void reloadSources(bool performClickOnSelection = true);
-
           private slots:
             // actions
             void addSource();
@@ -76,12 +74,16 @@ namespace ZapFR
             void folderRemoved();
             void folderMoved();
             void folderAdded();
-            void postMarkedRead(uint64_t postID);
-            void postsMarkedUnread(std::vector<std::tuple<uint64_t, uint64_t>> postIDs);
-            void feedMarkedRead();
+            void postMarkedRead(uint64_t sourceID, uint64_t feedID, uint64_t postID);
+            void postsMarkedUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs);
+            void feedMarkedRead(uint64_t sourceID, uint64_t feedID);
+            void folderMarkedRead(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs);
+            void sourceMarkedRead(uint64_t sourceID);
             void setPostHTML(const QString& html);
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
+            void populateSources(uint64_t sourceID, QStandardItem* sourceItem, bool performClickOnSelection);
+            void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -109,7 +111,8 @@ namespace ZapFR
             uint64_t mCurrentPostCount{0};
             uint64_t mCurrentPostPageCount{1};
             bool mShowOnlyUnreadPosts{false};
-            QStandardItem* mFirstSource{nullptr};
+
+            std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
             bool mReclickOnSource{true};
 
             uint64_t mCurrentLogPage{1};
@@ -127,7 +130,9 @@ namespace ZapFR
             void expandSourceTreeItems(const QJsonArray& items) const;
             std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFolderID() const;
 
+            void reloadSources(bool performClickOnSelection = true);
             void reloadCurrentPost();
+
             QString postStyles() const;
             QString textMessageHTML(const QString& message) const;
             void configureIcons();

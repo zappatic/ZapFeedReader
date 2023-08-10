@@ -28,7 +28,7 @@ ZapFR::Engine::AgentMarkPostFlagged::AgentMarkPostFlagged(uint64_t sourceID, uin
 
 void ZapFR::Engine::AgentMarkPostFlagged::run()
 {
-    auto source = ZapFR::Engine::Source::getSource(mSourceID);
+    auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
         auto feed = source.value()->getFeed(mFeedID);

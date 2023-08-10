@@ -16,29 +16,51 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentRefreshSource.h"
-#include "Agent.h"
+#include "agents/AgentGetSourceTree.h"
 #include "Feed.h"
+#include "Folder.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentRefreshSource::AgentRefreshSource(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback)
+ZapFR::Engine::AgentGetSourceTree::AgentGetSourceTree(
+    uint64_t sourceID, std::function<void(uint64_t, const std::string&, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentRefreshSource::run()
+void ZapFR::Engine::AgentGetSourceTree::run()
 {
+    std::function<void(Folder*)> loadFolder;
+    loadFolder = [&](Folder* folder)
+    {
+        if (folder->hasSubfolders())
+        {
+            for (const auto& subfolder : folder->subfolders())
+            {
+                loadFolder(subfolder);
+            }
+        }
+    };
+
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
+        std::vector<Feed*> feedPointers{};
         auto feeds = source.value()->getFeeds();
         for (const auto& feed : feeds)
         {
-            // We just create agent threads here instead of refreshing the source manually
-            // so the refreshing can be done concurrently
-            // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
-            Agent::getInstance()->queueRefreshFeed(mSourceID, feed->id(), mFinishedCallback);
+            feedPointers.emplace_back(feed.get());
         }
+
+        std::vector<Folder*> folderPointers{};
+        auto folders = source.value()->getFolders(0);
+        // ensure all subfolders are fetched within this thread
+        for (const auto& folder : folders)
+        {
+            loadFolder(folder.get());
+            folderPointers.emplace_back(folder.get());
+        }
+
+        mFinishedCallback(source.value()->id(), source.value()->title(), folderPointers, feedPointers);
     }
 
     mIsDone = true;
