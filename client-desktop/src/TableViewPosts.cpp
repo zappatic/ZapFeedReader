@@ -135,14 +135,14 @@ void ZapFR::Client::TableViewPosts::processFlagToggle(ZapFR::Engine::FlagColor f
     {
         case Utilities::FlagStyle::Filled:
         {
-            ZapFR::Engine::Agent::getInstance()->queueMarkPostFlagged(sourceID, feedID, postID, flagColor, [&]() {});
+            emit postMarkedFlagged(sourceID, feedID, postID, flagColor);
             flags << QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(flagColor));
             qobject_cast<QStandardItemModel*>(model())->itemFromIndex(index)->setData(flags, PostAppliedFlagsRole);
             break;
         }
         case Utilities::FlagStyle::Unfilled:
         {
-            ZapFR::Engine::Agent::getInstance()->queueMarkPostUnflagged(sourceID, feedID, postID, flagColor, [&]() {});
+            emit postMarkedUnflagged(sourceID, feedID, postID, flagColor);
             flags.removeIf([&](const QVariant& v) { return flagColor == static_cast<ZapFR::Engine::FlagColor>(v.toInt()); });
             qobject_cast<QStandardItemModel*>(model())->itemFromIndex(index)->setData(flags, PostAppliedFlagsRole);
             break;

@@ -25,7 +25,6 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class Database;
         class Feed;
 
         class SourceLocal : public Source
@@ -54,6 +53,8 @@ namespace ZapFR
 
             std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
             uint64_t getTotalLogCount() override;
+
+            std::unordered_set<FlagColor> getUsedFlagColors() override;
 
           private:
             static std::mutex msAddFeedMutex;

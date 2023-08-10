@@ -126,6 +126,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/agents/AgentMarkPostFlagged.cpp
                                 ../engine/src/agents/AgentMarkPostUnflagged.cpp
                                 ../engine/src/agents/AgentGetFeedUnreadCount.cpp
+                                ../engine/src/agents/AgentGetUsedFlagColors.cpp
                                 ../engine/src/Database.cpp
                                 ../engine/src/Log.cpp
                                 ../engine/src/FeedFetcher.cpp

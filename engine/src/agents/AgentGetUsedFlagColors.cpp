@@ -16,32 +16,22 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentMarkPostUnflagged.h"
+#include "agents/AgentGetUsedFlagColors.h"
 #include "Feed.h"
-#include "Post.h"
+#include "Folder.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMarkPostUnflagged::AgentMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor,
-                                                              std::function<void(uint64_t, uint64_t, uint64_t, ZapFR::Engine::FlagColor)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFlagColor(flagColor), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentGetUsedFlagColors::AgentGetUsedFlagColors(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentMarkPostUnflagged::run()
+void ZapFR::Engine::AgentGetUsedFlagColors::run()
 {
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
-        if (feed.has_value())
-        {
-            auto post = feed.value()->getPost(mPostID);
-            if (post.has_value())
-            {
-                post.value()->markUnflagged(mFlagColor);
-                mFinishedCallback(mSourceID, mFeedID, mPostID, mFlagColor);
-            }
-        }
+        mFinishedCallback(source.value()->id(), source.value()->getUsedFlagColors());
     }
 
     mIsDone = true;

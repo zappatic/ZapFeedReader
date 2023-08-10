@@ -21,7 +21,8 @@
 #include "Post.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentMarkPostFlagged::AgentMarkPostFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentMarkPostFlagged::AgentMarkPostFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor,
+                                                          std::function<void(uint64_t, uint64_t, uint64_t, ZapFR::Engine::FlagColor)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFlagColor(flagColor), mFinishedCallback(finishedCallback)
 {
 }
@@ -38,7 +39,7 @@ void ZapFR::Engine::AgentMarkPostFlagged::run()
             if (post.has_value())
             {
                 post.value()->markFlagged(mFlagColor);
-                mFinishedCallback();
+                mFinishedCallback(mSourceID, mFeedID, mPostID, mFlagColor);
             }
         }
     }

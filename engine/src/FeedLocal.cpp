@@ -115,7 +115,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getP
             {
                 if (selectFlagsStmt.execute() > 0)
                 {
-                    flags.insert(static_cast<FlagColor>(flagID));
+                    flags.insert(Flag::flagColorForID(flagID));
                 }
             }
             p->setFlagColors(flags);
@@ -198,7 +198,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
         {
             if (selectFlagsStmt.execute() > 0)
             {
-                flags.insert(static_cast<FlagColor>(flagID));
+                flags.insert(Flag::flagColorForID(flagID));
             }
         }
         p->setFlagColors(flags);

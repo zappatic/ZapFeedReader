@@ -30,6 +30,7 @@
 #include "agents/AgentGetSourceLogs.h"
 #include "agents/AgentGetSourcePosts.h"
 #include "agents/AgentGetSourceTree.h"
+#include "agents/AgentGetUsedFlagColors.h"
 #include "agents/AgentMarkFeedRead.h"
 #include "agents/AgentMarkFolderRead.h"
 #include "agents/AgentMarkPostFlagged.h"
@@ -175,12 +176,14 @@ void ZapFR::Engine::Agent::queueGetFeedLogs(uint64_t sourceID, uint64_t feedID, 
     enqueue(std::make_unique<AgentGetFeedLogs>(sourceID, feedID, perPage, page, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkPostFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkPostFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor,
+                                                std::function<void(uint64_t, uint64_t, uint64_t, ZapFR::Engine::FlagColor)> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkPostFlagged>(sourceID, feedID, postID, flagColor, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor,
+                                                  std::function<void(uint64_t, uint64_t, uint64_t, ZapFR::Engine::FlagColor)> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkPostUnflagged>(sourceID, feedID, postID, flagColor, finishedCallback));
 }
@@ -194,6 +197,11 @@ void ZapFR::Engine::Agent::queueGetSourceTree(uint64_t sourceID,
 void ZapFR::Engine::Agent::queueGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentGetFeedUnreadCount>(sourceID, feedID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetUsedFlagColors(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetUsedFlagColors>(sourceID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)

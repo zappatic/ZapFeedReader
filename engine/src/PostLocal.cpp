@@ -28,14 +28,14 @@ void ZapFR::Engine::PostLocal::markFlagged(FlagColor flagColor)
 {
     markUnflagged(flagColor);
 
-    auto fc = static_cast<std::underlying_type_t<FlagColor>>(flagColor);
+    auto fc = Flag::idForFlagColor(flagColor);
     Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
     insertStmt << "INSERT INTO flags (postID, flagID) VALUES (?, ?)", use(mID), use(fc), now;
 }
 
 void ZapFR::Engine::PostLocal::markUnflagged(FlagColor flagColor)
 {
-    auto fc = static_cast<std::underlying_type_t<FlagColor>>(flagColor);
+    auto fc = Flag::idForFlagColor(flagColor);
     Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
     deleteStmt << "DELETE FROM flags WHERE postID=? AND flagID=?", use(mID), use(fc), now;
 }

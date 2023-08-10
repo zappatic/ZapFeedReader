@@ -41,10 +41,12 @@ namespace ZapFR
 
             void setFlagColor(ZapFR::Engine::FlagColor flagColor);
             ZapFR::Engine::FlagColor flagColor() const noexcept;
+
             void setFlagStyle(Utilities::FlagStyle flagStyle);
+            Utilities::FlagStyle flagStyle() const noexcept;
 
           signals:
-            void flagClicked(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle);
+            void flagClicked(PopupFlag* flag);
 
           protected:
             void paintEvent(QPaintEvent* event) override;

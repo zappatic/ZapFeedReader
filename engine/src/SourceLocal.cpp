@@ -682,7 +682,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceLocal::ge
             {
                 if (selectFlagsStmt.execute() > 0)
                 {
-                    flags.insert(static_cast<FlagColor>(flagID));
+                    flags.insert(Flag::flagColorForID(flagID));
                 }
             }
             p->setFlagColors(flags);
@@ -768,4 +768,31 @@ uint64_t ZapFR::Engine::SourceLocal::getTotalLogCount()
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT COUNT(*) FROM logs", into(logCount), now;
     return logCount;
+}
+
+std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceLocal::getUsedFlagColors()
+{
+    std::unordered_set<FlagColor> flags;
+
+    uint64_t fc{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT DISTINCT(flagID) FROM flags", into(fc), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            try
+            {
+                auto flagColor = Flag::flagColorForID(static_cast<uint8_t>(fc));
+                flags.insert(flagColor);
+            }
+            catch (...)
+            {
+                Log::log(LogLevel::Debug, fmt::format("Invalid flag color ID requested: {}", fc), {});
+                // ignore non existant flag colors
+            }
+        }
+    }
+
+    return flags;
 }

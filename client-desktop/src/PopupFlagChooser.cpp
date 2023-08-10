@@ -35,10 +35,14 @@ ZapFR::Client::PopupFlagChooser::PopupFlagChooser(QWidget* parent) : QWidget(par
     ui->flagRed->setFlagColor(ZapFR::Engine::FlagColor::Red);
     ui->flagPurple->setFlagColor(ZapFR::Engine::FlagColor::Purple);
 
-    const auto emitFlagToggled = [&](ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle) { emit flagToggled(flagColor, flagStyle); };
     for (const auto& flag : mFlags)
     {
-        connect(flag, &PopupFlag::flagClicked, emitFlagToggled);
+        connect(flag, &PopupFlag::flagClicked,
+                [&](PopupFlag* flag)
+                {
+                    flag->setFlagStyle((flag->flagStyle() == Utilities::FlagStyle::Filled) ? Utilities::FlagStyle::Unfilled : Utilities::FlagStyle::Filled);
+                    emit flagToggled(flag->flagColor(), flag->flagStyle());
+                });
     }
 }
 
@@ -83,6 +87,7 @@ ZapFR::Client::PopupFlag::PopupFlag(QWidget* parent) : QWidget(parent)
 void ZapFR::Client::PopupFlag::setFlagColor(ZapFR::Engine::FlagColor flagColor)
 {
     mFlagColor = flagColor;
+    update();
 }
 
 ZapFR::Engine::FlagColor ZapFR::Client::PopupFlag::flagColor() const noexcept
@@ -93,6 +98,12 @@ ZapFR::Engine::FlagColor ZapFR::Client::PopupFlag::flagColor() const noexcept
 void ZapFR::Client::PopupFlag::setFlagStyle(Utilities::FlagStyle flagStyle)
 {
     mFlagStyle = flagStyle;
+    update();
+}
+
+ZapFR::Client::Utilities::FlagStyle ZapFR::Client::PopupFlag::flagStyle() const noexcept
+{
+    return mFlagStyle;
 }
 
 void ZapFR::Client::PopupFlag::paintEvent(QPaintEvent* /*event*/)
@@ -109,7 +120,5 @@ void ZapFR::Client::PopupFlag::paintEvent(QPaintEvent* /*event*/)
 
 void ZapFR::Client::PopupFlag::mouseReleaseEvent(QMouseEvent* /*event*/)
 {
-    mFlagStyle = (mFlagStyle == Utilities::FlagStyle::Filled) ? Utilities::FlagStyle::Unfilled : Utilities::FlagStyle::Filled;
-    emit flagClicked(mFlagColor, mFlagStyle);
-    update();
+    emit flagClicked(this);
 }

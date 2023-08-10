@@ -34,5 +34,23 @@ std::tuple<uint8_t, uint8_t, uint8_t> ZapFR::Engine::Flag::rgbForColor(FlagColor
     {
         return msColorRGBMapping.at(color);
     }
+    return std::make_tuple(255, 0, 255);
+}
+
+ZapFR::Engine::FlagColor ZapFR::Engine::Flag::flagColorForID(uint8_t id)
+{
+    if (msIDColorMapping.contains(id))
+    {
+        return msIDColorMapping.at(id);
+    }
+    throw std::runtime_error("Unknown flag color ID requested");
+}
+
+uint8_t ZapFR::Engine::Flag::idForFlagColor(FlagColor flagColor)
+{
+    if (msColorIDMapping.contains(flagColor))
+    {
+        return msColorIDMapping.at(flagColor);
+    }
     throw std::runtime_error("Unknown flag color requested");
 }

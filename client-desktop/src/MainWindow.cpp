@@ -337,6 +337,34 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
     return std::make_tuple(sourceID, folderID);
 }
 
+void ZapFR::Client::MainWindow::reloadUsedFlagColors()
+{
+    auto index = ui->treeViewSources->currentIndex();
+    if (index.isValid())
+    {
+        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        if (sourceID != mPreviouslySelectedSourceID)
+        {
+            ZapFR::Engine::Agent::getInstance()->queueGetUsedFlagColors(sourceID,
+                                                                        [&](uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
+                                                                        {
+                                                                            QMetaObject::invokeMethod(this, "populateUsedFlags", Qt::AutoConnection, sourceID, flagColors);
+                                                                            mPreviouslySelectedSourceID = sourceID;
+                                                                        });
+        }
+    }
+}
+
+void ZapFR::Client::MainWindow::populateUsedFlags(uint64_t /*sourceID*/, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
+{
+    ui->widgetFilterFlagBlue->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Blue));
+    ui->widgetFilterFlagGreen->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Green));
+    ui->widgetFilterFlagYellow->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Yellow));
+    ui->widgetFilterFlagOrange->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Orange));
+    ui->widgetFilterFlagRed->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Red));
+    ui->widgetFilterFlagPurple->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Purple));
+}
+
 void ZapFR::Client::MainWindow::reloadSources()
 {
     // preserve the expansion of the source items and selected item data
@@ -1094,6 +1122,18 @@ void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, std::vector
     }
 }
 
+void ZapFR::Client::MainWindow::postMarkedFlagged(uint64_t /*sourceID*/, uint64_t /*feedID*/, uint64_t /*postID*/, ZapFR::Engine::FlagColor /*flagColor*/)
+{
+    mPreviouslySelectedSourceID = 0;
+    reloadUsedFlagColors();
+}
+
+void ZapFR::Client::MainWindow::postMarkedUnflagged(uint64_t /*sourceID*/, uint64_t /*feedID*/, uint64_t /*postID*/, ZapFR::Engine::FlagColor /*flagColor*/)
+{
+    mPreviouslySelectedSourceID = 0;
+    reloadUsedFlagColors();
+}
+
 void ZapFR::Client::MainWindow::feedMarkedRead(uint64_t sourceID, uint64_t feedID)
 {
     updateFeedUnreadCountBadge(sourceID, {feedID}, false, 0);
@@ -1127,8 +1167,7 @@ void ZapFR::Client::MainWindow::configureIcons()
         colorDisabled = "#555";
     }
 
-    std::function<QIcon(const QString&)> configureIcon;
-    configureIcon = [&](const QString& svgResource)
+    const auto configureIcon = [&](const QString& svgResource)
     {
         auto svgFile = QFile(svgResource);
         svgFile.open(QIODeviceBase::ReadOnly);
@@ -1178,6 +1217,10 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
                                        "QToolButton:disabled { color:%1; }\n")
                                    .arg(colorDisabled));
+
+    auto palette = ui->frameFlagFilters->palette();
+    ui->frameFlagFilters->setStyleSheet(QString("QFrame { border-top: 0px; border-left: 0px; border-right: 1px solid %1; border-bottom: 1px solid %1;}")
+                                            .arg(palette.color(QPalette::Active, QPalette::Dark).name()));
 }
 
 void ZapFR::Client::MainWindow::updateToolbar()
@@ -1526,6 +1569,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                         {
                             mCurrentPostPage = 1;
                             reloadPosts();
+                            reloadUsedFlagColors();
                             break;
                         }
                         case StackedPaneLogs:
@@ -1707,4 +1751,42 @@ void ZapFR::Client::MainWindow::configureConnects()
                 reloadCurrentPost();
                 configureIcons();
             });
+
+    connect(ui->tableViewPosts, &TableViewPosts::postMarkedFlagged,
+            [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
+            {
+                ZapFR::Engine::Agent::getInstance()->queueMarkPostFlagged(
+                    sourceID, feedID, postID, flagColor,
+                    [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
+                    { QMetaObject::invokeMethod(this, "postMarkedFlagged", Qt::AutoConnection, sourceID, feedID, postID, flagColor); });
+            });
+
+    connect(ui->tableViewPosts, &TableViewPosts::postMarkedUnflagged,
+            [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
+            {
+                ZapFR::Engine::Agent::getInstance()->queueMarkPostUnflagged(
+                    sourceID, feedID, postID, flagColor,
+                    [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
+                    { QMetaObject::invokeMethod(this, "postMarkedUnflagged", Qt::AutoConnection, sourceID, feedID, postID, flagColor); });
+            });
+
+    ui->widgetFilterFlagBlue->setFlagColor(ZapFR::Engine::FlagColor::Blue);
+    ui->widgetFilterFlagBlue->setFlagStyle(Utilities::FlagStyle::Filled);
+    ui->widgetFilterFlagGreen->setFlagColor(ZapFR::Engine::FlagColor::Green);
+    ui->widgetFilterFlagGreen->setFlagStyle(Utilities::FlagStyle::Filled);
+    ui->widgetFilterFlagYellow->setFlagColor(ZapFR::Engine::FlagColor::Yellow);
+    ui->widgetFilterFlagYellow->setFlagStyle(Utilities::FlagStyle::Filled);
+    ui->widgetFilterFlagOrange->setFlagColor(ZapFR::Engine::FlagColor::Orange);
+    ui->widgetFilterFlagOrange->setFlagStyle(Utilities::FlagStyle::Filled);
+    ui->widgetFilterFlagRed->setFlagColor(ZapFR::Engine::FlagColor::Red);
+    ui->widgetFilterFlagRed->setFlagStyle(Utilities::FlagStyle::Filled);
+    ui->widgetFilterFlagPurple->setFlagColor(ZapFR::Engine::FlagColor::Purple);
+    ui->widgetFilterFlagPurple->setFlagStyle(Utilities::FlagStyle::Filled);
+
+    static std::vector<PopupFlag*> flags{ui->widgetFilterFlagBlue,   ui->widgetFilterFlagGreen, ui->widgetFilterFlagYellow,
+                                         ui->widgetFilterFlagOrange, ui->widgetFilterFlagRed,   ui->widgetFilterFlagPurple};
+    for (const auto& flag : flags)
+    {
+        connect(flag, &PopupFlag::flagClicked, [&](PopupFlag* flag) { qDebug() << flag; });
+    }
 }

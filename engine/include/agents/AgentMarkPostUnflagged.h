@@ -32,7 +32,8 @@ namespace ZapFR
         class AgentMarkPostUnflagged : public AgentRunnable
         {
           public:
-            explicit AgentMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor, std::function<void()> finishedCallback);
+            explicit AgentMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor,
+                                            std::function<void(uint64_t, uint64_t, uint64_t, ZapFR::Engine::FlagColor)> finishedCallback);
             virtual ~AgentMarkPostUnflagged() = default;
 
             void run() override;
@@ -42,7 +43,7 @@ namespace ZapFR
             uint64_t mFeedID{0};
             uint64_t mPostID{0};
             FlagColor mFlagColor;
-            std::function<void()> mFinishedCallback{};
+            std::function<void(uint64_t, uint64_t, uint64_t, ZapFR::Engine::FlagColor)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

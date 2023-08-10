@@ -16,41 +16,32 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FLAG_H
-#define ZAPFR_ENGINE_FLAG_H
+#ifndef ZAPFR_ENGINE_AGENTGETUSEDFLAGCOLORS_H
+#define ZAPFR_ENGINE_AGENTGETUSEDFLAGCOLORS_H
 
-#include "Database.h"
+#include "AgentRunnable.h"
 #include "Global.h"
+#include "Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        enum class FlagColor
-        {
-            Gray,
-            Blue,
-            Green,
-            Yellow,
-            Orange,
-            Red,
-            Purple
-        };
+        class Feed;
 
-        class Flag
+        class AgentGetUsedFlagColors : public AgentRunnable
         {
           public:
-            static std::tuple<uint8_t, uint8_t, uint8_t> rgbForColor(FlagColor color);
-            static FlagColor flagColorForID(uint8_t id);
-            static uint8_t idForFlagColor(FlagColor flagColor);
+            explicit AgentGetUsedFlagColors(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> finishedCallback);
+            virtual ~AgentGetUsedFlagColors() = default;
+
+            void run() override;
 
           private:
-            static std::unordered_map<FlagColor, std::tuple<uint8_t, uint8_t, uint8_t>> msColorRGBMapping;
-            static std::unordered_map<FlagColor, uint8_t> msColorIDMapping;
-            static std::unordered_map<uint8_t, FlagColor> msIDColorMapping;
+            uint64_t mSourceID{0};
+            std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> mFinishedCallback{};
         };
-
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FLAG_H
+#endif // ZAPFR_ENGINE_AGENTGETUSEDFLAGCOLORS_H

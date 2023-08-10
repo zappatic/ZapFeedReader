@@ -75,6 +75,8 @@ namespace ZapFR
             void folderRemoved();
             void folderMoved();
             void folderAdded();
+            void postMarkedFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor);
+            void postMarkedUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor);
             void postMarkedRead(uint64_t sourceID, uint64_t feedID, uint64_t postID);
             void postsMarkedUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs);
             void feedMarkedRead(uint64_t sourceID, uint64_t feedID);
@@ -84,6 +86,7 @@ namespace ZapFR
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
             void populateSources(uint64_t sourceID, QStandardItem* sourceItem);
+            void populateUsedFlags(uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
 
           protected:
@@ -119,6 +122,8 @@ namespace ZapFR
             uint64_t mCurrentLogCount{0};
             uint64_t mCurrentLogPageCount{1};
 
+            uint64_t mPreviouslySelectedSourceID{0};
+
             QString dataDir() const;
             QString configDir() const;
             QString settingsFile() const;
@@ -132,6 +137,7 @@ namespace ZapFR
 
             void reloadSources();
             void reloadCurrentPost();
+            void reloadUsedFlagColors();
 
             QString postStyles() const;
             QString textMessageHTML(const QString& message) const;

@@ -20,6 +20,7 @@
 #define ZAPFR_ENGINE_SOURCE_H
 
 #include "Feed.h"
+#include "Flag.h"
 #include "Folder.h"
 #include "Global.h"
 #include "Log.h"
@@ -28,8 +29,6 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class Database;
-
         class Source
         {
           public:
@@ -65,6 +64,8 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
             virtual uint64_t getTotalLogCount() = 0;
+
+            virtual std::unordered_set<FlagColor> getUsedFlagColors() = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);
