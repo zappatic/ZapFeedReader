@@ -31,7 +31,7 @@ namespace ZapFR
         class AgentRefreshFeed : public AgentRunnable
         {
           public:
-            explicit AgentRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t)> finishedCallback);
+            explicit AgentRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentRefreshFeed() = default;
 
             void run() override;
@@ -39,7 +39,7 @@ namespace ZapFR
           private:
             uint64_t mSourceID{0};
             uint64_t mFeedID{0};
-            std::function<void(uint64_t)> mFinishedCallback{};
+            std::function<void(uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

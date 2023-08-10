@@ -320,7 +320,7 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
 {
     uint64_t sourceID{0};
     uint64_t folderID{0};
-    auto currentIndex = selectedSourceTreeIndex();
+    auto currentIndex = ui->treeViewSources->currentIndex();
     if (currentIndex.isValid())
     {
         sourceID = currentIndex.data(SourceTreeEntryParentSourceIDRole).toULongLong();
@@ -337,7 +337,7 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
     return std::make_tuple(sourceID, folderID);
 }
 
-void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
+void ZapFR::Client::MainWindow::reloadSources()
 {
     // preserve the expansion of the source items and selected item data
     if (mReloadSourcesExpansionSelectionState == nullptr)
@@ -348,7 +348,7 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
         uint64_t selectedSourceID = 0;
         uint64_t selectedID = 0;
         uint32_t selectedType = 0;
-        auto index = selectedSourceTreeIndex();
+        auto index = ui->treeViewSources->currentIndex();
         if (index.isValid())
         {
             selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
@@ -429,6 +429,7 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
                     {
                         feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
                     }
+                    feedItem->setData(true, SourceTreeEntryDisplayUnreadCountBadge);
 
                     if (!FeedIconCache::isCached(feed->id()) || !FeedIconCache::isSameHash(feed->id(), feed->iconHash()))
                     {
@@ -454,12 +455,12 @@ void ZapFR::Client::MainWindow::reloadSources(bool performClickOnSelection)
 
                     parentItem->appendRow(feedItem);
                 }
-                QMetaObject::invokeMethod(this, "populateSources", Qt::AutoConnection, sourceID, sourceItem, performClickOnSelection);
+                QMetaObject::invokeMethod(this, "populateSources", Qt::AutoConnection, sourceID, sourceItem);
             });
     }
 }
 
-void ZapFR::Client::MainWindow::populateSources(uint64_t /*sourceID*/, QStandardItem* sourceItem, bool performClickOnSelection)
+void ZapFR::Client::MainWindow::populateSources(uint64_t /*sourceID*/, QStandardItem* sourceItem)
 {
     mItemModelSources->appendRow(sourceItem);
 
@@ -481,7 +482,6 @@ void ZapFR::Client::MainWindow::populateSources(uint64_t /*sourceID*/, QStandard
                     parent->data(SourceTreeEntryIDRole).toLongLong() == selectedID)
                 {
                     auto indexToSelect = mItemModelSources->indexFromItem(parent);
-                    mReclickOnSource = performClickOnSelection;
                     ui->treeViewSources->setCurrentIndex(indexToSelect);
                     return;
                 }
@@ -653,7 +653,7 @@ void ZapFR::Client::MainWindow::reloadPosts()
         QMetaObject::invokeMethod(this, "populatePosts", Qt::AutoConnection, rows, pageNumber, totalPostCount);
     };
 
-    auto index = selectedSourceTreeIndex();
+    auto index = ui->treeViewSources->currentIndex();
     if (index.isValid())
     {
         if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
@@ -706,7 +706,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
 
     // in case we have just 1 feed selected, hide the feed column in the posts table
     ui->tableViewPosts->setColumnHidden(PostColumnFeed, false);
-    auto index = selectedSourceTreeIndex();
+    auto index = ui->treeViewSources->currentIndex();
     if (index.isValid())
     {
         if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
@@ -789,7 +789,7 @@ void ZapFR::Client::MainWindow::reloadLogs()
         QMetaObject::invokeMethod(this, "populateLogs", Qt::AutoConnection, rows, page, totalRecordCount);
     };
 
-    auto index = selectedSourceTreeIndex();
+    auto index = ui->treeViewSources->currentIndex();
     if (index.isValid())
     {
         if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
@@ -990,22 +990,21 @@ QString ZapFR::Client::MainWindow::textMessageHTML(const QString& message) const
     return htmlStr;
 }
 
-void ZapFR::Client::MainWindow::feedRefreshed(uint64_t feedID)
+void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID)
 {
-    // only 're-click' on the feed if the one that got refreshed is the currently selected feed
-    auto reclick{false};
-    auto index = selectedSourceTreeIndex();
-    if (index.isValid() && index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
-    {
-        auto selectedFeedID = index.data(SourceTreeEntryIDRole).toULongLong();
-        reclick = (selectedFeedID == feedID);
-    }
-    reloadSources(reclick);
+    ZapFR::Engine::Agent::getInstance()->queueGetFeedUnreadCount(sourceID, feedID,
+                                                                 [&](uint64_t sourceID, uint64_t feedID, uint64_t unreadCount)
+                                                                 {
+                                                                     std::unordered_set<uint64_t> feedIDs;
+                                                                     feedIDs.insert(feedID);
+                                                                     QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, sourceID, feedIDs,
+                                                                                               false, unreadCount);
+                                                                 });
 }
 
 void ZapFR::Client::MainWindow::feedAdded()
 {
-    reloadSources(false);
+    reloadSources();
 }
 
 void ZapFR::Client::MainWindow::feedRemoved()
@@ -1026,7 +1025,7 @@ void ZapFR::Client::MainWindow::folderMoved()
 
 void ZapFR::Client::MainWindow::folderAdded()
 {
-    reloadSources(false);
+    reloadSources();
 }
 
 void ZapFR::Client::MainWindow::folderRemoved()
@@ -1197,7 +1196,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
             QString markAsReadCaption;
             QString refreshFeedsCaption;
 
-            auto index = selectedSourceTreeIndex();
+            auto index = ui->treeViewSources->currentIndex();
             if (index.isValid())
             {
                 anythingSelected = true;
@@ -1261,7 +1260,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
 
 void ZapFR::Client::MainWindow::markAsRead()
 {
-    auto index = selectedSourceTreeIndex();
+    auto index = ui->treeViewSources->currentIndex();
     if (index.isValid())
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
@@ -1384,21 +1383,21 @@ void ZapFR::Client::MainWindow::refreshFeeds()
             case SOURCETREE_ENTRY_TYPE_FEED:
             {
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(sourceID, feedID,
-                                                                      [&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+                ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
+                    sourceID, feedID, [&](uint64_t sourceID, uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, sourceID, feedID); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
             {
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueRefreshFolder(
-                    sourceID, folderID, [&](uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+                    sourceID, folderID, [&](uint64_t sourceID, uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, sourceID, feedID); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_SOURCE:
             {
-                ZapFR::Engine::Agent::getInstance()->queueRefreshSource(sourceID, [&](uint64_t feedID)
-                                                                        { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, feedID); });
+                ZapFR::Engine::Agent::getInstance()->queueRefreshSource(sourceID, [&](uint64_t sourceID, uint64_t feedID)
+                                                                        { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, sourceID, feedID); });
 
                 break;
             }
@@ -1406,18 +1405,40 @@ void ZapFR::Client::MainWindow::refreshFeeds()
     }
 }
 
-QModelIndex ZapFR::Client::MainWindow::selectedSourceTreeIndex() const
+void ZapFR::Client::MainWindow::setUnreadBadgesShown(bool b)
 {
-    auto selectionModel = ui->treeViewSources->selectionModel();
-    if (selectionModel != nullptr)
+    std::function<void(QStandardItem*)> updateShowThreadBadgeState;
+    updateShowThreadBadgeState = [&](QStandardItem* parent)
     {
-        auto selectedIndexes = selectionModel->selectedIndexes();
-        if (selectedIndexes.count() == 1)
+        auto index = mItemModelSources->indexFromItem(parent);
+        switch (index.data(SourceTreeEntryTypeRole).toULongLong())
         {
-            return selectedIndexes.at(0);
+            case SOURCETREE_ENTRY_TYPE_FEED:
+            {
+                parent->setData(b, SourceTreeEntryDisplayUnreadCountBadge);
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            case SOURCETREE_ENTRY_TYPE_SOURCE:
+            {
+                for (int32_t i = 0; i < parent->rowCount(); ++i)
+                {
+                    auto child = parent->child(i, 0);
+                    updateShowThreadBadgeState(child);
+                }
+                break;
+            }
+        }
+    };
+
+    if (mItemModelSources != nullptr)
+    {
+        for (int32_t i = 0; i < mItemModelSources->rowCount(); ++i)
+        {
+            auto item = mItemModelSources->item(i, 0);
+            updateShowThreadBadgeState(item);
         }
     }
-    return QModelIndex();
 }
 
 void ZapFR::Client::MainWindow::showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback)
@@ -1492,35 +1513,25 @@ void ZapFR::Client::MainWindow::configureConnects()
                 reloadLogs();
             });
 
-    connect(ui->action_Back_to_posts, &QAction::triggered,
-            [&]()
-            {
-                ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
-                reloadSources();
-            });
+    connect(ui->action_Back_to_posts, &QAction::triggered, [&]() { ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts); });
 
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged,
             [&](const QModelIndex& index)
             {
                 if (index.isValid())
                 {
-                    // have to do the call to the reload function with a timer because a this point the selectionModel() hasn't updated yet
                     switch (ui->stackedWidgetRight->currentIndex())
                     {
                         case StackedPanePosts:
                         {
-                            if (mReclickOnSource)
-                            {
-                                mCurrentPostPage = 1;
-                                QTimer::singleShot(0, [&]() { reloadPosts(); });
-                            }
-                            mReclickOnSource = true;
+                            mCurrentPostPage = 1;
+                            reloadPosts();
                             break;
                         }
                         case StackedPaneLogs:
                         {
                             mCurrentLogPage = 1;
-                            QTimer::singleShot(0, [&]() { reloadLogs(); });
+                            reloadLogs();
                             break;
                         }
                     }
@@ -1664,16 +1675,17 @@ void ZapFR::Client::MainWindow::configureConnects()
                 {
                     case StackedPanePosts:
                     {
-                        ui->treeViewSources->setShowUnreadBadges(true);
+                        setUnreadBadgesShown(true);
+                        mCurrentPostPage = 1;
+                        reloadPosts();
                         break;
                     }
                     case StackedPaneLogs:
                     {
-                        ui->treeViewSources->setShowUnreadBadges(false);
+                        setUnreadBadgesShown(false);
                         break;
                     }
                 }
-                reloadSources(false);
             });
 
     connect(mPostWebEnginePage.get(), &QWebEnginePage::linkHovered,

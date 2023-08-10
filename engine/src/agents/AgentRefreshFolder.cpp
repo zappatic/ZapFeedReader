@@ -21,7 +21,7 @@
 #include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentRefreshFolder::AgentRefreshFolder(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t)> finishedCallback)
+ZapFR::Engine::AgentRefreshFolder::AgentRefreshFolder(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
 {
 }

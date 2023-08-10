@@ -74,7 +74,7 @@ namespace ZapFR
             void queueMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
             void queueGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
             void queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
-            void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t)> finishedCallback);
+            void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
                                     std::function<void()> finishedCallback);
 
@@ -83,11 +83,11 @@ namespace ZapFR
             void queueMoveFolder(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
             void queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback);
             void queueRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
-            void queueRefreshFolder(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t)> finishedCallback);
+            void queueRefreshFolder(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, uint64_t)> finishedCallback);
 
             // source manipulation
             void queueMarkSourceRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
-            void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
+            void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t, uint64_t)> finishedCallback);
 
           private:
             explicit Agent();

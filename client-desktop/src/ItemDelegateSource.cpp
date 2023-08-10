@@ -97,7 +97,7 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
     painter->drawText(titleRect, elidedTitle, titleTextOptions);
 
     // draw the unread amount badge
-    if (parentTreeView->showUnreadBadges() && index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+    if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED && index.data(SourceTreeEntryDisplayUnreadCountBadge).toBool() == true)
     {
         auto unreadCount = index.data(SourceTreeEntryUnreadCount).toULongLong();
         if (unreadCount > 0)

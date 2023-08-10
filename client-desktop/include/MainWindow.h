@@ -62,12 +62,13 @@ namespace ZapFR
             void refreshFeeds();
             void reloadPosts();
             void reloadLogs();
+            void setUnreadBadgesShown(bool b);
 
             // events
             void postsTableViewSelectionChanged(const QModelIndexList& selected);
 
             // callbacks
-            void feedRefreshed(uint64_t feedID);
+            void feedRefreshed(uint64_t sourceID, uint64_t feedID);
             void feedAdded();
             void feedRemoved();
             void feedMoved();
@@ -82,7 +83,7 @@ namespace ZapFR
             void setPostHTML(const QString& html);
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
-            void populateSources(uint64_t sourceID, QStandardItem* sourceItem, bool performClickOnSelection);
+            void populateSources(uint64_t sourceID, QStandardItem* sourceItem);
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
 
           protected:
@@ -113,7 +114,6 @@ namespace ZapFR
             bool mShowOnlyUnreadPosts{false};
 
             std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
-            bool mReclickOnSource{true};
 
             uint64_t mCurrentLogPage{1};
             uint64_t mCurrentLogCount{0};
@@ -130,7 +130,7 @@ namespace ZapFR
             void expandSourceTreeItems(const QJsonArray& items) const;
             std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFolderID() const;
 
-            void reloadSources(bool performClickOnSelection = true);
+            void reloadSources();
             void reloadCurrentPost();
 
             QString postStyles() const;
@@ -138,7 +138,6 @@ namespace ZapFR
             void configureIcons();
             void updateToolbar();
             void createContextMenus();
-            QModelIndex selectedSourceTreeIndex() const;
             void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
 
             static constexpr uint64_t msPostsPerPage{100};
