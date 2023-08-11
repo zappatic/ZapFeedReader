@@ -1111,6 +1111,21 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
                                                                      QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, sourceID, feedIDs,
                                                                                                false, unreadCount);
                                                                  });
+
+    // if the feed is currently selected, then refresh the posts so the new unread posts are shown
+    auto index = ui->treeViewSources->currentIndex();
+    if (index.isValid())
+    {
+        if (index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
+        {
+            auto selectedFeedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            if (selectedFeedID == feedID)
+            {
+                mCurrentPostPage = 1;
+                reloadPosts();
+            }
+        }
+    }
 }
 
 void ZapFR::Client::MainWindow::feedAdded()
