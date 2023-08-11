@@ -174,4 +174,23 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ")",
             now;
     }
+
+    // SCRIPTFOLDERS TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS scriptfolders ("
+                       " id INTEGER PRIMARY KEY"
+                       ",title TEXT NOT NULL"
+                       ")",
+            now;
+    }
+
+    // SCRIPTFOLDER_POSTS TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS scriptfolder_posts ("
+                       " id INTEGER PRIMARY KEY"
+                       ",scriptfolderID INTEGER NOT NULL"
+                       ",postID INTEGER NOT NULL"
+                       ")",
+            now;
+    }
 }

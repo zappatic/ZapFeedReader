@@ -16,34 +16,35 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTGETPOST_H
-#define ZAPFR_ENGINE_AGENTGETPOST_H
+#ifndef ZAPFR_ENGINE_SCRIPTFOLDER_H
+#define ZAPFR_ENGINE_SCRIPTFOLDER_H
 
-#include "AgentRunnable.h"
 #include "Global.h"
-#include "Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Feed;
+        class Post;
 
-        class AgentGetPost : public AgentRunnable
+        class ScriptFolder
         {
           public:
-            explicit AgentGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<ZapFR::Engine::Post>)> finishedCallback);
-            virtual ~AgentGetPost() = default;
+            explicit ScriptFolder(uint64_t id) : mID(id) {}
+            virtual ~ScriptFolder() = default;
 
-            void run() override;
+            uint64_t id() const noexcept { return mID; }
+            std::string title() const noexcept { return mTitle; }
+            void setTitle(const std::string& title) { mTitle = title; }
 
-          private:
-            uint64_t mSourceID{0};
-            uint64_t mFeedID{0};
-            uint64_t mPostID{0};
-            std::function<void(std::unique_ptr<Post>)> mFinishedCallback{};
+            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
+            virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
+
+          protected:
+            uint64_t mID{0};
+            std::string mTitle{""};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTGETPOST_H
+#endif // ZAPFR_ENGINE_SCRIPTFOLDER_H

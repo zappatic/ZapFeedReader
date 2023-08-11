@@ -16,34 +16,31 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTGETPOST_H
-#define ZAPFR_ENGINE_AGENTGETPOST_H
+#ifndef ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERS_H
+#define ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERS_H
 
 #include "AgentRunnable.h"
 #include "Global.h"
-#include "Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Feed;
+        class ScriptFolder;
 
-        class AgentGetPost : public AgentRunnable
+        class AgentGetScriptFolders : public AgentRunnable
         {
           public:
-            explicit AgentGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<ZapFR::Engine::Post>)> finishedCallback);
-            virtual ~AgentGetPost() = default;
+            explicit AgentGetScriptFolders(uint64_t sourceID, std::function<void(uint64_t, const std::vector<ScriptFolder*>&)> finishedCallback);
+            virtual ~AgentGetScriptFolders() = default;
 
             void run() override;
 
           private:
             uint64_t mSourceID{0};
-            uint64_t mFeedID{0};
-            uint64_t mPostID{0};
-            std::function<void(std::unique_ptr<Post>)> mFinishedCallback{};
+            std::function<void(uint64_t, const std::vector<ScriptFolder*>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTGETPOST_H
+#endif // ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERS_H

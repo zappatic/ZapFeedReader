@@ -28,6 +28,7 @@
 #include "ItemDelegateSource.h"
 #include "Log.h"
 #include "Post.h"
+#include "ScriptFolderLocal.h"
 #include "StandardItemModelSources.h"
 #include "Utilities.h"
 #include "WebEnginePagePost.h"
@@ -81,6 +82,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(SETTING_MAINWINDOW_STATE, QString::fromUtf8(saveState().toBase64()));
     root.insert(SETTING_MAINWINDOW_GEOMETRY, QString::fromUtf8(saveGeometry().toBase64()));
     root.insert(SETTING_SPLITTERLEFT_STATE, QString::fromUtf8(ui->splitterLeft->saveState().toBase64()));
+    root.insert(SETTING_SPLITTERLEFTINNER_STATE, QString::fromUtf8(ui->splitterLeftInner->saveState().toBase64()));
     root.insert(SETTING_SPLITTERRIGHT_STATE, QString::fromUtf8(ui->splitterRight->saveState().toBase64()));
     root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedSourceTreeItems());
 
@@ -114,6 +116,10 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 if (root.contains(SETTING_SPLITTERLEFT_STATE))
                 {
                     ui->splitterLeft->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERLEFT_STATE).toVariant().toByteArray()));
+                }
+                if (root.contains(SETTING_SPLITTERLEFTINNER_STATE))
+                {
+                    ui->splitterLeftInner->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERLEFTINNER_STATE).toVariant().toByteArray()));
                 }
                 if (root.contains(SETTING_SPLITTERRIGHT_STATE))
                 {
@@ -369,6 +375,51 @@ void ZapFR::Client::MainWindow::populateUsedFlags(uint64_t /*sourceID*/, const s
     {
         mFlagFilter = ZapFR::Engine::FlagColor::Gray;
     }
+}
+
+void ZapFR::Client::MainWindow::reloadScriptFolders()
+{
+    // lambda for the callback, retrieving the script folders
+    auto processScriptFolders = [&](uint64_t sourceID, const std::vector<ZapFR::Engine::ScriptFolder*>& scriptFolders)
+    {
+        QList<QList<QStandardItem*>> rows;
+        for (const auto& scriptFolder : scriptFolders)
+        {
+            auto titleItem = new QStandardItem(QString::fromUtf8(scriptFolder->title()));
+            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->id()), ScriptFolderIDRole);
+            titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), ScriptFolderSourceIDRole);
+
+            QList<QStandardItem*> rowData;
+            rowData << titleItem;
+            rows << rowData;
+        }
+        QMetaObject::invokeMethod(this, "populateScriptFolders", Qt::AutoConnection, sourceID, rows);
+    };
+
+    auto index = ui->treeViewSources->currentIndex();
+    if (index.isValid())
+    {
+        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        if (sourceID != mPreviouslySelectedSourceID)
+        {
+            ZapFR::Engine::Agent::getInstance()->queueGetScriptFolders(sourceID, processScriptFolders);
+        }
+    }
+}
+
+void ZapFR::Client::MainWindow::populateScriptFolders(uint64_t sourceID, const QList<QList<QStandardItem*>>& scriptFolders)
+{
+    mPreviouslySelectedSourceID = sourceID;
+    mItemModelScriptFolders = std::make_unique<QStandardItemModel>(this);
+    ui->tableViewScriptFolders->setModel(mItemModelScriptFolders.get());
+    auto headerItem = new QStandardItem(tr("Script folders"));
+    headerItem->setTextAlignment(Qt::AlignLeft);
+    mItemModelScriptFolders->setHorizontalHeaderItem(ScriptFolderColumnTitle, headerItem);
+    for (const auto& scriptFolder : scriptFolders)
+    {
+        mItemModelScriptFolders->appendRow(scriptFolder);
+    }
+    ui->tableViewScriptFolders->horizontalHeader()->setSectionResizeMode(ScriptFolderColumnTitle, QHeaderView::Stretch);
 }
 
 void ZapFR::Client::MainWindow::reloadSources()
@@ -687,54 +738,65 @@ void ZapFR::Client::MainWindow::reloadPosts()
         QMetaObject::invokeMethod(this, "populatePosts", Qt::AutoConnection, rows, pageNumber, totalPostCount);
     };
 
-    auto index = ui->treeViewSources->currentIndex();
+    auto index = ui->tableViewScriptFolders->currentIndex();
     if (index.isValid())
     {
-        if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+        auto sourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
+        auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+    }
+    else
+    {
+        index = ui->treeViewSources->currentIndex();
+        if (index.isValid())
         {
-            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
+            if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
             {
-                ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+                auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+                if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
+                {
+                    ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+                }
+                else
+                {
+                    ZapFR::Engine::Agent::getInstance()->queueGetFeedFlaggedPosts(mFlagFilter, sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
+                                                                                  processPosts);
+                }
+            }
+            else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+            {
+                auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+                if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
+                {
+                    ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+                }
+                else
+                {
+                    ZapFR::Engine::Agent::getInstance()->queueGetFolderFlaggedPosts(mFlagFilter, sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
+                                                                                    processPosts);
+                }
+            }
+            else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+            {
+                auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
+                {
+                    ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+                }
+                else
+                {
+                    ZapFR::Engine::Agent::getInstance()->queueGetSourceFlaggedPosts(mFlagFilter, sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
+                                                                                    processPosts);
+                }
             }
             else
             {
-                ZapFR::Engine::Agent::getInstance()->queueGetFeedFlaggedPosts(mFlagFilter, sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
-                                                                              processPosts);
+                populatePosts();
             }
+            updateToolbar();
         }
-        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
-        {
-            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-            if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
-            {
-                ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
-            }
-            else
-            {
-                ZapFR::Engine::Agent::getInstance()->queueGetFolderFlaggedPosts(mFlagFilter, sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
-                                                                                processPosts);
-            }
-        }
-        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
-        {
-            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
-            {
-                ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
-            }
-            else
-            {
-                ZapFR::Engine::Agent::getInstance()->queueGetSourceFlaggedPosts(mFlagFilter, sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
-            }
-        }
-        else
-        {
-            populatePosts();
-        }
-        updateToolbar();
     }
 }
 
@@ -803,7 +865,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
         }
     }
     mItemModelPosts->setHorizontalHeaderItem(PostColumnDate, new QStandardItem(tr("Date")));
-    for (auto post : posts)
+    for (const auto& post : posts)
     {
         mItemModelPosts->appendRow(post);
     }
@@ -816,14 +878,13 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
     postsTableViewSelectionChanged({});
 
     // in case we have just 1 feed selected, hide the feed column in the posts table
+    // if we have a script folder selected, always show the feed column
     ui->tableViewPosts->setColumnHidden(PostColumnFeed, false);
-    auto index = ui->treeViewSources->currentIndex();
-    if (index.isValid())
+    auto treeViewSourcesIndex = ui->treeViewSources->currentIndex();
+    auto tableViewScriptFoldersIndex = ui->tableViewScriptFolders->currentIndex();
+    if (!tableViewScriptFoldersIndex.isValid() && treeViewSourcesIndex.isValid() && treeViewSourcesIndex.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
     {
-        if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
-        {
-            ui->tableViewPosts->setColumnHidden(PostColumnFeed, true);
-        }
+        ui->tableViewPosts->setColumnHidden(PostColumnFeed, true);
     }
 
     mCurrentPostCount = totalPostCount;
@@ -937,7 +998,7 @@ void ZapFR::Client::MainWindow::populateLogs(const QList<QList<QStandardItem*>>&
     mItemModelLogs->setHorizontalHeaderItem(LogsColumnTimestamp, new QStandardItem(tr("Timestamp")));
     mItemModelLogs->setHorizontalHeaderItem(LogsColumnFeed, new QStandardItem(tr("Feed")));
     mItemModelLogs->setHorizontalHeaderItem(LogsColumnMessage, new QStandardItem(tr("Message")));
-    for (auto log : logs)
+    for (const auto& log : logs)
     {
         mItemModelLogs->appendRow(log);
     }
@@ -1665,9 +1726,11 @@ void ZapFR::Client::MainWindow::configureConnects()
                     {
                         case StackedPanePosts:
                         {
+                            ui->tableViewScriptFolders->setCurrentIndex(QModelIndex());
                             mCurrentPostPage = 1;
                             reloadPosts();
                             reloadUsedFlagColors();
+                            reloadScriptFolders();
                             break;
                         }
                         case StackedPaneLogs:
@@ -1681,6 +1744,15 @@ void ZapFR::Client::MainWindow::configureConnects()
             });
 
     connect(ui->tableViewPosts, &TableViewPosts::selectedPostsChanged, this, &MainWindow::postsTableViewSelectionChanged);
+
+    connect(ui->tableViewScriptFolders, &TableViewScriptFolders::selectedScriptFolderChanged,
+            [&](const QModelIndex& index)
+            {
+                if (index.isValid())
+                {
+                    reloadPosts();
+                }
+            });
 
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested,
             [&](const QPoint& p)
@@ -1818,6 +1890,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                     case StackedPanePosts:
                     {
                         ui->frameFlagFilters->setVisible(true);
+                        ui->tableViewScriptFolders->setVisible(true);
                         setUnreadBadgesShown(true);
                         mCurrentPostPage = 1;
                         reloadPosts();
@@ -1826,6 +1899,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                     case StackedPaneLogs:
                     {
                         ui->frameFlagFilters->setVisible(false);
+                        ui->tableViewScriptFolders->setVisible(false);
                         setUnreadBadgesShown(false);
                         break;
                     }

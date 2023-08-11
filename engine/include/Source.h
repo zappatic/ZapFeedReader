@@ -30,6 +30,7 @@ namespace ZapFR
         class Folder;
         class Post;
         class Log;
+        class ScriptFolder;
 
         class Source
         {
@@ -70,6 +71,9 @@ namespace ZapFR
             virtual std::unordered_set<FlagColor> getUsedFlagColors() = 0;
             virtual std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
             virtual uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) = 0;
+
+            virtual std::vector<std::unique_ptr<ScriptFolder>> getScriptFolders() = 0;
+            virtual std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id) = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

@@ -56,6 +56,9 @@ namespace ZapFR
             std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) override;
             uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) override;
 
+            std::vector<std::unique_ptr<ScriptFolder>> getScriptFolders() override;
+            std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id) override;
+
           private:
             static std::mutex msAddFeedMutex;
             static std::mutex msAddFolderMutex;

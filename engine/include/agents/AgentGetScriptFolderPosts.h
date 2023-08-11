@@ -16,34 +16,37 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTGETPOST_H
-#define ZAPFR_ENGINE_AGENTGETPOST_H
+#ifndef ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERPOSTS_H
+#define ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERPOSTS_H
 
 #include "AgentRunnable.h"
 #include "Global.h"
-#include "Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Feed;
+        class Post;
+        class ScriptFolder;
 
-        class AgentGetPost : public AgentRunnable
+        class AgentGetScriptFolderPosts : public AgentRunnable
         {
           public:
-            explicit AgentGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<ZapFR::Engine::Post>)> finishedCallback);
-            virtual ~AgentGetPost() = default;
+            explicit AgentGetScriptFolderPosts(uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                               std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
+            virtual ~AgentGetScriptFolderPosts() = default;
 
             void run() override;
 
           private:
             uint64_t mSourceID{0};
-            uint64_t mFeedID{0};
-            uint64_t mPostID{0};
-            std::function<void(std::unique_ptr<Post>)> mFinishedCallback{};
+            uint64_t mScriptFolderID{0};
+            uint64_t mPerPage{0};
+            uint64_t mPage{0};
+            bool mShowOnlyUnread{false};
+            std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTGETPOST_H
+#endif // ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERPOSTS_H

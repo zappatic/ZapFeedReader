@@ -69,6 +69,7 @@ namespace ZapFR
         static const QString SETTING_MAINWINDOW_STATE = "mainwindow.state";
         static const QString SETTING_MAINWINDOW_GEOMETRY = "mainwindow.geometry";
         static const QString SETTING_SPLITTERLEFT_STATE = "splitterleft.state";
+        static const QString SETTING_SPLITTERLEFTINNER_STATE = "splitterleftinner.state";
         static const QString SETTING_SPLITTERRIGHT_STATE = "splitterright.state";
         static const QString SETTING_SOURCETREEVIEW_EXPANSION = "sourcetreeview.expansion";
 
@@ -109,6 +110,11 @@ namespace ZapFR
         static constexpr uint32_t LogsColumnFeed = 1;
         static constexpr uint32_t LogsColumnTimestamp = 2;
         static constexpr uint32_t LogsColumnMessage = 3;
+
+        static constexpr uint32_t ScriptFolderIDRole{Qt::ItemDataRole::UserRole + 1};
+        static constexpr uint32_t ScriptFolderSourceIDRole{Qt::ItemDataRole::UserRole + 2};
+
+        static constexpr uint32_t ScriptFolderColumnTitle = 0;
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";

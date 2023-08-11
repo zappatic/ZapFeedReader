@@ -61,6 +61,8 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/agents/AgentGetSourceFlaggedPosts.cpp
     ../engine/src/agents/AgentGetFolderFlaggedPosts.cpp
     ../engine/src/agents/AgentGetFeedFlaggedPosts.cpp
+    ../engine/src/agents/AgentGetScriptFolders.cpp
+    ../engine/src/agents/AgentGetScriptFolderPosts.cpp
     ../engine/src/Database.cpp
     ../engine/src/Log.cpp
     ../engine/src/FeedFetcher.cpp
@@ -76,4 +78,5 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/OPMLParser.cpp
     ../engine/src/FavIconParser.cpp
     ../engine/src/Flag.cpp
+    ../engine/src/ScriptFolderLocal.cpp
 )

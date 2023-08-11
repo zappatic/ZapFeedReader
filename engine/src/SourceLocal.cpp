@@ -24,6 +24,7 @@
 #include "Helpers.h"
 #include "Log.h"
 #include "PostLocal.h"
+#include "ScriptFolderLocal.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -907,4 +908,41 @@ uint64_t ZapFR::Engine::SourceLocal::getTotalFlaggedPostCount(FlagColor flagColo
     }
     selectStmt << sql, use(fc), into(postCount), now;
     return postCount;
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceLocal::getScriptFolders()
+{
+    std::vector<std::unique_ptr<ScriptFolder>> scriptFolders;
+
+    uint64_t id{0};
+    std::string title{""};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT id, title FROM scriptfolders ORDER BY id DESC", into(id), into(title), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            auto sfl = std::make_unique<ScriptFolderLocal>(id);
+            sfl->setTitle(title);
+            scriptFolders.emplace_back(std::move(sfl));
+        }
+    }
+    return scriptFolders;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceLocal::getScriptFolder(uint64_t id)
+{
+    std::string title{""};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT id, title FROM scriptfolders WHERE id=?", use(id), into(title), now;
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        auto sf = std::make_unique<ScriptFolderLocal>(id);
+        sf->setTitle(title);
+        return sf;
+    }
+    return {};
 }

@@ -87,6 +87,7 @@ namespace ZapFR
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
             void populateSources(uint64_t sourceID, QStandardItem* sourceItem);
             void populateUsedFlags(uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
+            void populateScriptFolders(uint64_t sourceID, const QList<QList<QStandardItem*>>& scriptFolders);
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
 
           protected:
@@ -97,6 +98,7 @@ namespace ZapFR
             std::unique_ptr<StandardItemModelSources> mItemModelSources{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelLogs{nullptr};
+            std::unique_ptr<QStandardItemModel> mItemModelScriptFolders{nullptr};
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
             std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};
@@ -139,6 +141,7 @@ namespace ZapFR
             void reloadSources();
             void reloadCurrentPost();
             void reloadUsedFlagColors();
+            void reloadScriptFolders();
 
             QString postStyles() const;
             QString textMessageHTML(const QString& message) const;

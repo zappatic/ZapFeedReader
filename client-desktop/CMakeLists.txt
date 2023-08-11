@@ -29,6 +29,7 @@ set(PROJECT_SOURCES
         src/StandardItemModelSources.cpp
         src/TableViewPosts.cpp
         src/TableViewLogs.cpp
+        src/TableViewScriptFolders.cpp
         src/TreeViewSources.cpp
         src/FeedIconCache.cpp
         src/PopupFlagChooser.cpp
@@ -47,6 +48,7 @@ set(PROJECT_SOURCES
         include/StandardItemModelSources.h
         include/TableViewPosts.h
         include/TableViewLogs.h
+        include/TableViewScriptFolders.h
         include/TreeViewSources.h
         include/FeedIconCache.h
         include/PopupFlagChooser.h
@@ -130,6 +132,8 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/agents/AgentGetSourceFlaggedPosts.cpp
                                 ../engine/src/agents/AgentGetFolderFlaggedPosts.cpp
                                 ../engine/src/agents/AgentGetFeedFlaggedPosts.cpp
+                                ../engine/src/agents/AgentGetScriptFolders.cpp
+                                ../engine/src/agents/AgentGetScriptFolderPosts.cpp
                                 ../engine/src/Database.cpp
                                 ../engine/src/Log.cpp
                                 ../engine/src/FeedFetcher.cpp
@@ -145,6 +149,7 @@ target_sources(zapfeedreader-client PRIVATE
                                 ../engine/src/OPMLParser.cpp
                                 ../engine/src/FavIconParser.cpp
                                 ../engine/src/Flag.cpp
+                                ../engine/src/ScriptFolderLocal.cpp
 )
 
 install(TARGETS zapfeedreader-client

@@ -29,6 +29,8 @@
 #include "agents/AgentGetFolderLogs.h"
 #include "agents/AgentGetFolderPosts.h"
 #include "agents/AgentGetPost.h"
+#include "agents/AgentGetScriptFolderPosts.h"
+#include "agents/AgentGetScriptFolders.h"
 #include "agents/AgentGetSourceFlaggedPosts.h"
 #include "agents/AgentGetSourceLogs.h"
 #include "agents/AgentGetSourcePosts.h"
@@ -223,6 +225,17 @@ void ZapFR::Engine::Agent::queueGetFolderFlaggedPosts(FlagColor flagColor, uint6
                                                       std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentGetFolderFlaggedPosts>(flagColor, sourceID, folderID, perPage, page, showOnlyUnread, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetScriptFolders(uint64_t sourceID, std::function<void(uint64_t, const std::vector<ScriptFolder*>&)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetScriptFolders>(sourceID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetScriptFolderPosts(uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                     std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetScriptFolderPosts>(sourceID, scriptFolderID, perPage, page, showOnlyUnread, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
