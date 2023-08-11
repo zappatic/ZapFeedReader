@@ -16,32 +16,34 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetFolderPosts.h"
-#include "Folder.h"
+#include "agents/AgentGetFeedFlaggedPosts.h"
+#include "Feed.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentGetFolderPosts::AgentGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                                        std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentGetFeedFlaggedPosts::AgentGetFeedFlaggedPosts(FlagColor flagColor, uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
+                                                                  bool showOnlyUnread,
+                                                                  std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
+    : AgentRunnable(), mFlagColor(flagColor), mSourceID(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread),
+      mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentGetFolderPosts::run()
+void ZapFR::Engine::AgentGetFeedFlaggedPosts::run()
 {
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto folder = source.value()->getFolder(mFolderID);
-        if (folder.has_value())
+        auto feed = source.value()->getFeed(mFeedID);
+        if (feed.has_value())
         {
-            auto posts = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread);
+            auto posts = feed.value()->getFlaggedPosts(mFlagColor, mPerPage, mPage, mShowOnlyUnread);
             std::vector<Post*> postPointers;
             for (const auto& post : posts)
             {
                 postPointers.emplace_back(post.get());
             }
 
-            mFinishedCallback(source.value()->id(), postPointers, mPage, folder.value()->getTotalPostCount(mShowOnlyUnread));
+            mFinishedCallback(source.value()->id(), postPointers, mPage, feed.value()->getTotalFlaggedPostCount(mFlagColor, mShowOnlyUnread));
         }
     }
 

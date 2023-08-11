@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTGETFOLDERPOSTS_H
-#define ZAPFR_ENGINE_AGENTGETFOLDERPOSTS_H
+#ifndef ZAPFR_ENGINE_AGENTGETFOLDERFLAGGEDPOSTS_H
+#define ZAPFR_ENGINE_AGENTGETFOLDERFLAGGEDPOSTS_H
 
 #include "AgentRunnable.h"
 #include "Global.h"
@@ -27,16 +27,17 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class AgentGetFolderPosts : public AgentRunnable
+        class AgentGetFolderFlaggedPosts : public AgentRunnable
         {
           public:
-            explicit AgentGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
-            virtual ~AgentGetFolderPosts() = default;
+            explicit AgentGetFolderFlaggedPosts(FlagColor flagColor, uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
+            virtual ~AgentGetFolderFlaggedPosts() = default;
 
             void run() override;
 
           private:
+            FlagColor mFlagColor{FlagColor::Gray};
             uint64_t mSourceID{0};
             uint64_t mFolderID{0};
             uint64_t mPerPage{0};
@@ -47,4 +48,4 @@ namespace ZapFR
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTGETPOSTS_H
+#endif // ZAPFR_ENGINE_AGENTGETFOLDERFLAGGEDPOSTS_H

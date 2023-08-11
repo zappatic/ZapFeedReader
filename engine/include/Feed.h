@@ -19,13 +19,13 @@
 #ifndef ZAPFR_ENGINE_FEED_H
 #define ZAPFR_ENGINE_FEED_H
 
+#include "Flag.h"
 #include "Global.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Database;
         class Post;
         class Log;
 
@@ -70,11 +70,14 @@ namespace ZapFR
             void setUnreadCount(uint64_t unreadCount) noexcept { mUnreadCount = unreadCount; }
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
-            virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
             virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
+            virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
 
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
             virtual uint64_t getTotalLogCount() = 0;
+
+            virtual std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
+            virtual uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) = 0;
 
             virtual void refresh(const std::optional<std::string>& feedXML) = 0;
             virtual void markAllAsRead() = 0;

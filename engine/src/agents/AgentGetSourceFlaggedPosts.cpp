@@ -16,34 +16,30 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetFeedLogs.h"
+#include "agents/AgentGetSourceFlaggedPosts.h"
 #include "Feed.h"
-#include "Log.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentGetFeedLogs::AgentGetFeedLogs(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
-                                                  std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentGetSourceFlaggedPosts::AgentGetSourceFlaggedPosts(
+    FlagColor flagColor, uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
+    : AgentRunnable(), mFlagColor(flagColor), mSourceID(sourceID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentGetFeedLogs::run()
+void ZapFR::Engine::AgentGetSourceFlaggedPosts::run()
 {
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
-        if (feed.has_value())
+        auto posts = source.value()->getFlaggedPosts(mFlagColor, mPerPage, mPage, mShowOnlyUnread);
+        std::vector<Post*> postPointers;
+        for (const auto& post : posts)
         {
-            auto logs = feed.value()->getLogs(mPerPage, mPage);
-            std::vector<Log*> logPointers;
-            for (const auto& log : logs)
-            {
-                logPointers.emplace_back(log.get());
-            }
-
-            mFinishedCallback(mSourceID, logPointers, mPage, feed.value()->getTotalLogCount());
+            postPointers.emplace_back(post.get());
         }
+
+        mFinishedCallback(source.value()->id(), postPointers, mPage, source.value()->getTotalFlaggedPostCount(mFlagColor, mShowOnlyUnread));
     }
 
     mIsDone = true;

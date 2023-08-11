@@ -21,12 +21,15 @@
 #include "Post.h"
 #include "Source.h"
 #include "agents/AgentAddFolder.h"
+#include "agents/AgentGetFeedFlaggedPosts.h"
 #include "agents/AgentGetFeedLogs.h"
 #include "agents/AgentGetFeedPosts.h"
 #include "agents/AgentGetFeedUnreadCount.h"
+#include "agents/AgentGetFolderFlaggedPosts.h"
 #include "agents/AgentGetFolderLogs.h"
 #include "agents/AgentGetFolderPosts.h"
 #include "agents/AgentGetPost.h"
+#include "agents/AgentGetSourceFlaggedPosts.h"
 #include "agents/AgentGetSourceLogs.h"
 #include "agents/AgentGetSourcePosts.h"
 #include "agents/AgentGetSourceTree.h"
@@ -202,6 +205,24 @@ void ZapFR::Engine::Agent::queueGetFeedUnreadCount(uint64_t sourceID, uint64_t f
 void ZapFR::Engine::Agent::queueGetUsedFlagColors(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> finishedCallback)
 {
     enqueue(std::make_unique<AgentGetUsedFlagColors>(sourceID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetSourceFlaggedPosts(FlagColor flagColor, uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                      std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetSourceFlaggedPosts>(flagColor, sourceID, perPage, page, showOnlyUnread, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetFeedFlaggedPosts(FlagColor flagColor, uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                    std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetFeedFlaggedPosts>(flagColor, sourceID, feedID, perPage, page, showOnlyUnread, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetFolderFlaggedPosts(FlagColor flagColor, uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                      std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetFolderFlaggedPosts>(flagColor, sourceID, folderID, perPage, page, showOnlyUnread, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)

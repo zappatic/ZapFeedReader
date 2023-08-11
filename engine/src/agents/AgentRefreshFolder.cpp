@@ -19,6 +19,7 @@
 #include "agents/AgentRefreshFolder.h"
 #include "Agent.h"
 #include "Feed.h"
+#include "Folder.h"
 #include "Source.h"
 
 ZapFR::Engine::AgentRefreshFolder::AgentRefreshFolder(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, uint64_t)> finishedCallback)

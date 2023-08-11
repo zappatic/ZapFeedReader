@@ -58,6 +58,9 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/agents/AgentMarkPostUnflagged.cpp
     ../engine/src/agents/AgentGetFeedUnreadCount.cpp
     ../engine/src/agents/AgentGetUsedFlagColors.cpp
+    ../engine/src/agents/AgentGetSourceFlaggedPosts.cpp
+    ../engine/src/agents/AgentGetFolderFlaggedPosts.cpp
+    ../engine/src/agents/AgentGetFeedFlaggedPosts.cpp
     ../engine/src/Database.cpp
     ../engine/src/Log.cpp
     ../engine/src/FeedFetcher.cpp

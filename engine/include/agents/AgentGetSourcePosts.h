@@ -27,8 +27,6 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class Feed;
-
         class AgentGetSourcePosts : public AgentRunnable
         {
           public:

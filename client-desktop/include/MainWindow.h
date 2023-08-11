@@ -115,6 +115,7 @@ namespace ZapFR
             uint64_t mCurrentPostCount{0};
             uint64_t mCurrentPostPageCount{1};
             bool mShowOnlyUnreadPosts{false};
+            ZapFR::Engine::FlagColor mFlagFilter{ZapFR::Engine::FlagColor::Gray};
 
             std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
 

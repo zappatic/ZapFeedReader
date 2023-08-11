@@ -26,6 +26,7 @@
 #include "ItemDelegateLog.h"
 #include "ItemDelegatePost.h"
 #include "ItemDelegateSource.h"
+#include "Log.h"
 #include "Post.h"
 #include "StandardItemModelSources.h"
 #include "Utilities.h"
@@ -363,6 +364,11 @@ void ZapFR::Client::MainWindow::populateUsedFlags(uint64_t /*sourceID*/, const s
     ui->widgetFilterFlagOrange->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Orange));
     ui->widgetFilterFlagRed->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Red));
     ui->widgetFilterFlagPurple->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Purple));
+
+    if (!flagColors.contains(mFlagFilter))
+    {
+        mFlagFilter = ZapFR::Engine::FlagColor::Gray;
+    }
 }
 
 void ZapFR::Client::MainWindow::reloadSources()
@@ -688,18 +694,41 @@ void ZapFR::Client::MainWindow::reloadPosts()
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
             auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
+            {
+                ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            }
+            else
+            {
+                ZapFR::Engine::Agent::getInstance()->queueGetFeedFlaggedPosts(mFlagFilter, sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
+                                                                              processPosts);
+            }
         }
         else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
             auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
+            {
+                ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            }
+            else
+            {
+                ZapFR::Engine::Agent::getInstance()->queueGetFolderFlaggedPosts(mFlagFilter, sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
+                                                                                processPosts);
+            }
         }
         else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
+            {
+                ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            }
+            else
+            {
+                ZapFR::Engine::Agent::getInstance()->queueGetSourceFlaggedPosts(mFlagFilter, sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            }
         }
         else
         {
@@ -718,7 +747,48 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
     mItemModelPosts->setHorizontalHeaderItem(PostColumnUnread, new QStandardItem(tr("Unread")));
     mItemModelPosts->setHorizontalHeaderItem(PostColumnFlag, new QStandardItem(tr("Flag")));
     mItemModelPosts->setHorizontalHeaderItem(PostColumnFeed, new QStandardItem(tr("Feed")));
-    mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title")));
+    switch (mFlagFilter)
+    {
+        case ZapFR::Engine::FlagColor::Gray:
+        {
+            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title")));
+            break;
+        }
+        case ZapFR::Engine::FlagColor::Blue:
+        {
+            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Blue flag filter active)")));
+            break;
+        }
+        case ZapFR::Engine::FlagColor::Green:
+        {
+            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Green flag filter active)")));
+            break;
+        }
+        case ZapFR::Engine::FlagColor::Yellow:
+        {
+            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Yellow flag filter active)")));
+            break;
+        }
+        case ZapFR::Engine::FlagColor::Orange:
+        {
+            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Orange flag filter active)")));
+            break;
+        }
+        case ZapFR::Engine::FlagColor::Red:
+        {
+            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Red flag filter active)")));
+            break;
+        }
+        case ZapFR::Engine::FlagColor::Purple:
+        {
+            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Purple flag filter active)")));
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
     mItemModelPosts->setHorizontalHeaderItem(PostColumnDate, new QStandardItem(tr("Date")));
     for (auto post : posts)
     {
@@ -1719,6 +1789,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                 {
                     case StackedPanePosts:
                     {
+                        ui->frameFlagFilters->setVisible(true);
                         setUnreadBadgesShown(true);
                         mCurrentPostPage = 1;
                         reloadPosts();
@@ -1726,6 +1797,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                     }
                     case StackedPaneLogs:
                     {
+                        ui->frameFlagFilters->setVisible(false);
                         setUnreadBadgesShown(false);
                         break;
                     }
@@ -1771,22 +1843,45 @@ void ZapFR::Client::MainWindow::configureConnects()
             });
 
     ui->widgetFilterFlagBlue->setFlagColor(ZapFR::Engine::FlagColor::Blue);
-    ui->widgetFilterFlagBlue->setFlagStyle(Utilities::FlagStyle::Filled);
     ui->widgetFilterFlagGreen->setFlagColor(ZapFR::Engine::FlagColor::Green);
-    ui->widgetFilterFlagGreen->setFlagStyle(Utilities::FlagStyle::Filled);
     ui->widgetFilterFlagYellow->setFlagColor(ZapFR::Engine::FlagColor::Yellow);
-    ui->widgetFilterFlagYellow->setFlagStyle(Utilities::FlagStyle::Filled);
     ui->widgetFilterFlagOrange->setFlagColor(ZapFR::Engine::FlagColor::Orange);
-    ui->widgetFilterFlagOrange->setFlagStyle(Utilities::FlagStyle::Filled);
     ui->widgetFilterFlagRed->setFlagColor(ZapFR::Engine::FlagColor::Red);
-    ui->widgetFilterFlagRed->setFlagStyle(Utilities::FlagStyle::Filled);
     ui->widgetFilterFlagPurple->setFlagColor(ZapFR::Engine::FlagColor::Purple);
-    ui->widgetFilterFlagPurple->setFlagStyle(Utilities::FlagStyle::Filled);
 
     static std::vector<PopupFlag*> flags{ui->widgetFilterFlagBlue,   ui->widgetFilterFlagGreen, ui->widgetFilterFlagYellow,
                                          ui->widgetFilterFlagOrange, ui->widgetFilterFlagRed,   ui->widgetFilterFlagPurple};
     for (const auto& flag : flags)
     {
-        connect(flag, &PopupFlag::flagClicked, [&](PopupFlag* flag) { qDebug() << flag; });
+        flag->setFlagStyle(Utilities::FlagStyle::Unfilled);
+        connect(flag, &PopupFlag::flagClicked,
+                [&](PopupFlag* flag)
+                {
+                    for (const auto& f : flags)
+                    {
+                        if (f != flag)
+                        {
+                            f->setFlagStyle(Utilities::FlagStyle::Unfilled);
+                        }
+                    }
+
+                    switch (flag->flagStyle())
+                    {
+                        case Utilities::FlagStyle::Filled:
+                        {
+                            flag->setFlagStyle(Utilities::FlagStyle::Unfilled);
+                            mFlagFilter = ZapFR::Engine::FlagColor::Gray;
+                            break;
+                        }
+                        case Utilities::FlagStyle::Unfilled:
+                        {
+                            flag->setFlagStyle(Utilities::FlagStyle::Filled);
+                            mFlagFilter = flag->flagColor();
+                            break;
+                        }
+                    }
+                    mCurrentPostPage = 1;
+                    reloadPosts();
+                });
     }
 }

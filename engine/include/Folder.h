@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_FOLDER_H
 #define ZAPFR_ENGINE_FOLDER_H
 
-#include "Database.h"
+#include "Flag.h"
 #include "Global.h"
 
 namespace ZapFR
@@ -53,6 +53,9 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
             virtual uint64_t getTotalLogCount() = 0;
+
+            virtual std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
+            virtual uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) = 0;
 
             virtual bool fetchData() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }

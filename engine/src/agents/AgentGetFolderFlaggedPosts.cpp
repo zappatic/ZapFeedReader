@@ -16,18 +16,19 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetFolderLogs.h"
+#include "agents/AgentGetFolderFlaggedPosts.h"
 #include "Folder.h"
-#include "Log.h"
 #include "Source.h"
 
-ZapFR::Engine::AgentGetFolderLogs::AgentGetFolderLogs(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
-                                                      std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentGetFolderFlaggedPosts::AgentGetFolderFlaggedPosts(
+    FlagColor flagColor, uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
+    : AgentRunnable(), mFlagColor(flagColor), mSourceID(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread),
+      mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentGetFolderLogs::run()
+void ZapFR::Engine::AgentGetFolderFlaggedPosts::run()
 {
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
@@ -35,14 +36,14 @@ void ZapFR::Engine::AgentGetFolderLogs::run()
         auto folder = source.value()->getFolder(mFolderID);
         if (folder.has_value())
         {
-            auto logs = folder.value()->getLogs(mPerPage, mPage);
-            std::vector<Log*> logPointers;
-            for (const auto& log : logs)
+            auto posts = folder.value()->getFlaggedPosts(mFlagColor, mPerPage, mPage, mShowOnlyUnread);
+            std::vector<Post*> postPointers;
+            for (const auto& post : posts)
             {
-                logPointers.emplace_back(log.get());
+                postPointers.emplace_back(post.get());
             }
 
-            mFinishedCallback(mSourceID, logPointers, mPage, folder.value()->getTotalLogCount());
+            mFinishedCallback(source.value()->id(), postPointers, mPage, folder.value()->getTotalFlaggedPostCount(mFlagColor, mShowOnlyUnread));
         }
     }
 

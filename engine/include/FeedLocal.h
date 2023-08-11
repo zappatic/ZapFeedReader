@@ -26,7 +26,6 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class Database;
         class FeedParser;
 
         class FeedLocal : public Feed
@@ -41,6 +40,9 @@ namespace ZapFR
 
             std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
             uint64_t getTotalLogCount() override;
+
+            std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) override;
+            uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) override;
 
             bool fetchData() override;
             void refresh(const std::optional<std::string>& feedXML) override;

@@ -17,6 +17,7 @@
 */
 
 #include "DialogWithSourcesAndFolders.h"
+#include "Folder.h"
 #include "Source.h"
 
 ZapFR::Client::DialogWithSourcesAndFolders::DialogWithSourcesAndFolders(QWidget* parent) : QDialog(parent)
