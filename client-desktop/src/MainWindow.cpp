@@ -742,6 +742,19 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
 {
     ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
 
+    int32_t columnWidthUnread = 50;
+    int32_t columnWidthFlag = 40;
+    int32_t columnWidthFeed = 40;
+    int32_t columnWidthDate = 180;
+    // restore the previous column widths
+    if (mItemModelPosts != nullptr)
+    {
+        columnWidthUnread = ui->tableViewPosts->horizontalHeader()->sectionSize(PostColumnUnread);
+        columnWidthFlag = ui->tableViewPosts->horizontalHeader()->sectionSize(PostColumnFlag);
+        columnWidthFeed = ui->tableViewPosts->horizontalHeader()->sectionSize(PostColumnFeed);
+        columnWidthDate = ui->tableViewPosts->horizontalHeader()->sectionSize(PostColumnDate);
+    }
+
     mItemModelPosts = std::make_unique<QStandardItemModel>(this);
     ui->tableViewPosts->setModel(mItemModelPosts.get());
     mItemModelPosts->setHorizontalHeaderItem(PostColumnUnread, new QStandardItem(tr("Unread")));
@@ -796,10 +809,10 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
     }
     ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->tableViewPosts->horizontalHeader()->setSectionResizeMode(PostColumnTitle, QHeaderView::Stretch);
-    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnUnread, 50);
-    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFlag, 40);
-    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFeed, 40);
-    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnDate, 200);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnUnread, columnWidthUnread);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFlag, columnWidthFlag);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnFeed, columnWidthFeed);
+    ui->tableViewPosts->horizontalHeader()->resizeSection(PostColumnDate, columnWidthDate);
     postsTableViewSelectionChanged({});
 
     // in case we have just 1 feed selected, hide the feed column in the posts table
