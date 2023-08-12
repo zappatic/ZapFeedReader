@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetScriptFolders.h"
-#include "ScriptFolder.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetScriptFolders.h"
+#include "ZapFR/ScriptFolder.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetScriptFolders::AgentGetScriptFolders(uint64_t sourceID, std::function<void(uint64_t, const std::vector<ScriptFolder*>&)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)

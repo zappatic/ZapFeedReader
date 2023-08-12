@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentMarkPostRead.h"
-#include "Feed.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentMarkPostRead.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentMarkPostRead::AgentMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFinishedCallback(finishedCallback)

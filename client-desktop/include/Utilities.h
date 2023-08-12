@@ -20,7 +20,7 @@
 #define ZAPFR_CLIENT_UTILITIES_H
 
 #include "ClientGlobal.h"
-#include "Flag.h"
+#include "ZapFR/Flag.h"
 
 namespace ZapFR
 {

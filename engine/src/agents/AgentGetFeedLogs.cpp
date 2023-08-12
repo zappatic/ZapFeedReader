@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetFeedLogs.h"
-#include "Feed.h"
-#include "Log.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetFeedLogs.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Log.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetFeedLogs::AgentGetFeedLogs(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
                                                   std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)

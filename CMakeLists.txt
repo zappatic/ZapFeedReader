@@ -13,6 +13,7 @@ add_compile_options(-Wall -Wextra -pedantic -Werror -Wconversion -Weffc++ -Wshad
 project(ZapFeedReader)
 
 add_subdirectory(server)
+add_subdirectory(engine)
 add_subdirectory(client-desktop)
 
 add_custom_target(build-poco COMMAND ${CMAKE_SOURCE_DIR}/3rdParty/build-poco.sh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/3rdParty/poco/)

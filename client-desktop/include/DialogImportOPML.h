@@ -21,7 +21,7 @@
 
 #include "ClientGlobal.h"
 #include "DialogWithSourcesAndFolders.h"
-#include "OPMLParser.h"
+#include "ZapFR/OPMLParser.h"
 
 namespace Ui
 {

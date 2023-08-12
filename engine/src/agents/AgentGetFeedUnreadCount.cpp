@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetFeedUnreadCount.h"
-#include "Feed.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetFeedUnreadCount.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetFeedUnreadCount::AgentGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)

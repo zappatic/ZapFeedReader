@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ScriptFolderLocal.h"
-#include "Database.h"
-#include "PostLocal.h"
+#include "ZapFR/ScriptFolderLocal.h"
+#include "ZapFR/Database.h"
+#include "ZapFR/PostLocal.h"
 
 using namespace Poco::Data::Keywords;
 

@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetScriptFolderFlaggedPosts.h"
-#include "Post.h"
-#include "ScriptFolder.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetScriptFolderFlaggedPosts.h"
+#include "ZapFR/Post.h"
+#include "ZapFR/ScriptFolder.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetScriptFolderFlaggedPosts::AgentGetScriptFolderFlaggedPosts(
     FlagColor flagColor, uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,

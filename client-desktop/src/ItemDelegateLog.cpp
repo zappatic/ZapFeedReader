@@ -18,8 +18,8 @@
 
 #include "ItemDelegateLog.h"
 #include "FeedIconCache.h"
-#include "Log.h"
 #include "Utilities.h"
+#include "ZapFR/Log.h"
 
 ZapFR::Client::ItemDelegateLog::ItemDelegateLog(QObject* parent) : QStyledItemDelegate(parent)
 {

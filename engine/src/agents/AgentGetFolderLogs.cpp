@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetFolderLogs.h"
-#include "Folder.h"
-#include "Log.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetFolderLogs.h"
+#include "ZapFR/Folder.h"
+#include "ZapFR/Log.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetFolderLogs::AgentGetFolderLogs(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
                                                       std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)

@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetSourceTree.h"
-#include "Feed.h"
-#include "Folder.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetSourceTree.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Folder.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetSourceTree::AgentGetSourceTree(
     uint64_t sourceID, std::function<void(uint64_t, const std::string&, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback)

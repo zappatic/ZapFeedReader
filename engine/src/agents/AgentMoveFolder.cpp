@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentMoveFolder.h"
-#include "Feed.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentMoveFolder.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentMoveFolder::AgentMoveFolder(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mNewFolderID(newFolder), mNewSortOrder(newSortOrder), mFinishedCallback(finishedCallback)

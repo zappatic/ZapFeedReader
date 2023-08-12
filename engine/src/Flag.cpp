@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "Flag.h"
+#include "ZapFR/Flag.h"
 
 std::unordered_map<ZapFR::Engine::FlagColor, std::tuple<uint8_t, uint8_t, uint8_t>> ZapFR::Engine::Flag::msColorRGBMapping{
     {FlagColor::Gray, {158, 158, 158}},  {FlagColor::Blue, {12, 147, 205}}, {FlagColor::Green, {135, 186, 35}}, {FlagColor::Yellow, {251, 213, 55}},

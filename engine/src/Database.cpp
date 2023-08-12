@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "Database.h"
-#include "Feed.h"
-#include "Global.h"
-#include "Source.h"
+#include "ZapFR/Database.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Global.h"
+#include "ZapFR/Source.h"
 
 using namespace Poco::Data::Keywords;
 

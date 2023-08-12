@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentRemoveFeed.h"
-#include "Feed.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentRemoveFeed.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentRemoveFeed::AgentRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)

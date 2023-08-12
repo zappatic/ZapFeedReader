@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetFeedFlaggedPosts.h"
-#include "Feed.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetFeedFlaggedPosts.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetFeedFlaggedPosts::AgentGetFeedFlaggedPosts(FlagColor flagColor, uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
                                                                   bool showOnlyUnread,

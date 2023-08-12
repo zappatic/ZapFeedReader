@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "Log.h"
-#include "Database.h"
+#include "ZapFR/Log.h"
+#include "ZapFR/Database.h"
 
 using namespace Poco::Data::Keywords;
 

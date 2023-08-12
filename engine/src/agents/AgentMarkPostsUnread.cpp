@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentMarkPostsUnread.h"
-#include "Feed.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentMarkPostsUnread.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentMarkPostsUnread::AgentMarkPostsUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs,
                                                           std::function<void(uint64_t, std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback)

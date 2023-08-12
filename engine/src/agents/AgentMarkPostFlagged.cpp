@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentMarkPostFlagged.h"
-#include "Feed.h"
-#include "Post.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentMarkPostFlagged.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Post.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentMarkPostFlagged::AgentMarkPostFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor,
                                                           std::function<void(uint64_t, uint64_t, uint64_t, ZapFR::Engine::FlagColor)> finishedCallback)

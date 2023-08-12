@@ -20,8 +20,8 @@
 #define ZAPFR_CLIENT_POPUPFLAGCHOOSER_H
 
 #include "ClientGlobal.h"
-#include "Flag.h"
 #include "Utilities.h"
+#include "ZapFR/Flag.h"
 
 namespace Ui
 {

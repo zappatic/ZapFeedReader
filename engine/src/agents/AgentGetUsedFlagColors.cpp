@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetUsedFlagColors.h"
-#include "Feed.h"
-#include "Folder.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetUsedFlagColors.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Folder.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetUsedFlagColors::AgentGetUsedFlagColors(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)

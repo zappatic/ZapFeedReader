@@ -17,7 +17,7 @@
 */
 
 #include "DialogImportOPML.h"
-#include "OPMLParser.h"
+#include "ZapFR/OPMLParser.h"
 #include "ui_DialogImportOPML.h"
 
 ZapFR::Client::DialogImportOPML::DialogImportOPML(QWidget* parent) : DialogWithSourcesAndFolders(parent), ui(new Ui::DialogImportOPML)

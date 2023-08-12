@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "FavIconParser.h"
-#include "Helpers.h"
+#include "ZapFR/FavIconParser.h"
+#include "ZapFR/Helpers.h"
 
 ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t associatedFeedID) : mURL(url), mFavIcon("")
 {

@@ -20,7 +20,7 @@
 #define ZAPFR_CLIENT_MAINWINDOW_H
 
 #include "ClientGlobal.h"
-#include "Flag.h"
+#include "ZapFR/Flag.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui

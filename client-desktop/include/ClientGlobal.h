@@ -19,7 +19,7 @@
 #ifndef ZAPFR_CLIENT_CLIENTGLOBAL_H
 #define ZAPFR_CLIENT_CLIENTGLOBAL_H
 
-#include "Global.h"
+#include "ZapFR/Global.h"
 
 #include <QApplication>
 #include <QClipboard>

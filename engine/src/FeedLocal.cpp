@@ -16,13 +16,13 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "FeedLocal.h"
-#include "Database.h"
-#include "FavIconParser.h"
-#include "FeedFetcher.h"
-#include "Helpers.h"
-#include "Log.h"
-#include "PostLocal.h"
+#include "ZapFR/FeedLocal.h"
+#include "ZapFR/Database.h"
+#include "ZapFR/FavIconParser.h"
+#include "ZapFR/FeedFetcher.h"
+#include "ZapFR/Helpers.h"
+#include "ZapFR/Log.h"
+#include "ZapFR/PostLocal.h"
 
 using namespace Poco::Data::Keywords;
 

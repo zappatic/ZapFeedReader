@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetFolderPosts.h"
-#include "Folder.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetFolderPosts.h"
+#include "ZapFR/Folder.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetFolderPosts::AgentGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)

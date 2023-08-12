@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentMarkFolderRead.h"
-#include "Feed.h"
-#include "Folder.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentMarkFolderRead.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Folder.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentMarkFolderRead::AgentMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)

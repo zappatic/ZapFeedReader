@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentGetPost.h"
-#include "Feed.h"
-#include "Post.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentGetPost.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Post.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetPost::AgentGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<ZapFR::Engine::Post>)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFinishedCallback(finishedCallback)

@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentRefreshSource.h"
-#include "Agent.h"
-#include "Feed.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentRefreshSource.h"
+#include "ZapFR/Agent.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentRefreshSource::AgentRefreshSource(uint64_t sourceID, std::function<void(uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)

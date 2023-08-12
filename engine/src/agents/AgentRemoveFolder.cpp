@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentRemoveFolder.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentRemoveFolder.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentRemoveFolder::AgentRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFolderID(folder), mFinishedCallback(finishedCallback)

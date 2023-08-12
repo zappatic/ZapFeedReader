@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "OPMLParser.h"
-#include "Helpers.h"
+#include "ZapFR/OPMLParser.h"
+#include "ZapFR/Helpers.h"
 
 std::vector<ZapFR::Engine::OPMLEntry> ZapFR::Engine::OPMLParser::parse(const std::string& opmlXML)
 {

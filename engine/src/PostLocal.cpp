@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "PostLocal.h"
+#include "ZapFR/PostLocal.h"
 
 using namespace Poco::Data::Keywords;
 

@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "agents/AgentAddFolder.h"
-#include "Feed.h"
-#include "Post.h"
-#include "Source.h"
+#include "ZapFR/agents/AgentAddFolder.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Post.h"
+#include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentAddFolder::AgentAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mParentFolderID(parentFolderID), mTitle(title), mFinishedCallback(finishedCallback)

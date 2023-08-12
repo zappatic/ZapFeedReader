@@ -16,11 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "FeedFetcher.h"
-#include "FeedLocal.h"
-#include "FeedParserATOM10.h"
-#include "FeedParserRSS20.h"
-#include "Helpers.h"
+#include "ZapFR/FeedFetcher.h"
+#include "ZapFR/FeedLocal.h"
+#include "ZapFR/FeedParserATOM10.h"
+#include "ZapFR/FeedParserRSS20.h"
+#include "ZapFR/Helpers.h"
 
 std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseURL(const std::string& url, uint64_t associatedFeedID)
 {

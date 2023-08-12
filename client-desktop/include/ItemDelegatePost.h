@@ -20,7 +20,7 @@
 #define ZAPFR_CLIENT_ITEMDELEGATEPOST_H
 
 #include "ClientGlobal.h"
-#include "Flag.h"
+#include "ZapFR/Flag.h"
 
 namespace ZapFR
 {

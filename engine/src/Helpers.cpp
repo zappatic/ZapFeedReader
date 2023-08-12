@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "Helpers.h"
-#include "Log.h"
+#include "ZapFR/Helpers.h"
+#include "ZapFR/Log.h"
 
 namespace
 {
