@@ -19,6 +19,7 @@
 #ifndef ZAPFR_ENGINE_SCRIPTFOLDER_H
 #define ZAPFR_ENGINE_SCRIPTFOLDER_H
 
+#include "Flag.h"
 #include "Global.h"
 
 namespace ZapFR
@@ -39,6 +40,9 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
             virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
+
+            virtual std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
+            virtual uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) = 0;
 
           protected:
             uint64_t mID{0};

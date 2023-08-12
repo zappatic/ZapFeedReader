@@ -20,12 +20,7 @@
 #define ZAPFR_CLIENT_MAINWINDOW_H
 
 #include "ClientGlobal.h"
-#include "Database.h"
-#include "DialogAddFeed.h"
-#include "DialogAddFolder.h"
-#include "DialogImportOPML.h"
-#include "DialogJumpToPage.h"
-#include "Global.h"
+#include "Flag.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -36,10 +31,19 @@ QT_END_NAMESPACE
 
 namespace ZapFR
 {
+    namespace Engine
+    {
+        class Database;
+    } // namespace Engine
+
     namespace Client
     {
         class WebEnginePagePost;
         class StandardItemModelSources;
+        class DialogAddFeed;
+        class DialogAddFolder;
+        class DialogImportOPML;
+        class DialogJumpToPage;
 
         class MainWindow : public QMainWindow
         {

@@ -17,7 +17,6 @@
 */
 
 #include "TableViewPosts.h"
-#include "Agent.h"
 #include "PopupFlagChooser.h"
 
 ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : QTableView(parent)

@@ -29,6 +29,7 @@
 #include "agents/AgentGetFolderLogs.h"
 #include "agents/AgentGetFolderPosts.h"
 #include "agents/AgentGetPost.h"
+#include "agents/AgentGetScriptFolderFlaggedPosts.h"
 #include "agents/AgentGetScriptFolderPosts.h"
 #include "agents/AgentGetScriptFolders.h"
 #include "agents/AgentGetSourceFlaggedPosts.h"
@@ -236,6 +237,12 @@ void ZapFR::Engine::Agent::queueGetScriptFolderPosts(uint64_t sourceID, uint64_t
                                                      std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentGetScriptFolderPosts>(sourceID, scriptFolderID, perPage, page, showOnlyUnread, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetScriptFolderFlaggedPosts(FlagColor flagColor, uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page,
+                                                            bool showOnlyUnread, std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetScriptFolderFlaggedPosts>(flagColor, sourceID, scriptFolderID, perPage, page, showOnlyUnread, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)

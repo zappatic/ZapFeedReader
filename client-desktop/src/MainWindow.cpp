@@ -19,6 +19,11 @@
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
 #include "Agent.h"
+#include "Database.h"
+#include "DialogAddFeed.h"
+#include "DialogAddFolder.h"
+#include "DialogImportOPML.h"
+#include "DialogJumpToPage.h"
 #include "FeedIconCache.h"
 #include "FeedLocal.h"
 #include "Flag.h"
@@ -743,7 +748,15 @@ void ZapFR::Client::MainWindow::reloadPosts()
     {
         auto sourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
         auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+        if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
+        {
+            ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+        }
+        else
+        {
+            ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderFlaggedPosts(mFlagFilter, sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage,
+                                                                                  mShowOnlyUnreadPosts, processPosts);
+        }
     }
     else
     {

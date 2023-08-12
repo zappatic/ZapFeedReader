@@ -63,6 +63,7 @@ target_sources(zapfeedreader-server PRIVATE
     ../engine/src/agents/AgentGetFeedFlaggedPosts.cpp
     ../engine/src/agents/AgentGetScriptFolders.cpp
     ../engine/src/agents/AgentGetScriptFolderPosts.cpp
+    ../engine/src/agents/AgentGetScriptFolderFlaggedPosts.cpp
     ../engine/src/Database.cpp
     ../engine/src/Log.cpp
     ../engine/src/FeedFetcher.cpp

@@ -19,7 +19,6 @@
 #include "StandardItemModelSources.h"
 #include "Agent.h"
 #include "MainWindow.h"
-#include "Source.h"
 
 ZapFR::Client::StandardItemModelSources::StandardItemModelSources(MainWindow* mainWindow, QObject* parent) : QStandardItemModel(parent), mMainWindow(mainWindow)
 {

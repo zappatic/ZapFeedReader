@@ -16,10 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERPOSTS_H
-#define ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERPOSTS_H
+#ifndef ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERFLAGGEDPOSTS_H
+#define ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERFLAGGEDPOSTS_H
 
 #include "AgentRunnable.h"
+#include "Flag.h"
 #include "Global.h"
 
 namespace ZapFR
@@ -29,16 +30,17 @@ namespace ZapFR
         class Post;
         class ScriptFolder;
 
-        class AgentGetScriptFolderPosts : public AgentRunnable
+        class AgentGetScriptFolderFlaggedPosts : public AgentRunnable
         {
           public:
-            explicit AgentGetScriptFolderPosts(uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                               std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
-            virtual ~AgentGetScriptFolderPosts() = default;
+            explicit AgentGetScriptFolderFlaggedPosts(FlagColor flagColor, uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                      std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
+            virtual ~AgentGetScriptFolderFlaggedPosts() = default;
 
             void run() override;
 
           private:
+            FlagColor mFlagColor{FlagColor::Gray};
             uint64_t mSourceID{0};
             uint64_t mScriptFolderID{0};
             uint64_t mPerPage{0};
@@ -49,4 +51,4 @@ namespace ZapFR
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERPOSTS_H
+#endif // ZAPFR_ENGINE_AGENTGETSCRIPTFOLDERFLAGGEDPOSTS_H
