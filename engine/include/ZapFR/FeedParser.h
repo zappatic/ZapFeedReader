@@ -30,6 +30,10 @@ namespace ZapFR
           public:
             FeedParser(Poco::XML::Document* xmlDoc, const std::string& url);
             virtual ~FeedParser() = default;
+            FeedParser(const FeedParser& e) = delete;
+            FeedParser& operator=(const FeedParser&) = delete;
+            FeedParser(FeedParser&&) = delete;
+            FeedParser& operator=(FeedParser&&) = delete;
 
             std::string url() const noexcept;
 

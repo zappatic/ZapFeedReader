@@ -37,8 +37,8 @@ void ZapFR::Client::WebEngineViewPost::contextMenuEvent(QContextMenuEvent* event
         mContextMenu->addAction(openInBrowserAction);
     }
 
-    auto data = lastContextMenuRequest();
-    mClickedURL = data->linkUrl();
+    auto lcmrData = lastContextMenuRequest();
+    mClickedURL = lcmrData->linkUrl();
     if (mClickedURL.isValid())
     {
         mContextMenu->popup(event->globalPos());

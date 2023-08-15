@@ -37,6 +37,10 @@ namespace ZapFR
           public:
             explicit DialogJumpToPage(QWidget* parent = nullptr);
             ~DialogJumpToPage();
+            DialogJumpToPage(const DialogJumpToPage& e) = delete;
+            DialogJumpToPage& operator=(const DialogJumpToPage&) = delete;
+            DialogJumpToPage(DialogJumpToPage&&) = delete;
+            DialogJumpToPage& operator=(DialogJumpToPage&&) = delete;
 
             void reset(uint64_t currentPage, uint64_t totalPageCount, std::function<void(uint64_t)> callback);
 

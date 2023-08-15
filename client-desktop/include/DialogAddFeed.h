@@ -38,6 +38,10 @@ namespace ZapFR
           public:
             explicit DialogAddFeed(QWidget* parent = nullptr);
             ~DialogAddFeed();
+            DialogAddFeed(const DialogAddFeed& e) = delete;
+            DialogAddFeed& operator=(const DialogAddFeed&) = delete;
+            DialogAddFeed(DialogAddFeed&&) = delete;
+            DialogAddFeed& operator=(DialogAddFeed&&) = delete;
 
             QString url() const;
 

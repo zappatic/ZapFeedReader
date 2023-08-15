@@ -358,10 +358,11 @@ void ZapFR::Client::MainWindow::reloadUsedFlagColors()
         if (sourceID != mPreviouslySelectedSourceID)
         {
             ZapFR::Engine::Agent::getInstance()->queueGetUsedFlagColors(sourceID,
-                                                                        [&](uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
+                                                                        [&](uint64_t affectedSourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
                                                                         {
-                                                                            QMetaObject::invokeMethod(this, "populateUsedFlags", Qt::AutoConnection, sourceID, flagColors);
-                                                                            mPreviouslySelectedSourceID = sourceID;
+                                                                            QMetaObject::invokeMethod(this, "populateUsedFlags", Qt::AutoConnection, affectedSourceID,
+                                                                                                      flagColors);
+                                                                            mPreviouslySelectedSourceID = affectedSourceID;
                                                                         });
         }
     }
@@ -466,20 +467,20 @@ void ZapFR::Client::MainWindow::reloadSources()
                 // lambda to recursively create folder items
                 std::unordered_map<uint64_t, QStandardItem*> folderIDToItemMapping; // a map to quickly look up folder items when adding feed items
                 std::function<void(ZapFR::Engine::Folder*, uint64_t, QStandardItem*)> createFolderItems;
-                createFolderItems = [&](ZapFR::Engine::Folder* folder, uint64_t sourceID, QStandardItem* parentItem)
+                createFolderItems = [&](ZapFR::Engine::Folder* folder, uint64_t currentSourceID, QStandardItem* parentItem)
                 {
                     auto folderItem = new QStandardItem(QString::fromUtf8(folder->title()));
                     folderItem->setData(SOURCETREE_ENTRY_TYPE_FOLDER, SourceTreeEntryTypeRole);
                     folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), SourceTreeEntryIDRole);
                     folderItem->setData(QVariant::fromValue<uint64_t>(folder->parentID()), SourceTreeEntryParentFolderIDRole);
-                    folderItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryParentSourceIDRole);
+                    folderItem->setData(QVariant::fromValue<uint64_t>(currentSourceID), SourceTreeEntryParentSourceIDRole);
                     parentItem->appendRow(folderItem);
 
                     if (folder->hasSubfolders())
                     {
                         for (const auto& subfolder : folder->subfolders())
                         {
-                            createFolderItems(subfolder, sourceID, folderItem);
+                            createFolderItems(subfolder, currentSourceID, folderItem);
                         }
                     }
                     folderIDToItemMapping[folder->id()] = folderItem;
@@ -666,9 +667,9 @@ void ZapFR::Client::MainWindow::updateFeedUnreadCountBadge(uint64_t sourceID, st
 
 QString ZapFR::Client::MainWindow::dataDir() const
 {
-    auto data = QStandardPaths::locate(QStandardPaths::StandardLocation::GenericDataLocation, "", QStandardPaths::LocateDirectory);
+    auto dataLocation = QStandardPaths::locate(QStandardPaths::StandardLocation::GenericDataLocation, "", QStandardPaths::LocateDirectory);
 
-    auto dir = QDir(QDir::cleanPath(data + QDir::separator() + "ZapFeedReader"));
+    auto dir = QDir(QDir::cleanPath(dataLocation + QDir::separator() + "ZapFeedReader"));
     if (!dir.exists())
     {
         dir.mkpath("ZapFeedReader");
@@ -678,9 +679,9 @@ QString ZapFR::Client::MainWindow::dataDir() const
 
 QString ZapFR::Client::MainWindow::configDir() const
 {
-    auto data = QStandardPaths::locate(QStandardPaths::StandardLocation::ConfigLocation, "", QStandardPaths::LocateDirectory);
+    auto dataLocation = QStandardPaths::locate(QStandardPaths::StandardLocation::ConfigLocation, "", QStandardPaths::LocateDirectory);
 
-    auto dir = QDir(QDir::cleanPath(data + QDir::separator() + "ZapFeedReader"));
+    auto dir = QDir(QDir::cleanPath(dataLocation + QDir::separator() + "ZapFeedReader"));
     if (!dir.exists())
     {
         dir.mkpath("ZapFeedReader");
@@ -1178,12 +1179,12 @@ QString ZapFR::Client::MainWindow::textMessageHTML(const QString& message) const
 void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID)
 {
     ZapFR::Engine::Agent::getInstance()->queueGetFeedUnreadCount(sourceID, feedID,
-                                                                 [&](uint64_t sourceID, uint64_t feedID, uint64_t unreadCount)
+                                                                 [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t unreadCount)
                                                                  {
                                                                      std::unordered_set<uint64_t> feedIDs;
-                                                                     feedIDs.insert(feedID);
-                                                                     QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, sourceID, feedIDs,
-                                                                                               false, unreadCount);
+                                                                     feedIDs.insert(affectedFeedID);
+                                                                     QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, affectedSourceID,
+                                                                                               feedIDs, false, unreadCount);
                                                                  });
 
     // if the feed is currently selected, then refresh the posts so the new unread posts are shown
@@ -1251,12 +1252,12 @@ void ZapFR::Client::MainWindow::postMarkedRead(uint64_t sourceID, uint64_t feedI
     }
 
     ZapFR::Engine::Agent::getInstance()->queueGetFeedUnreadCount(sourceID, feedID,
-                                                                 [&](uint64_t sourceID, uint64_t feedID, uint64_t unreadCount)
+                                                                 [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t unreadCount)
                                                                  {
                                                                      std::unordered_set<uint64_t> feedIDs;
-                                                                     feedIDs.insert(feedID);
-                                                                     QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, sourceID, feedIDs,
-                                                                                               false, unreadCount);
+                                                                     feedIDs.insert(affectedFeedID);
+                                                                     QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, affectedSourceID,
+                                                                                               feedIDs, false, unreadCount);
                                                                  });
 }
 
@@ -1284,12 +1285,12 @@ void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, std::vector
     for (const auto& feedID : uniqueFeedIDs)
     {
         ZapFR::Engine::Agent::getInstance()->queueGetFeedUnreadCount(sourceID, feedID,
-                                                                     [&](uint64_t sourceID, uint64_t feedID, uint64_t unreadCount)
+                                                                     [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t unreadCount)
                                                                      {
                                                                          std::unordered_set<uint64_t> feedIDs;
-                                                                         feedIDs.insert(feedID);
-                                                                         QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, sourceID, feedIDs,
-                                                                                                   false, unreadCount);
+                                                                         feedIDs.insert(affectedFeedID);
+                                                                         QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, affectedSourceID,
+                                                                                                   feedIDs, false, unreadCount);
                                                                      });
     }
 }
@@ -1486,21 +1487,24 @@ void ZapFR::Client::MainWindow::markAsRead()
             {
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(
-                    sourceID, feedID, [&](uint64_t sourceID, uint64_t feedID) { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection, sourceID, feedID); });
+                    sourceID, feedID,
+                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
+                    { QMetaObject::invokeMethod(this, "feedMarkedRead", Qt::AutoConnection, affectedSourceID, affectedFeedID); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
             {
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID,
-                                                                         [&](uint64_t sourceID, std::unordered_set<uint64_t> feedIDs)
-                                                                         { QMetaObject::invokeMethod(this, "folderMarkedRead", Qt::AutoConnection, sourceID, feedIDs); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(
+                    sourceID, folderID,
+                    [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> feedIDs)
+                    { QMetaObject::invokeMethod(this, "folderMarkedRead", Qt::AutoConnection, affectedSourceID, feedIDs); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_SOURCE:
             {
-                ZapFR::Engine::Agent::getInstance()->queueMarkSourceRead(sourceID, [&](uint64_t sourceID)
-                                                                         { QMetaObject::invokeMethod(this, "sourceMarkedRead", Qt::AutoConnection, sourceID); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkSourceRead(sourceID, [&](uint64_t affectedSourceID)
+                                                                         { QMetaObject::invokeMethod(this, "sourceMarkedRead", Qt::AutoConnection, affectedSourceID); });
                 break;
             }
         }
@@ -1530,8 +1534,9 @@ void ZapFR::Client::MainWindow::markAsUnread()
         if (feedAndPostIDs.size() > 0)
         {
             ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(sourceID, feedAndPostIDs,
-                                                                      [&](uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
-                                                                      { QMetaObject::invokeMethod(this, "postsMarkedUnread", Qt::AutoConnection, sourceID, postIDs); });
+                                                                      [&](uint64_t affectedSourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs) {
+                                                                          QMetaObject::invokeMethod(this, "postsMarkedUnread", Qt::AutoConnection, affectedSourceID, postIDs);
+                                                                      });
         }
     }
 }
@@ -1599,20 +1604,25 @@ void ZapFR::Client::MainWindow::refreshFeeds()
             {
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
-                    sourceID, feedID, [&](uint64_t sourceID, uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, sourceID, feedID); });
+                    sourceID, feedID,
+                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
+                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
             {
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueRefreshFolder(
-                    sourceID, folderID, [&](uint64_t sourceID, uint64_t feedID) { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, sourceID, feedID); });
+                    sourceID, folderID,
+                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
+                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_SOURCE:
             {
-                ZapFR::Engine::Agent::getInstance()->queueRefreshSource(sourceID, [&](uint64_t sourceID, uint64_t feedID)
-                                                                        { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, sourceID, feedID); });
+                ZapFR::Engine::Agent::getInstance()->queueRefreshSource(
+                    sourceID, [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
+                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID); });
 
                 break;
             }
@@ -1944,8 +1954,8 @@ void ZapFR::Client::MainWindow::configureConnects()
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkPostFlagged(
                     sourceID, feedID, postID, flagColor,
-                    [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
-                    { QMetaObject::invokeMethod(this, "postMarkedFlagged", Qt::AutoConnection, sourceID, feedID, postID, flagColor); });
+                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t affectedPostID, ZapFR::Engine::FlagColor affectedFlagColor)
+                    { QMetaObject::invokeMethod(this, "postMarkedFlagged", Qt::AutoConnection, affectedSourceID, affectedFeedID, affectedPostID, affectedFlagColor); });
             });
 
     connect(ui->tableViewPosts, &TableViewPosts::postMarkedUnflagged,
@@ -1953,8 +1963,8 @@ void ZapFR::Client::MainWindow::configureConnects()
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkPostUnflagged(
                     sourceID, feedID, postID, flagColor,
-                    [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
-                    { QMetaObject::invokeMethod(this, "postMarkedUnflagged", Qt::AutoConnection, sourceID, feedID, postID, flagColor); });
+                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t affectedPostID, ZapFR::Engine::FlagColor affectedFlagColor)
+                    { QMetaObject::invokeMethod(this, "postMarkedUnflagged", Qt::AutoConnection, affectedSourceID, affectedFeedID, affectedPostID, affectedFlagColor); });
             });
 
     ui->widgetFilterFlagBlue->setFlagColor(ZapFR::Engine::FlagColor::Blue);
@@ -1970,28 +1980,30 @@ void ZapFR::Client::MainWindow::configureConnects()
     {
         flag->setFlagStyle(Utilities::FlagStyle::Unfilled);
         connect(flag, &PopupFlag::flagClicked,
-                [&](PopupFlag* flag)
+                [&](PopupFlag* clickedFlag)
                 {
+                    // auto post = ZapFR::Engine::Source::getSource(1).value()->getFeed(7).value()->getPost(13);
+
                     for (const auto& f : flags)
                     {
-                        if (f != flag)
+                        if (f != clickedFlag)
                         {
                             f->setFlagStyle(Utilities::FlagStyle::Unfilled);
                         }
                     }
 
-                    switch (flag->flagStyle())
+                    switch (clickedFlag->flagStyle())
                     {
                         case Utilities::FlagStyle::Filled:
                         {
-                            flag->setFlagStyle(Utilities::FlagStyle::Unfilled);
+                            clickedFlag->setFlagStyle(Utilities::FlagStyle::Unfilled);
                             mFlagFilter = ZapFR::Engine::FlagColor::Gray;
                             break;
                         }
                         case Utilities::FlagStyle::Unfilled:
                         {
-                            flag->setFlagStyle(Utilities::FlagStyle::Filled);
-                            mFlagFilter = flag->flagColor();
+                            clickedFlag->setFlagStyle(Utilities::FlagStyle::Filled);
+                            mFlagFilter = clickedFlag->flagColor();
                             break;
                         }
                     }

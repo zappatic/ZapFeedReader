@@ -39,6 +39,10 @@ namespace ZapFR
           public:
             explicit DialogImportOPML(QWidget* parent = nullptr);
             ~DialogImportOPML();
+            DialogImportOPML(const DialogImportOPML& e) = delete;
+            DialogImportOPML& operator=(const DialogImportOPML&) = delete;
+            DialogImportOPML(DialogImportOPML&&) = delete;
+            DialogImportOPML& operator=(DialogImportOPML&&) = delete;
 
             std::vector<ZapFR::Engine::OPMLEntry> importedFeeds() const noexcept;
 
@@ -49,7 +53,7 @@ namespace ZapFR
 
           private:
             Ui::DialogImportOPML* ui;
-            std::vector<ZapFR::Engine::OPMLEntry> mImportedFeeds;
+            std::vector<ZapFR::Engine::OPMLEntry> mImportedFeeds{};
         };
     } // namespace Client
 } // namespace ZapFR

@@ -38,10 +38,10 @@ ZapFR::Client::PopupFlagChooser::PopupFlagChooser(QWidget* parent) : QWidget(par
     for (const auto& flag : mFlags)
     {
         connect(flag, &PopupFlag::flagClicked,
-                [&](PopupFlag* flag)
+                [&](PopupFlag* clickedFlag)
                 {
-                    flag->setFlagStyle((flag->flagStyle() == Utilities::FlagStyle::Filled) ? Utilities::FlagStyle::Unfilled : Utilities::FlagStyle::Filled);
-                    emit flagToggled(flag->flagColor(), flag->flagStyle());
+                    clickedFlag->setFlagStyle((clickedFlag->flagStyle() == Utilities::FlagStyle::Filled) ? Utilities::FlagStyle::Unfilled : Utilities::FlagStyle::Filled);
+                    emit flagToggled(clickedFlag->flagColor(), clickedFlag->flagStyle());
                 });
     }
 }

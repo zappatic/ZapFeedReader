@@ -38,6 +38,10 @@ namespace ZapFR
           public:
             explicit DialogAddFolder(QWidget* parent = nullptr);
             ~DialogAddFolder();
+            DialogAddFolder(const DialogAddFolder& e) = delete;
+            DialogAddFolder& operator=(const DialogAddFolder&) = delete;
+            DialogAddFolder(DialogAddFolder&&) = delete;
+            DialogAddFolder& operator=(DialogAddFolder&&) = delete;
 
             QString title() const;
 

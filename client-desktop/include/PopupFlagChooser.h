@@ -53,7 +53,7 @@ namespace ZapFR
             void mouseReleaseEvent(QMouseEvent* event) override;
 
           private:
-            ZapFR::Engine::FlagColor mFlagColor;
+            ZapFR::Engine::FlagColor mFlagColor{ZapFR::Engine::FlagColor::Gray};
             Utilities::FlagStyle mFlagStyle{Utilities::FlagStyle::Unfilled};
         };
 
@@ -64,6 +64,10 @@ namespace ZapFR
           public:
             explicit PopupFlagChooser(QWidget* parent = nullptr);
             ~PopupFlagChooser();
+            PopupFlagChooser(const PopupFlagChooser& e) = delete;
+            PopupFlagChooser& operator=(const PopupFlagChooser&) = delete;
+            PopupFlagChooser(PopupFlagChooser&&) = delete;
+            PopupFlagChooser& operator=(PopupFlagChooser&&) = delete;
 
             void showWithSelectedColors(const QList<QVariant> flagColors);
 

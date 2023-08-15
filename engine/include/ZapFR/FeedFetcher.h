@@ -38,7 +38,7 @@ namespace ZapFR
             std::string xml() const noexcept;
 
           private:
-            std::string mXML;
+            std::string mXML{""};
         };
     } // namespace Engine
 } // namespace ZapFR

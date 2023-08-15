@@ -33,6 +33,10 @@ namespace ZapFR
           public:
             explicit DialogWithSourcesAndFolders(QWidget* parent = nullptr);
             ~DialogWithSourcesAndFolders() = default;
+            DialogWithSourcesAndFolders(const DialogWithSourcesAndFolders& e) = delete;
+            DialogWithSourcesAndFolders& operator=(const DialogWithSourcesAndFolders&) = delete;
+            DialogWithSourcesAndFolders(DialogWithSourcesAndFolders&&) = delete;
+            DialogWithSourcesAndFolders& operator=(DialogWithSourcesAndFolders&&) = delete;
 
             uint64_t selectedFolderID() const;
             uint64_t selectedSourceID() const;
@@ -47,8 +51,8 @@ namespace ZapFR
           private:
             QComboBox* mComboBoxSources{nullptr};
             QComboBox* mComboBoxFolders{nullptr};
-            std::unique_ptr<QStandardItemModel> mSourcesModel;
-            std::unique_ptr<QStandardItemModel> mFoldersModel;
+            std::unique_ptr<QStandardItemModel> mSourcesModel{nullptr};
+            std::unique_ptr<QStandardItemModel> mFoldersModel{nullptr};
             int64_t mFolderIDToPreselect{-1};
 
             static constexpr uint32_t SourceIDRole{Qt::ItemDataRole::UserRole + 1};

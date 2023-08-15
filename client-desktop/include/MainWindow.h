@@ -52,6 +52,10 @@ namespace ZapFR
           public:
             MainWindow(QWidget* parent = nullptr);
             ~MainWindow();
+            MainWindow(const MainWindow& e) = delete;
+            MainWindow& operator=(const MainWindow&) = delete;
+            MainWindow(MainWindow&&) = delete;
+            MainWindow& operator=(MainWindow&&) = delete;
 
           private slots:
             // actions

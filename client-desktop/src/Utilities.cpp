@@ -106,6 +106,7 @@ const QPixmap& ZapFR::Client::Utilities::flag(ZapFR::Engine::FlagColor color, Fl
             return msFilledFlagCache.at(color);
         }
         case FlagStyle::Unfilled:
+        default:
         {
             msUnfilledFlagCache[color] = pixmap;
             return msUnfilledFlagCache.at(color);

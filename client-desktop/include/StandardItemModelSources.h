@@ -34,6 +34,10 @@ namespace ZapFR
           public:
             StandardItemModelSources(MainWindow* mainWindow, QObject* parent = nullptr);
             ~StandardItemModelSources() = default;
+            StandardItemModelSources(const StandardItemModelSources& e) = delete;
+            StandardItemModelSources& operator=(const StandardItemModelSources&) = delete;
+            StandardItemModelSources(StandardItemModelSources&&) = delete;
+            StandardItemModelSources& operator=(StandardItemModelSources&&) = delete;
 
             Qt::ItemFlags flags(const QModelIndex& index) const override;
             bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;

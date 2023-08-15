@@ -527,7 +527,7 @@ uint64_t ZapFR::Engine::SourceLocal::createFolderHierarchy(uint64_t parentID, co
     {
         auto existingSubFolderFound{false};
         uint64_t existingSubfolderID{0};
-        uint64_t parentID{0};
+        uint64_t pID{0};
 
         if (parent == nullptr)
         {
@@ -543,7 +543,7 @@ uint64_t ZapFR::Engine::SourceLocal::createFolderHierarchy(uint64_t parentID, co
         }
         else
         {
-            parentID = parent->id();
+            pID = parent->id();
             for (const auto& subfolder : parent->subfolders())
             {
                 if (subfolder->title() == folderTitle)
@@ -557,7 +557,7 @@ uint64_t ZapFR::Engine::SourceLocal::createFolderHierarchy(uint64_t parentID, co
 
         if (!existingSubFolderFound)
         {
-            existingSubfolderID = addFolder(folderTitle, parentID);
+            existingSubfolderID = addFolder(folderTitle, pID);
         }
         return existingSubfolderID;
     };
