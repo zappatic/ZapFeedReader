@@ -25,6 +25,7 @@
 #include "FeedIconCache.h"
 #include "ItemDelegateLog.h"
 #include "ItemDelegatePost.h"
+#include "ItemDelegateScript.h"
 #include "ItemDelegateSource.h"
 #include "StandardItemModelSources.h"
 #include "Utilities.h"
@@ -57,6 +58,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
     ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
     ui->tableViewLogs->setItemDelegate(new ItemDelegateLog(ui->tableViewLogs));
+    ui->tableViewScripts->setItemDelegate(new ItemDelegateScript(ui->tableViewScripts));
     ui->webViewPost->setPage(mPostWebEnginePage.get());
 
     // prevent the left splitter from resizing while the window resizes

@@ -40,6 +40,7 @@ namespace ZapFR
     {
         class WebEnginePagePost;
         class StandardItemModelSources;
+        class StandardItemModelScripts;
         class DialogAddFeed;
         class DialogAddFolder;
         class DialogImportOPML;

@@ -52,6 +52,7 @@
 #include <QStandardPaths>
 #include <QString>
 #include <QStyleHints>
+#include <QStylePainter>
 #include <QStyledItemDelegate>
 #include <QTableView>
 #include <QTimer>
@@ -125,6 +126,7 @@ namespace ZapFR
         static constexpr uint32_t ScriptsColumnRunOnFeedIDs = 5;
 
         static constexpr uint32_t ScriptIDRole{Qt::ItemDataRole::UserRole + 1};
+        static constexpr uint32_t ScriptIsEnabledRole{Qt::ItemDataRole::UserRole + 2};
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";

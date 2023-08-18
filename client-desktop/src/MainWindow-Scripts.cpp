@@ -46,8 +46,9 @@ void ZapFR::Client::MainWindow::reloadScripts()
             auto titleItem = new QStandardItem(QString::fromUtf8(script->filename()));
             titleItem->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
 
-            auto isEnabledItem = new QStandardItem(QString::fromUtf8(script->isEnabled() ? "true" : "false"));
+            auto isEnabledItem = new QStandardItem();
             isEnabledItem->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
+            isEnabledItem->setData(script->isEnabled(), ScriptIsEnabledRole);
 
             auto runOnEventsItem = new QStandardItem("todo");
             runOnEventsItem->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
@@ -70,7 +71,6 @@ void ZapFR::Client::MainWindow::reloadScripts()
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
         if (sourceID != mPreviouslySelectedSourceID)
         {
-            std::cout << "yasfasf\n";
             ZapFR::Engine::Agent::getInstance()->queueGetScripts(sourceID, processScripts);
         }
     }

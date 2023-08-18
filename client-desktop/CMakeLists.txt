@@ -19,6 +19,7 @@ set(PROJECT_SOURCES
         src/ItemDelegateSource.cpp
         src/ItemDelegatePost.cpp
         src/ItemDelegateLog.cpp
+        src/ItemDelegateScript.cpp
         src/DialogWithSourcesAndFolders.cpp
         src/DialogAddFeed.cpp
         src/DialogAddFolder.cpp
@@ -41,6 +42,7 @@ set(PROJECT_SOURCES
         include/ItemDelegateSource.h
         include/ItemDelegatePost.h
         include/ItemDelegateLog.h
+        include/ItemDelegateScript.h
         include/DialogWithSourcesAndFolders.h
         include/DialogAddFeed.h
         include/DialogAddFolder.h
