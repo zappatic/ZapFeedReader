@@ -36,12 +36,14 @@
 #include "ZapFR/Folder.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/Post.h"
+#include "ZapFR/Script.h"
 #include "ZapFR/ScriptFolderLocal.h"
 
 using namespace std::placeholders;
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    ZapFR::Engine::Script::setScriptDir(QDir::cleanPath(dataDir() + QDir::separator() + "scripts").toStdString());
     ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
     ZapFR::Engine::Database::setDatabasePath(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader-client.db").toStdString());
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
@@ -1370,6 +1372,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Add_feed->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
     ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
+    ui->action_View_scripts->setIcon(configureIcon(":/script.svg"));
     ui->action_Back_to_posts->setIcon(configureIcon(":/back.svg"));
     ui->pushButtonPostPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
     ui->pushButtonPostFirstPage->setIcon(configureIcon(":/firstPage.svg"));
@@ -1446,6 +1449,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
             ui->action_Refresh_feeds->setVisible(true);
             ui->action_Mark_as_read->setVisible(true);
             ui->action_View_logs->setVisible(true);
+            ui->action_View_scripts->setVisible(true);
 
             ui->action_Add_feed->setEnabled(anythingSelected);
             ui->action_Add_folder->setEnabled(anythingSelected);
@@ -1468,7 +1472,11 @@ void ZapFR::Client::MainWindow::updateToolbar()
         case StackedPaneLogs:
         {
             ui->action_Back_to_posts->setVisible(true);
-
+            break;
+        }
+        case StackedPaneScripts:
+        {
+            ui->action_Back_to_posts->setVisible(true);
             break;
         }
     }
@@ -1738,6 +1746,13 @@ void ZapFR::Client::MainWindow::configureConnects()
                 reloadLogs();
             });
 
+    connect(ui->action_View_scripts, &QAction::triggered,
+            [&]()
+            {
+                mPreviouslySelectedSourceID = 0;
+                reloadScripts();
+            });
+
     connect(ui->action_Back_to_posts, &QAction::triggered, [&]() { ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts); });
 
     connect(ui->treeViewSources, &TreeViewSources::currentSourceChanged,
@@ -1760,6 +1775,11 @@ void ZapFR::Client::MainWindow::configureConnects()
                         {
                             mCurrentLogPage = 1;
                             reloadLogs();
+                            break;
+                        }
+                        case StackedPaneScripts:
+                        {
+                            reloadScripts();
                             break;
                         }
                     }
@@ -1916,10 +1936,19 @@ void ZapFR::Client::MainWindow::configureConnects()
                         ui->tableViewScriptFolders->setVisible(true);
                         setUnreadBadgesShown(true);
                         mCurrentPostPage = 1;
+                        mPreviouslySelectedSourceID = 0;
+                        reloadUsedFlagColors();
                         reloadPosts();
                         break;
                     }
                     case StackedPaneLogs:
+                    {
+                        ui->frameFlagFilters->setVisible(false);
+                        ui->tableViewScriptFolders->setVisible(false);
+                        setUnreadBadgesShown(false);
+                        break;
+                    }
+                    case StackedPaneScripts:
                     {
                         ui->frameFlagFilters->setVisible(false);
                         ui->tableViewScriptFolders->setVisible(false);
@@ -1982,8 +2011,6 @@ void ZapFR::Client::MainWindow::configureConnects()
         connect(flag, &PopupFlag::flagClicked,
                 [&](PopupFlag* clickedFlag)
                 {
-                    // auto post = ZapFR::Engine::Source::getSource(1).value()->getFeed(7).value()->getPost(13);
-
                     for (const auto& f : flags)
                     {
                         if (f != clickedFlag)

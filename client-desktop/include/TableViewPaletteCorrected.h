@@ -16,31 +16,27 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
-#define ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+#ifndef ZAPFR_CLIENT_TABLEVIEWPALETTECORRECTED_H
+#define ZAPFR_CLIENT_TABLEVIEWPALETTECORRECTED_H
 
 #include "ClientGlobal.h"
-#include "TableViewPaletteCorrected.h"
 
 namespace ZapFR
 {
     namespace Client
     {
-        class TableViewScriptFolders : public TableViewPaletteCorrected
+        class TableViewPaletteCorrected : public QTableView
         {
             Q_OBJECT
 
           public:
-            TableViewScriptFolders(QWidget* parent = nullptr);
-            ~TableViewScriptFolders() = default;
-
-          signals:
-            void selectedScriptFolderChanged(const QModelIndex&);
+            TableViewPaletteCorrected(QWidget* parent = nullptr);
+            ~TableViewPaletteCorrected() = default;
 
           protected:
-            void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
+            bool viewportEvent(QEvent* event) override;
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+#endif // ZAPFR_CLIENT_TABLEVIEWPALETTECORRECTED_H

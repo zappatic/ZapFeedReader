@@ -25,6 +25,7 @@
 int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
 {
     // TODO: setIconDir
+    // TODO: setScriptDir
     ZapFR::Engine::Database::setDatabasePath(dataDir() + Poco::Path::separator() + "zapfeedreader-server.db");
 
     // auto url = "https://en.wikipedia.org/w/api.php?hidebots=1&hidecategorization=1&hideWikibase=1&urlversion=1&days=7&limit=50&action=feedrecentchanges&feedformat=rss";

@@ -18,5 +18,6 @@
         <file>logLevelError.svg</file>
         <file>flagFilled.svg</file>
         <file>flagUnfilled.svg</file>
+        <file>script.svg</file>
     </qresource>
 </RCC>

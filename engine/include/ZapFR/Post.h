@@ -72,6 +72,9 @@ namespace ZapFR
             virtual void markFlagged(FlagColor flagColor) = 0;
             virtual void markUnflagged(FlagColor flagColor) = 0;
 
+            virtual void markAsRead() = 0;
+            virtual void markAsUnread() = 0;
+
           protected:
             uint64_t mID{0};
             bool mIsRead{false};

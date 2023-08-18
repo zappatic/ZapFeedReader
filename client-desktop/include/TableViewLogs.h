@@ -20,21 +20,19 @@
 #define ZAPFR_CLIENT_TABLEVIEWLOGS_H
 
 #include "ClientGlobal.h"
+#include "TableViewPaletteCorrected.h"
 
 namespace ZapFR
 {
     namespace Client
     {
-        class TableViewLogs : public QTableView
+        class TableViewLogs : public TableViewPaletteCorrected
         {
             Q_OBJECT
 
           public:
             TableViewLogs(QWidget* parent = nullptr);
             ~TableViewLogs() = default;
-
-          protected:
-            bool viewportEvent(QEvent* event) override;
         };
     } // namespace Client
 } // namespace ZapFR

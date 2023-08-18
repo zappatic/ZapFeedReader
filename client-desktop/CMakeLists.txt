@@ -15,6 +15,7 @@ set(TS_FILES i18n/ZapFeedReader_en_US.ts)
 set(PROJECT_SOURCES
         src/main.cpp
         src/MainWindow.cpp
+        src/MainWindow-Scripts.cpp
         src/ItemDelegateSource.cpp
         src/ItemDelegatePost.cpp
         src/ItemDelegateLog.cpp
@@ -27,9 +28,11 @@ set(PROJECT_SOURCES
         src/WebEnginePagePost.cpp
         src/WebEngineViewPost.cpp
         src/StandardItemModelSources.cpp
+        src/TableViewPaletteCorrected.cpp
         src/TableViewPosts.cpp
         src/TableViewLogs.cpp
         src/TableViewScriptFolders.cpp
+        src/TableViewScripts.cpp
         src/TreeViewSources.cpp
         src/FeedIconCache.cpp
         src/PopupFlagChooser.cpp
@@ -46,9 +49,11 @@ set(PROJECT_SOURCES
         include/WebEnginePagePost.h
         include/WebEngineViewPost.h
         include/StandardItemModelSources.h
+        include/TableViewPaletteCorrected.h
         include/TableViewPosts.h
         include/TableViewLogs.h
         include/TableViewScriptFolders.h
+        include/TableViewScripts.h
         include/TreeViewSources.h
         include/FeedIconCache.h
         include/PopupFlagChooser.h

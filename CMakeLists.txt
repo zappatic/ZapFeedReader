@@ -16,5 +16,8 @@ add_subdirectory(server)
 add_subdirectory(engine)
 add_subdirectory(client-desktop)
 
+find_package(PkgConfig REQUIRED)
+
 add_custom_target(build-poco COMMAND ${CMAKE_SOURCE_DIR}/3rdParty/build-poco.sh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/3rdParty/poco/)
 add_custom_target(build-fmtlib COMMAND ${CMAKE_SOURCE_DIR}/3rdParty/build-fmtlib.sh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib/)
+add_custom_target(build-lua COMMAND ${CMAKE_SOURCE_DIR}/3rdParty/build-lua.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/3rdParty/)

@@ -33,6 +33,9 @@ namespace ZapFR
 
             void markFlagged(FlagColor flagColor) override;
             void markUnflagged(FlagColor flagColor) override;
+
+            void markAsRead() override;
+            void markAsUnread() override;
         };
     } // namespace Engine
 } // namespace ZapFR

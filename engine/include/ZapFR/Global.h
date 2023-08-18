@@ -47,6 +47,7 @@
 #include <Poco/SAX/SAXException.h>
 #include <Poco/SAX/SAXParser.h>
 #include <Poco/StreamCopier.h>
+#include <Poco/StringTokenizer.h>
 #include <Poco/ThreadPool.h>
 #include <Poco/Timer.h>
 #include <Poco/URI.h>

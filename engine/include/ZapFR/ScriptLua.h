@@ -16,31 +16,34 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
-#define ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+#ifndef ZAPFR_ENGINE_SCRIPTLUA_H
+#define ZAPFR_ENGINE_SCRIPTLUA_H
 
-#include "ClientGlobal.h"
-#include "TableViewPaletteCorrected.h"
+#include "ScriptFolder.h"
 
 namespace ZapFR
 {
-    namespace Client
+    namespace Engine
     {
-        class TableViewScriptFolders : public TableViewPaletteCorrected
+        class Post;
+
+        class ScriptLua
         {
-            Q_OBJECT
-
           public:
-            TableViewScriptFolders(QWidget* parent = nullptr);
-            ~TableViewScriptFolders() = default;
+            ScriptLua(const ScriptLua&) = delete;
+            ScriptLua& operator=(const ScriptLua&) = delete;
+            virtual ~ScriptLua() = default;
 
-          signals:
-            void selectedScriptFolderChanged(const QModelIndex&);
+            static ScriptLua* getInstance();
 
-          protected:
-            void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
+            static void runNewPostScript(const std::string& script, Post* post);
+
+            static constexpr uint64_t msScriptEngineVersion{1};
+
+          private:
+            explicit ScriptLua();
         };
-    } // namespace Client
+    } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+#endif // ZAPFR_ENGINE_SCRIPTLUA_H

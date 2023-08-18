@@ -33,6 +33,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentGetScriptFolders.cpp
     agents/AgentGetScriptFolderPosts.cpp
     agents/AgentGetScriptFolderFlaggedPosts.cpp
+    agents/AgentGetScripts.cpp
     Database.cpp
     Log.cpp
     FeedFetcher.cpp
@@ -49,4 +50,7 @@ target_sources(zapfeedreader-engine PRIVATE
     FavIconParser.cpp
     Flag.cpp
     ScriptFolderLocal.cpp
+    Script.cpp
+    ScriptLua.cpp
+    lua/LuaProxyPost.cpp
 )

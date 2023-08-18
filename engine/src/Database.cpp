@@ -193,4 +193,17 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ")",
             now;
     }
+
+    // SCRIPTS TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS scripts ("
+                       " id INTEGER PRIMARY KEY"
+                       ",type TEXT NOT NULL DEFAULT 'lua'"
+                       ",filename TEXT NOT NULL"
+                       ",isEnabled BOOLEAN DEFAULT TRUE"
+                       ",runOnEvents TEXT NOT NULL DEFAULT 'newpost'"
+                       ",runOnFeedIDs TEXT"
+                       ")",
+            now;
+    }
 }

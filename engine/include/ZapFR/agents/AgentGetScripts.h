@@ -16,31 +16,31 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
-#define ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+#ifndef ZAPFR_ENGINE_AGENTGETSCRIPTS_H
+#define ZAPFR_ENGINE_AGENTGETSCRIPTS_H
 
-#include "ClientGlobal.h"
-#include "TableViewPaletteCorrected.h"
+#include "ZapFR/AgentRunnable.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {
-    namespace Client
+    namespace Engine
     {
-        class TableViewScriptFolders : public TableViewPaletteCorrected
+        class Script;
+
+        class AgentGetScripts : public AgentRunnable
         {
-            Q_OBJECT
-
           public:
-            TableViewScriptFolders(QWidget* parent = nullptr);
-            ~TableViewScriptFolders() = default;
+            explicit AgentGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback);
+            virtual ~AgentGetScripts() = default;
 
-          signals:
-            void selectedScriptFolderChanged(const QModelIndex&);
+            void run() override;
 
-          protected:
-            void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
+          private:
+            uint64_t mSourceID{0};
+            std::function<void(uint64_t, const std::vector<Script*>&)> mFinishedCallback{};
         };
-    } // namespace Client
+    } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+#endif // ZAPFR_ENGINE_AGENTGETSCRIPTS_H

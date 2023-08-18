@@ -42,6 +42,7 @@ namespace ZapFR
           public:
             static std::tuple<uint8_t, uint8_t, uint8_t> rgbForColor(FlagColor color);
             static FlagColor flagColorForID(uint8_t id);
+            static FlagColor flagColorForName(const std::string& name);
             static uint8_t idForFlagColor(FlagColor flagColor);
 
           private:

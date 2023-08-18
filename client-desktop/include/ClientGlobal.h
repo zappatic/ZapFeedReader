@@ -105,6 +105,7 @@ namespace ZapFR
 
         static constexpr uint32_t StackedPanePosts = 0;
         static constexpr uint32_t StackedPaneLogs = 1;
+        static constexpr uint32_t StackedPaneScripts = 2;
 
         static constexpr uint32_t LogsColumnLogLevel = 0;
         static constexpr uint32_t LogsColumnFeed = 1;
@@ -115,6 +116,15 @@ namespace ZapFR
         static constexpr uint32_t ScriptFolderSourceIDRole{Qt::ItemDataRole::UserRole + 2};
 
         static constexpr uint32_t ScriptFolderColumnTitle = 0;
+
+        static constexpr uint32_t ScriptsColumnID = 0;
+        static constexpr uint32_t ScriptsColumnType = 1;
+        static constexpr uint32_t ScriptsColumnFilename = 2;
+        static constexpr uint32_t ScriptsColumnIsEnabled = 3;
+        static constexpr uint32_t ScriptsColumnRunOnEvents = 4;
+        static constexpr uint32_t ScriptsColumnRunOnFeedIDs = 5;
+
+        static constexpr uint32_t ScriptIDRole{Qt::ItemDataRole::UserRole + 1};
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";

@@ -26,6 +26,11 @@ ZapFR::Engine::PostLocal::PostLocal(uint64_t id) : Post(id)
 
 void ZapFR::Engine::PostLocal::markFlagged(FlagColor flagColor)
 {
+    if (flagColor == FlagColor::Gray)
+    {
+        return;
+    }
+
     markUnflagged(flagColor);
 
     auto fc = Flag::idForFlagColor(flagColor);
@@ -38,4 +43,18 @@ void ZapFR::Engine::PostLocal::markUnflagged(FlagColor flagColor)
     auto fc = Flag::idForFlagColor(flagColor);
     Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
     deleteStmt << "DELETE FROM flags WHERE postID=? AND flagID=?", use(mID), use(fc), now;
+}
+
+void ZapFR::Engine::PostLocal::markAsRead()
+{
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=? AND id=?", use(mFeedID), use(mID), now;
+    updateStmt.execute();
+}
+
+void ZapFR::Engine::PostLocal::markAsUnread()
+{
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE posts SET isRead=FALSE WHERE feedID=? AND id=?", use(mFeedID), use(mID), now;
+    updateStmt.execute();
 }

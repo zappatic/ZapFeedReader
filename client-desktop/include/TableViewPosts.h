@@ -20,6 +20,7 @@
 #define ZAPFR_CLIENT_TABLEVIEWPOSTS_H
 
 #include "ClientGlobal.h"
+#include "TableViewPaletteCorrected.h"
 #include "Utilities.h"
 #include "ZapFR/Flag.h"
 
@@ -29,7 +30,7 @@ namespace ZapFR
     {
         class PopupFlagChooser;
 
-        class TableViewPosts : public QTableView
+        class TableViewPosts : public TableViewPaletteCorrected
         {
             Q_OBJECT
 
@@ -48,7 +49,6 @@ namespace ZapFR
 
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
-            bool viewportEvent(QEvent* event) override;
             void mouseMoveEvent(QMouseEvent* event) override;
             void mouseReleaseEvent(QMouseEvent* event) override;
 

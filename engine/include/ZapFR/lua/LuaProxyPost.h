@@ -16,31 +16,38 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
-#define ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+#ifndef ZAPFR_ENGINE_LUAPROXYPOST_H
+#define ZAPFR_ENGINE_LUAPROXYPOST_H
 
-#include "ClientGlobal.h"
-#include "TableViewPaletteCorrected.h"
+#include "ZapFR/Global.h"
+
+extern "C"
+{
+#include "lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
+}
 
 namespace ZapFR
 {
-    namespace Client
+    namespace Engine
     {
-        class TableViewScriptFolders : public TableViewPaletteCorrected
+        class Post;
+
+        class LuaProxyPost
         {
-            Q_OBJECT
-
           public:
-            TableViewScriptFolders(QWidget* parent = nullptr);
-            ~TableViewScriptFolders() = default;
+            static void convertPostToTable(lua_State* L, Post* post);
 
-          signals:
-            void selectedScriptFolderChanged(const QModelIndex&);
+          private:
+            static int markAsRead(lua_State* L);
+            static int markAsUnread(lua_State* L);
+            static int flag(lua_State* L);
+            static int unflag(lua_State* L);
 
-          protected:
-            void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
+            static Post* lookupPostPointer(lua_State* L);
         };
-    } // namespace Client
+    } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+#endif // ZAPFR_ENGINE_LUAPROXYPOST_H

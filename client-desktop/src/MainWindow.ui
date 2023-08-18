@@ -622,6 +622,53 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="pageScripts">
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="ZapFR::Client::TableViewScripts" name="tableViewScripts">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="showDropIndicator" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="alternatingRowColors">
+            <bool>true</bool>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <property name="gridStyle">
+            <enum>Qt::DotLine</enum>
+           </property>
+           <attribute name="horizontalHeaderHighlightSections">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -682,6 +729,7 @@
    <addaction name="action_Refresh_feeds"/>
    <addaction name="action_Mark_as_read"/>
    <addaction name="action_View_logs"/>
+   <addaction name="action_View_scripts"/>
    <addaction name="action_Back_to_posts"/>
   </widget>
   <action name="action_Add_source">
@@ -748,6 +796,14 @@
     <string>Remove feed</string>
    </property>
   </action>
+  <action name="action_View_scripts">
+   <property name="text">
+    <string>View scripts</string>
+   </property>
+   <property name="toolTip">
+    <string>View scripts</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -781,6 +837,11 @@
    <class>ZapFR::Client::TableViewScriptFolders</class>
    <extends>QTableView</extends>
    <header>TableViewScriptFolders.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::TableViewScripts</class>
+   <extends>QTableView</extends>
+   <header>TableViewScripts.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

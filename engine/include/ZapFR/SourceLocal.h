@@ -59,6 +59,9 @@ namespace ZapFR
             std::vector<std::unique_ptr<ScriptFolder>> getScriptFolders() override;
             std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id) override;
 
+            std::vector<std::unique_ptr<Script>> getScripts() override;
+            void runLuaScriptOnPost(const std::string& luaScript, Post* post);
+
           private:
             static std::mutex msAddFeedMutex;
             static std::mutex msAddFolderMutex;

@@ -30,6 +30,7 @@ namespace ZapFR
         class Folder;
         class Post;
         class Log;
+        class Script;
         class ScriptFolder;
 
         class Source
@@ -74,6 +75,8 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<ScriptFolder>> getScriptFolders() = 0;
             virtual std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id) = 0;
+
+            virtual std::vector<std::unique_ptr<Script>> getScripts() = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

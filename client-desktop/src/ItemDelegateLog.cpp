@@ -18,6 +18,7 @@
 
 #include "ItemDelegateLog.h"
 #include "FeedIconCache.h"
+#include "TableViewLogs.h"
 #include "Utilities.h"
 #include "ZapFR/Log.h"
 
@@ -27,9 +28,38 @@ ZapFR::Client::ItemDelegateLog::ItemDelegateLog(QObject* parent) : QStyledItemDe
 
 void ZapFR::Client::ItemDelegateLog::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
+    static bool initDone{false};
+    static auto titleTextOptions = QTextOption(Qt::AlignLeft | Qt::AlignVCenter);
+    if (!initDone)
+    {
+        titleTextOptions.setWrapMode(QTextOption::NoWrap);
+        initDone = true;
+    }
+
+    auto parentTableView = qobject_cast<TableViewLogs*>(parent());
+
     painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter->setRenderHint(QPainter::TextAntialiasing, true);
     painter->setRenderHint(QPainter::Antialiasing, true);
+
+    // determine colors to use
+    auto palette = parentTableView->palette();
+    QBrush brushBackground;
+    bool paintBackground{false};
+    QBrush brushText = palette.text();
+    palette.setCurrentColorGroup((option.state & QStyle::State_Active) == QStyle::State_Active ? QPalette::ColorGroup::Active : QPalette::ColorGroup::Inactive);
+    if ((option.state & QStyle::State_Selected) == QStyle::State_Selected)
+    {
+        paintBackground = true;
+        brushBackground = palette.highlight();
+        brushText = palette.highlightedText();
+    }
+
+    // paint the background
+    if (paintBackground)
+    {
+        painter->fillRect(option.rect, brushBackground);
+    }
 
     auto currentColumn = index.column();
     switch (currentColumn)
@@ -110,7 +140,15 @@ void ZapFR::Client::ItemDelegateLog::paint(QPainter* painter, const QStyleOption
         }
         default:
         {
-            QStyledItemDelegate::paint(painter, option, index);
+            auto titleRect = option.rect.adjusted(5, 0, -5, 0);
+            auto title = index.data(Qt::DisplayRole).toString();
+            static auto whitespaceRe = QRegularExpression(R"(\s+)");
+            title.replace(whitespaceRe, " ");
+            painter->setPen(QPen(brushText, 1.0));
+            auto fm = QFontMetrics(painter->font());
+            auto elidedTitle = fm.elidedText(title, Qt::ElideRight, titleRect.width());
+            painter->drawText(titleRect, elidedTitle, titleTextOptions);
+            break;
         }
     }
 }

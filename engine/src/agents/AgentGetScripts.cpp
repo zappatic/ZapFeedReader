@@ -16,31 +16,29 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
-#define ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+#include "ZapFR/agents/AgentGetScripts.h"
+#include "ZapFR/Script.h"
+#include "ZapFR/Source.h"
 
-#include "ClientGlobal.h"
-#include "TableViewPaletteCorrected.h"
-
-namespace ZapFR
+ZapFR::Engine::AgentGetScripts::AgentGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
 {
-    namespace Client
+}
+
+void ZapFR::Engine::AgentGetScripts::run()
+{
+    auto source = Source::getSource(mSourceID);
+    if (source.has_value())
     {
-        class TableViewScriptFolders : public TableViewPaletteCorrected
+        auto scripts = source.value()->getScripts();
+        std::vector<Script*> scriptPointers;
+        for (const auto& script : scripts)
         {
-            Q_OBJECT
+            scriptPointers.emplace_back(script.get());
+        }
 
-          public:
-            TableViewScriptFolders(QWidget* parent = nullptr);
-            ~TableViewScriptFolders() = default;
+        mFinishedCallback(mSourceID, scriptPointers);
+    }
 
-          signals:
-            void selectedScriptFolderChanged(const QModelIndex&);
-
-          protected:
-            void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
-        };
-    } // namespace Client
-} // namespace ZapFR
-
-#endif // ZAPFR_CLIENT_TABLEVIEWSCRIPTFOLDERS_H
+    mIsDone = true;
+}

@@ -27,3 +27,10 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib-install/)
     find_package(fmt)
     target_link_libraries(zapfeedreader-engine PRIVATE fmt::fmt)
 endif()
+
+# lua
+if (EXISTS ${CMAKE_SOURCE_DIR}/3rdParty/lua-install/)
+    set(ENV{PKG_CONFIG_PATH} "${CMAKE_SOURCE_DIR}/3rdParty/lua-install/lib/pkgconfig")
+    pkg_check_modules(lua REQUIRED IMPORTED_TARGET lua)
+   target_link_libraries(zapfeedreader-engine PRIVATE PkgConfig::lua)
+endif()
