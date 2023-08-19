@@ -45,6 +45,7 @@ namespace ZapFR
         class DialogAddFolder;
         class DialogImportOPML;
         class DialogJumpToPage;
+        class DialogEditScript;
 
         class MainWindow : public QMainWindow
         {
@@ -57,6 +58,8 @@ namespace ZapFR
             MainWindow& operator=(const MainWindow&) = delete;
             MainWindow(MainWindow&&) = delete;
             MainWindow& operator=(MainWindow&&) = delete;
+
+            StandardItemModelSources* sourcesItemModel() const noexcept { return mItemModelSources.get(); }
 
           private slots:
             // actions
@@ -115,6 +118,7 @@ namespace ZapFR
             std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
             std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
+            std::unique_ptr<DialogEditScript> mDialogEditScript{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuSource{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
@@ -143,6 +147,7 @@ namespace ZapFR
             QString settingsFile() const;
 
             void configureConnects();
+            void connectScriptStuff();
             void saveSettings() const;
             void restoreSettings();
             QJsonArray expandedSourceTreeItems() const;

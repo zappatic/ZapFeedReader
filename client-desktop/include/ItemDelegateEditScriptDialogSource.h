@@ -16,31 +16,27 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_TREEVIEWSOURCES_H
-#define ZAPFR_CLIENT_TREEVIEWSOURCES_H
+#ifndef ZAPFR_CLIENT_ITEMDELEGATEEDITSCRIPTDIALOGSOURCE_H
+#define ZAPFR_CLIENT_ITEMDELEGATEEDITSCRIPTDIALOGSOURCE_H
 
 #include "ClientGlobal.h"
-#include "TreeViewPaletteCorrected.h"
 
 namespace ZapFR
 {
     namespace Client
     {
-        class TreeViewSources : public TreeViewPaletteCorrected
+        class ItemDelegateEditScriptDialogSource : public QStyledItemDelegate
         {
             Q_OBJECT
 
           public:
-            TreeViewSources(QWidget* parent = nullptr);
-            ~TreeViewSources() = default;
+            explicit ItemDelegateEditScriptDialogSource(QObject* parent = nullptr);
+            ~ItemDelegateEditScriptDialogSource() = default;
 
-          signals:
-            void currentSourceChanged(const QModelIndex&);
-
-          protected:
-            void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
+            void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+            QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_TREEVIEWSOURCES_H
+#endif // ZAPFR_CLIENT_ITEMDELEGATEEDITSCRIPTDIALOGSOURCE_H

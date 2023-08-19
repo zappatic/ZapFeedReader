@@ -20,11 +20,13 @@ set(PROJECT_SOURCES
         src/ItemDelegatePost.cpp
         src/ItemDelegateLog.cpp
         src/ItemDelegateScript.cpp
+        src/ItemDelegateEditScriptDialogSource.cpp
         src/DialogWithSourcesAndFolders.cpp
         src/DialogAddFeed.cpp
         src/DialogAddFolder.cpp
         src/DialogImportOPML.cpp
         src/DialogJumpToPage.cpp
+        src/DialogEditScript.cpp
         src/Utilities.cpp
         src/WebEnginePagePost.cpp
         src/WebEngineViewPost.cpp
@@ -34,6 +36,7 @@ set(PROJECT_SOURCES
         src/TableViewLogs.cpp
         src/TableViewScriptFolders.cpp
         src/TableViewScripts.cpp
+        src/TreeViewPaletteCorrected.cpp
         src/TreeViewSources.cpp
         src/FeedIconCache.cpp
         src/PopupFlagChooser.cpp
@@ -43,11 +46,13 @@ set(PROJECT_SOURCES
         include/ItemDelegatePost.h
         include/ItemDelegateLog.h
         include/ItemDelegateScript.h
+        include/ItemDelegateEditScriptDialogSource.h
         include/DialogWithSourcesAndFolders.h
         include/DialogAddFeed.h
         include/DialogAddFolder.h
         include/DialogImportOPML.h
         include/DialogJumpToPage.h
+        include/DialogEditScript.h
         include/WebEnginePagePost.h
         include/WebEngineViewPost.h
         include/StandardItemModelSources.h
@@ -56,6 +61,7 @@ set(PROJECT_SOURCES
         include/TableViewLogs.h
         include/TableViewScriptFolders.h
         include/TableViewScripts.h
+        include/TreeViewPaletteCorrected.h
         include/TreeViewSources.h
         include/FeedIconCache.h
         include/PopupFlagChooser.h
@@ -64,6 +70,7 @@ set(PROJECT_SOURCES
         src/DialogAddFolder.ui
         src/DialogImportOPML.ui
         src/DialogJumpToPage.ui
+        src/DialogEditScript.ui
         src/PopupFlagChooser.ui
         resources/resources.qrc
         ${TS_FILES}

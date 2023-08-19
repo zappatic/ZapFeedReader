@@ -17,12 +17,40 @@
 */
 
 #include "./ui_MainWindow.h"
+#include "DialogEditScript.h"
 #include "MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Script.h"
 
 void ZapFR::Client::MainWindow::reloadScripts()
 {
+    // lambda to assign the correct role data to the table entries
+    auto setItemData = [&](QStandardItem* item, ZapFR::Engine::Script* script, uint64_t sourceID)
+    {
+        item->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
+        item->setData(QVariant::fromValue<uint64_t>(sourceID), ScriptSourceIDRole);
+        item->setData(script->isEnabled(), ScriptIsEnabledRole);
+        item->setData(QString::fromUtf8(script->filename()), ScriptFilenameRole);
+
+        QVariantList events;
+        for (const auto& event : script->runOnEvents())
+        {
+            events << QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::Script::Event>>(event));
+        }
+        item->setData(events, ScriptRunOnEventsRole);
+
+        QVariantList feeds;
+        const auto& runOnFeedIDs = script->runOnFeedIDs();
+        if (runOnFeedIDs.has_value())
+        {
+            for (const auto& feed : runOnFeedIDs.value())
+            {
+                feeds << QVariant::fromValue<uint64_t>(feed);
+            }
+            item->setData(feeds, ScriptRunOnFeedIDsRole);
+        }
+    };
+
     // lambda for the callback, retrieving the scripts
     auto processScripts = [&](uint64_t sourceID, const std::vector<ZapFR::Engine::Script*> scripts)
     {
@@ -30,7 +58,7 @@ void ZapFR::Client::MainWindow::reloadScripts()
         for (const auto& script : scripts)
         {
             auto idItem = new QStandardItem(QString::number(script->id()));
-            idItem->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
+            setItemData(idItem, script, sourceID);
 
             auto typeItem = new QStandardItem();
             switch (script->type())
@@ -38,23 +66,22 @@ void ZapFR::Client::MainWindow::reloadScripts()
                 case ZapFR::Engine::Script::Type::Lua:
                 {
                     typeItem->setText("Lua");
-                    typeItem->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
                     break;
                 }
             }
+            setItemData(typeItem, script, sourceID);
 
             auto titleItem = new QStandardItem(QString::fromUtf8(script->filename()));
-            titleItem->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
+            setItemData(titleItem, script, sourceID);
 
             auto isEnabledItem = new QStandardItem();
-            isEnabledItem->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
-            isEnabledItem->setData(script->isEnabled(), ScriptIsEnabledRole);
+            setItemData(isEnabledItem, script, sourceID);
 
             auto runOnEventsItem = new QStandardItem("todo");
-            runOnEventsItem->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
+            setItemData(runOnEventsItem, script, sourceID);
 
             auto runOnFeedIDsItem = new QStandardItem("todo");
-            runOnFeedIDsItem->setData(QVariant::fromValue<uint64_t>(script->id()), ScriptIDRole);
+            setItemData(runOnFeedIDsItem, script, sourceID);
 
             QList<QStandardItem*> rowData;
             rowData << idItem << typeItem << titleItem << isEnabledItem << runOnEventsItem << runOnFeedIDsItem;
@@ -98,4 +125,41 @@ void ZapFR::Client::MainWindow::populateScripts(const QList<QList<QStandardItem*
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnIsEnabled, 75);
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnRunOnEvents, 150);
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnRunOnFeedIDs, 150);
+}
+
+void ZapFR::Client::MainWindow::connectScriptStuff()
+{
+    connect(ui->tableViewScripts, &QTableView::doubleClicked,
+            [&](const QModelIndex& index)
+            {
+                if (index.isValid())
+                {
+                    if (mDialogEditScript == nullptr)
+                    {
+                        mDialogEditScript = std::make_unique<DialogEditScript>(this);
+                    }
+                    auto scriptID = index.data(ScriptIDRole).toULongLong();
+                    auto scriptSourceID = index.data(ScriptSourceIDRole).toULongLong();
+                    auto scriptFilename = index.data(ScriptFilenameRole).toString();
+                    auto scriptIsEnabled = index.data(ScriptIsEnabledRole).toBool();
+                    std::unordered_set<ZapFR::Engine::Script::Event> events;
+                    for (const auto& eventVariant : index.data(ScriptRunOnEventsRole).toList())
+                    {
+                        events.insert(eventVariant.value<ZapFR::Engine::Script::Event>());
+                    }
+                    std::optional<std::unordered_set<uint64_t>> feedIDs{};
+                    auto feedIDsVariants = index.data(ScriptRunOnFeedIDsRole);
+                    if (!feedIDsVariants.isNull() && feedIDsVariants.isValid())
+                    {
+                        feedIDs = std::unordered_set<uint64_t>();
+                        for (const auto& feedIDVariant : feedIDsVariants.toList())
+                        {
+                            feedIDs.value().insert(feedIDVariant.value<uint64_t>());
+                        }
+                    }
+
+                    mDialogEditScript->reset(DialogEditScript::DisplayMode::Edit, scriptSourceID, scriptID, scriptFilename, scriptIsEnabled, events, feedIDs);
+                    mDialogEditScript->open();
+                }
+            });
 }

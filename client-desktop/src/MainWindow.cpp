@@ -20,6 +20,7 @@
 #include "./ui_MainWindow.h"
 #include "DialogAddFeed.h"
 #include "DialogAddFolder.h"
+#include "DialogEditScript.h"
 #include "DialogImportOPML.h"
 #include "DialogJumpToPage.h"
 #include "FeedIconCache.h"
@@ -39,8 +40,6 @@
 #include "ZapFR/Post.h"
 #include "ZapFR/Script.h"
 #include "ZapFR/ScriptFolderLocal.h"
-
-using namespace std::placeholders;
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -2040,4 +2039,6 @@ void ZapFR::Client::MainWindow::configureConnects()
                     reloadPosts();
                 });
     }
+
+    connectScriptStuff();
 }
