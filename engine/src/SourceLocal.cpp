@@ -24,8 +24,8 @@
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/PostLocal.h"
-#include "ZapFR/Script.h"
 #include "ZapFR/ScriptFolderLocal.h"
+#include "ZapFR/ScriptLocal.h"
 #include "ZapFR/ScriptLua.h"
 
 using namespace Poco::Data::Keywords;
@@ -976,7 +976,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal::
         {
             if (type == Script::msTypeLuaIdentifier) // force lua for now
             {
-                auto s = std::make_unique<Script>(id);
+                auto s = std::make_unique<ScriptLocal>(id);
                 s->setType(Script::Type::Lua);
                 s->setFilename(filename);
                 s->setIsEnabled(isEnabled);
@@ -1017,7 +1017,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal
     {
         if (type == Script::msTypeLuaIdentifier) // force lua for now
         {
-            auto s = std::make_unique<Script>(id);
+            auto s = std::make_unique<ScriptLocal>(id);
             s->setType(Script::Type::Lua);
             s->setFilename(filename);
             s->setIsEnabled(isEnabled);

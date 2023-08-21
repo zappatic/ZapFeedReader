@@ -131,6 +131,7 @@ namespace ZapFR
         static constexpr uint32_t ScriptRunOnEventsRole{Qt::ItemDataRole::UserRole + 5};
         static constexpr uint32_t ScriptRunOnFeedIDsRole{Qt::ItemDataRole::UserRole + 6};
         static constexpr uint32_t ScriptEventCountRole{Qt::ItemDataRole::UserRole + 7};
+        static constexpr uint32_t ScriptExistsOnDiskRole{Qt::ItemDataRole::UserRole + 8};
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";

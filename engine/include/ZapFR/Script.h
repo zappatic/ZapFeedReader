@@ -38,7 +38,7 @@ namespace ZapFR
                 NewPost,
             };
 
-            explicit Script(uint64_t id);
+            explicit Script(uint64_t id) : mID(id) {}
             virtual ~Script() = default;
 
             uint64_t id() const noexcept { return mID; }
@@ -47,18 +47,22 @@ namespace ZapFR
             bool isEnabled() const noexcept { return mIsEnabled; }
             std::unordered_set<Event> runOnEvents() const noexcept { return mRunOnEvents; }
             std::optional<std::unordered_set<uint64_t>> runOnFeedIDs() const noexcept { return mRunOnFeedIDs; }
+            bool existsOnDisk() const noexcept { return mExistsOnDisk; }
 
             void setType(Type t) { mType = t; }
-            void setFilename(const std::string& f) { mFilename = f; }
+            void setFilename(const std::string& f)
+            {
+                mFilename = f;
+                mExistsOnDisk = exists();
+            }
             void setIsEnabled(bool b) { mIsEnabled = b; }
             void parseRunOnEvents(const std::string& str);
             void parseRunOnFeedIDs(const std::string& str);
 
-            std::string scriptContents() const;
-            void update(Type type, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
-                        const std::optional<std::unordered_set<uint64_t>>& feedIDs);
+            virtual std::string scriptContents() const = 0;
+            virtual void update(Type type, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
+                                const std::optional<std::unordered_set<uint64_t>>& feedIDs) = 0;
 
-            static void setScriptDir(const std::string& scriptDir);
             static std::string msEventNewPostIdentifier;
             static std::string msTypeLuaIdentifier;
 
@@ -69,8 +73,9 @@ namespace ZapFR
             bool mIsEnabled{false};
             std::unordered_set<Event> mRunOnEvents{};
             std::optional<std::unordered_set<uint64_t>> mRunOnFeedIDs{};
+            bool mExistsOnDisk{false};
 
-            static std::string msScriptDir;
+            virtual bool exists() const = 0;
         };
     } // namespace Engine
 } // namespace ZapFR

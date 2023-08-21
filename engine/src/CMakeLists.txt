@@ -54,6 +54,7 @@ target_sources(zapfeedreader-engine PRIVATE
     Flag.cpp
     ScriptFolderLocal.cpp
     Script.cpp
+    ScriptLocal.cpp
     ScriptLua.cpp
     lua/LuaProxyPost.cpp
 )

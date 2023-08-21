@@ -31,6 +31,7 @@ void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
         item->setData(QVariant::fromValue<uint64_t>(sourceID), ScriptSourceIDRole);
         item->setData(script->isEnabled(), ScriptIsEnabledRole);
         item->setData(QString::fromUtf8(script->filename()), ScriptFilenameRole);
+        item->setData(script->existsOnDisk(), ScriptExistsOnDiskRole);
 
         QVariantList events;
         for (const auto& event : script->runOnEvents())

@@ -38,12 +38,12 @@
 #include "ZapFR/Folder.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/Post.h"
-#include "ZapFR/Script.h"
 #include "ZapFR/ScriptFolderLocal.h"
+#include "ZapFR/ScriptLocal.h"
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    ZapFR::Engine::Script::setScriptDir(QDir::cleanPath(dataDir() + QDir::separator() + "scripts").toStdString());
+    ZapFR::Engine::ScriptLocal::setScriptDir(QDir::cleanPath(dataDir() + QDir::separator() + "scripts").toStdString());
     ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
     ZapFR::Engine::Database::setDatabasePath(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader-client.db").toStdString());
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
