@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "DialogEditScript.h"
+#include "dialogs/DialogEditScript.h"
 #include "ItemDelegateEditScriptDialogSource.h"
 #include "MainWindow.h"
 #include "StandardItemModelSources.h"

@@ -249,3 +249,9 @@ uint64_t ZapFR::Engine::ScriptFolderLocal::getTotalFlaggedPostCount(FlagColor fl
     selectStmt << sql, use(fc), use(mID), into(postCount), now;
     return postCount;
 }
+
+void ZapFR::Engine::ScriptFolderLocal::update(const std::string& title)
+{
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE scriptfolders SET title=? WHERE id=?", useRef(title), use(mID), now;
+}

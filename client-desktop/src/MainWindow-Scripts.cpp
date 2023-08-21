@@ -17,10 +17,10 @@
 */
 
 #include "./ui_MainWindow.h"
-#include "DialogEditScript.h"
 #include "MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Script.h"
+#include "dialogs/DialogEditScript.h"
 
 void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
 {

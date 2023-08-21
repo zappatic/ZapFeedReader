@@ -16,30 +16,30 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_SCRIPTFOLDERLOCAL_H
-#define ZAPFR_ENGINE_SCRIPTFOLDERLOCAL_H
+#ifndef ZAPFR_ENGINE_AGENTREMOVESCRIPTFOLDER_H
+#define ZAPFR_ENGINE_AGENTREMOVESCRIPTFOLDER_H
 
-#include "ScriptFolder.h"
+#include "ZapFR/AgentRunnable.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class ScriptFolderLocal : public ScriptFolder
+        class AgentRemoveScriptFolder : public AgentRunnable
         {
           public:
-            explicit ScriptFolderLocal(uint64_t id);
-            ~ScriptFolderLocal() = default;
+            explicit AgentRemoveScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, uint64_t)> finishedCallback);
+            virtual ~AgentRemoveScriptFolder() = default;
 
-            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) override;
-            uint64_t getTotalPostCount(bool showOnlyUnread) override;
+            void run() override;
 
-            std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) override;
-            uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) override;
-
-            void update(const std::string& title) override;
+          private:
+            uint64_t mSourceID{0};
+            uint64_t mScriptFolderID{0};
+            std::function<void(uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_POSTLOCAL_H
+#endif // ZAPFR_ENGINE_AGENTREMOVESCRIPTFOLDER_H

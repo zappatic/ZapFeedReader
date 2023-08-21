@@ -20,8 +20,9 @@
 #include "MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/ScriptFolder.h"
+#include "dialogs/DialogEditScriptFolder.h"
 
-void ZapFR::Client::MainWindow::reloadScriptFolders()
+void ZapFR::Client::MainWindow::reloadScriptFolders(bool forceReload)
 {
     // lambda for the callback, retrieving the script folders
     auto processScriptFolders = [&](uint64_t sourceID, const std::vector<ZapFR::Engine::ScriptFolder*>& scriptFolders)
@@ -45,7 +46,7 @@ void ZapFR::Client::MainWindow::reloadScriptFolders()
     if (index.isValid())
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        if (sourceID != mPreviouslySelectedSourceID)
+        if (forceReload || sourceID != mPreviouslySelectedSourceID)
         {
             ZapFR::Engine::Agent::getInstance()->queueGetScriptFolders(sourceID, processScriptFolders);
         }
@@ -67,6 +68,111 @@ void ZapFR::Client::MainWindow::populateScriptFolders(uint64_t sourceID, const Q
     ui->tableViewScriptFolders->horizontalHeader()->setSectionResizeMode(ScriptFolderColumnTitle, QHeaderView::Stretch);
 }
 
+void ZapFR::Client::MainWindow::addScriptFolder()
+{
+    auto index = ui->treeViewSources->currentIndex();
+    if (index.isValid())
+    {
+        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+
+        auto dialog = editScriptFolderDialog();
+        dialog->reset(DialogEditScriptFolder::DisplayMode::Add, sourceID, 0, "");
+        dialog->open();
+    }
+}
+
+void ZapFR::Client::MainWindow::editScriptFolder()
+{
+    auto index = ui->tableViewScriptFolders->currentIndex();
+    if (index.isValid())
+    {
+        auto sourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
+        auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
+        auto title = index.data(Qt::DisplayRole).toString();
+
+        auto dialog = editScriptFolderDialog();
+        dialog->reset(DialogEditScriptFolder::DisplayMode::Edit, sourceID, scriptFolderID, title);
+        dialog->open();
+    }
+}
+
+void ZapFR::Client::MainWindow::removeScriptFolder()
+{
+    auto index = ui->tableViewScriptFolders->currentIndex();
+    if (index.isValid())
+    {
+        QMessageBox mb(this);
+        mb.setWindowTitle(tr("Remove script folder"));
+        mb.setInformativeText(tr("Are you sure you want to remove this script folder? All posts in this folder will remain available, only the folder will be removed."));
+        mb.setIcon(QMessageBox::Icon::Warning);
+        mb.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+        mb.button(QMessageBox::StandardButton::Ok)->setText(tr("Remove"));
+        auto mbLayout = qobject_cast<QGridLayout*>(mb.layout());
+        mbLayout->addItem(new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), mbLayout->rowCount(), 0, 1, mbLayout->columnCount());
+        mb.exec();
+        if (mb.clickedButton() == mb.button(QMessageBox::StandardButton::Ok))
+        {
+            auto scriptSourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
+            auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueRemoveScriptFolder(
+                scriptSourceID, scriptFolderID,
+                [&](uint64_t removedSourceID, uint64_t removedScriptFolderID)
+                { QMetaObject::invokeMethod(this, "scriptFolderRemoved", Qt::AutoConnection, removedSourceID, removedScriptFolderID); });
+        }
+    }
+}
+
+ZapFR::Client::DialogEditScriptFolder* ZapFR::Client::MainWindow::editScriptFolderDialog()
+{
+    if (mDialogEditScriptFolder == nullptr)
+    {
+        mDialogEditScriptFolder = std::make_unique<DialogEditScriptFolder>(this);
+        connect(mDialogEditScriptFolder.get(), &DialogEditScriptFolder::accepted,
+                [&]()
+                {
+                    auto sourceID = mDialogEditScriptFolder->sourceID();
+                    auto scriptFolderID = mDialogEditScriptFolder->id();
+                    auto title = mDialogEditScriptFolder->title().toStdString();
+
+                    switch (mDialogEditScriptFolder->displayMode())
+                    {
+                        case DialogEditScriptFolder::DisplayMode::Add:
+                        {
+                            ZapFR::Engine::Agent::getInstance()->queueAddScriptFolder(
+                                sourceID, title, [&](uint64_t addedSourceID) { QMetaObject::invokeMethod(this, "scriptFolderAdded", Qt::AutoConnection, addedSourceID); });
+                            break;
+                        }
+                        case DialogEditScriptFolder::DisplayMode::Edit:
+                        {
+                            ZapFR::Engine::Agent::getInstance()->queueUpdateScriptFolder(
+                                sourceID, scriptFolderID, title,
+                                [&](uint64_t updatedSourceID, uint64_t updatedScriptFolderID)
+                                { QMetaObject::invokeMethod(this, "scriptFolderUpdated", Qt::AutoConnection, updatedSourceID, updatedScriptFolderID); });
+                            break;
+                        }
+                    }
+                });
+    }
+    return mDialogEditScriptFolder.get();
+}
+
+void ZapFR::Client::MainWindow::scriptFolderAdded(uint64_t /*sourceID*/)
+{
+    reloadScriptFolders(true);
+}
+
+void ZapFR::Client::MainWindow::scriptFolderUpdated(uint64_t /*sourceID*/, uint64_t /*scriptFolderID*/)
+{
+    reloadScriptFolders(true);
+}
+
+void ZapFR::Client::MainWindow::scriptFolderRemoved(uint64_t /*sourceID*/, uint64_t /*scriptFolderID*/)
+{
+    reloadScriptFolders(true);
+    ui->tableViewScriptFolders->setCurrentIndex(QModelIndex());
+    reloadPosts();
+}
+
 void ZapFR::Client::MainWindow::connectScriptFolderStuff()
 {
     connect(ui->tableViewScriptFolders, &TableViewScriptFolders::selectedScriptFolderChanged,
@@ -77,4 +183,12 @@ void ZapFR::Client::MainWindow::connectScriptFolderStuff()
                     reloadPosts();
                 }
             });
+
+    connect(ui->tableViewScriptFolders, &QTableView::doubleClicked, this, &MainWindow::editScriptFolder);
+    connect(ui->action_Edit_script_folder, &QAction::triggered, this, &MainWindow::editScriptFolder);
+    connect(ui->action_Remove_script_folder, &QAction::triggered, this, &MainWindow::removeScriptFolder);
+    connect(ui->action_Add_script_folder, &QAction::triggered, this, &MainWindow::addScriptFolder);
+
+    connect(ui->tableViewScriptFolders, &TableViewScripts::customContextMenuRequested,
+            [&](const QPoint& p) { mScriptFolderContextMenu->popup(ui->tableViewScriptFolders->viewport()->mapToGlobal(p)); });
 }

@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "DialogJumpToPage.h"
+#include "dialogs/DialogJumpToPage.h"
 #include "ui_DialogJumpToPage.h"
 
 ZapFR::Client::DialogJumpToPage::DialogJumpToPage(QWidget* parent) : QDialog(parent), ui(new Ui::DialogJumpToPage)

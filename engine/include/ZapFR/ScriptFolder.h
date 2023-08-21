@@ -44,6 +44,8 @@ namespace ZapFR
             virtual std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
             virtual uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) = 0;
 
+            virtual void update(const std::string& title) = 0;
+
           protected:
             uint64_t mID{0};
             std::string mTitle{""};

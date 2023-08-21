@@ -18,11 +18,6 @@
 
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
-#include "DialogAddFeed.h"
-#include "DialogAddFolder.h"
-#include "DialogEditScript.h"
-#include "DialogImportOPML.h"
-#include "DialogJumpToPage.h"
 #include "FeedIconCache.h"
 #include "ItemDelegateLog.h"
 #include "ItemDelegatePost.h"
@@ -40,6 +35,12 @@
 #include "ZapFR/Post.h"
 #include "ZapFR/ScriptFolderLocal.h"
 #include "ZapFR/ScriptLocal.h"
+#include "dialogs/DialogAddFeed.h"
+#include "dialogs/DialogAddFolder.h"
+#include "dialogs/DialogEditScript.h"
+#include "dialogs/DialogEditScriptFolder.h"
+#include "dialogs/DialogImportOPML.h"
+#include "dialogs/DialogJumpToPage.h"
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -1333,6 +1334,9 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Edit_script->setIcon(configureIcon(":/edit.svg"));
     ui->action_Remove_script->setIcon(configureIcon(":/remove.svg"));
     ui->action_Add_script->setIcon(configureIcon(":/addFeed.svg"));
+    ui->action_Edit_script_folder->setIcon(configureIcon(":/edit.svg"));
+    ui->action_Remove_script_folder->setIcon(configureIcon(":/remove.svg"));
+    ui->action_Add_script_folder->setIcon(configureIcon(":/addFeed.svg"));
     ui->pushButtonPostPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
     ui->pushButtonPostFirstPage->setIcon(configureIcon(":/firstPage.svg"));
     ui->pushButtonPostNextPage->setIcon(configureIcon(":/nextPage.svg"));
@@ -1694,6 +1698,13 @@ void ZapFR::Client::MainWindow::createContextMenus()
     mScriptContextMenu->addAction(ui->action_Edit_script);
     mScriptContextMenu->addSeparator();
     mScriptContextMenu->addAction(ui->action_Remove_script);
+
+    // SCRIPT FOLDERS
+    mScriptFolderContextMenu = std::make_unique<QMenu>(nullptr);
+    mScriptFolderContextMenu->addAction(ui->action_Add_script_folder);
+    mScriptFolderContextMenu->addAction(ui->action_Edit_script_folder);
+    mScriptFolderContextMenu->addSeparator();
+    mScriptFolderContextMenu->addAction(ui->action_Remove_script_folder);
 }
 
 void ZapFR::Client::MainWindow::configureConnects()

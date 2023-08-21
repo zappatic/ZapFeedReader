@@ -16,46 +16,41 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_DIALOGIMPORTOPML_H
-#define ZAPFR_CLIENT_DIALOGIMPORTOPML_H
+#ifndef ZAPFR_CLIENT_DIALOGADDFEED_H
+#define ZAPFR_CLIENT_DIALOGADDFEED_H
 
-#include "ClientGlobal.h"
+#include "../ClientGlobal.h"
 #include "DialogWithSourcesAndFolders.h"
-#include "ZapFR/OPMLParser.h"
 
 namespace Ui
 {
-    class DialogImportOPML;
+    class DialogAddFeed;
 }
 
 namespace ZapFR
 {
     namespace Client
     {
-        class DialogImportOPML : public DialogWithSourcesAndFolders
+        class DialogAddFeed : public DialogWithSourcesAndFolders
         {
             Q_OBJECT
 
           public:
-            explicit DialogImportOPML(QWidget* parent = nullptr);
-            ~DialogImportOPML();
-            DialogImportOPML(const DialogImportOPML& e) = delete;
-            DialogImportOPML& operator=(const DialogImportOPML&) = delete;
-            DialogImportOPML(DialogImportOPML&&) = delete;
-            DialogImportOPML& operator=(DialogImportOPML&&) = delete;
+            explicit DialogAddFeed(QWidget* parent = nullptr);
+            ~DialogAddFeed();
+            DialogAddFeed(const DialogAddFeed& e) = delete;
+            DialogAddFeed& operator=(const DialogAddFeed&) = delete;
+            DialogAddFeed(DialogAddFeed&&) = delete;
+            DialogAddFeed& operator=(DialogAddFeed&&) = delete;
 
-            std::vector<ZapFR::Engine::OPMLEntry> importedFeeds() const noexcept;
+            QString url() const;
 
             void reset(uint64_t selectedSourceID, uint64_t selectedFolderID);
 
-          private slots:
-            void chooseOPMLFile(bool checked);
-
           private:
-            Ui::DialogImportOPML* ui;
-            std::vector<ZapFR::Engine::OPMLEntry> mImportedFeeds{};
+            Ui::DialogAddFeed* ui;
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_DIALOGIMPORTOPML_H
+#endif // ZAPFR_CLIENT_DIALOGADDFEED_H

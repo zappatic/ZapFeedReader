@@ -87,6 +87,9 @@
            </property>
           </widget>
           <widget class="ZapFR::Client::TableViewScriptFolders" name="tableViewScriptFolders">
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
            <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>
            </property>
@@ -832,6 +835,30 @@
    </property>
    <property name="toolTip">
     <string>Add script</string>
+   </property>
+  </action>
+  <action name="action_Add_script_folder">
+   <property name="text">
+    <string>Add script folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Add script folder</string>
+   </property>
+  </action>
+  <action name="action_Edit_script_folder">
+   <property name="text">
+    <string>Edit script folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit script folder</string>
+   </property>
+  </action>
+  <action name="action_Remove_script_folder">
+   <property name="text">
+    <string>Remove script folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove script folder</string>
    </property>
   </action>
  </widget>

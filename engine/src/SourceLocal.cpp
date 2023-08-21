@@ -949,6 +949,21 @@ std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::Sourc
     return {};
 }
 
+void ZapFR::Engine::SourceLocal::addScriptFolder(const std::string& title)
+{
+    Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+    insertStmt << "INSERT INTO scriptfolders (title) VALUES (?)", useRef(title), now;
+}
+
+void ZapFR::Engine::SourceLocal::removeScriptFolder(uint64_t scriptFolderID)
+{
+    Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << "DELETE FROM scriptfolders WHERE id=?", use(scriptFolderID), now;
+
+    Poco::Data::Statement deleteStmt2(*(Database::getInstance()->session()));
+    deleteStmt2 << "DELETE FROM scriptfolder_posts WHERE scriptFolderID=?", use(scriptFolderID), now;
+}
+
 std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal::getScripts()
 {
     std::vector<std::unique_ptr<Script>> scripts;
@@ -1076,8 +1091,8 @@ void ZapFR::Engine::SourceLocal::addScript(Script::Type type, const std::string&
         joinedFeedIDs = Helpers::joinIDNumbers(f, ",");
     }
 
-    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-    updateStmt << "INSERT INTO scripts"
+    Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+    insertStmt << "INSERT INTO scripts"
                   " (type,filename,isEnabled,runOnEvents,runOnFeedIDs)"
                   " VALUES"
                   " (?,?,?,?,?)",

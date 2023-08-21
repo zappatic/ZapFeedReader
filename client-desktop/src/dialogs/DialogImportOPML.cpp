@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "DialogImportOPML.h"
+#include "dialogs/DialogImportOPML.h"
 #include "ZapFR/OPMLParser.h"
 #include "ui_DialogImportOPML.h"
 

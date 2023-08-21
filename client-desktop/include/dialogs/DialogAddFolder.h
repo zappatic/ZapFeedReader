@@ -16,41 +16,41 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_DIALOGADDFEED_H
-#define ZAPFR_CLIENT_DIALOGADDFEED_H
+#ifndef ZAPFR_CLIENT_DIALOGADDFOLDER_H
+#define ZAPFR_CLIENT_DIALOGADDFOLDER_H
 
-#include "ClientGlobal.h"
+#include "../ClientGlobal.h"
 #include "DialogWithSourcesAndFolders.h"
 
 namespace Ui
 {
-    class DialogAddFeed;
+    class DialogAddFolder;
 }
 
 namespace ZapFR
 {
     namespace Client
     {
-        class DialogAddFeed : public DialogWithSourcesAndFolders
+        class DialogAddFolder : public DialogWithSourcesAndFolders
         {
             Q_OBJECT
 
           public:
-            explicit DialogAddFeed(QWidget* parent = nullptr);
-            ~DialogAddFeed();
-            DialogAddFeed(const DialogAddFeed& e) = delete;
-            DialogAddFeed& operator=(const DialogAddFeed&) = delete;
-            DialogAddFeed(DialogAddFeed&&) = delete;
-            DialogAddFeed& operator=(DialogAddFeed&&) = delete;
+            explicit DialogAddFolder(QWidget* parent = nullptr);
+            ~DialogAddFolder();
+            DialogAddFolder(const DialogAddFolder& e) = delete;
+            DialogAddFolder& operator=(const DialogAddFolder&) = delete;
+            DialogAddFolder(DialogAddFolder&&) = delete;
+            DialogAddFolder& operator=(DialogAddFolder&&) = delete;
 
-            QString url() const;
+            QString title() const;
 
             void reset(uint64_t selectedSourceID, uint64_t selectedFolderID);
 
           private:
-            Ui::DialogAddFeed* ui;
+            Ui::DialogAddFolder* ui;
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_DIALOGADDFEED_H
+#endif // ZAPFR_CLIENT_DIALOGADDFOLDER_H

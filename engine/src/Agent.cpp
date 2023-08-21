@@ -22,6 +22,7 @@
 #include "ZapFR/Source.h"
 #include "ZapFR/agents/AgentAddFolder.h"
 #include "ZapFR/agents/AgentAddScript.h"
+#include "ZapFR/agents/AgentAddScriptFolder.h"
 #include "ZapFR/agents/AgentGetFeedFlaggedPosts.h"
 #include "ZapFR/agents/AgentGetFeedLogs.h"
 #include "ZapFR/agents/AgentGetFeedPosts.h"
@@ -54,8 +55,10 @@
 #include "ZapFR/agents/AgentRemoveFeed.h"
 #include "ZapFR/agents/AgentRemoveFolder.h"
 #include "ZapFR/agents/AgentRemoveScript.h"
+#include "ZapFR/agents/AgentRemoveScriptFolder.h"
 #include "ZapFR/agents/AgentSubscribeFeed.h"
 #include "ZapFR/agents/AgentUpdateScript.h"
+#include "ZapFR/agents/AgentUpdateScriptFolder.h"
 
 std::mutex ZapFR::Engine::Agent::msMutex{};
 
@@ -247,6 +250,22 @@ void ZapFR::Engine::Agent::queueGetScriptFolderFlaggedPosts(FlagColor flagColor,
                                                             bool showOnlyUnread, std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentGetScriptFolderFlaggedPosts>(flagColor, sourceID, scriptFolderID, perPage, page, showOnlyUnread, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueAddScriptFolder(uint64_t sourceID, const std::string& title, std::function<void(uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentAddScriptFolder>(sourceID, title, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueUpdateScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title,
+                                                   std::function<void(uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentUpdateScriptFolder>(sourceID, scriptFolderID, title, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueRemoveScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentRemoveScriptFolder>(sourceID, scriptFolderID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback)

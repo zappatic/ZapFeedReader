@@ -22,12 +22,13 @@ set(PROJECT_SOURCES
         src/ItemDelegateLog.cpp
         src/ItemDelegateScript.cpp
         src/ItemDelegateEditScriptDialogSource.cpp
-        src/DialogWithSourcesAndFolders.cpp
-        src/DialogAddFeed.cpp
-        src/DialogAddFolder.cpp
-        src/DialogImportOPML.cpp
-        src/DialogJumpToPage.cpp
-        src/DialogEditScript.cpp
+        src/dialogs/DialogWithSourcesAndFolders.cpp
+        src/dialogs/DialogAddFeed.cpp
+        src/dialogs/DialogAddFolder.cpp
+        src/dialogs/DialogImportOPML.cpp
+        src/dialogs/DialogJumpToPage.cpp
+        src/dialogs/DialogEditScript.cpp
+        src/dialogs/DialogEditScriptFolder.cpp
         src/Utilities.cpp
         src/WebEnginePagePost.cpp
         src/WebEngineViewPost.cpp
@@ -49,12 +50,13 @@ set(PROJECT_SOURCES
         include/ItemDelegateLog.h
         include/ItemDelegateScript.h
         include/ItemDelegateEditScriptDialogSource.h
-        include/DialogWithSourcesAndFolders.h
-        include/DialogAddFeed.h
-        include/DialogAddFolder.h
-        include/DialogImportOPML.h
-        include/DialogJumpToPage.h
-        include/DialogEditScript.h
+        include/dialogs/DialogWithSourcesAndFolders.h
+        include/dialogs/DialogAddFeed.h
+        include/dialogs/DialogAddFolder.h
+        include/dialogs/DialogImportOPML.h
+        include/dialogs/DialogJumpToPage.h
+        include/dialogs/DialogEditScript.h
+        include/dialogs/DialogEditScriptFolder.h
         include/WebEnginePagePost.h
         include/WebEngineViewPost.h
         include/StandardItemModelSources.h
@@ -69,11 +71,12 @@ set(PROJECT_SOURCES
         include/FeedIconCache.h
         include/PopupFlagChooser.h
         src/MainWindow.ui
-        src/DialogAddFeed.ui
-        src/DialogAddFolder.ui
-        src/DialogImportOPML.ui
-        src/DialogJumpToPage.ui
-        src/DialogEditScript.ui
+        src/dialogs/DialogAddFeed.ui
+        src/dialogs/DialogAddFolder.ui
+        src/dialogs/DialogImportOPML.ui
+        src/dialogs/DialogJumpToPage.ui
+        src/dialogs/DialogEditScript.ui
+        src/dialogs/DialogEditScriptFolder.ui
         src/PopupFlagChooser.ui
         resources/resources.qrc
         ${TS_FILES}

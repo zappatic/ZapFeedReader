@@ -46,6 +46,7 @@ namespace ZapFR
         class DialogImportOPML;
         class DialogJumpToPage;
         class DialogEditScript;
+        class DialogEditScriptFolder;
 
         class MainWindow : public QMainWindow
         {
@@ -78,6 +79,9 @@ namespace ZapFR
             void editScript();
             void removeScript();
             void addScript();
+            void addScriptFolder();
+            void editScriptFolder();
+            void removeScriptFolder();
 
             // events
             void postsTableViewSelectionChanged(const QModelIndexList& selected);
@@ -100,6 +104,9 @@ namespace ZapFR
             void scriptUpdated(uint64_t sourceID, uint64_t scriptID);
             void scriptRemoved(uint64_t sourceID, uint64_t scriptID);
             void scriptAdded(uint64_t sourceID);
+            void scriptFolderAdded(uint64_t sourceID);
+            void scriptFolderUpdated(uint64_t sourceID, uint64_t scriptFolderID);
+            void scriptFolderRemoved(uint64_t sourceID, uint64_t scriptFolderID);
             void setPostHTML(const QString& html);
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
@@ -125,12 +132,14 @@ namespace ZapFR
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
             std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
             std::unique_ptr<DialogEditScript> mDialogEditScript{nullptr};
+            std::unique_ptr<DialogEditScriptFolder> mDialogEditScriptFolder{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuSource{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFolder{nullptr};
             std::unique_ptr<QMenu> mPostContextMenu{nullptr};
             std::unique_ptr<QMenu> mScriptContextMenu{nullptr};
+            std::unique_ptr<QMenu> mScriptFolderContextMenu{nullptr};
 
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
@@ -143,6 +152,7 @@ namespace ZapFR
 
             std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
             DialogEditScript* editScriptDialog();
+            DialogEditScriptFolder* editScriptFolderDialog();
 
             uint64_t mCurrentLogPage{1};
             uint64_t mCurrentLogCount{0};
@@ -167,7 +177,7 @@ namespace ZapFR
             void reloadSources();
             void reloadCurrentPost();
             void reloadUsedFlagColors(bool forceReload = false);
-            void reloadScriptFolders();
+            void reloadScriptFolders(bool forceReload = false);
             void reloadScripts(bool forceReload = false);
 
             QString postStyles() const;

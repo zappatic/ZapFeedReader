@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "DialogWithSourcesAndFolders.h"
+#include "dialogs/DialogWithSourcesAndFolders.h"
 #include "ZapFR/Folder.h"
 #include "ZapFR/Source.h"
 

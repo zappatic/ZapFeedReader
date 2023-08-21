@@ -16,41 +16,30 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_DIALOGADDFOLDER_H
-#define ZAPFR_CLIENT_DIALOGADDFOLDER_H
+#ifndef ZAPFR_ENGINE_AGENTADDSCRIPTFOLDER_H
+#define ZAPFR_ENGINE_AGENTADDSCRIPTFOLDER_H
 
-#include "ClientGlobal.h"
-#include "DialogWithSourcesAndFolders.h"
-
-namespace Ui
-{
-    class DialogAddFolder;
-}
+#include "ZapFR/AgentRunnable.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {
-    namespace Client
+    namespace Engine
     {
-        class DialogAddFolder : public DialogWithSourcesAndFolders
+        class AgentAddScriptFolder : public AgentRunnable
         {
-            Q_OBJECT
-
           public:
-            explicit DialogAddFolder(QWidget* parent = nullptr);
-            ~DialogAddFolder();
-            DialogAddFolder(const DialogAddFolder& e) = delete;
-            DialogAddFolder& operator=(const DialogAddFolder&) = delete;
-            DialogAddFolder(DialogAddFolder&&) = delete;
-            DialogAddFolder& operator=(DialogAddFolder&&) = delete;
+            explicit AgentAddScriptFolder(uint64_t sourceID, const std::string& title, std::function<void(uint64_t)> finishedCallback);
+            virtual ~AgentAddScriptFolder() = default;
 
-            QString title() const;
-
-            void reset(uint64_t selectedSourceID, uint64_t selectedFolderID);
+            void run() override;
 
           private:
-            Ui::DialogAddFolder* ui;
+            uint64_t mSourceID{0};
+            std::string mTitle{""};
+            std::function<void(uint64_t)> mFinishedCallback{};
         };
-    } // namespace Client
+    } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_DIALOGADDFOLDER_H
+#endif // ZAPFR_ENGINE_AGENTADDSCRIPT_H

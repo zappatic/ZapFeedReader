@@ -75,6 +75,8 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<ScriptFolder>> getScriptFolders() = 0;
             virtual std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id) = 0;
+            virtual void addScriptFolder(const std::string& title) = 0;
+            virtual void removeScriptFolder(uint64_t scriptFolderID) = 0;
 
             virtual std::vector<std::unique_ptr<Script>> getScripts() = 0;
             virtual std::optional<std::unique_ptr<Script>> getScript(uint64_t scriptID) = 0;

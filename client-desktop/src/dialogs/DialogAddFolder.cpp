@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "DialogAddFolder.h"
+#include "dialogs/DialogAddFolder.h"
 #include "ui_DialogAddFolder.h"
 
 ZapFR::Client::DialogAddFolder::DialogAddFolder(QWidget* parent) : DialogWithSourcesAndFolders(parent), ui(new Ui::DialogAddFolder)

@@ -58,6 +58,8 @@ namespace ZapFR
 
             std::vector<std::unique_ptr<ScriptFolder>> getScriptFolders() override;
             std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id) override;
+            void addScriptFolder(const std::string& title) override;
+            void removeScriptFolder(uint64_t scriptFolderID) override;
 
             std::vector<std::unique_ptr<Script>> getScripts() override;
             std::optional<std::unique_ptr<Script>> getScript(uint64_t scriptID) override;
