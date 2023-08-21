@@ -164,7 +164,7 @@ namespace ZapFR
 
             void reloadSources();
             void reloadCurrentPost();
-            void reloadUsedFlagColors();
+            void reloadUsedFlagColors(bool forceReload = false);
             void reloadScriptFolders();
             void reloadScripts(bool forceReload = false);
 

@@ -352,13 +352,13 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
     return std::make_tuple(sourceID, folderID);
 }
 
-void ZapFR::Client::MainWindow::reloadUsedFlagColors()
+void ZapFR::Client::MainWindow::reloadUsedFlagColors(bool forceReload)
 {
     auto index = ui->treeViewSources->currentIndex();
     if (index.isValid())
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        if (sourceID != mPreviouslySelectedSourceID)
+        if (forceReload || sourceID != mPreviouslySelectedSourceID)
         {
             ZapFR::Engine::Agent::getInstance()->queueGetUsedFlagColors(sourceID,
                                                                         [&](uint64_t affectedSourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
@@ -1201,6 +1201,8 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
             }
         }
     }
+
+    reloadUsedFlagColors(true);
 }
 
 void ZapFR::Client::MainWindow::feedAdded()
