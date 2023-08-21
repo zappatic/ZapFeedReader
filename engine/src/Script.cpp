@@ -24,6 +24,7 @@ using namespace Poco::Data::Keywords;
 
 std::string ZapFR::Engine::Script::msScriptDir{""};
 std::string ZapFR::Engine::Script::msEventNewPostIdentifier{"newpost"};
+std::string ZapFR::Engine::Script::msTypeLuaIdentifier{"lua"};
 
 ZapFR::Engine::Script::Script(uint64_t id) : mID(id)
 {

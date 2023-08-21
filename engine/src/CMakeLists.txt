@@ -35,6 +35,8 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentGetScriptFolderFlaggedPosts.cpp
     agents/AgentGetScripts.cpp
     agents/AgentUpdateScript.cpp
+    agents/AgentRemoveScript.cpp
+    agents/AgentAddScript.cpp
     Database.cpp
     Log.cpp
     FeedFetcher.cpp

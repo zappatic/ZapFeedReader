@@ -75,6 +75,9 @@ namespace ZapFR
             void reloadPosts();
             void reloadLogs();
             void setUnreadBadgesShown(bool b);
+            void editScript();
+            void removeScript();
+            void addScript();
 
             // events
             void postsTableViewSelectionChanged(const QModelIndexList& selected);
@@ -95,6 +98,8 @@ namespace ZapFR
             void folderMarkedRead(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs);
             void sourceMarkedRead(uint64_t sourceID);
             void scriptUpdated(uint64_t sourceID, uint64_t scriptID);
+            void scriptRemoved(uint64_t sourceID, uint64_t scriptID);
+            void scriptAdded(uint64_t sourceID);
             void setPostHTML(const QString& html);
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
@@ -136,6 +141,7 @@ namespace ZapFR
             ZapFR::Engine::FlagColor mFlagFilter{ZapFR::Engine::FlagColor::Gray};
 
             std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
+            DialogEditScript* editScriptDialog();
 
             uint64_t mCurrentLogPage{1};
             uint64_t mCurrentLogCount{0};

@@ -1372,6 +1372,9 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
     ui->action_View_scripts->setIcon(configureIcon(":/script.svg"));
     ui->action_Back_to_posts->setIcon(configureIcon(":/back.svg"));
+    ui->action_Edit_script->setIcon(configureIcon(":/edit.svg"));
+    ui->action_Remove_script->setIcon(configureIcon(":/remove.svg"));
+    ui->action_Add_script->setIcon(configureIcon(":/addFeed.svg"));
     ui->pushButtonPostPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
     ui->pushButtonPostFirstPage->setIcon(configureIcon(":/firstPage.svg"));
     ui->pushButtonPostNextPage->setIcon(configureIcon(":/nextPage.svg"));
@@ -1475,6 +1478,9 @@ void ZapFR::Client::MainWindow::updateToolbar()
         case StackedPaneScripts:
         {
             ui->action_Back_to_posts->setVisible(true);
+            ui->action_Edit_script->setVisible(true);
+            ui->action_Remove_script->setVisible(true);
+            ui->action_Add_script->setVisible(true);
             break;
         }
     }

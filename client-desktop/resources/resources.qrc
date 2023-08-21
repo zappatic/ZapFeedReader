@@ -19,5 +19,7 @@
         <file>flagFilled.svg</file>
         <file>flagUnfilled.svg</file>
         <file>script.svg</file>
+        <file>edit.svg</file>
+        <file>remove.svg</file>
     </qresource>
 </RCC>

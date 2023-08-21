@@ -974,7 +974,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal::
     {
         if (selectStmt.execute() > 0)
         {
-            if (type == "lua") // force lua for now
+            if (type == Script::msTypeLuaIdentifier) // force lua for now
             {
                 auto s = std::make_unique<Script>(id);
                 s->setType(Script::Type::Lua);
@@ -1015,7 +1015,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal
     auto rs = Poco::Data::RecordSet(selectStmt);
     if (rs.rowCount() == 1)
     {
-        if (type == "lua") // force lua for now
+        if (type == Script::msTypeLuaIdentifier) // force lua for now
         {
             auto s = std::make_unique<Script>(id);
             s->setType(Script::Type::Lua);
@@ -1033,7 +1033,54 @@ std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal
     return {};
 }
 
+void ZapFR::Engine::SourceLocal::removeScript(uint64_t scriptID)
+{
+    Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << "DELETE FROM scripts WHERE id=?", use(scriptID), now;
+}
+
 void ZapFR::Engine::SourceLocal::runLuaScriptOnPost(const std::string& luaScript, Post* post)
 {
     ZapFR::Engine::ScriptLua::getInstance()->runNewPostScript(luaScript, post);
+}
+
+void ZapFR::Engine::SourceLocal::addScript(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
+                                           const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+{
+    std::string typeStr;
+    switch (type)
+    {
+        case Script::Type::Lua:
+        {
+            typeStr = Script::msTypeLuaIdentifier;
+            break;
+        }
+    }
+
+    // join all the events into a comma separated identifier string
+    std::vector<std::string> eventStrings;
+    if (events.contains(Script::Event::NewPost))
+    {
+        eventStrings.emplace_back(Script::msEventNewPostIdentifier);
+    }
+    auto joinedEvents = Helpers::joinString(eventStrings, ",");
+
+    // join all the selected feedIDs into a comma separated string
+    Poco::Nullable<std::string> joinedFeedIDs;
+    if (feedIDs.has_value())
+    {
+        std::vector<uint64_t> f;
+        for (const auto& feedID : feedIDs.value())
+        {
+            f.emplace_back(feedID);
+        }
+        joinedFeedIDs = Helpers::joinIDNumbers(f, ",");
+    }
+
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "INSERT INTO scripts"
+                  " (type,filename,isEnabled,runOnEvents,runOnFeedIDs)"
+                  " VALUES"
+                  " (?,?,?,?,?)",
+        useRef(typeStr), useRef(filename), use(enabled), useRef(joinedEvents), use(joinedFeedIDs), now;
 }

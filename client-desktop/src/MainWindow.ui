@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>870</width>
     <height>600</height>
    </rect>
   </property>
@@ -679,7 +679,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>870</width>
      <height>22</height>
     </rect>
    </property>
@@ -731,6 +731,9 @@
    <addaction name="action_View_logs"/>
    <addaction name="action_View_scripts"/>
    <addaction name="action_Back_to_posts"/>
+   <addaction name="action_Remove_script"/>
+   <addaction name="action_Add_script"/>
+   <addaction name="action_Edit_script"/>
   </widget>
   <action name="action_Add_source">
    <property name="text">
@@ -802,6 +805,30 @@
    </property>
    <property name="toolTip">
     <string>View scripts</string>
+   </property>
+  </action>
+  <action name="action_Edit_script">
+   <property name="text">
+    <string>Edit script</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit script</string>
+   </property>
+  </action>
+  <action name="action_Remove_script">
+   <property name="text">
+    <string>Remove script</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove script</string>
+   </property>
+  </action>
+  <action name="action_Add_script">
+   <property name="text">
+    <string>Add script</string>
+   </property>
+   <property name="toolTip">
+    <string>Add script</string>
    </property>
   </action>
  </widget>

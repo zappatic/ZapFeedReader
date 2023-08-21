@@ -47,10 +47,16 @@ ZapFR::Client::DialogEditScript::~DialogEditScript()
     delete ui;
 }
 
+ZapFR::Client::DialogEditScript::DisplayMode ZapFR::Client::DialogEditScript::displayMode() const noexcept
+{
+    return mDisplayMode;
+}
+
 void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& filename, bool isEnabled,
                                             const std::unordered_set<ZapFR::Engine::Script::Event>& runOnEvents,
                                             const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs)
 {
+    mDisplayMode = dm;
     mCurrentSourceID = sourceID;
     QString buttonCaption;
     switch (dm)
@@ -142,6 +148,8 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
         }
     };
     expandChildren(mFeedsModel->invisibleRootItem());
+
+    ui->lineEditFilename->setFocus();
 }
 
 uint64_t ZapFR::Client::DialogEditScript::scriptID() const noexcept

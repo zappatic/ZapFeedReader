@@ -48,7 +48,7 @@ namespace ZapFR
                 Add,
                 Edit
             };
-
+            DisplayMode displayMode() const noexcept;
             void reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& filename, bool isEnabled,
                        const std::unordered_set<ZapFR::Engine::Script::Event>& runOnEvents, const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs);
 
@@ -64,6 +64,7 @@ namespace ZapFR
             Ui::DialogEditScript* ui;
             uint64_t mCurrentSourceID{0};
             uint64_t mCurrentID{0};
+            DisplayMode mDisplayMode{DisplayMode::Add};
             std::unique_ptr<QStandardItemModel> mFeedsModel{nullptr};
         };
     } // namespace Client

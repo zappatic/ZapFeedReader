@@ -59,6 +59,8 @@ namespace ZapFR
                         const std::optional<std::unordered_set<uint64_t>>& feedIDs);
 
             static void setScriptDir(const std::string& scriptDir);
+            static std::string msEventNewPostIdentifier;
+            static std::string msTypeLuaIdentifier;
 
           protected:
             uint64_t mID{0};
@@ -69,9 +71,6 @@ namespace ZapFR
             std::optional<std::unordered_set<uint64_t>> mRunOnFeedIDs{};
 
             static std::string msScriptDir;
-
-          private:
-            static std::string msEventNewPostIdentifier;
         };
     } // namespace Engine
 } // namespace ZapFR

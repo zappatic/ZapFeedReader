@@ -21,6 +21,7 @@
 #include "ZapFR/Post.h"
 #include "ZapFR/Source.h"
 #include "ZapFR/agents/AgentAddFolder.h"
+#include "ZapFR/agents/AgentAddScript.h"
 #include "ZapFR/agents/AgentGetFeedFlaggedPosts.h"
 #include "ZapFR/agents/AgentGetFeedLogs.h"
 #include "ZapFR/agents/AgentGetFeedPosts.h"
@@ -52,6 +53,7 @@
 #include "ZapFR/agents/AgentRefreshSource.h"
 #include "ZapFR/agents/AgentRemoveFeed.h"
 #include "ZapFR/agents/AgentRemoveFolder.h"
+#include "ZapFR/agents/AgentRemoveScript.h"
 #include "ZapFR/agents/AgentSubscribeFeed.h"
 #include "ZapFR/agents/AgentUpdateScript.h"
 
@@ -257,6 +259,17 @@ void ZapFR::Engine::Agent::queueUpdateScript(uint64_t sourceID, uint64_t scriptI
                                              std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentUpdateScript>(sourceID, scriptID, type, filename, enabled, events, feedIDs, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueRemoveScript(uint64_t sourceID, uint64_t scriptID, std::function<void(uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentRemoveScript>(sourceID, scriptID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueAddScript(uint64_t sourceID, Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
+                                          const std::optional<std::unordered_set<uint64_t>>& feedIDs, std::function<void(uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentAddScript>(sourceID, type, filename, enabled, events, feedIDs, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)
