@@ -1301,7 +1301,8 @@ void ZapFR::Client::MainWindow::postMarkedFlagged(uint64_t /*sourceID*/, uint64_
     reloadUsedFlagColors();
 }
 
-void ZapFR::Client::MainWindow::postMarkedUnflagged(uint64_t /*sourceID*/, uint64_t /*feedID*/, uint64_t /*postID*/, ZapFR::Engine::FlagColor /*flagColor*/)
+void ZapFR::Client::MainWindow::postMarkedUnflagged(uint64_t /*sourceID*/, uint64_t /*feedID*/, uint64_t /*postID*/,
+                                                    const std::unordered_set<ZapFR::Engine::FlagColor>& /*flagColors*/)
 {
     mPreviouslySelectedSourceID = 0;
     reloadUsedFlagColors();
@@ -2002,8 +2003,17 @@ void ZapFR::Client::MainWindow::configureConnects()
             [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkPostUnflagged(
-                    sourceID, feedID, postID, flagColor,
-                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t affectedPostID, ZapFR::Engine::FlagColor affectedFlagColor)
+                    sourceID, feedID, postID, {flagColor},
+                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t affectedPostID, const std::unordered_set<ZapFR::Engine::FlagColor>& affectedFlagColor)
+                    { QMetaObject::invokeMethod(this, "postMarkedUnflagged", Qt::AutoConnection, affectedSourceID, affectedFeedID, affectedPostID, affectedFlagColor); });
+            });
+
+    connect(ui->tableViewPosts, &TableViewPosts::clearAllFlagsRequested,
+            [&](uint64_t sourceID, uint64_t feedID, uint64_t postID)
+            {
+                ZapFR::Engine::Agent::getInstance()->queueMarkPostUnflagged(
+                    sourceID, feedID, postID, ZapFR::Engine::Flag::allFlagColors(),
+                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t affectedPostID, const std::unordered_set<ZapFR::Engine::FlagColor>& affectedFlagColor)
                     { QMetaObject::invokeMethod(this, "postMarkedUnflagged", Qt::AutoConnection, affectedSourceID, affectedFeedID, affectedPostID, affectedFlagColor); });
             });
 

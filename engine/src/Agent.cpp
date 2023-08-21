@@ -192,10 +192,10 @@ void ZapFR::Engine::Agent::queueMarkPostFlagged(uint64_t sourceID, uint64_t feed
     enqueue(std::make_unique<AgentMarkPostFlagged>(sourceID, feedID, postID, flagColor, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor,
-                                                  std::function<void(uint64_t, uint64_t, uint64_t, ZapFR::Engine::FlagColor)> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, const std::unordered_set<FlagColor>& flagColors,
+                                                  std::function<void(uint64_t, uint64_t, uint64_t, const std::unordered_set<ZapFR::Engine::FlagColor>&)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentMarkPostUnflagged>(sourceID, feedID, postID, flagColor, finishedCallback));
+    enqueue(std::make_unique<AgentMarkPostUnflagged>(sourceID, feedID, postID, flagColors, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetSourceTree(uint64_t sourceID,

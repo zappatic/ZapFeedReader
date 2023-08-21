@@ -44,6 +44,7 @@ namespace ZapFR
             static FlagColor flagColorForID(uint8_t id);
             static FlagColor flagColorForName(const std::string& name);
             static uint8_t idForFlagColor(FlagColor flagColor);
+            static const std::unordered_set<FlagColor>& allFlagColors();
 
           private:
             static std::unordered_map<FlagColor, std::tuple<uint8_t, uint8_t, uint8_t>> msColorRGBMapping;

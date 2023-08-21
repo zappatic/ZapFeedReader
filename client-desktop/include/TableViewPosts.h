@@ -42,6 +42,7 @@ namespace ZapFR
             void selectedPostsChanged(const QModelIndexList&);
             void postMarkedFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor);
             void postMarkedUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor);
+            void clearAllFlagsRequested(uint64_t sourceID, uint64_t feedID, uint64_t postID);
 
           private slots:
             void doubleClickedRow(const QModelIndex& index);

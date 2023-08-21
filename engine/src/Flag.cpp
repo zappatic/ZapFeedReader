@@ -46,6 +46,19 @@ ZapFR::Engine::FlagColor ZapFR::Engine::Flag::flagColorForID(uint8_t id)
     throw std::runtime_error("Unknown flag color ID requested");
 }
 
+const std::unordered_set<ZapFR::Engine::FlagColor>& ZapFR::Engine::Flag::allFlagColors()
+{
+    static std::unordered_set<FlagColor> flagColors{};
+    if (flagColors.empty())
+    {
+        for (const auto& [flagColor, id] : msColorIDMapping)
+        {
+            flagColors.insert(flagColor);
+        }
+    }
+    return flagColors;
+}
+
 ZapFR::Engine::FlagColor ZapFR::Engine::Flag::flagColorForName(const std::string& name)
 {
     if (name == "gray")

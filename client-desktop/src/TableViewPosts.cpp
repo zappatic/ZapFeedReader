@@ -65,8 +65,21 @@ void ZapFR::Client::TableViewPosts::mouseReleaseEvent(QMouseEvent* event)
     if (index.isValid() && index.column() == PostColumnFlag)
     {
         auto clickLocation = mapToGlobal(event->pos());
-        mPopupFlagChooser->setGeometry(clickLocation.x(), clickLocation.y(), 200, 75);
-        mPopupFlagChooser->showWithSelectedColors(index.data(PostAppliedFlagsRole).toList());
+        if ((QGuiApplication::keyboardModifiers() & Qt::ControlModifier) == Qt::ControlModifier)
+        {
+            auto sourceID = index.data(PostSourceIDRole).toULongLong();
+            auto feedID = index.data(PostFeedIDRole).toULongLong();
+            auto postID = index.data(PostIDRole).toULongLong();
+            emit clearAllFlagsRequested(sourceID, feedID, postID);
+
+            qobject_cast<QStandardItemModel*>(model())->itemFromIndex(index)->setData(QVariantList(), PostAppliedFlagsRole);
+            return;
+        }
+        else
+        {
+            mPopupFlagChooser->setGeometry(clickLocation.x(), clickLocation.y(), 200, 75);
+            mPopupFlagChooser->showWithSelectedColors(index.data(PostAppliedFlagsRole).toList());
+        }
     }
     QTableView::mouseReleaseEvent(event);
 }

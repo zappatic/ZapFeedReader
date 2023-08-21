@@ -21,9 +21,10 @@
 #include "ZapFR/Post.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentMarkPostUnflagged::AgentMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, FlagColor flagColor,
-                                                              std::function<void(uint64_t, uint64_t, uint64_t, ZapFR::Engine::FlagColor)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFlagColor(flagColor), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentMarkPostUnflagged::AgentMarkPostUnflagged(
+    uint64_t sourceID, uint64_t feedID, uint64_t postID, const std::unordered_set<FlagColor>& flagColors,
+    std::function<void(uint64_t, uint64_t, uint64_t, const std::unordered_set<ZapFR::Engine::FlagColor>&)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFlagColors(flagColors), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -38,8 +39,11 @@ void ZapFR::Engine::AgentMarkPostUnflagged::run()
             auto post = feed.value()->getPost(mPostID);
             if (post.has_value())
             {
-                post.value()->markUnflagged(mFlagColor);
-                mFinishedCallback(mSourceID, mFeedID, mPostID, mFlagColor);
+                for (const auto& fc : mFlagColors)
+                {
+                    post.value()->markUnflagged(fc);
+                }
+                mFinishedCallback(mSourceID, mFeedID, mPostID, mFlagColors);
             }
         }
     }

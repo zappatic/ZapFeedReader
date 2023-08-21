@@ -91,7 +91,7 @@ namespace ZapFR
             void folderMoved();
             void folderAdded();
             void postMarkedFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor);
-            void postMarkedUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor);
+            void postMarkedUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
             void postMarkedRead(uint64_t sourceID, uint64_t feedID, uint64_t postID);
             void postsMarkedUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs);
             void feedMarkedRead(uint64_t sourceID, uint64_t feedID);
