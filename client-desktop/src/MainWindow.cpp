@@ -386,51 +386,6 @@ void ZapFR::Client::MainWindow::populateUsedFlags(uint64_t /*sourceID*/, const s
     }
 }
 
-void ZapFR::Client::MainWindow::reloadScriptFolders()
-{
-    // lambda for the callback, retrieving the script folders
-    auto processScriptFolders = [&](uint64_t sourceID, const std::vector<ZapFR::Engine::ScriptFolder*>& scriptFolders)
-    {
-        QList<QList<QStandardItem*>> rows;
-        for (const auto& scriptFolder : scriptFolders)
-        {
-            auto titleItem = new QStandardItem(QString::fromUtf8(scriptFolder->title()));
-            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->id()), ScriptFolderIDRole);
-            titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), ScriptFolderSourceIDRole);
-
-            QList<QStandardItem*> rowData;
-            rowData << titleItem;
-            rows << rowData;
-        }
-        QMetaObject::invokeMethod(this, "populateScriptFolders", Qt::AutoConnection, sourceID, rows);
-    };
-
-    auto index = ui->treeViewSources->currentIndex();
-    if (index.isValid())
-    {
-        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        if (sourceID != mPreviouslySelectedSourceID)
-        {
-            ZapFR::Engine::Agent::getInstance()->queueGetScriptFolders(sourceID, processScriptFolders);
-        }
-    }
-}
-
-void ZapFR::Client::MainWindow::populateScriptFolders(uint64_t sourceID, const QList<QList<QStandardItem*>>& scriptFolders)
-{
-    mPreviouslySelectedSourceID = sourceID;
-    mItemModelScriptFolders = std::make_unique<QStandardItemModel>(this);
-    ui->tableViewScriptFolders->setModel(mItemModelScriptFolders.get());
-    auto headerItem = new QStandardItem(tr("Script folders"));
-    headerItem->setTextAlignment(Qt::AlignLeft);
-    mItemModelScriptFolders->setHorizontalHeaderItem(ScriptFolderColumnTitle, headerItem);
-    for (const auto& scriptFolder : scriptFolders)
-    {
-        mItemModelScriptFolders->appendRow(scriptFolder);
-    }
-    ui->tableViewScriptFolders->horizontalHeader()->setSectionResizeMode(ScriptFolderColumnTitle, QHeaderView::Stretch);
-}
-
 void ZapFR::Client::MainWindow::reloadSources()
 {
     // preserve the expansion of the source items and selected item data
@@ -1802,15 +1757,6 @@ void ZapFR::Client::MainWindow::configureConnects()
 
     connect(ui->tableViewPosts, &TableViewPosts::selectedPostsChanged, this, &MainWindow::postsTableViewSelectionChanged);
 
-    connect(ui->tableViewScriptFolders, &TableViewScriptFolders::selectedScriptFolderChanged,
-            [&](const QModelIndex& index)
-            {
-                if (index.isValid())
-                {
-                    reloadPosts();
-                }
-            });
-
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested,
             [&](const QPoint& p)
             {
@@ -2063,4 +2009,5 @@ void ZapFR::Client::MainWindow::configureConnects()
     }
 
     connectScriptStuff();
+    connectScriptFolderStuff();
 }

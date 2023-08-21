@@ -16,6 +16,7 @@ set(PROJECT_SOURCES
         src/main.cpp
         src/MainWindow.cpp
         src/MainWindow-Scripts.cpp
+        src/MainWindow-ScriptFolders.cpp
         src/ItemDelegateSource.cpp
         src/ItemDelegatePost.cpp
         src/ItemDelegateLog.cpp

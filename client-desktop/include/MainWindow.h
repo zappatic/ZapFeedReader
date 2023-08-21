@@ -156,6 +156,8 @@ namespace ZapFR
 
             void configureConnects();
             void connectScriptStuff();
+            void connectScriptFolderStuff();
+
             void saveSettings() const;
             void restoreSettings();
             QJsonArray expandedSourceTreeItems() const;

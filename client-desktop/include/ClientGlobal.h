@@ -117,12 +117,11 @@ namespace ZapFR
 
         static constexpr uint32_t ScriptFolderColumnTitle = 0;
 
-        static constexpr uint32_t ScriptsColumnID = 0;
-        static constexpr uint32_t ScriptsColumnType = 1;
-        static constexpr uint32_t ScriptsColumnFilename = 2;
-        static constexpr uint32_t ScriptsColumnIsEnabled = 3;
-        static constexpr uint32_t ScriptsColumnRunOnEvents = 4;
-        static constexpr uint32_t ScriptsColumnRunOnFeedIDs = 5;
+        static constexpr uint32_t ScriptsColumnType = 0;
+        static constexpr uint32_t ScriptsColumnFilename = 1;
+        static constexpr uint32_t ScriptsColumnIsEnabled = 2;
+        static constexpr uint32_t ScriptsColumnRunOnEvents = 3;
+        static constexpr uint32_t ScriptsColumnRunOnFeedIDs = 4;
 
         static constexpr uint32_t ScriptIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t ScriptIsEnabledRole{Qt::ItemDataRole::UserRole + 2};

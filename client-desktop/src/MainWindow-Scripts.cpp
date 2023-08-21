@@ -58,9 +58,6 @@ void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
         QList<QList<QStandardItem*>> rows;
         for (const auto& script : scripts)
         {
-            auto idItem = new QStandardItem(QString::number(script->id()));
-            setItemData(idItem, script, sourceID);
-
             auto typeItem = new QStandardItem();
             switch (script->type())
             {
@@ -109,7 +106,7 @@ void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
             setItemData(runOnFeedIDsItem, script, sourceID);
 
             QList<QStandardItem*> rowData;
-            rowData << idItem << typeItem << titleItem << isEnabledItem << runOnEventsItem << runOnFeedIDsItem;
+            rowData << typeItem << titleItem << isEnabledItem << runOnEventsItem << runOnFeedIDsItem;
             rows << rowData;
         }
 
@@ -134,7 +131,6 @@ void ZapFR::Client::MainWindow::populateScripts(const QList<QList<QStandardItem*
 
     mItemModelScripts = std::make_unique<QStandardItemModel>(this);
     ui->tableViewScripts->setModel(mItemModelScripts.get());
-    mItemModelScripts->setHorizontalHeaderItem(ScriptsColumnID, new QStandardItem(tr("ID")));
     mItemModelScripts->setHorizontalHeaderItem(ScriptsColumnType, new QStandardItem(tr("Type")));
     mItemModelScripts->setHorizontalHeaderItem(ScriptsColumnFilename, new QStandardItem(tr("Filename")));
     mItemModelScripts->setHorizontalHeaderItem(ScriptsColumnIsEnabled, new QStandardItem(tr("Enabled")));
@@ -145,7 +141,6 @@ void ZapFR::Client::MainWindow::populateScripts(const QList<QList<QStandardItem*
         mItemModelScripts->appendRow(script);
     }
     ui->tableViewScripts->horizontalHeader()->setSectionResizeMode(ScriptsColumnFilename, QHeaderView::Stretch);
-    ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnID, 40);
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnType, 50);
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnIsEnabled, 75);
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnRunOnEvents, 175);
