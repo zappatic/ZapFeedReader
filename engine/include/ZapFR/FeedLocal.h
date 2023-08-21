@@ -63,6 +63,7 @@ namespace ZapFR
             static std::mutex msInsertPostMutex;
 
             Poco::File iconFile() const;
+            std::optional<std::unique_ptr<Post>> getPostByGuid(const std::string& guid);
         };
     } // namespace Engine
 } // namespace ZapFR

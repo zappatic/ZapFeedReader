@@ -213,6 +213,89 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
     return {};
 }
 
+std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::getPostByGuid(const std::string& guid)
+{
+    uint64_t postID{0};
+    bool isRead{false};
+    std::string title{""};
+    std::string link{""};
+    std::string description{""};
+    std::string author{""};
+    std::string commentsURL{""};
+    std::string enclosureURL{""};
+    std::string enclosureLength{""};
+    std::string enclosureMimeType{""};
+    bool guidIsPermalink{false};
+    std::string datePublished{""};
+    std::string sourceURL{""};
+    std::string sourceTitle{""};
+    std::string feedTitle{""};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT "
+                  " posts.id"
+                  ",posts.isRead"
+                  ",posts.title"
+                  ",posts.link"
+                  ",posts.description"
+                  ",posts.author"
+                  ",posts.commentsURL"
+                  ",posts.enclosureURL"
+                  ",posts.enclosureLength"
+                  ",posts.enclosureMimeType"
+                  ",posts.guidIsPermalink"
+                  ",posts.datePublished"
+                  ",posts.sourceURL"
+                  ",posts.sourceTitle"
+                  ",feeds.title"
+                  " FROM posts"
+                  " LEFT JOIN feeds ON feeds.id = posts.feedID"
+                  " WHERE posts.feedID=?"
+                  "   AND posts.guid=?",
+        use(mID), useRef(guid), into(postID), into(isRead), into(title), into(link), into(description), into(author), into(commentsURL), into(enclosureURL),
+        into(enclosureLength), into(enclosureMimeType), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle), into(feedTitle), now;
+
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        auto p = std::make_unique<PostLocal>(postID);
+        p->setFeedID(mID);
+        p->setFeedTitle(feedTitle);
+        p->setIsRead(isRead);
+        p->setTitle(title);
+        p->setLink(link);
+        p->setDescription(description);
+        p->setAuthor(author);
+        p->setCommentsURL(commentsURL);
+        p->setEnclosureURL(enclosureURL);
+        p->setEnclosureLength(enclosureLength);
+        p->setEnclosureMimeType(enclosureMimeType);
+        p->setGuid(guid);
+        p->setGuidIsPermalink(guidIsPermalink);
+        p->setDatePublished(datePublished);
+        p->setSourceURL(sourceURL);
+        p->setSourceTitle(sourceTitle);
+
+        // query flags
+        std::unordered_set<FlagColor> flags;
+        uint8_t flagID{0};
+        Poco::Data::Statement selectFlagsStmt(*(Database::getInstance()->session()));
+        selectFlagsStmt << "SELECT DISTINCT(flagID) FROM flags WHERE postID=?", use(postID), into(flagID), range(0, 1);
+        while (!selectFlagsStmt.done())
+        {
+            if (selectFlagsStmt.execute() > 0)
+            {
+                flags.insert(Flag::flagColorForID(flagID));
+            }
+        }
+        p->setFlagColors(flags);
+
+        return p;
+    }
+
+    return {};
+}
+
 bool ZapFR::Engine::FeedLocal::fetchData()
 {
     if (!mDataFetched)
@@ -311,12 +394,8 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         auto guid = item.guid;
 
         // see if it already exists
-        uint64_t existingPostID{0};
-        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-        selectStmt << "SELECT id FROM posts WHERE feedID=? AND guid=?", into(existingPostID), use(mID), useRef(guid), now;
-        selectStmt.execute();
-        auto rs = Poco::Data::RecordSet(selectStmt);
-        if (rs.rowCount() == 1) // UPDATE in case it does
+        auto existingPost = getPostByGuid(guid);
+        if (existingPost.has_value()) // UPDATE in case it does
         {
             Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
             updateStmt << "UPDATE posts SET"
@@ -341,12 +420,31 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
 
             if (scriptsRanOnUpdatePost.size() > 0)
             {
-                auto post = getPost(existingPostID);
-                if (post.has_value())
+                // Only trigger the update script(s) in case one of the fields is different
+                auto isDifferent{false};
+                // clang-format off
+                if (!isDifferent && (existingPost.value()->title() != item.title)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->link() != item.link)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->description() != item.description)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->author() != item.author)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->commentsURL() != item.commentsURL)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->enclosureURL() != item.enclosureURL)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->enclosureLength() != item.enclosureLength)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->enclosureMimeType() != item.enclosureMimeType)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->datePublished() != item.datePublished)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->sourceURL() != item.sourceURL)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->sourceTitle() != item.sourceTitle)) { isDifferent = true; }
+                // clang-format on
+
+                if (isDifferent)
                 {
-                    for (const auto& script : scriptsRanOnUpdatePost)
+                    auto updatedPost = getPost(existingPost.value()->id());
+                    if (updatedPost.has_value())
                     {
-                        ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, post.value().get());
+                        for (const auto& script : scriptsRanOnUpdatePost)
+                        {
+                            ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, updatedPost.value().get());
+                        }
                     }
                 }
             }
