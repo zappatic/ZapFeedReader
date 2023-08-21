@@ -77,10 +77,30 @@ void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
             auto isEnabledItem = new QStandardItem();
             setItemData(isEnabledItem, script, sourceID);
 
-            auto runOnEventsItem = new QStandardItem("todo");
+            QStringList eventsList;
+            auto events = script->runOnEvents();
+            if (events.contains(ZapFR::Engine::Script::Event::NewPost))
+            {
+                eventsList << tr("New post");
+            }
+            if (eventsList.isEmpty())
+            {
+                eventsList << tr("None");
+            }
+            auto runOnEventsItem = new QStandardItem(eventsList.join(", "));
+            runOnEventsItem->setData(QVariant::fromValue<uint64_t>(events.size()), ScriptEventCountRole);
             setItemData(runOnEventsItem, script, sourceID);
 
-            auto runOnFeedIDsItem = new QStandardItem("todo");
+            QStandardItem* runOnFeedIDsItem{nullptr};
+            auto feeds = script->runOnFeedIDs();
+            if (feeds.has_value())
+            {
+                runOnFeedIDsItem = new QStandardItem(tr("%n feed(s)", "", static_cast<int32_t>(feeds.value().size())));
+            }
+            else
+            {
+                runOnFeedIDsItem = new QStandardItem(tr("All feeds"));
+            }
             setItemData(runOnFeedIDsItem, script, sourceID);
 
             QList<QStandardItem*> rowData;
@@ -114,7 +134,7 @@ void ZapFR::Client::MainWindow::populateScripts(const QList<QList<QStandardItem*
     mItemModelScripts->setHorizontalHeaderItem(ScriptsColumnFilename, new QStandardItem(tr("Filename")));
     mItemModelScripts->setHorizontalHeaderItem(ScriptsColumnIsEnabled, new QStandardItem(tr("Enabled")));
     mItemModelScripts->setHorizontalHeaderItem(ScriptsColumnRunOnEvents, new QStandardItem(tr("Run on event(s)")));
-    mItemModelScripts->setHorizontalHeaderItem(ScriptsColumnRunOnFeedIDs, new QStandardItem(tr("Run on feed ID(s)")));
+    mItemModelScripts->setHorizontalHeaderItem(ScriptsColumnRunOnFeedIDs, new QStandardItem(tr("Run on feed(s)")));
     for (const auto& script : scripts)
     {
         mItemModelScripts->appendRow(script);

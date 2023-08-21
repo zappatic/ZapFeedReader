@@ -88,6 +88,14 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
         ui->checkBoxRunOnNewPost->setCheckState(Qt::Checked);
     }
 
+    ui->checkBoxRunOnAllFeeds->setCheckState(Qt::Unchecked);
+    ui->treeViewRunOnFeedIDs->setEnabled(true);
+    if (!runOnFeedIDs.has_value())
+    {
+        ui->checkBoxRunOnAllFeeds->setCheckState(Qt::Checked);
+        ui->treeViewRunOnFeedIDs->setEnabled(false);
+    }
+
     // clone the feeds and folders from the sources tree view, so we don't have to requery
     mFeedsModel->clear();
     auto parentModel = qobject_cast<MainWindow*>(parent())->sourcesItemModel();

@@ -79,6 +79,24 @@ void ZapFR::Client::ItemDelegateScript::paint(QPainter* painter, const QStyleOpt
             QApplication::style()->drawControl(QStyle::CE_CheckBox, &checkbox, painter);
             break;
         }
+        case ScriptsColumnRunOnEvents:
+        {
+            auto eventCount = index.data(ScriptEventCountRole).toULongLong();
+            if (eventCount == 0)
+            {
+                painter->setPen(QPen(Qt::red, 1.0));
+            }
+            else
+            {
+                painter->setPen(QPen(brushText, 1.0));
+            }
+            auto titleRect = option.rect.adjusted(5, 0, -5, 0);
+            auto title = index.data(Qt::DisplayRole).toString();
+            auto fm = QFontMetrics(painter->font());
+            auto elidedTitle = fm.elidedText(title, Qt::ElideRight, titleRect.width());
+            painter->drawText(titleRect, elidedTitle, titleTextOptions);
+            break;
+        }
         default:
         {
             auto titleRect = option.rect.adjusted(5, 0, -5, 0);
