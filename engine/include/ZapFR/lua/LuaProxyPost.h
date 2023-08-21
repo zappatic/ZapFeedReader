@@ -44,6 +44,8 @@ namespace ZapFR
             static int markAsUnread(lua_State* L);
             static int flag(lua_State* L);
             static int unflag(lua_State* L);
+            static int assignToScriptFolder(lua_State* L);
+            static int unassignFromScriptFolder(lua_State* L);
 
             static Post* lookupPostPointer(lua_State* L);
         };

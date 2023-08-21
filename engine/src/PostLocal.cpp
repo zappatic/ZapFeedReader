@@ -56,3 +56,16 @@ void ZapFR::Engine::PostLocal::markAsUnread()
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET isRead=FALSE WHERE feedID=? AND id=?", use(mFeedID), use(mID), now;
 }
+
+void ZapFR::Engine::PostLocal::assignToScriptFolder(uint64_t scriptFolderID)
+{
+    unassignFromScriptFolder(scriptFolderID);
+    Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+    insertStmt << "INSERT INTO scriptfolder_posts (scriptFolderID, postID) VALUES (?, ?)", use(scriptFolderID), use(mID), now;
+}
+
+void ZapFR::Engine::PostLocal::unassignFromScriptFolder(uint64_t scriptFolderID)
+{
+    Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << "DELETE FROM scriptfolder_posts WHERE postID=? AND scriptFolderID=?", use(mID), use(scriptFolderID), now;
+}

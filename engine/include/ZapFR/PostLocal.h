@@ -36,6 +36,9 @@ namespace ZapFR
 
             void markAsRead() override;
             void markAsUnread() override;
+
+            void assignToScriptFolder(uint64_t scriptFolderID) override;
+            void unassignFromScriptFolder(uint64_t scriptFolderID) override;
         };
     } // namespace Engine
 } // namespace ZapFR

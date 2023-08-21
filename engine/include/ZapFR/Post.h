@@ -75,6 +75,9 @@ namespace ZapFR
             virtual void markAsRead() = 0;
             virtual void markAsUnread() = 0;
 
+            virtual void assignToScriptFolder(uint64_t scriptFolderID) = 0;
+            virtual void unassignFromScriptFolder(uint64_t scriptFolderID) = 0;
+
           protected:
             uint64_t mID{0};
             bool mIsRead{false};

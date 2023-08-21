@@ -41,6 +41,12 @@ void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Post* post)
 
     lua_pushcfunction(L, unflag);
     lua_setfield(L, -2, "unflag");
+
+    lua_pushcfunction(L, assignToScriptFolder);
+    lua_setfield(L, -2, "assignToScriptFolder");
+
+    lua_pushcfunction(L, unassignFromScriptFolder);
+    lua_setfield(L, -2, "unassignFromScriptFolder");
 }
 
 int ZapFR::Engine::LuaProxyPost::markAsRead(lua_State* L)
@@ -112,6 +118,44 @@ int ZapFR::Engine::LuaProxyPost::unflag(lua_State* L)
             return luaL_error(L, "Invalid flag color specified");
         }
         post->markUnflagged(flagColor);
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::assignToScriptFolder(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TNUMBER);
+
+    auto post = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        int success;
+        auto scriptFolderID = lua_tointegerx(L, 2, &success);
+        if (success != 0)
+        {
+            post->assignToScriptFolder(scriptFolderID);
+        }
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::unassignFromScriptFolder(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TNUMBER);
+
+    auto post = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        int success;
+        auto scriptFolderID = lua_tointegerx(L, 2, &success);
+        if (success != 0)
+        {
+            post->unassignFromScriptFolder(scriptFolderID);
+        }
     }
 
     return 0;
