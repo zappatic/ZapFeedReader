@@ -992,6 +992,47 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal::
     return scripts;
 }
 
+std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal::getScript(uint64_t scriptID)
+{
+    uint64_t id{0};
+    std::string type{""};
+    std::string filename{""};
+    bool isEnabled{false};
+    std::string runOnEvents{""};
+    Poco::Nullable<std::string> runOnFeedIDs{};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT id"
+                  ",type"
+                  ",filename"
+                  ",isEnabled"
+                  ",runOnEvents"
+                  ",runOnFeedIDs"
+                  " FROM scripts"
+                  " WHERE id=?",
+        use(scriptID), into(id), into(type), into(filename), into(isEnabled), into(runOnEvents), into(runOnFeedIDs), now;
+
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        if (type == "lua") // force lua for now
+        {
+            auto s = std::make_unique<Script>(id);
+            s->setType(Script::Type::Lua);
+            s->setFilename(filename);
+            s->setIsEnabled(isEnabled);
+            s->parseRunOnEvents(runOnEvents);
+            if (!runOnFeedIDs.isNull())
+            {
+                s->parseRunOnFeedIDs(runOnFeedIDs.value());
+            }
+            return s;
+        }
+    }
+
+    return {};
+}
+
 void ZapFR::Engine::SourceLocal::runLuaScriptOnPost(const std::string& luaScript, Post* post)
 {
     ZapFR::Engine::ScriptLua::getInstance()->runNewPostScript(luaScript, post);

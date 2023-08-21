@@ -28,6 +28,18 @@ ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(par
     mFeedsModel = std::make_unique<QStandardItemModel>();
     ui->treeViewRunOnFeedIDs->setModel(mFeedsModel.get());
     ui->treeViewRunOnFeedIDs->setItemDelegate(new ItemDelegateEditScriptDialogSource(ui->treeViewRunOnFeedIDs));
+
+    connect(ui->treeViewRunOnFeedIDs, &TreeViewEditScriptDialogSources::feedClicked,
+            [&](const QModelIndex& index)
+            {
+                auto item = mFeedsModel->itemFromIndex(index);
+                if (item != nullptr)
+                {
+                    auto current = item->data(Qt::CheckStateRole);
+                    item->setData(current == Qt::Checked ? Qt::Unchecked : Qt::Checked, Qt::CheckStateRole);
+                }
+            });
+    connect(ui->checkBoxRunOnAllFeeds, &QCheckBox::clicked, [&](bool checked) { ui->treeViewRunOnFeedIDs->setEnabled(!checked); });
 }
 
 ZapFR::Client::DialogEditScript::~DialogEditScript()
@@ -39,6 +51,7 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
                                             const std::unordered_set<ZapFR::Engine::Script::Event>& runOnEvents,
                                             const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs)
 {
+    mCurrentSourceID = sourceID;
     QString buttonCaption;
     switch (dm)
     {
@@ -121,4 +134,73 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
         }
     };
     expandChildren(mFeedsModel->invisibleRootItem());
+}
+
+uint64_t ZapFR::Client::DialogEditScript::scriptID() const noexcept
+{
+    return mCurrentID;
+}
+
+uint64_t ZapFR::Client::DialogEditScript::scriptSourceID() const noexcept
+{
+    return mCurrentSourceID;
+}
+
+QString ZapFR::Client::DialogEditScript::filename() const noexcept
+{
+    return ui->lineEditFilename->text();
+}
+
+bool ZapFR::Client::DialogEditScript::isScriptEnabled() const noexcept
+{
+    return (ui->checkBoxEnabled->checkState() == Qt::Checked);
+}
+
+std::unordered_set<ZapFR::Engine::Script::Event> ZapFR::Client::DialogEditScript::runOnEvents() const
+{
+    std::unordered_set<ZapFR::Engine::Script::Event> events;
+    if (ui->checkBoxRunOnNewPost->checkState() == Qt::Checked)
+    {
+        events.insert(ZapFR::Engine::Script::Event::NewPost);
+    }
+    return events;
+}
+
+bool ZapFR::Client::DialogEditScript::runOnAllFeeds() const noexcept
+{
+    return (ui->checkBoxRunOnAllFeeds->checkState() == Qt::Checked);
+}
+
+std::unordered_set<uint64_t> ZapFR::Client::DialogEditScript::runOnFeedIDs() const
+{
+    std::unordered_set<uint64_t> feedIDs;
+
+    std::function<void(QStandardItem*)> findCheckedFeedIDs;
+    findCheckedFeedIDs = [&](QStandardItem* parent)
+    {
+        for (int32_t i = 0; i < parent->rowCount(); ++i)
+        {
+            auto child = parent->child(i, 0);
+            auto index = mFeedsModel->indexFromItem(child);
+            switch (index.data(SourceTreeEntryTypeRole).toULongLong())
+            {
+                case SOURCETREE_ENTRY_TYPE_FEED:
+                {
+                    if (index.data(Qt::CheckStateRole) == Qt::Checked)
+                    {
+                        feedIDs.insert(index.data(SourceTreeEntryIDRole).toULongLong());
+                    }
+                    break;
+                }
+                case SOURCETREE_ENTRY_TYPE_FOLDER:
+                {
+                    findCheckedFeedIDs(child);
+                    break;
+                }
+            }
+        }
+    };
+    findCheckedFeedIDs(mFeedsModel->invisibleRootItem());
+
+    return feedIDs;
 }

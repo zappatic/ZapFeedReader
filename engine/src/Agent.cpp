@@ -53,6 +53,7 @@
 #include "ZapFR/agents/AgentRemoveFeed.h"
 #include "ZapFR/agents/AgentRemoveFolder.h"
 #include "ZapFR/agents/AgentSubscribeFeed.h"
+#include "ZapFR/agents/AgentUpdateScript.h"
 
 std::mutex ZapFR::Engine::Agent::msMutex{};
 
@@ -249,6 +250,13 @@ void ZapFR::Engine::Agent::queueGetScriptFolderFlaggedPosts(FlagColor flagColor,
 void ZapFR::Engine::Agent::queueGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback)
 {
     enqueue(std::make_unique<AgentGetScripts>(sourceID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueUpdateScript(uint64_t sourceID, uint64_t scriptID, Script::Type type, const std::string& filename, bool enabled,
+                                             const std::unordered_set<Script::Event>& events, const std::optional<std::unordered_set<uint64_t>>& feedIDs,
+                                             std::function<void(uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentUpdateScript>(sourceID, scriptID, type, filename, enabled, events, feedIDs, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::onQueueTimer(Poco::Timer& /*timer*/)

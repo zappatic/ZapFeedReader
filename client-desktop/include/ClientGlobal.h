@@ -83,8 +83,7 @@ namespace ZapFR
         static constexpr uint32_t SourceTreeEntryParentSourceIDRole{Qt::ItemDataRole::UserRole + 3};
         static constexpr uint32_t SourceTreeEntryUnreadCount{Qt::ItemDataRole::UserRole + 4};
         static constexpr uint32_t SourceTreeEntryDisplayUnreadCountBadge{Qt::ItemDataRole::UserRole + 5};
-        static constexpr uint32_t SourceTreeEntryIcon{Qt::ItemDataRole::UserRole + 6};
-        static constexpr uint32_t SourceTreeEntryParentFolderIDRole{Qt::ItemDataRole::UserRole + 7};
+        static constexpr uint32_t SourceTreeEntryParentFolderIDRole{Qt::ItemDataRole::UserRole + 6};
 
         static constexpr uint32_t PostIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t PostSourceIDRole{Qt::ItemDataRole::UserRole + 2};

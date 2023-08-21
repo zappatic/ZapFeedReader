@@ -22,6 +22,7 @@
 #include "AgentRunnable.h"
 #include "Flag.h"
 #include "Global.h"
+#include "Script.h"
 
 namespace ZapFR
 {
@@ -32,7 +33,6 @@ namespace ZapFR
         class Log;
         class Folder;
         class ScriptFolder;
-        class Script;
 
         class Agent
         {
@@ -109,6 +109,9 @@ namespace ZapFR
 
             // scripts
             void queueGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback);
+            void queueUpdateScript(uint64_t sourceID, uint64_t scriptID, Script::Type type, const std::string& filename, bool enabled,
+                                   const std::unordered_set<Script::Event>& events, const std::optional<std::unordered_set<uint64_t>>& feedIDs,
+                                   std::function<void(uint64_t, uint64_t)> finishedCallback);
 
           private:
             explicit Agent();

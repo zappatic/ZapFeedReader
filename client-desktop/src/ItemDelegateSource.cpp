@@ -17,6 +17,7 @@
 */
 
 #include "ItemDelegateSource.h"
+#include "FeedIconCache.h"
 #include "TreeViewSources.h"
 
 ZapFR::Client::ItemDelegateSource::ItemDelegateSource(QObject* parent) : QStyledItemDelegate(parent)
@@ -73,19 +74,10 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
     // draw the icon
     if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
     {
-        QPixmap iconPixmap;
-        auto iconVariant = index.data(SourceTreeEntryIcon);
-        if (!iconVariant.isNull() && iconVariant.isValid())
-        {
-            iconPixmap = iconVariant.value<QPixmap>();
-        }
-        if (iconPixmap.isNull())
-        {
-            iconPixmap = QPixmap(":/rss.png");
-        }
+        auto icon = FeedIconCache::icon(index.data(SourceTreeEntryIDRole).toULongLong());
         auto iconSize = option.rect.height() * .75;
         auto iconTargetRect = QRectF(option.rect.left(), option.rect.top() + ((option.rect.height() - iconSize) / 2.0), iconSize, iconSize);
-        painter->drawPixmap(iconTargetRect, iconPixmap, iconPixmap.rect());
+        painter->drawPixmap(iconTargetRect, icon, icon.rect());
         titleRect.adjust(static_cast<int32_t>(iconSize) + 9, 0, 0, 0);
     }
 

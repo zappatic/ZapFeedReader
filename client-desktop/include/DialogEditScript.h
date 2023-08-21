@@ -52,8 +52,17 @@ namespace ZapFR
             void reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& filename, bool isEnabled,
                        const std::unordered_set<ZapFR::Engine::Script::Event>& runOnEvents, const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs);
 
+            uint64_t scriptID() const noexcept;
+            uint64_t scriptSourceID() const noexcept;
+            QString filename() const noexcept;
+            bool isScriptEnabled() const noexcept;
+            std::unordered_set<ZapFR::Engine::Script::Event> runOnEvents() const;
+            bool runOnAllFeeds() const noexcept;
+            std::unordered_set<uint64_t> runOnFeedIDs() const;
+
           private:
             Ui::DialogEditScript* ui;
+            uint64_t mCurrentSourceID{0};
             uint64_t mCurrentID{0};
             std::unique_ptr<QStandardItemModel> mFeedsModel{nullptr};
         };

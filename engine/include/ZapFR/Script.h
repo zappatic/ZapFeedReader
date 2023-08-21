@@ -55,6 +55,8 @@ namespace ZapFR
             void parseRunOnFeedIDs(const std::string& str);
 
             std::string scriptContents() const;
+            void update(Type type, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
+                        const std::optional<std::unordered_set<uint64_t>>& feedIDs);
 
             static void setScriptDir(const std::string& scriptDir);
 
@@ -67,6 +69,9 @@ namespace ZapFR
             std::optional<std::unordered_set<uint64_t>> mRunOnFeedIDs{};
 
             static std::string msScriptDir;
+
+          private:
+            static std::string msEventNewPostIdentifier;
         };
     } // namespace Engine
 } // namespace ZapFR

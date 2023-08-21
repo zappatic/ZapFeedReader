@@ -38,6 +38,7 @@ set(PROJECT_SOURCES
         src/TableViewScripts.cpp
         src/TreeViewPaletteCorrected.cpp
         src/TreeViewSources.cpp
+        src/TreeViewEditScriptDialogSources.cpp
         src/FeedIconCache.cpp
         src/PopupFlagChooser.cpp
         include/ClientGlobal.h
@@ -63,6 +64,7 @@ set(PROJECT_SOURCES
         include/TableViewScripts.h
         include/TreeViewPaletteCorrected.h
         include/TreeViewSources.h
+        include/TreeViewEditScriptDialogSources.h
         include/FeedIconCache.h
         include/PopupFlagChooser.h
         src/MainWindow.ui

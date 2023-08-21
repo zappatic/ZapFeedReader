@@ -19,6 +19,7 @@
 #include "FeedIconCache.h"
 
 std::unordered_map<uint64_t, QPixmap> ZapFR::Client::FeedIconCache::msPixmapCache{};
+std::unordered_map<uint64_t, QPixmap> ZapFR::Client::FeedIconCache::msPixmapGrayscaleCache{};
 std::unordered_map<uint64_t, std::string> ZapFR::Client::FeedIconCache::msHashCache{};
 std::mutex ZapFR::Client::FeedIconCache::msCacheMutex{};
 
@@ -27,6 +28,11 @@ void ZapFR::Client::FeedIconCache::cache(uint64_t feedID, const std::string& has
     std::lock_guard<std::mutex> lock(msCacheMutex);
     msPixmapCache[feedID] = pixmap;
     msHashCache[feedID] = hash;
+
+    // create a grayscale version of the icon
+    auto img = pixmap.toImage();
+    auto imgGrayscale = img.convertToFormat(QImage::Format_Grayscale8);
+    msPixmapGrayscaleCache[feedID] = QPixmap::fromImage(imgGrayscale);
 }
 
 QPixmap ZapFR::Client::FeedIconCache::icon(uint64_t feedID)
@@ -37,6 +43,24 @@ QPixmap ZapFR::Client::FeedIconCache::icon(uint64_t feedID)
         return msPixmapCache.at(feedID);
     }
     return QPixmap(":/rss.png");
+}
+
+QPixmap ZapFR::Client::FeedIconCache::iconGrayscale(uint64_t feedID)
+{
+    std::lock_guard<std::mutex> lock(msCacheMutex);
+    if (msPixmapGrayscaleCache.contains(feedID))
+    {
+        return msPixmapGrayscaleCache.at(feedID);
+    }
+    static QPixmap rssIcon;
+
+    if (rssIcon.isNull())
+    {
+        auto img = QImage(":/rss.png");
+        auto imgGrayscale = img.convertToFormat(QImage::Format_Grayscale8);
+        rssIcon = QPixmap::fromImage(imgGrayscale);
+    }
+    return rssIcon;
 }
 
 bool ZapFR::Client::FeedIconCache::isCached(uint64_t feedID)

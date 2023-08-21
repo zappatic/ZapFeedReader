@@ -60,6 +60,7 @@ namespace ZapFR
             std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id) override;
 
             std::vector<std::unique_ptr<Script>> getScripts() override;
+            std::optional<std::unique_ptr<Script>> getScript(uint64_t scriptID) override;
             void runLuaScriptOnPost(const std::string& luaScript, Post* post);
 
           private:

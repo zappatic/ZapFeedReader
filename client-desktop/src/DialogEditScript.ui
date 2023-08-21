@@ -32,12 +32,24 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="comboBoxType">
+       <item>
+        <property name="text">
+         <string>Lua</string>
+        </property>
+       </item>
+      </widget>
+     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="labelFilename">
        <property name="text">
         <string>Filename :</string>
        </property>
       </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEditFilename"/>
      </item>
      <item row="2" column="1">
       <widget class="QCheckBox" name="checkBoxEnabled">
@@ -53,25 +65,6 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="labelRunOnFeeds">
-       <property name="text">
-        <string>Run on feed(s)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="comboBoxType">
-       <item>
-        <property name="text">
-         <string>Lua</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditFilename"/>
-     </item>
      <item row="3" column="1">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
@@ -83,24 +76,45 @@
        </item>
       </layout>
      </item>
-     <item row="4" column="1">
-      <widget class="ZapFR::Client::TreeViewPaletteCorrected" name="treeViewRunOnFeedIDs">
-       <property name="cursor" stdset="0">
-        <cursorShape>PointingHandCursor</cursorShape>
+     <item row="4" column="0">
+      <widget class="QLabel" name="labelRunOnFeeds">
+       <property name="text">
+        <string>Run on feed(s) :</string>
        </property>
-       <property name="editTriggers">
-        <set>QAbstractItemView::NoEditTriggers</set>
-       </property>
-       <property name="alternatingRowColors">
-        <bool>true</bool>
-       </property>
-       <property name="selectionMode">
-        <enum>QAbstractItemView::NoSelection</enum>
-       </property>
-       <attribute name="headerVisible">
-        <bool>false</bool>
-       </attribute>
       </widget>
+     </item>
+     <item row="4" column="1">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="topMargin">
+        <number>4</number>
+       </property>
+       <item>
+        <widget class="QCheckBox" name="checkBoxRunOnAllFeeds">
+         <property name="text">
+          <string>All feeds</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ZapFR::Client::TreeViewEditScriptDialogSources" name="treeViewRunOnFeedIDs">
+         <property name="cursor" stdset="0">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::NoSelection</enum>
+         </property>
+         <attribute name="headerVisible">
+          <bool>false</bool>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -118,9 +132,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ZapFR::Client::TreeViewPaletteCorrected</class>
+   <class>ZapFR::Client::TreeViewEditScriptDialogSources</class>
    <extends>QTreeView</extends>
-   <header>TreeViewPaletteCorrected.h</header>
+   <header>TreeViewEditScriptDialogSources.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

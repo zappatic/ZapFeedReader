@@ -22,7 +22,7 @@
 #include "ZapFR/Agent.h"
 #include "ZapFR/Script.h"
 
-void ZapFR::Client::MainWindow::reloadScripts()
+void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
 {
     // lambda to assign the correct role data to the table entries
     auto setItemData = [&](QStandardItem* item, ZapFR::Engine::Script* script, uint64_t sourceID)
@@ -96,7 +96,7 @@ void ZapFR::Client::MainWindow::reloadScripts()
     if (index.isValid())
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        if (sourceID != mPreviouslySelectedSourceID)
+        if (forceReload || sourceID != mPreviouslySelectedSourceID)
         {
             ZapFR::Engine::Agent::getInstance()->queueGetScripts(sourceID, processScripts);
         }
@@ -137,6 +137,26 @@ void ZapFR::Client::MainWindow::connectScriptStuff()
                     if (mDialogEditScript == nullptr)
                     {
                         mDialogEditScript = std::make_unique<DialogEditScript>(this);
+                        connect(mDialogEditScript.get(), &DialogEditScript::accepted,
+                                [&]()
+                                {
+                                    auto scriptSourceID = mDialogEditScript->scriptSourceID();
+                                    auto scriptID = mDialogEditScript->scriptID();
+                                    auto type = ZapFR::Engine::Script::Type::Lua; // forced to Lua for now
+                                    auto filename = mDialogEditScript->filename().toStdString();
+                                    auto enabled = mDialogEditScript->isScriptEnabled();
+                                    auto selectedEvents = mDialogEditScript->runOnEvents();
+                                    std::optional<std::unordered_set<uint64_t>> selectedFeedIDs;
+                                    if (!mDialogEditScript->runOnAllFeeds())
+                                    {
+                                        selectedFeedIDs = mDialogEditScript->runOnFeedIDs();
+                                    }
+
+                                    ZapFR::Engine::Agent::getInstance()->queueUpdateScript(
+                                        scriptSourceID, scriptID, type, filename, enabled, selectedEvents, selectedFeedIDs,
+                                        [&](uint64_t updatedSourceID, uint64_t updatedScriptID)
+                                        { QMetaObject::invokeMethod(this, "scriptUpdated", Qt::AutoConnection, updatedSourceID, updatedScriptID); });
+                                });
                     }
                     auto scriptID = index.data(ScriptIDRole).toULongLong();
                     auto scriptSourceID = index.data(ScriptSourceIDRole).toULongLong();
@@ -162,4 +182,9 @@ void ZapFR::Client::MainWindow::connectScriptStuff()
                     mDialogEditScript->open();
                 }
             });
+}
+
+void ZapFR::Client::MainWindow::scriptUpdated(uint64_t /*sourceID*/, uint64_t /*scriptID*/)
+{
+    reloadScripts(true);
 }

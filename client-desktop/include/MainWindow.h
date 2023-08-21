@@ -94,6 +94,7 @@ namespace ZapFR
             void feedMarkedRead(uint64_t sourceID, uint64_t feedID);
             void folderMarkedRead(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs);
             void sourceMarkedRead(uint64_t sourceID);
+            void scriptUpdated(uint64_t sourceID, uint64_t scriptID);
             void setPostHTML(const QString& html);
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
@@ -158,7 +159,7 @@ namespace ZapFR
             void reloadCurrentPost();
             void reloadUsedFlagColors();
             void reloadScriptFolders();
-            void reloadScripts();
+            void reloadScripts(bool forceReload = false);
 
             QString postStyles() const;
             QString textMessageHTML(const QString& message) const;

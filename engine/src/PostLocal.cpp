@@ -49,12 +49,10 @@ void ZapFR::Engine::PostLocal::markAsRead()
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=? AND id=?", use(mFeedID), use(mID), now;
-    updateStmt.execute();
 }
 
 void ZapFR::Engine::PostLocal::markAsUnread()
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET isRead=FALSE WHERE feedID=? AND id=?", use(mFeedID), use(mID), now;
-    updateStmt.execute();
 }

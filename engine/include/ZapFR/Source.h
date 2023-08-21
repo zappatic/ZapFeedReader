@@ -77,6 +77,7 @@ namespace ZapFR
             virtual std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id) = 0;
 
             virtual std::vector<std::unique_ptr<Script>> getScripts() = 0;
+            virtual std::optional<std::unique_ptr<Script>> getScript(uint64_t scriptID) = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

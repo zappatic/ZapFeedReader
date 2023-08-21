@@ -17,8 +17,13 @@
 */
 
 #include "ZapFR/Script.h"
+#include "ZapFR/Database.h"
+#include "ZapFR/Helpers.h"
+
+using namespace Poco::Data::Keywords;
 
 std::string ZapFR::Engine::Script::msScriptDir{""};
+std::string ZapFR::Engine::Script::msEventNewPostIdentifier{"newpost"};
 
 ZapFR::Engine::Script::Script(uint64_t id) : mID(id)
 {
@@ -60,7 +65,7 @@ void ZapFR::Engine::Script::parseRunOnEvents(const std::string& str)
     Poco::StringTokenizer tok(str, ",", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
     for (const auto& entry : tok)
     {
-        if (entry == "newpost")
+        if (entry == msEventNewPostIdentifier)
         {
             mRunOnEvents.insert(Event::NewPost);
         }
@@ -84,4 +89,37 @@ void ZapFR::Engine::Script::parseRunOnFeedIDs(const std::string& str)
         }
         mRunOnFeedIDs.value().insert(feedID);
     }
+}
+
+void ZapFR::Engine::Script::update(Type /*type*/, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
+                                   const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+{
+    // join all the events into a comma separated identifier string
+    std::vector<std::string> eventStrings;
+    if (events.contains(Event::NewPost))
+    {
+        eventStrings.emplace_back(msEventNewPostIdentifier);
+    }
+    auto joinedEvents = Helpers::joinString(eventStrings, ",");
+
+    // join all the selected feedIDs into a comma separated string
+    Poco::Nullable<std::string> joinedFeedIDs;
+    if (feedIDs.has_value())
+    {
+        std::vector<uint64_t> f;
+        for (const auto& feedID : feedIDs.value())
+        {
+            f.emplace_back(feedID);
+        }
+        joinedFeedIDs = Helpers::joinIDNumbers(f, ",");
+    }
+
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE scripts SET" // type is not set (yet), default = Lua
+                  " filename=?"
+                  ",isEnabled=?"
+                  ",runOnEvents=?"
+                  ",runOnFeedIDs=?"
+                  " WHERE id=?",
+        useRef(filename), use(enabled), useRef(joinedEvents), use(joinedFeedIDs), use(mID), now;
 }

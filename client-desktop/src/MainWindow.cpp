@@ -544,9 +544,6 @@ void ZapFR::Client::MainWindow::reloadSources()
                             }
                         }
                     }
-
-                    feedItem->setData(FeedIconCache::icon(feed->id()), SourceTreeEntryIcon);
-
                     parentItem->appendRow(feedItem);
                 }
                 QMetaObject::invokeMethod(this, "populateSources", Qt::AutoConnection, sourceID, sourceItem);

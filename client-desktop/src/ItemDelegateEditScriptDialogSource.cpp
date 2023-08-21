@@ -17,6 +17,7 @@
 */
 
 #include "ItemDelegateEditScriptDialogSource.h"
+#include "FeedIconCache.h"
 
 ZapFR::Client::ItemDelegateEditScriptDialogSource::ItemDelegateEditScriptDialogSource(QObject* parent) : QStyledItemDelegate(parent)
 {
@@ -63,7 +64,7 @@ void ZapFR::Client::ItemDelegateEditScriptDialogSource::paint(QPainter* painter,
         checkbox.rect = cbRect.toRect();
         checkbox.text = "";
         checkbox.state |= QStyle::State_Enabled;
-        checkbox.state |= (index.data(Qt::CheckStateRole) == Qt::Checked ? QStyle::State_On : QStyle::State_Off);
+        checkbox.state |= ((index.data(Qt::CheckStateRole) == Qt::Checked || !parentTreeView->isEnabled()) ? QStyle::State_On : QStyle::State_Off);
         QApplication::style()->drawControl(QStyle::CE_CheckBox, &checkbox, painter);
         titleRect.adjust(static_cast<int32_t>(w) + 9, 0, 0, 0);
     }
@@ -71,19 +72,18 @@ void ZapFR::Client::ItemDelegateEditScriptDialogSource::paint(QPainter* painter,
     // draw the icon
     if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
     {
-        QPixmap iconPixmap;
-        auto iconVariant = index.data(SourceTreeEntryIcon);
-        if (!iconVariant.isNull() && iconVariant.isValid())
+        QPixmap icon;
+        if (parentTreeView->isEnabled())
         {
-            iconPixmap = iconVariant.value<QPixmap>();
+            icon = FeedIconCache::icon(index.data(SourceTreeEntryIDRole).toULongLong());
         }
-        if (iconPixmap.isNull())
+        else
         {
-            iconPixmap = QPixmap(":/rss.png");
+            icon = FeedIconCache::iconGrayscale(index.data(SourceTreeEntryIDRole).toULongLong());
         }
         auto iconSize = option.rect.height() * .75;
         auto iconTargetRect = QRectF(titleRect.left(), option.rect.top() + ((option.rect.height() - iconSize) / 2.0), iconSize, iconSize);
-        painter->drawPixmap(iconTargetRect, iconPixmap, iconPixmap.rect());
+        painter->drawPixmap(iconTargetRect, icon, icon.rect());
         titleRect.adjust(static_cast<int32_t>(iconSize) + 9, 0, 0, 0);
     }
 
