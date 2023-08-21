@@ -36,7 +36,7 @@ namespace ZapFR
 
             static ScriptLua* getInstance();
 
-            static void runNewPostScript(const std::string& script, Post* post);
+            static void runPostScript(const std::string& script, Post* post);
 
             static constexpr uint64_t msScriptEngineVersion{1};
 

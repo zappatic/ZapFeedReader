@@ -37,7 +37,7 @@ ZapFR::Engine::ScriptLua* ZapFR::Engine::ScriptLua::getInstance()
     return &instance;
 }
 
-void ZapFR::Engine::ScriptLua::runNewPostScript(const std::string& script, Post* post)
+void ZapFR::Engine::ScriptLua::runPostScript(const std::string& script, Post* post)
 {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);

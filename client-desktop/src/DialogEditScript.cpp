@@ -89,9 +89,14 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
     ui->checkBoxEnabled->setCheckState(isEnabled ? Qt::Checked : Qt::Unchecked);
 
     ui->checkBoxRunOnNewPost->setCheckState(Qt::Unchecked);
+    ui->checkBoxRunOnUpdatePost->setCheckState(Qt::Unchecked);
     if (runOnEvents.contains(ZapFR::Engine::Script::Event::NewPost))
     {
         ui->checkBoxRunOnNewPost->setCheckState(Qt::Checked);
+    }
+    if (runOnEvents.contains(ZapFR::Engine::Script::Event::UpdatePost))
+    {
+        ui->checkBoxRunOnUpdatePost->setCheckState(Qt::Checked);
     }
 
     ui->checkBoxRunOnAllFeeds->setCheckState(Qt::Unchecked);
@@ -178,6 +183,10 @@ std::unordered_set<ZapFR::Engine::Script::Event> ZapFR::Client::DialogEditScript
     if (ui->checkBoxRunOnNewPost->checkState() == Qt::Checked)
     {
         events.insert(ZapFR::Engine::Script::Event::NewPost);
+    }
+    if (ui->checkBoxRunOnUpdatePost->checkState() == Qt::Checked)
+    {
+        events.insert(ZapFR::Engine::Script::Event::UpdatePost);
     }
     return events;
 }

@@ -19,6 +19,8 @@
 #include "ZapFR/Script.h"
 
 std::string ZapFR::Engine::Script::msEventNewPostIdentifier{"newpost"};
+std::string ZapFR::Engine::Script::msEventUpdatePostIdentifier{"updatepost"};
+
 std::string ZapFR::Engine::Script::msTypeLuaIdentifier{"lua"};
 
 void ZapFR::Engine::Script::parseRunOnEvents(const std::string& str)
@@ -30,6 +32,10 @@ void ZapFR::Engine::Script::parseRunOnEvents(const std::string& str)
         if (entry == msEventNewPostIdentifier)
         {
             mRunOnEvents.insert(Event::NewPost);
+        }
+        else if (entry == msEventUpdatePostIdentifier)
+        {
+            mRunOnEvents.insert(Event::UpdatePost);
         }
         else
         {

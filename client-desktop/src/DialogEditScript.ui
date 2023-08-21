@@ -66,13 +66,33 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QCheckBox" name="checkBoxRunOnNewPost">
          <property name="text">
           <string>New post</string>
          </property>
         </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxRunOnUpdatePost">
+         <property name="text">
+          <string>Update post</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </item>

@@ -36,6 +36,7 @@ namespace ZapFR
             enum class Event
             {
                 NewPost,
+                UpdatePost,
             };
 
             explicit Script(uint64_t id) : mID(id) {}
@@ -64,6 +65,7 @@ namespace ZapFR
                                 const std::optional<std::unordered_set<uint64_t>>& feedIDs) = 0;
 
             static std::string msEventNewPostIdentifier;
+            static std::string msEventUpdatePostIdentifier;
             static std::string msTypeLuaIdentifier;
 
           protected:

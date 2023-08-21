@@ -23,10 +23,14 @@
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/PostLocal.h"
+#include "ZapFR/Script.h"
+#include "ZapFR/ScriptLua.h"
+#include "ZapFR/SourceLocal.h"
 
 using namespace Poco::Data::Keywords;
 
 std::string ZapFR::Engine::FeedLocal::msIconDir{""};
+std::mutex ZapFR::Engine::FeedLocal::msInsertPostMutex{};
 
 ZapFR::Engine::FeedLocal::FeedLocal(uint64_t id) : Feed(id)
 {
@@ -272,17 +276,47 @@ void ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML
 
 void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
 {
+    // see if we have to execute a script for each item
+    std::vector<std::string> scriptsRanOnNewPost{};
+    std::vector<std::string> scriptsRanOnUpdatePost{};
+    auto source = SourceLocal(0); // we make a dummy source here, as the source ID isn't really referenced, nor any data within the source, just the scripts
+    auto scripts = source.getScripts();
+    for (const auto& script : scripts)
+    {
+        if (script->isEnabled() && script->existsOnDisk())
+        {
+            // check if we run this script on this feed ID
+            auto runOnFeedIDs = script->runOnFeedIDs();
+            if (runOnFeedIDs.has_value() && !runOnFeedIDs.value().contains(mID))
+            {
+                continue;
+            }
+
+            // check if we run this script on NewPost or UpdatePost
+            auto events = script->runOnEvents();
+            if (events.contains(Script::Event::NewPost))
+            {
+                scriptsRanOnNewPost.emplace_back(script->scriptContents());
+            }
+            if (events.contains(Script::Event::UpdatePost))
+            {
+                scriptsRanOnUpdatePost.emplace_back(script->scriptContents());
+            }
+        }
+    }
+
     for (const auto& item : parsedFeed->items())
     {
         auto isPermaLink = item.guidIsPermalink ? 1 : 0;
         auto guid = item.guid;
 
         // see if it already exists
+        uint64_t existingPostID{0};
         Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-        selectStmt << "SELECT id FROM posts WHERE feedID=? AND guid=?", use(mID), useRef(guid), now;
+        selectStmt << "SELECT id FROM posts WHERE feedID=? AND guid=?", into(existingPostID), use(mID), useRef(guid), now;
         selectStmt.execute();
         auto rs = Poco::Data::RecordSet(selectStmt);
-        if (rs.rowCount() == 1)
+        if (rs.rowCount() == 1) // UPDATE in case it does
         {
             Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
             updateStmt << "UPDATE posts SET"
@@ -304,8 +338,20 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
                 useRef(item.enclosureLength), useRef(item.enclosureMimeType), useRef(item.guid), use(isPermaLink), useRef(item.datePublished), useRef(item.sourceURL),
                 useRef(item.sourceTitle), use(mID), useRef(guid);
             updateStmt.execute();
+
+            if (scriptsRanOnUpdatePost.size() > 0)
+            {
+                auto post = getPost(existingPostID);
+                if (post.has_value())
+                {
+                    for (const auto& script : scriptsRanOnUpdatePost)
+                    {
+                        ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, post.value().get());
+                    }
+                }
+            }
         }
-        else
+        else // INSERT in case it doesn't
         {
             Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
             insertStmt << "INSERT INTO posts ("
@@ -327,7 +373,30 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
                 use(mID), useRef(item.title), useRef(item.link), useRef(item.description), useRef(item.author), useRef(item.commentsURL), useRef(item.enclosureURL),
                 useRef(item.enclosureLength), useRef(item.enclosureMimeType), useRef(item.guid), use(isPermaLink), useRef(item.datePublished), useRef(item.sourceURL),
                 useRef(item.sourceTitle);
-            insertStmt.execute();
+
+            if (scriptsRanOnNewPost.size() > 0)
+            {
+                uint64_t postID{0};
+                {
+                    const std::lock_guard<std::mutex> lock(msInsertPostMutex);
+                    insertStmt.execute();
+                    Poco::Data::Statement selectInsertRowIDStmt(*(Database::getInstance()->session()));
+                    selectInsertRowIDStmt << "SELECT last_insert_rowid()", into(postID), now;
+                }
+
+                auto post = getPost(postID);
+                if (post.has_value())
+                {
+                    for (const auto& script : scriptsRanOnNewPost)
+                    {
+                        ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, post.value().get());
+                    }
+                }
+            }
+            else
+            {
+                insertStmt.execute();
+            }
         }
     }
 }

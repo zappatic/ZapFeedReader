@@ -75,6 +75,10 @@ void ZapFR::Engine::ScriptLocal::update(Type /*type*/, const std::string& filena
     {
         eventStrings.emplace_back(msEventNewPostIdentifier);
     }
+    if (events.contains(Event::UpdatePost))
+    {
+        eventStrings.emplace_back(msEventUpdatePostIdentifier);
+    }
     auto joinedEvents = Helpers::joinString(eventStrings, ",");
 
     // join all the selected feedIDs into a comma separated string

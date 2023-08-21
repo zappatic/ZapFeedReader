@@ -84,6 +84,10 @@ void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
             {
                 eventsList << tr("New post");
             }
+            if (events.contains(ZapFR::Engine::Script::Event::UpdatePost))
+            {
+                eventsList << tr("Update post");
+            }
             if (eventsList.isEmpty())
             {
                 eventsList << tr("None");
@@ -144,7 +148,7 @@ void ZapFR::Client::MainWindow::populateScripts(const QList<QList<QStandardItem*
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnID, 40);
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnType, 50);
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnIsEnabled, 75);
-    ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnRunOnEvents, 150);
+    ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnRunOnEvents, 175);
     ui->tableViewScripts->horizontalHeader()->resizeSection(ScriptsColumnRunOnFeedIDs, 150);
 }
 
@@ -257,7 +261,7 @@ void ZapFR::Client::MainWindow::addScript()
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
 
         auto dialog = editScriptDialog();
-        dialog->reset(DialogEditScript::DisplayMode::Add, sourceID, 0, "", true, {ZapFR::Engine::Script::Event::NewPost}, {});
+        dialog->reset(DialogEditScript::DisplayMode::Add, sourceID, 0, "", true, {ZapFR::Engine::Script::Event::NewPost, ZapFR::Engine::Script::Event::UpdatePost}, {});
         dialog->open();
     }
 }

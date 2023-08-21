@@ -60,6 +60,7 @@ namespace ZapFR
 
           private:
             static std::string msIconDir;
+            static std::mutex msInsertPostMutex;
 
             Poco::File iconFile() const;
         };
