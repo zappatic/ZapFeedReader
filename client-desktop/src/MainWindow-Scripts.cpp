@@ -282,4 +282,7 @@ void ZapFR::Client::MainWindow::connectScriptStuff()
     connect(ui->action_Edit_script, &QAction::triggered, this, &MainWindow::editScript);
     connect(ui->action_Remove_script, &QAction::triggered, this, &MainWindow::removeScript);
     connect(ui->action_Add_script, &QAction::triggered, this, &MainWindow::addScript);
+
+    connect(ui->tableViewScripts, &TableViewScripts::customContextMenuRequested,
+            [&](const QPoint& p) { mScriptContextMenu->popup(ui->tableViewScripts->viewport()->mapToGlobal(p)); });
 }

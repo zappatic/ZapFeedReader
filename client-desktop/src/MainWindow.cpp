@@ -1729,6 +1729,13 @@ void ZapFR::Client::MainWindow::createContextMenus()
     // POST
     mPostContextMenu = std::make_unique<QMenu>(nullptr);
     mPostContextMenu->addAction(ui->action_Mark_as_unread);
+
+    // SCRIPT
+    mScriptContextMenu = std::make_unique<QMenu>(nullptr);
+    mScriptContextMenu->addAction(ui->action_Add_script);
+    mScriptContextMenu->addAction(ui->action_Edit_script);
+    mScriptContextMenu->addSeparator();
+    mScriptContextMenu->addAction(ui->action_Remove_script);
 }
 
 void ZapFR::Client::MainWindow::configureConnects()

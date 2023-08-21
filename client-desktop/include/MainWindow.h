@@ -130,6 +130,7 @@ namespace ZapFR
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFolder{nullptr};
             std::unique_ptr<QMenu> mPostContextMenu{nullptr};
+            std::unique_ptr<QMenu> mScriptContextMenu{nullptr};
 
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
