@@ -17,10 +17,10 @@
 */
 
 #include "./ui_MainWindow.h"
-#include "widgets/MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/ScriptFolder.h"
 #include "dialogs/DialogEditScriptFolder.h"
+#include "widgets/MainWindow.h"
 
 void ZapFR::Client::MainWindow::reloadScriptFolders(bool forceReload)
 {
@@ -182,6 +182,7 @@ void ZapFR::Client::MainWindow::connectScriptFolderStuff()
                 {
                     reloadPosts();
                 }
+                updateActivePostFilter();
             });
 
     connect(ui->tableViewScriptFolders, &QTableView::doubleClicked, this, &MainWindow::editScriptFolder);

@@ -170,48 +170,7 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
     mItemModelPosts->setHorizontalHeaderItem(PostColumnUnread, new QStandardItem(tr("Unread")));
     mItemModelPosts->setHorizontalHeaderItem(PostColumnFlag, new QStandardItem(tr("Flag")));
     mItemModelPosts->setHorizontalHeaderItem(PostColumnFeed, new QStandardItem(tr("Feed")));
-    switch (mFlagFilter)
-    {
-        case ZapFR::Engine::FlagColor::Gray:
-        {
-            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title")));
-            break;
-        }
-        case ZapFR::Engine::FlagColor::Blue:
-        {
-            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Blue flag filter active)")));
-            break;
-        }
-        case ZapFR::Engine::FlagColor::Green:
-        {
-            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Green flag filter active)")));
-            break;
-        }
-        case ZapFR::Engine::FlagColor::Yellow:
-        {
-            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Yellow flag filter active)")));
-            break;
-        }
-        case ZapFR::Engine::FlagColor::Orange:
-        {
-            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Orange flag filter active)")));
-            break;
-        }
-        case ZapFR::Engine::FlagColor::Red:
-        {
-            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Red flag filter active)")));
-            break;
-        }
-        case ZapFR::Engine::FlagColor::Purple:
-        {
-            mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title (Purple flag filter active)")));
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
+    mItemModelPosts->setHorizontalHeaderItem(PostColumnTitle, new QStandardItem(tr("Title")));
     mItemModelPosts->setHorizontalHeaderItem(PostColumnDate, new QStandardItem(tr("Date")));
     for (const auto& post : posts)
     {
@@ -775,6 +734,7 @@ void ZapFR::Client::MainWindow::connectPostStuff()
                     ui->pushButtonToggleShowUnread->setText(tr("Show only unread posts"));
                 }
                 reloadPosts();
+                updateActivePostFilter();
             });
 
     connect(mPostWebEnginePage.get(), &QWebEnginePage::linkHovered,

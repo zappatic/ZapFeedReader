@@ -205,6 +205,7 @@ namespace ZapFR
             QString textMessageHTML(const QString& message) const;
             void configureIcons();
             void updateToolbar();
+            void updateActivePostFilter();
             void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
             std::vector<std::tuple<uint64_t, uint64_t>> selectedPostIDs() const;
 

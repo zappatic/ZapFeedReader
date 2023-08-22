@@ -96,6 +96,7 @@ void ZapFR::Client::MainWindow::connectFlagStuff()
                     }
                     mCurrentPostPage = 1;
                     reloadPosts();
+                    updateActivePostFilter();
                 });
     }
 }

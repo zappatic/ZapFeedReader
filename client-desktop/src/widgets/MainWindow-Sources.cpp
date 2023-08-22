@@ -18,12 +18,12 @@
 
 #include "./ui_MainWindow.h"
 #include "FeedIconCache.h"
-#include "widgets/MainWindow.h"
-#include "models/StandardItemModelSources.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Feed.h"
 #include "ZapFR/Folder.h"
 #include "ZapFR/Source.h"
+#include "models/StandardItemModelSources.h"
+#include "widgets/MainWindow.h"
 
 void ZapFR::Client::MainWindow::reloadSources()
 {
@@ -483,6 +483,7 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                             reloadPosts();
                             reloadUsedFlagColors();
                             reloadScriptFolders();
+                            updateActivePostFilter();
                             break;
                         }
                         case StackedPaneLogs:

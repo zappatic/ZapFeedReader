@@ -72,6 +72,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
 
     reloadCurrentPost();
+    updateActivePostFilter();
 }
 
 ZapFR::Client::MainWindow::~MainWindow()
@@ -270,6 +271,9 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->pushButtonLogPageNumber->setFont(labelFont);
     ui->labelTotalPostCount->setFont(labelFont);
     ui->pushButtonToggleShowUnread->setFont(labelFont);
+    ui->pushButtonToggleShowUnread->setFont(labelFont);
+    ui->labelActiveFilter->setFont(labelFont);
+    ui->labelActiveFilterOther->setFont(labelFont);
 
     ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
                                        "QToolButton:disabled { color:%1; }\n")
@@ -363,6 +367,39 @@ void ZapFR::Client::MainWindow::updateToolbar()
             ui->action_Add_script->setVisible(true);
             break;
         }
+    }
+}
+
+void ZapFR::Client::MainWindow::updateActivePostFilter()
+{
+    auto selectedScriptFolder = ui->tableViewScriptFolders->currentIndex();
+
+    auto isScriptFolderFilterActive{selectedScriptFolder.isValid()};
+    auto isFlagFilterActive{mFlagFilter != ZapFR::Engine::FlagColor::Gray};
+    auto isOnlyUnreadFilterActive{mShowOnlyUnreadPosts};
+    auto isOtherFilterActive{isScriptFolderFilterActive || isOnlyUnreadFilterActive};
+
+    ui->labelActiveFilter->setVisible(isFlagFilterActive || isScriptFolderFilterActive || isOnlyUnreadFilterActive);
+    ui->labelActiveFilterFlag->setVisible(isFlagFilterActive);
+    ui->labelActiveFilterOther->setVisible(isOtherFilterActive);
+
+    if (isFlagFilterActive)
+    {
+        ui->labelActiveFilterFlag->setPixmap(Utilities::flag(mFlagFilter, Utilities::FlagStyle::Filled));
+    }
+    QStringList otherFilters;
+    if (isScriptFolderFilterActive)
+    {
+        otherFilters << selectedScriptFolder.data(Qt::DisplayRole).toString();
+    }
+    if (isOnlyUnreadFilterActive)
+    {
+        otherFilters << tr("Only unread");
+    }
+
+    if (isOtherFilterActive)
+    {
+        ui->labelActiveFilterOther->setText(otherFilters.join(", "));
     }
 }
 
