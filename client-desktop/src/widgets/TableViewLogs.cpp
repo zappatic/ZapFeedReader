@@ -16,13 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TreeViewSources.h"
+#include "widgets/TableViewLogs.h"
 
-ZapFR::Client::TreeViewSources::TreeViewSources(QWidget* parent) : TreeViewPaletteCorrected(parent)
+ZapFR::Client::TableViewLogs::TableViewLogs(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
-}
-
-void ZapFR::Client::TreeViewSources::currentChanged(const QModelIndex& current, const QModelIndex& /*previous*/)
-{
-    emit currentSourceChanged(current);
 }

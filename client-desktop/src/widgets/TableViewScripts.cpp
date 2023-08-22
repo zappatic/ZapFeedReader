@@ -16,21 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TreeViewEditScriptDialogSources.h"
+#include "widgets/TableViewScripts.h"
 
-ZapFR::Client::TreeViewEditScriptDialogSources::TreeViewEditScriptDialogSources(QWidget* parent) : TreeViewPaletteCorrected(parent)
+ZapFR::Client::TableViewScripts::TableViewScripts(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
-}
-
-void ZapFR::Client::TreeViewEditScriptDialogSources::mousePressEvent(QMouseEvent* event)
-{
-    auto index = indexAt(event->pos());
-    if (index.isValid() && index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
-    {
-        emit feedClicked(index);
-    }
-    else
-    {
-        TreeViewPaletteCorrected::mousePressEvent(event);
-    }
 }

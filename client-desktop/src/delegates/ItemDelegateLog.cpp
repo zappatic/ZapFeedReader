@@ -16,11 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ItemDelegateLog.h"
+#include "delegates/ItemDelegateLog.h"
 #include "FeedIconCache.h"
-#include "TableViewLogs.h"
 #include "Utilities.h"
 #include "ZapFR/Log.h"
+#include "widgets/TableViewLogs.h"
 
 ZapFR::Client::ItemDelegateLog::ItemDelegateLog(QObject* parent) : QStyledItemDelegate(parent)
 {

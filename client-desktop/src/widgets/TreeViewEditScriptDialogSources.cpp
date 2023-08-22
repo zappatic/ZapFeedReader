@@ -16,20 +16,21 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TableViewScriptFolders.h"
+#include "widgets/TreeViewEditScriptDialogSources.h"
 
-ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) : TableViewPaletteCorrected(parent)
+ZapFR::Client::TreeViewEditScriptDialogSources::TreeViewEditScriptDialogSources(QWidget* parent) : TreeViewPaletteCorrected(parent)
 {
 }
 
-void ZapFR::Client::TableViewScriptFolders::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+void ZapFR::Client::TreeViewEditScriptDialogSources::mousePressEvent(QMouseEvent* event)
 {
-    QTableView::selectionChanged(selected, deselected);
-    for (const auto& index : selectedIndexes())
+    auto index = indexAt(event->pos());
+    if (index.isValid() && index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
     {
-        if (index.column() == ScriptFolderColumnTitle)
-        {
-            emit selectedScriptFolderChanged(index);
-        }
+        emit feedClicked(index);
+    }
+    else
+    {
+        TreeViewPaletteCorrected::mousePressEvent(event);
     }
 }

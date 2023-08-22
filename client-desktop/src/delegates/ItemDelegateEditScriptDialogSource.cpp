@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ItemDelegateEditScriptDialogSource.h"
+#include "delegates/ItemDelegateEditScriptDialogSource.h"
 #include "FeedIconCache.h"
 
 ZapFR::Client::ItemDelegateEditScriptDialogSource::ItemDelegateEditScriptDialogSource(QObject* parent) : QStyledItemDelegate(parent)

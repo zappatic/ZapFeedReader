@@ -16,10 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ItemDelegatePost.h"
+#include "delegates/ItemDelegatePost.h"
 #include "FeedIconCache.h"
-#include "TableViewPosts.h"
 #include "Utilities.h"
+#include "widgets/TableViewPosts.h"
 
 ZapFR::Client::ItemDelegatePost::ItemDelegatePost(QObject* parent) : QStyledItemDelegate(parent)
 {

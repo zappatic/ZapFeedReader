@@ -17,10 +17,10 @@
 */
 
 #include "dialogs/DialogEditScript.h"
-#include "ItemDelegateEditScriptDialogSource.h"
-#include "MainWindow.h"
-#include "StandardItemModelSources.h"
+#include "delegates/ItemDelegateEditScriptDialogSource.h"
+#include "models/StandardItemModelSources.h"
 #include "ui_DialogEditScript.h"
+#include "widgets/MainWindow.h"
 
 ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(parent), ui(new Ui::DialogEditScript)
 {

@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "WebEngineViewPost.h"
+#include "widgets/WebEngineViewPost.h"
 
 ZapFR::Client::WebEngineViewPost::WebEngineViewPost(QWidget* parent) : QWebEngineView(parent)
 {

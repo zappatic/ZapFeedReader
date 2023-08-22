@@ -17,7 +17,7 @@
 */
 
 #include "./ui_MainWindow.h"
-#include "MainWindow.h"
+#include "widgets/MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Script.h"
 #include "dialogs/DialogEditScript.h"
@@ -278,6 +278,13 @@ void ZapFR::Client::MainWindow::scriptAdded(uint64_t /*sourceID*/)
 
 void ZapFR::Client::MainWindow::connectScriptStuff()
 {
+    connect(ui->action_View_scripts, &QAction::triggered,
+            [&]()
+            {
+                mPreviouslySelectedSourceID = 0;
+                reloadScripts();
+            });
+
     connect(ui->tableViewScripts, &QTableView::doubleClicked, this, &MainWindow::editScript);
     connect(ui->action_Edit_script, &QAction::triggered, this, &MainWindow::editScript);
     connect(ui->action_Remove_script, &QAction::triggered, this, &MainWindow::removeScript);
@@ -285,4 +292,13 @@ void ZapFR::Client::MainWindow::connectScriptStuff()
 
     connect(ui->tableViewScripts, &TableViewScripts::customContextMenuRequested,
             [&](const QPoint& p) { mScriptContextMenu->popup(ui->tableViewScripts->viewport()->mapToGlobal(p)); });
+}
+
+void ZapFR::Client::MainWindow::createScriptContextMenus()
+{
+    mScriptContextMenu = std::make_unique<QMenu>(nullptr);
+    mScriptContextMenu->addAction(ui->action_Add_script);
+    mScriptContextMenu->addAction(ui->action_Edit_script);
+    mScriptContextMenu->addSeparator();
+    mScriptContextMenu->addAction(ui->action_Remove_script);
 }

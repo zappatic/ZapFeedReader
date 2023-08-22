@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "PopupFlagChooser.h"
+#include "widgets/PopupFlagChooser.h"
 #include "ui_PopupFlagChooser.h"
 
 ZapFR::Client::PopupFlagChooser::PopupFlagChooser(QWidget* parent) : QWidget(parent, Qt::Window | Qt::FramelessWindowHint), ui(new Ui::PopupFlagChooser)

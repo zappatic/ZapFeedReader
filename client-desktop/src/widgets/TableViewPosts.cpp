@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TableViewPosts.h"
-#include "PopupFlagChooser.h"
+#include "widgets/TableViewPosts.h"
+#include "widgets/PopupFlagChooser.h"
 
 ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPaletteCorrected(parent)
 {

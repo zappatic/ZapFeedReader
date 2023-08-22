@@ -17,7 +17,7 @@
 */
 
 #include "./ui_MainWindow.h"
-#include "MainWindow.h"
+#include "widgets/MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/ScriptFolder.h"
 #include "dialogs/DialogEditScriptFolder.h"
@@ -191,4 +191,13 @@ void ZapFR::Client::MainWindow::connectScriptFolderStuff()
 
     connect(ui->tableViewScriptFolders, &TableViewScripts::customContextMenuRequested,
             [&](const QPoint& p) { mScriptFolderContextMenu->popup(ui->tableViewScriptFolders->viewport()->mapToGlobal(p)); });
+}
+
+void ZapFR::Client::MainWindow::createScriptFolderContextMenus()
+{
+    mScriptFolderContextMenu = std::make_unique<QMenu>(nullptr);
+    mScriptFolderContextMenu->addAction(ui->action_Add_script_folder);
+    mScriptFolderContextMenu->addAction(ui->action_Edit_script_folder);
+    mScriptFolderContextMenu->addSeparator();
+    mScriptFolderContextMenu->addAction(ui->action_Remove_script_folder);
 }

@@ -168,8 +168,22 @@ namespace ZapFR
             QString settingsFile() const;
 
             void configureConnects();
+            void connectSourceStuff();
+            void connectPostStuff();
+            void connectFeedStuff();
+            void connectFolderStuff();
+            void connectLogsStuff();
+            void connectFlagStuff();
             void connectScriptStuff();
             void connectScriptFolderStuff();
+
+            void createContextMenus();
+            void createSourceContextMenus();
+            void createFolderContextMenus();
+            void createFeedContextMenus();
+            void createPostContextMenus();
+            void createScriptContextMenus();
+            void createScriptFolderContextMenus();
 
             void saveSettings() const;
             void restoreSettings();
@@ -187,7 +201,6 @@ namespace ZapFR
             QString textMessageHTML(const QString& message) const;
             void configureIcons();
             void updateToolbar();
-            void createContextMenus();
             void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
             std::vector<std::tuple<uint64_t, uint64_t>> selectedPostIDs() const;
 

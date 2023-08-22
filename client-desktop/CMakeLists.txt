@@ -14,14 +14,33 @@ set(TS_FILES i18n/ZapFeedReader_en_US.ts)
 
 set(PROJECT_SOURCES
         src/main.cpp
-        src/MainWindow.cpp
-        src/MainWindow-Scripts.cpp
-        src/MainWindow-ScriptFolders.cpp
-        src/ItemDelegateSource.cpp
-        src/ItemDelegatePost.cpp
-        src/ItemDelegateLog.cpp
-        src/ItemDelegateScript.cpp
-        src/ItemDelegateEditScriptDialogSource.cpp
+        src/Utilities.cpp
+        src/FeedIconCache.cpp
+        src/widgets/MainWindow.cpp
+        src/widgets/MainWindow-Posts.cpp
+        src/widgets/MainWindow-Sources.cpp
+        src/widgets/MainWindow-Feeds.cpp
+        src/widgets/MainWindow-Folders.cpp
+        src/widgets/MainWindow-Logs.cpp
+        src/widgets/MainWindow-Flags.cpp
+        src/widgets/MainWindow-Scripts.cpp
+        src/widgets/MainWindow-ScriptFolders.cpp
+        src/widgets/WebEnginePagePost.cpp
+        src/widgets/WebEngineViewPost.cpp
+        src/widgets/TableViewPaletteCorrected.cpp
+        src/widgets/TableViewPosts.cpp
+        src/widgets/TableViewLogs.cpp
+        src/widgets/TableViewScriptFolders.cpp
+        src/widgets/TableViewScripts.cpp
+        src/widgets/TreeViewPaletteCorrected.cpp
+        src/widgets/TreeViewSources.cpp
+        src/widgets/TreeViewEditScriptDialogSources.cpp
+        src/widgets/PopupFlagChooser.cpp
+        src/delegates/ItemDelegateSource.cpp
+        src/delegates/ItemDelegatePost.cpp
+        src/delegates/ItemDelegateLog.cpp
+        src/delegates/ItemDelegateScript.cpp
+        src/delegates/ItemDelegateEditScriptDialogSource.cpp
         src/dialogs/DialogWithSourcesAndFolders.cpp
         src/dialogs/DialogAddFeed.cpp
         src/dialogs/DialogAddFolder.cpp
@@ -29,27 +48,27 @@ set(PROJECT_SOURCES
         src/dialogs/DialogJumpToPage.cpp
         src/dialogs/DialogEditScript.cpp
         src/dialogs/DialogEditScriptFolder.cpp
-        src/Utilities.cpp
-        src/WebEnginePagePost.cpp
-        src/WebEngineViewPost.cpp
-        src/StandardItemModelSources.cpp
-        src/TableViewPaletteCorrected.cpp
-        src/TableViewPosts.cpp
-        src/TableViewLogs.cpp
-        src/TableViewScriptFolders.cpp
-        src/TableViewScripts.cpp
-        src/TreeViewPaletteCorrected.cpp
-        src/TreeViewSources.cpp
-        src/TreeViewEditScriptDialogSources.cpp
-        src/FeedIconCache.cpp
-        src/PopupFlagChooser.cpp
+        src/models/StandardItemModelSources.cpp
         include/ClientGlobal.h
-        include/MainWindow.h
-        include/ItemDelegateSource.h
-        include/ItemDelegatePost.h
-        include/ItemDelegateLog.h
-        include/ItemDelegateScript.h
-        include/ItemDelegateEditScriptDialogSource.h
+        include/FeedIconCache.h
+        include/Utilities.h
+        include/widgets/MainWindow.h
+        include/widgets/WebEnginePagePost.h
+        include/widgets/WebEngineViewPost.h
+        include/widgets/TableViewPaletteCorrected.h
+        include/widgets/TableViewPosts.h
+        include/widgets/TableViewLogs.h
+        include/widgets/TableViewScriptFolders.h
+        include/widgets/TableViewScripts.h
+        include/widgets/TreeViewPaletteCorrected.h
+        include/widgets/TreeViewSources.h
+        include/widgets/TreeViewEditScriptDialogSources.h
+        include/widgets/PopupFlagChooser.h
+        include/delegates/ItemDelegateSource.h
+        include/delegates/ItemDelegatePost.h
+        include/delegates/ItemDelegateLog.h
+        include/delegates/ItemDelegateScript.h
+        include/delegates/ItemDelegateEditScriptDialogSource.h
         include/dialogs/DialogWithSourcesAndFolders.h
         include/dialogs/DialogAddFeed.h
         include/dialogs/DialogAddFolder.h
@@ -57,27 +76,15 @@ set(PROJECT_SOURCES
         include/dialogs/DialogJumpToPage.h
         include/dialogs/DialogEditScript.h
         include/dialogs/DialogEditScriptFolder.h
-        include/WebEnginePagePost.h
-        include/WebEngineViewPost.h
-        include/StandardItemModelSources.h
-        include/TableViewPaletteCorrected.h
-        include/TableViewPosts.h
-        include/TableViewLogs.h
-        include/TableViewScriptFolders.h
-        include/TableViewScripts.h
-        include/TreeViewPaletteCorrected.h
-        include/TreeViewSources.h
-        include/TreeViewEditScriptDialogSources.h
-        include/FeedIconCache.h
-        include/PopupFlagChooser.h
-        src/MainWindow.ui
+        include/models/StandardItemModelSources.h
+        src/widgets/MainWindow.ui
+        src/widgets/PopupFlagChooser.ui
         src/dialogs/DialogAddFeed.ui
         src/dialogs/DialogAddFolder.ui
         src/dialogs/DialogImportOPML.ui
         src/dialogs/DialogJumpToPage.ui
         src/dialogs/DialogEditScript.ui
         src/dialogs/DialogEditScriptFolder.ui
-        src/PopupFlagChooser.ui
         resources/resources.qrc
         ${TS_FILES}
 )

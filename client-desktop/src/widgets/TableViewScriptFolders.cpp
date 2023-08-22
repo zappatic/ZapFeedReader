@@ -16,28 +16,20 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "WebEnginePagePost.h"
+#include "widgets/TableViewScriptFolders.h"
 
-ZapFR::Client::WebEnginePagePost::WebEnginePagePost(QObject* parent) : QWebEnginePage(parent)
+ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
 }
 
-bool ZapFR::Client::WebEnginePagePost::acceptNavigationRequest(const QUrl& url, QWebEnginePage::NavigationType type, bool /*isMainFrame*/)
+void ZapFR::Client::TableViewScriptFolders::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
-    switch (type)
+    QTableView::selectionChanged(selected, deselected);
+    for (const auto& index : selectedIndexes())
     {
-        case QWebEnginePage::NavigationTypeTyped:
+        if (index.column() == ScriptFolderColumnTitle)
         {
-            return true;
-        }
-        case QWebEnginePage::NavigationTypeLinkClicked:
-        {
-            QDesktopServices::openUrl(url);
-            return false;
-        }
-        default:
-        {
-            return false;
+            emit selectedScriptFolderChanged(index);
         }
     }
 }

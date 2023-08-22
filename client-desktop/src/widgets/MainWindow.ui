@@ -874,39 +874,39 @@
   <customwidget>
    <class>ZapFR::Client::TreeViewSources</class>
    <extends>QTreeView</extends>
-   <header>TreeViewSources.h</header>
+   <header>widgets/TreeViewSources.h</header>
   </customwidget>
   <customwidget>
    <class>ZapFR::Client::TableViewPosts</class>
    <extends>QTableView</extends>
-   <header>TableViewPosts.h</header>
+   <header>widgets/TableViewPosts.h</header>
   </customwidget>
   <customwidget>
    <class>ZapFR::Client::WebEngineViewPost</class>
    <extends>QWidget</extends>
-   <header>WebEngineViewPost.h</header>
+   <header>widgets/WebEngineViewPost.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ZapFR::Client::TableViewLogs</class>
    <extends>QTableView</extends>
-   <header>TableViewLogs.h</header>
+   <header>widgets/TableViewLogs.h</header>
   </customwidget>
   <customwidget>
    <class>ZapFR::Client::PopupFlag</class>
    <extends>QWidget</extends>
-   <header>PopupFlagChooser.h</header>
+   <header>widgets/PopupFlagChooser.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ZapFR::Client::TableViewScriptFolders</class>
    <extends>QTableView</extends>
-   <header>TableViewScriptFolders.h</header>
+   <header>widgets/TableViewScriptFolders.h</header>
   </customwidget>
   <customwidget>
    <class>ZapFR::Client::TableViewScripts</class>
    <extends>QTableView</extends>
-   <header>TableViewScripts.h</header>
+   <header>widgets/TableViewScripts.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -16,8 +16,28 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "TableViewScripts.h"
+#include "widgets/WebEnginePagePost.h"
 
-ZapFR::Client::TableViewScripts::TableViewScripts(QWidget* parent) : TableViewPaletteCorrected(parent)
+ZapFR::Client::WebEnginePagePost::WebEnginePagePost(QObject* parent) : QWebEnginePage(parent)
 {
+}
+
+bool ZapFR::Client::WebEnginePagePost::acceptNavigationRequest(const QUrl& url, QWebEnginePage::NavigationType type, bool /*isMainFrame*/)
+{
+    switch (type)
+    {
+        case QWebEnginePage::NavigationTypeTyped:
+        {
+            return true;
+        }
+        case QWebEnginePage::NavigationTypeLinkClicked:
+        {
+            QDesktopServices::openUrl(url);
+            return false;
+        }
+        default:
+        {
+            return false;
+        }
+    }
 }

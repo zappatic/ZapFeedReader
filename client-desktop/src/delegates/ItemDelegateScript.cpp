@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ItemDelegateScript.h"
-#include "TableViewScripts.h"
+#include "delegates/ItemDelegateScript.h"
 #include "Utilities.h"
+#include "widgets/TableViewScripts.h"
 
 ZapFR::Client::ItemDelegateScript::ItemDelegateScript(QObject* parent) : QStyledItemDelegate(parent)
 {

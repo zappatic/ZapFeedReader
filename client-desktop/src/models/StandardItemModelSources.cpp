@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "StandardItemModelSources.h"
-#include "MainWindow.h"
+#include "models/StandardItemModelSources.h"
 #include "ZapFR/Agent.h"
+#include "widgets/MainWindow.h"
 
 ZapFR::Client::StandardItemModelSources::StandardItemModelSources(MainWindow* mainWindow, QObject* parent) : QStandardItemModel(parent), mMainWindow(mainWindow)
 {
