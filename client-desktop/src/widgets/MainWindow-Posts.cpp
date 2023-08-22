@@ -685,21 +685,37 @@ void ZapFR::Client::MainWindow::connectPostStuff()
                         if (subMenu->property(gsAddToScriptFolderMenuProperty).isValid())
                         {
                             subMenu->clear();
-                            for (const auto& [scriptFolderID, scriptFolderTitle] : scriptFolderData)
+                            if (scriptFolderData.empty())
                             {
-                                auto childAction = subMenu->addAction(scriptFolderTitle);
-                                childAction->setData(scriptFolderID);
-                                connect(childAction, &QAction::triggered, this, &MainWindow::assignPostSelectionToScriptFolder);
+                                action->setVisible(false);
+                            }
+                            else
+                            {
+                                action->setVisible(true);
+                                for (const auto& [scriptFolderID, scriptFolderTitle] : scriptFolderData)
+                                {
+                                    auto childAction = subMenu->addAction(scriptFolderTitle);
+                                    childAction->setData(scriptFolderID);
+                                    connect(childAction, &QAction::triggered, this, &MainWindow::assignPostSelectionToScriptFolder);
+                                }
                             }
                         }
                         else if (subMenu->property(gsRemoveFromScriptFolderMenuProperty).isValid())
                         {
                             subMenu->clear();
-                            for (const auto& [scriptFolderID, scriptFolderTitle] : scriptFolderData)
+                            if (scriptFolderData.empty())
                             {
-                                auto childAction = subMenu->addAction(scriptFolderTitle);
-                                childAction->setData(scriptFolderID);
-                                connect(childAction, &QAction::triggered, this, &MainWindow::removePostSelectionFromScriptFolder);
+                                action->setVisible(false);
+                            }
+                            else
+                            {
+                                action->setVisible(true);
+                                for (const auto& [scriptFolderID, scriptFolderTitle] : scriptFolderData)
+                                {
+                                    auto childAction = subMenu->addAction(scriptFolderTitle);
+                                    childAction->setData(scriptFolderID);
+                                    connect(childAction, &QAction::triggered, this, &MainWindow::removePostSelectionFromScriptFolder);
+                                }
                             }
                         }
                     }
