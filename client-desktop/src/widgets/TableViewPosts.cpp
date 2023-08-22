@@ -23,7 +23,7 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPalett
 {
     mPopupFlagChooser = std::make_unique<PopupFlagChooser>(this);
 
-    connect(this, &QTableView::doubleClicked, this, &TableViewPosts::doubleClickedRow);
+    connect(this, &QTableView::doubleClicked, this, &TableViewPosts::openPostInExternalBrowser);
     connect(mPopupFlagChooser.get(), &PopupFlagChooser::flagToggled, this, &TableViewPosts::processFlagToggle);
 
     viewport()->setAttribute(Qt::WA_Hover);
@@ -84,16 +84,14 @@ void ZapFR::Client::TableViewPosts::mouseReleaseEvent(QMouseEvent* event)
     QTableView::mouseReleaseEvent(event);
 }
 
-void ZapFR::Client::TableViewPosts::doubleClickedRow(const QModelIndex& index)
+void ZapFR::Client::TableViewPosts::keyPressEvent(QKeyEvent* event)
 {
-    if (index.isValid())
+    auto k = event->key();
+    if (k == Qt::Key_Return || k == Qt::Key_Enter || k == Qt::Key_Space)
     {
-        auto link = index.data(PostLinkRole).toString();
-        if (!link.isEmpty() && link.startsWith("http"))
-        {
-            QDesktopServices::openUrl(link);
-        }
+        openPostInExternalBrowser();
     }
+    TableViewPaletteCorrected::keyPressEvent(event);
 }
 
 void ZapFR::Client::TableViewPosts::processFlagToggle(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle)
@@ -138,6 +136,19 @@ void ZapFR::Client::TableViewPosts::processFlagToggle(ZapFR::Engine::FlagColor f
             flags.removeIf([&](const QVariant& v) { return flagColor == static_cast<ZapFR::Engine::FlagColor>(v.toInt()); });
             qobject_cast<QStandardItemModel*>(model())->itemFromIndex(index)->setData(flags, PostAppliedFlagsRole);
             break;
+        }
+    }
+}
+
+void ZapFR::Client::TableViewPosts::openPostInExternalBrowser()
+{
+    auto index = currentIndex();
+    if (index.isValid())
+    {
+        auto link = index.data(PostLinkRole).toString();
+        if (!link.isEmpty() && link.startsWith("http"))
+        {
+            QDesktopServices::openUrl(link);
         }
     }
 }

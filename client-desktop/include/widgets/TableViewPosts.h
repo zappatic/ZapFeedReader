@@ -45,13 +45,14 @@ namespace ZapFR
             void clearAllFlagsRequested(uint64_t sourceID, uint64_t feedID, uint64_t postID);
 
           private slots:
-            void doubleClickedRow(const QModelIndex& index);
             void processFlagToggle(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle);
+            void openPostInExternalBrowser();
 
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
             void mouseMoveEvent(QMouseEvent* event) override;
             void mouseReleaseEvent(QMouseEvent* event) override;
+            void keyPressEvent(QKeyEvent* event) override;
 
           private:
             std::unique_ptr<PopupFlagChooser> mPopupFlagChooser{nullptr};
