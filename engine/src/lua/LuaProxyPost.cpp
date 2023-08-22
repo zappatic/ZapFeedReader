@@ -22,7 +22,7 @@
 
 void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Post* post)
 {
-    lua_createtable(L, 0, 6);
+    lua_createtable(L, 0, 8);
 
     lua_pushlightuserdata(L, static_cast<void*>(post));
     lua_setfield(L, -2, "_ptr");

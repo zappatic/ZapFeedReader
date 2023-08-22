@@ -32,8 +32,8 @@ namespace ZapFR
         class AgentMarkPostsUnread : public AgentRunnable
         {
           public:
-            explicit AgentMarkPostsUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs,
-                                          std::function<void(uint64_t, std::vector<std::tuple<uint64_t, uint64_t>>)> finishedCallback);
+            explicit AgentMarkPostsUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
+                                          std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&)> finishedCallback);
             virtual ~AgentMarkPostsUnread() = default;
 
             void run() override;
@@ -41,7 +41,7 @@ namespace ZapFR
           private:
             uint64_t mSourceID{0};
             std::vector<std::tuple<uint64_t, uint64_t>> mFeedAndPostIDs{};
-            std::function<void(uint64_t, std::vector<std::tuple<uint64_t, uint64_t>>)> mFinishedCallback{};
+            std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -14,7 +14,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentAddFolder.cpp
     agents/AgentMoveFeed.cpp
     agents/AgentMoveFolder.cpp
-    agents/AgentMarkPostRead.cpp
+    agents/AgentMarkPostsRead.cpp
     agents/AgentMarkPostsUnread.cpp
     agents/AgentMarkFeedRead.cpp
     agents/AgentMarkFolderRead.cpp
@@ -23,8 +23,8 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentGetSourceLogs.cpp
     agents/AgentGetFolderLogs.cpp
     agents/AgentGetFeedLogs.cpp
-    agents/AgentMarkPostFlagged.cpp
-    agents/AgentMarkPostUnflagged.cpp
+    agents/AgentMarkPostsFlagged.cpp
+    agents/AgentMarkPostsUnflagged.cpp
     agents/AgentGetFeedUnreadCount.cpp
     agents/AgentGetUsedFlagColors.cpp
     agents/AgentGetSourceFlaggedPosts.cpp

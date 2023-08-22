@@ -16,17 +16,17 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/AgentMarkPostsUnread.h"
+#include "ZapFR/agents/AgentMarkPostsRead.h"
 #include "ZapFR/Feed.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentMarkPostsUnread::AgentMarkPostsUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
-                                                          std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&)> finishedCallback)
+ZapFR::Engine::AgentMarkPostsRead::AgentMarkPostsRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
+                                                      std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentMarkPostsUnread::run()
+void ZapFR::Engine::AgentMarkPostsRead::run()
 {
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
@@ -53,7 +53,7 @@ void ZapFR::Engine::AgentMarkPostsUnread::run()
             auto feed = source.value()->getFeed(feedID, false);
             for (const auto& postID : posts)
             {
-                feed.value()->markAsUnread(postID);
+                feed.value()->markAsRead(postID);
             }
         }
         mFinishedCallback(mSourceID, mFeedAndPostIDs);

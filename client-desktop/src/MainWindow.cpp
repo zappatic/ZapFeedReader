@@ -1006,9 +1006,9 @@ void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndex
             auto isRead = index.data(PostIsReadRole).toBool();
             if (!isRead)
             {
-                ZapFR::Engine::Agent::getInstance()->queueMarkPostRead(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
-                                                                       [&](uint64_t sourceID, uint64_t feedID, uint64_t postID)
-                                                                       { QMetaObject::invokeMethod(this, "postMarkedRead", Qt::AutoConnection, sourceID, feedID, postID); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(mCurrentPostSourceID, {{mCurrentPostFeedID, mCurrentPostID}},
+                                                                        [&](uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs)
+                                                                        { QMetaObject::invokeMethod(this, "postsMarkedRead", Qt::AutoConnection, sourceID, feedAndPostIDs); });
             }
             reloadCurrentPost();
         }
@@ -1193,33 +1193,41 @@ void ZapFR::Client::MainWindow::folderRemoved()
     populatePosts();
 }
 
-void ZapFR::Client::MainWindow::postMarkedRead(uint64_t sourceID, uint64_t feedID, uint64_t postID)
+void ZapFR::Client::MainWindow::postsMarkedRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs)
 {
-    for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
+    std::unordered_set<uint64_t> uniqueFeedIDs{};
+
+    for (const auto& [feedID, postID] : postIDs)
     {
-        auto index = mItemModelPosts->index(i, 0);
-        if (index.data(PostIDRole).toULongLong() == postID)
+        uniqueFeedIDs.insert(feedID);
+        for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
         {
-            for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
+            auto index = mItemModelPosts->index(i, 0);
+            if (index.data(PostIDRole).toULongLong() == postID)
             {
-                auto item = mItemModelPosts->item(i, col);
-                item->setData(QVariant::fromValue<bool>(true), PostIsReadRole);
+                for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
+                {
+                    auto item = mItemModelPosts->item(i, col);
+                    item->setData(QVariant::fromValue<bool>(true), PostIsReadRole);
+                }
             }
-            ui->tableViewPosts->scrollTo(index);
         }
     }
 
-    ZapFR::Engine::Agent::getInstance()->queueGetFeedUnreadCount(sourceID, feedID,
-                                                                 [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t unreadCount)
-                                                                 {
-                                                                     std::unordered_set<uint64_t> feedIDs;
-                                                                     feedIDs.insert(affectedFeedID);
-                                                                     QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, affectedSourceID,
-                                                                                               feedIDs, false, unreadCount);
-                                                                 });
+    for (const auto& feedID : uniqueFeedIDs)
+    {
+        ZapFR::Engine::Agent::getInstance()->queueGetFeedUnreadCount(sourceID, feedID,
+                                                                     [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t unreadCount)
+                                                                     {
+                                                                         std::unordered_set<uint64_t> feedIDs;
+                                                                         feedIDs.insert(affectedFeedID);
+                                                                         QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, affectedSourceID,
+                                                                                                   feedIDs, false, unreadCount);
+                                                                     });
+    }
 }
 
-void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs)
+void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs)
 {
     std::unordered_set<uint64_t> uniqueFeedIDs{};
 
@@ -1253,17 +1261,22 @@ void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, std::vector
     }
 }
 
-void ZapFR::Client::MainWindow::postMarkedFlagged(uint64_t /*sourceID*/, uint64_t /*feedID*/, uint64_t /*postID*/, ZapFR::Engine::FlagColor /*flagColor*/)
+void ZapFR::Client::MainWindow::postsMarkedFlagged(bool doReloadPosts)
 {
-    mPreviouslySelectedSourceID = 0;
-    reloadUsedFlagColors();
+    reloadUsedFlagColors(true);
+    if (doReloadPosts)
+    {
+        reloadPosts();
+    }
 }
 
-void ZapFR::Client::MainWindow::postMarkedUnflagged(uint64_t /*sourceID*/, uint64_t /*feedID*/, uint64_t /*postID*/,
-                                                    const std::unordered_set<ZapFR::Engine::FlagColor>& /*flagColors*/)
+void ZapFR::Client::MainWindow::postsMarkedUnflagged(bool doReloadPosts)
 {
-    mPreviouslySelectedSourceID = 0;
-    reloadUsedFlagColors();
+    reloadUsedFlagColors(true);
+    if (doReloadPosts)
+    {
+        reloadPosts();
+    }
 }
 
 void ZapFR::Client::MainWindow::feedMarkedRead(uint64_t sourceID, uint64_t feedID)
@@ -1485,34 +1498,87 @@ void ZapFR::Client::MainWindow::markAsRead()
     }
 }
 
-void ZapFR::Client::MainWindow::markAsUnread()
+void ZapFR::Client::MainWindow::markPostSelectionAsRead()
 {
+    auto feedAndPostIDs = selectedPostIDs();
+    if (feedAndPostIDs.size() > 0)
+    {
+        auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(
+            sourceID, feedAndPostIDs,
+            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
+            { QMetaObject::invokeMethod(this, "postsMarkedRead", Qt::AutoConnection, affectedSourceID, affectedFeedAndPostIDs); });
+    }
+}
+
+void ZapFR::Client::MainWindow::markPostSelectionAsUnread()
+{
+    auto feedAndPostIDs = selectedPostIDs();
+    if (feedAndPostIDs.size() > 0)
+    {
+        auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(
+            sourceID, feedAndPostIDs,
+            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
+            { QMetaObject::invokeMethod(this, "postsMarkedUnread", Qt::AutoConnection, affectedSourceID, affectedFeedAndPostIDs); });
+    }
+}
+
+void ZapFR::Client::MainWindow::markPostSelectionFlagged()
+{
+    auto action = qobject_cast<QAction*>(sender());
+    auto flagColor = static_cast<ZapFR::Engine::FlagColor>(action->data().toULongLong());
+
+    auto feedAndPostIDs = selectedPostIDs();
+    if (feedAndPostIDs.size() > 0)
+    {
+        auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueMarkPostsFlagged(sourceID, feedAndPostIDs, {flagColor},
+                                                                   [&]() { QMetaObject::invokeMethod(this, "postsMarkedFlagged", Qt::AutoConnection, true); });
+    }
+}
+
+void ZapFR::Client::MainWindow::markPostSelectionUnflagged()
+{
+    auto action = qobject_cast<QAction*>(sender());
+    auto flagColor = static_cast<ZapFR::Engine::FlagColor>(action->data().toULongLong());
+    std::unordered_set<ZapFR::Engine::FlagColor> flagColors;
+    if (flagColor == ZapFR::Engine::FlagColor::Gray)
+    {
+        flagColors = ZapFR::Engine::Flag::allFlagColors();
+    }
+    else
+    {
+        flagColors.insert(flagColor);
+    }
+
+    auto feedAndPostIDs = selectedPostIDs();
+    if (feedAndPostIDs.size() > 0)
+    {
+        auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, feedAndPostIDs, flagColors,
+                                                                     [&]() { QMetaObject::invokeMethod(this, "postsMarkedUnflagged", Qt::AutoConnection, true); });
+    }
+}
+
+std::vector<std::tuple<uint64_t, uint64_t>> ZapFR::Client::MainWindow::selectedPostIDs() const
+{
+    std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs;
     auto selectionModel = ui->tableViewPosts->selectionModel();
     if (selectionModel != nullptr)
     {
-        uint64_t sourceID{0};
-        std::vector<std::tuple<uint64_t, uint64_t>> feedAndPostIDs;
         auto selectedIndexes = selectionModel->selectedIndexes();
         for (const auto& index : selectedIndexes)
         {
             if (index.column() == PostColumnUnread)
             {
-                sourceID = index.data(PostSourceIDRole).toULongLong();
                 auto feedID = index.data(PostFeedIDRole).toULongLong();
                 auto postID = index.data(PostIDRole).toULongLong();
-
                 feedAndPostIDs.emplace_back(std::make_tuple(feedID, postID));
             }
         }
-
-        if (feedAndPostIDs.size() > 0)
-        {
-            ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(sourceID, feedAndPostIDs,
-                                                                      [&](uint64_t affectedSourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs) {
-                                                                          QMetaObject::invokeMethod(this, "postsMarkedUnread", Qt::AutoConnection, affectedSourceID, postIDs);
-                                                                      });
-        }
     }
+    return feedAndPostIDs;
 }
 
 void ZapFR::Client::MainWindow::removeFolder()
@@ -1690,7 +1756,95 @@ void ZapFR::Client::MainWindow::createContextMenus()
 
     // POST
     mPostContextMenu = std::make_unique<QMenu>(nullptr);
-    mPostContextMenu->addAction(ui->action_Mark_as_unread);
+    mPostContextMenu->addAction(ui->action_Mark_selection_as_read);
+    mPostContextMenu->addAction(ui->action_Mark_selection_as_unread);
+    mPostContextMenu->addSeparator();
+
+    // POST - flag submenu
+    static auto nameForColor = [](ZapFR::Engine::FlagColor color) -> QString
+    {
+        switch (color)
+        {
+            case ZapFR::Engine::FlagColor::Blue:
+            {
+                return tr("Blue");
+            }
+            case ZapFR::Engine::FlagColor::Green:
+            {
+                return tr("Green");
+            }
+            case ZapFR::Engine::FlagColor::Yellow:
+            {
+                return tr("Yellow");
+            }
+            case ZapFR::Engine::FlagColor::Orange:
+            {
+                return tr("Orange");
+            }
+            case ZapFR::Engine::FlagColor::Red:
+            {
+                return tr("Red");
+            }
+            case ZapFR::Engine::FlagColor::Purple:
+            {
+                return tr("Purple");
+            }
+            default:
+            {
+                return QString("");
+            }
+        }
+    };
+    static std::vector<std::unique_ptr<QAction>> flagActions{};
+    if (flagActions.empty())
+    {
+        for (const auto& flagColor : ZapFR::Engine::Flag::allFlagColors())
+        {
+            QString colorName = nameForColor(flagColor);
+            if (!colorName.isEmpty())
+            {
+                auto action = std::make_unique<QAction>(colorName);
+                action->setIcon(Utilities::flag(flagColor, Utilities::FlagStyle::Filled));
+                action->setData(QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(flagColor)));
+                connect(action.get(), &QAction::triggered, this, &MainWindow::markPostSelectionFlagged);
+                flagActions.emplace_back(std::move(action));
+            }
+        }
+    }
+    auto flagMenu = mPostContextMenu->addMenu(tr("Flag"));
+    for (const auto& fa : flagActions)
+    {
+        flagMenu->addAction(fa.get());
+    }
+
+    // POST - unflag submenu
+    static std::vector<std::unique_ptr<QAction>> unflagActions{};
+    if (unflagActions.empty())
+    {
+        auto allAction = std::make_unique<QAction>(tr("All"));
+        allAction->setIcon(Utilities::flag(ZapFR::Engine::FlagColor::Gray, Utilities::FlagStyle::Unfilled));
+        allAction->setData(QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(ZapFR::Engine::FlagColor::Gray)));
+        connect(allAction.get(), &QAction::triggered, this, &MainWindow::markPostSelectionUnflagged);
+        unflagActions.emplace_back(std::move(allAction));
+
+        for (const auto& flagColor : ZapFR::Engine::Flag::allFlagColors())
+        {
+            QString colorName = nameForColor(flagColor);
+            if (!colorName.isEmpty())
+            {
+                auto action = std::make_unique<QAction>(colorName);
+                action->setIcon(Utilities::flag(flagColor, Utilities::FlagStyle::Unfilled));
+                action->setData(QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(flagColor)));
+                connect(action.get(), &QAction::triggered, this, &MainWindow::markPostSelectionUnflagged);
+                unflagActions.emplace_back(std::move(action));
+            }
+        }
+    }
+    auto unflagMenu = mPostContextMenu->addMenu(tr("Unflag"));
+    for (const auto& ua : unflagActions)
+    {
+        unflagMenu->addAction(ua.get());
+    }
 
     // SCRIPT
     mScriptContextMenu = std::make_unique<QMenu>(nullptr);
@@ -1715,7 +1869,8 @@ void ZapFR::Client::MainWindow::configureConnects()
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
     connect(ui->action_Mark_as_read, &QAction::triggered, this, &MainWindow::markAsRead);
     connect(ui->action_Refresh_feeds, &QAction::triggered, this, &MainWindow::refreshFeeds);
-    connect(ui->action_Mark_as_unread, &QAction::triggered, this, &MainWindow::markAsUnread);
+    connect(ui->action_Mark_selection_as_unread, &QAction::triggered, this, &MainWindow::markPostSelectionAsUnread);
+    connect(ui->action_Mark_selection_as_read, &QAction::triggered, this, &MainWindow::markPostSelectionAsRead);
     connect(ui->action_Remove_folder, &QAction::triggered, this, &MainWindow::removeFolder);
     connect(ui->action_Remove_feed, &QAction::triggered, this, &MainWindow::removeFeed);
 
@@ -1952,28 +2107,22 @@ void ZapFR::Client::MainWindow::configureConnects()
     connect(ui->tableViewPosts, &TableViewPosts::postMarkedFlagged,
             [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
             {
-                ZapFR::Engine::Agent::getInstance()->queueMarkPostFlagged(
-                    sourceID, feedID, postID, flagColor,
-                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t affectedPostID, ZapFR::Engine::FlagColor affectedFlagColor)
-                    { QMetaObject::invokeMethod(this, "postMarkedFlagged", Qt::AutoConnection, affectedSourceID, affectedFeedID, affectedPostID, affectedFlagColor); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkPostsFlagged(sourceID, {{feedID, postID}}, {flagColor},
+                                                                           [&]() { QMetaObject::invokeMethod(this, "postsMarkedFlagged", Qt::AutoConnection, false); });
             });
 
     connect(ui->tableViewPosts, &TableViewPosts::postMarkedUnflagged,
             [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
             {
-                ZapFR::Engine::Agent::getInstance()->queueMarkPostUnflagged(
-                    sourceID, feedID, postID, {flagColor},
-                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t affectedPostID, const std::unordered_set<ZapFR::Engine::FlagColor>& affectedFlagColor)
-                    { QMetaObject::invokeMethod(this, "postMarkedUnflagged", Qt::AutoConnection, affectedSourceID, affectedFeedID, affectedPostID, affectedFlagColor); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, {{feedID, postID}}, {flagColor},
+                                                                             [&]() { QMetaObject::invokeMethod(this, "postsMarkedUnflagged", Qt::AutoConnection, false); });
             });
 
     connect(ui->tableViewPosts, &TableViewPosts::clearAllFlagsRequested,
             [&](uint64_t sourceID, uint64_t feedID, uint64_t postID)
             {
-                ZapFR::Engine::Agent::getInstance()->queueMarkPostUnflagged(
-                    sourceID, feedID, postID, ZapFR::Engine::Flag::allFlagColors(),
-                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t affectedPostID, const std::unordered_set<ZapFR::Engine::FlagColor>& affectedFlagColor)
-                    { QMetaObject::invokeMethod(this, "postMarkedUnflagged", Qt::AutoConnection, affectedSourceID, affectedFeedID, affectedPostID, affectedFlagColor); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, {{feedID, postID}}, ZapFR::Engine::Flag::allFlagColors(),
+                                                                             [&]() { QMetaObject::invokeMethod(this, "postsMarkedUnflagged", Qt::AutoConnection, false); });
             });
 
     ui->widgetFilterFlagBlue->setFlagColor(ZapFR::Engine::FlagColor::Blue);

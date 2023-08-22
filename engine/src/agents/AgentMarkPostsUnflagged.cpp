@@ -16,17 +16,18 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/AgentMarkPostsUnread.h"
+#include "ZapFR/agents/AgentMarkPostsUnflagged.h"
 #include "ZapFR/Feed.h"
+#include "ZapFR/Post.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentMarkPostsUnread::AgentMarkPostsUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
-                                                          std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentMarkPostsUnflagged::AgentMarkPostsUnflagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
+                                                                const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFlagColors(flagColors), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentMarkPostsUnread::run()
+void ZapFR::Engine::AgentMarkPostsUnflagged::run()
 {
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
@@ -47,16 +48,23 @@ void ZapFR::Engine::AgentMarkPostsUnread::run()
             }
         }
 
-        // mark the posts as read per feed
+        // mark the posts as flagged per feed
         for (const auto& [feedID, posts] : feedsWithPostsMap)
         {
             auto feed = source.value()->getFeed(feedID, false);
             for (const auto& postID : posts)
             {
-                feed.value()->markAsUnread(postID);
+                auto post = feed.value()->getPost(postID);
+                if (post.has_value())
+                {
+                    for (const auto& fc : mFlagColors)
+                    {
+                        post.value()->markUnflagged(fc);
+                    }
+                }
             }
         }
-        mFinishedCallback(mSourceID, mFeedAndPostIDs);
+        mFinishedCallback();
     }
 
     mIsDone = true;

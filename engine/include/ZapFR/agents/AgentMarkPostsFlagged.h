@@ -16,34 +16,33 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTMARKPOSTREAD_H
-#define ZAPFR_ENGINE_AGENTMARKPOSTREAD_H
+#ifndef ZAPFR_ENGINE_AGENTMARKPOSTSFLAGGED_H
+#define ZAPFR_ENGINE_AGENTMARKPOSTSFLAGGED_H
 
 #include "ZapFR/AgentRunnable.h"
+#include "ZapFR/Flag.h"
 #include "ZapFR/Global.h"
-#include "ZapFR/Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Feed;
-
-        class AgentMarkPostRead : public AgentRunnable
+        class AgentMarkPostsFlagged : public AgentRunnable
         {
           public:
-            explicit AgentMarkPostRead(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
-            virtual ~AgentMarkPostRead() = default;
+            explicit AgentMarkPostsFlagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
+                                           const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback);
+            virtual ~AgentMarkPostsFlagged() = default;
 
             void run() override;
 
           private:
             uint64_t mSourceID{0};
-            uint64_t mFeedID{0};
-            uint64_t mPostID{0};
-            std::function<void(uint64_t, uint64_t, uint64_t)> mFinishedCallback{};
+            std::vector<std::tuple<uint64_t, uint64_t>> mFeedAndPostIDs{};
+            std::unordered_set<FlagColor> mFlagColors;
+            std::function<void()> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTMARKPOSTREAD_H
+#endif // ZAPFR_ENGINE_AGENTMARKPOSTSFLAGGED_H

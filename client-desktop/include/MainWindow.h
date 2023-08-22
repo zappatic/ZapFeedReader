@@ -69,7 +69,10 @@ namespace ZapFR
             void addFolder();
             void importOPML();
             void markAsRead();
-            void markAsUnread();
+            void markPostSelectionAsRead();
+            void markPostSelectionAsUnread();
+            void markPostSelectionFlagged();
+            void markPostSelectionUnflagged();
             void removeFolder();
             void removeFeed();
             void refreshFeeds();
@@ -94,10 +97,10 @@ namespace ZapFR
             void folderRemoved();
             void folderMoved();
             void folderAdded();
-            void postMarkedFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor);
-            void postMarkedUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
-            void postMarkedRead(uint64_t sourceID, uint64_t feedID, uint64_t postID);
-            void postsMarkedUnread(uint64_t sourceID, std::vector<std::tuple<uint64_t, uint64_t>> postIDs);
+            void postsMarkedFlagged(bool reloadPosts);
+            void postsMarkedUnflagged(bool reloadPosts);
+            void postsMarkedRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs);
+            void postsMarkedUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs);
             void feedMarkedRead(uint64_t sourceID, uint64_t feedID);
             void folderMarkedRead(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs);
             void sourceMarkedRead(uint64_t sourceID);
@@ -186,6 +189,7 @@ namespace ZapFR
             void updateToolbar();
             void createContextMenus();
             void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
+            std::vector<std::tuple<uint64_t, uint64_t>> selectedPostIDs() const;
 
             static constexpr uint64_t msPostsPerPage{100};
             static constexpr uint64_t msLogsPerPage{100};

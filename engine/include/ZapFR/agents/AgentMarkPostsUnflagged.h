@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTMARKPOSTUNFLAGGED_H
-#define ZAPFR_ENGINE_AGENTMARKPOSTUNFLAGGED_H
+#ifndef ZAPFR_ENGINE_AGENTMARKPOSTSUNFLAGGED_H
+#define ZAPFR_ENGINE_AGENTMARKPOSTSUNFLAGGED_H
 
 #include "ZapFR/AgentRunnable.h"
 #include "ZapFR/Flag.h"
@@ -27,25 +27,22 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class Feed;
-
-        class AgentMarkPostUnflagged : public AgentRunnable
+        class AgentMarkPostsUnflagged : public AgentRunnable
         {
           public:
-            explicit AgentMarkPostUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, const std::unordered_set<FlagColor>& flagColors,
-                                            std::function<void(uint64_t, uint64_t, uint64_t, const std::unordered_set<ZapFR::Engine::FlagColor>&)> finishedCallback);
-            virtual ~AgentMarkPostUnflagged() = default;
+            explicit AgentMarkPostsUnflagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
+                                             const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback);
+            virtual ~AgentMarkPostsUnflagged() = default;
 
             void run() override;
 
           private:
             uint64_t mSourceID{0};
-            uint64_t mFeedID{0};
-            uint64_t mPostID{0};
+            std::vector<std::tuple<uint64_t, uint64_t>> mFeedAndPostIDs{};
             std::unordered_set<FlagColor> mFlagColors;
-            std::function<void(uint64_t, uint64_t, uint64_t, const std::unordered_set<ZapFR::Engine::FlagColor>&)> mFinishedCallback{};
+            std::function<void()> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTMARKPOSTUNFLAGGED_H
+#endif // ZAPFR_ENGINE_AGENTMARKPOSTSUNFLAGGED_H

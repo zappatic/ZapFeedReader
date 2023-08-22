@@ -790,7 +790,7 @@
     <string>Back to posts</string>
    </property>
   </action>
-  <action name="action_Mark_as_unread">
+  <action name="action_Mark_selection_as_unread">
    <property name="text">
     <string>Mark as unread</string>
    </property>
@@ -859,6 +859,14 @@
    </property>
    <property name="toolTip">
     <string>Remove script folder</string>
+   </property>
+  </action>
+  <action name="action_Mark_selection_as_read">
+   <property name="text">
+    <string>Mark as read</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark as read</string>
    </property>
   </action>
  </widget>
