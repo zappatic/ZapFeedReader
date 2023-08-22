@@ -124,11 +124,18 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::ScriptFolderLoc
 
 uint64_t ZapFR::Engine::ScriptFolderLocal::getTotalPostCount(bool showOnlyUnread)
 {
-    std::string whereClause = showOnlyUnread ? " AND isRead=FALSE" : "";
+    std::string joinClause = showOnlyUnread ? " LEFT JOIN posts ON posts.id = scriptfolder_posts.postID" : "";
+    std::string whereClause = showOnlyUnread ? " AND posts.isRead=FALSE" : "";
 
     uint64_t postCount;
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << Poco::format("SELECT COUNT(*) FROM scriptfolder_posts WHERE scriptfolderID=? %s", whereClause), use(mID), into(postCount), now;
+    selectStmt << Poco::format("SELECT COUNT(*)"
+                               " FROM scriptfolder_posts"
+                               " %s"
+                               " WHERE scriptfolderID=?"
+                               " %s",
+                               joinClause, whereClause),
+        use(mID), into(postCount), now;
     return postCount;
 }
 
