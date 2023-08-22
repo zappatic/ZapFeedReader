@@ -23,6 +23,7 @@
 #include "ZapFR/agents/AgentAddFolder.h"
 #include "ZapFR/agents/AgentAddScript.h"
 #include "ZapFR/agents/AgentAddScriptFolder.h"
+#include "ZapFR/agents/AgentAssignPostsToScriptFolder.h"
 #include "ZapFR/agents/AgentGetFeedFlaggedPosts.h"
 #include "ZapFR/agents/AgentGetFeedLogs.h"
 #include "ZapFR/agents/AgentGetFeedPosts.h"
@@ -54,6 +55,7 @@
 #include "ZapFR/agents/AgentRefreshSource.h"
 #include "ZapFR/agents/AgentRemoveFeed.h"
 #include "ZapFR/agents/AgentRemoveFolder.h"
+#include "ZapFR/agents/AgentRemovePostsFromScriptFolder.h"
 #include "ZapFR/agents/AgentRemoveScript.h"
 #include "ZapFR/agents/AgentRemoveScriptFolder.h"
 #include "ZapFR/agents/AgentSubscribeFeed.h"
@@ -200,6 +202,18 @@ void ZapFR::Engine::Agent::queueMarkPostsUnflagged(uint64_t sourceID, const std:
                                                    const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentMarkPostsUnflagged>(sourceID, feedAndPostIDs, flagColors, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueAssignPostsToScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
+                                                          std::function<void(uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentAssignPostsToScriptFolder>(sourceID, scriptFolderID, feedAndPostIDs, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueRemovePostsFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
+                                                            std::function<void(uint64_t, uint64_t)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentRemovePostsFromScriptFolder>(sourceID, scriptFolderID, feedAndPostIDs, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetSourceTree(uint64_t sourceID,

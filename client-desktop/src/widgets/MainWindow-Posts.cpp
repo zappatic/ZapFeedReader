@@ -17,10 +17,16 @@
 */
 
 #include "./ui_MainWindow.h"
-#include "widgets/MainWindow.h"
-#include "widgets/WebEnginePagePost.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Post.h"
+#include "widgets/MainWindow.h"
+#include "widgets/WebEnginePagePost.h"
+
+namespace
+{
+    static auto gsAddToScriptFolderMenuProperty{"AddToScriptFolderMenuProperty"};
+    static auto gsRemoveFromScriptFolderMenuProperty{"RemoveFromScriptFolderMenuProperty"};
+} // namespace
 
 void ZapFR::Client::MainWindow::reloadPosts()
 {
@@ -361,6 +367,36 @@ void ZapFR::Client::MainWindow::markPostSelectionUnflagged()
     }
 }
 
+void ZapFR::Client::MainWindow::assignPostSelectionToScriptFolder()
+{
+    auto action = qobject_cast<QAction*>(sender());
+    auto scriptFolderID = action->data().toULongLong();
+    auto feedAndPostIDs = selectedPostIDs();
+    if (feedAndPostIDs.size() > 0)
+    {
+        auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueAssignPostsToScriptFolder(
+            sourceID, scriptFolderID, feedAndPostIDs,
+            [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
+            { QMetaObject::invokeMethod(this, "postsAssignedToScriptFolder", Qt::AutoConnection, affectedSourceID, affectedScriptFolderID); });
+    }
+}
+
+void ZapFR::Client::MainWindow::removePostSelectionFromScriptFolder()
+{
+    auto action = qobject_cast<QAction*>(sender());
+    auto scriptFolderID = action->data().toULongLong();
+    auto feedAndPostIDs = selectedPostIDs();
+    if (feedAndPostIDs.size() > 0)
+    {
+        auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueRemovePostsFromScriptFolder(
+            sourceID, scriptFolderID, feedAndPostIDs,
+            [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
+            { QMetaObject::invokeMethod(this, "postsRemovedFromScriptFolder", Qt::AutoConnection, affectedSourceID, affectedScriptFolderID); });
+    }
+}
+
 void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndexList& selected)
 {
     mCurrentPostID = 0;
@@ -591,6 +627,30 @@ void ZapFR::Client::MainWindow::postsMarkedUnflagged(bool doReloadPosts)
     }
 }
 
+void ZapFR::Client::MainWindow::postsAssignedToScriptFolder(uint64_t /*sourceID*/, uint64_t /*scriptFolderID*/)
+{
+    // nop
+}
+
+void ZapFR::Client::MainWindow::postsRemovedFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID)
+{
+    auto index = ui->tableViewScriptFolders->currentIndex();
+    if (index.isValid())
+    {
+        auto selectedSourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
+        if (sourceID != selectedSourceID)
+        {
+            return;
+        }
+        auto selectedScriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
+        if (scriptFolderID != selectedScriptFolderID)
+        {
+            return;
+        }
+        reloadPosts();
+    }
+}
+
 void ZapFR::Client::MainWindow::connectPostStuff()
 {
     connect(ui->action_Mark_as_read, &QAction::triggered, this, &MainWindow::markAsRead);
@@ -604,7 +664,48 @@ void ZapFR::Client::MainWindow::connectPostStuff()
     connect(ui->tableViewPosts, &TableViewPosts::selectedPostsChanged, this, &MainWindow::postsTableViewSelectionChanged);
 
     connect(ui->tableViewPosts, &TableViewPosts::customContextMenuRequested,
-            [&](const QPoint& p) { mPostContextMenu->popup(ui->tableViewPosts->viewport()->mapToGlobal(p)); });
+            [&](const QPoint& p)
+            {
+                // gather the script folder title and IDs
+                std::vector<std::tuple<QVariant, QString>> scriptFolderData;
+                for (int32_t i = 0; i < mItemModelScriptFolders->rowCount(); ++i)
+                {
+                    auto child = mItemModelScriptFolders->index(i, 0);
+                    auto scriptFolderTitle = child.data(Qt::DisplayRole).toString();
+                    auto scriptFolderID = child.data(ScriptFolderIDRole);
+                    scriptFolderData.emplace_back(scriptFolderID, scriptFolderTitle);
+                }
+
+                // dynamically add the script folder entries to the 'add to script folder' and 'remove from script folder' submenus
+                for (const auto& action : mPostContextMenu->actions())
+                {
+                    auto subMenu = action->menu();
+                    if (subMenu != nullptr)
+                    {
+                        if (subMenu->property(gsAddToScriptFolderMenuProperty).isValid())
+                        {
+                            subMenu->clear();
+                            for (const auto& [scriptFolderID, scriptFolderTitle] : scriptFolderData)
+                            {
+                                auto childAction = subMenu->addAction(scriptFolderTitle);
+                                childAction->setData(scriptFolderID);
+                                connect(childAction, &QAction::triggered, this, &MainWindow::assignPostSelectionToScriptFolder);
+                            }
+                        }
+                        else if (subMenu->property(gsRemoveFromScriptFolderMenuProperty).isValid())
+                        {
+                            subMenu->clear();
+                            for (const auto& [scriptFolderID, scriptFolderTitle] : scriptFolderData)
+                            {
+                                auto childAction = subMenu->addAction(scriptFolderTitle);
+                                childAction->setData(scriptFolderID);
+                                connect(childAction, &QAction::triggered, this, &MainWindow::removePostSelectionFromScriptFolder);
+                            }
+                        }
+                    }
+                }
+                mPostContextMenu->popup(ui->tableViewPosts->viewport()->mapToGlobal(p));
+            });
 
     connect(ui->pushButtonPostPreviousPage, &QPushButton::clicked,
             [&]()
@@ -787,4 +888,12 @@ void ZapFR::Client::MainWindow::createPostContextMenus()
     {
         unflagMenu->addAction(ua.get());
     }
+
+    mPostContextMenu->addSeparator();
+
+    auto addToScriptFolderMenu = mPostContextMenu->addMenu(tr("Add to script folder"));
+    addToScriptFolderMenu->setProperty(gsAddToScriptFolderMenuProperty, true);
+
+    auto removeFromScriptFolderMenu = mPostContextMenu->addMenu(tr("Remove from script folder"));
+    removeFromScriptFolderMenu->setProperty(gsRemoveFromScriptFolderMenuProperty, true);
 }

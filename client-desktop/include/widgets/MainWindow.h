@@ -73,6 +73,8 @@ namespace ZapFR
             void markPostSelectionAsUnread();
             void markPostSelectionFlagged();
             void markPostSelectionUnflagged();
+            void assignPostSelectionToScriptFolder();
+            void removePostSelectionFromScriptFolder();
             void removeFolder();
             void removeFeed();
             void refreshFeeds();
@@ -101,6 +103,8 @@ namespace ZapFR
             void postsMarkedUnflagged(bool reloadPosts);
             void postsMarkedRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs);
             void postsMarkedUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs);
+            void postsAssignedToScriptFolder(uint64_t sourceID, uint64_t scriptFolderID);
+            void postsRemovedFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID);
             void feedMarkedRead(uint64_t sourceID, uint64_t feedID);
             void folderMarkedRead(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs);
             void sourceMarkedRead(uint64_t sourceID);
