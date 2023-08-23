@@ -22,9 +22,9 @@
 #include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetScriptFolderPosts::AgentGetScriptFolderPosts(
-    uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+    uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
     std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mScriptFolderID(scriptFolderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread),
+    : AgentRunnable(), mSourceID(sourceID), mScriptFolderID(scriptFolderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter),
       mFinishedCallback(finishedCallback)
 {
 }
@@ -37,14 +37,14 @@ void ZapFR::Engine::AgentGetScriptFolderPosts::run()
         auto scriptFolder = source.value()->getScriptFolder(mScriptFolderID);
         if (scriptFolder.has_value())
         {
-            auto posts = scriptFolder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread);
+            auto posts = scriptFolder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter);
             std::vector<Post*> postPointers;
             for (const auto& post : posts)
             {
                 postPointers.emplace_back(post.get());
             }
 
-            mFinishedCallback(source.value()->id(), postPointers, mPage, scriptFolder.value()->getTotalPostCount(mShowOnlyUnread));
+            mFinishedCallback(source.value()->id(), postPointers, mPage, scriptFolder.value()->getTotalPostCount(mShowOnlyUnread, mSearchFilter));
         }
     }
 

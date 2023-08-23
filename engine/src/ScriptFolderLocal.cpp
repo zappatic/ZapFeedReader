@@ -26,7 +26,8 @@ ZapFR::Engine::ScriptFolderLocal::ScriptFolderLocal(uint64_t id) : ScriptFolder(
 {
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::ScriptFolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread)
+std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::ScriptFolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                                                             const std::string& searchFilter)
 {
     std::vector<std::unique_ptr<Post>> posts;
 
@@ -52,33 +53,68 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::ScriptFolderLoc
     std::string whereClause = showOnlyUnread ? "AND posts.isRead=FALSE" : "";
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << Poco::format("SELECT posts.id"
-                               ",posts.isRead"
-                               ",posts.feedID"
-                               ",posts.title"
-                               ",posts.link"
-                               ",posts.description"
-                               ",posts.author"
-                               ",posts.commentsURL"
-                               ",posts.enclosureURL"
-                               ",posts.enclosureLength"
-                               ",posts.enclosureMimeType"
-                               ",posts.guid"
-                               ",posts.guidIsPermalink"
-                               ",posts.datePublished"
-                               ",posts.sourceURL"
-                               ",posts.sourceTitle"
-                               ",feeds.title"
-                               " FROM posts"
-                               " LEFT JOIN feeds ON feeds.id = posts.feedID"
-                               " WHERE posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)"
-                               "       %s"
-                               " ORDER BY posts.datePublished DESC"
-                               " LIMIT ? OFFSET ?",
-                               whereClause),
-        use(mID), use(perPage), use(offset), into(id), into(isRead), into(feedID), into(title), into(link), into(description), into(author), into(commentsURL),
-        into(enclosureURL), into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle),
-        into(feedTitle), range(0, 1);
+    if (searchFilter.empty())
+    {
+        selectStmt << Poco::format("SELECT posts.id"
+                                   ",posts.isRead"
+                                   ",posts.feedID"
+                                   ",posts.title"
+                                   ",posts.link"
+                                   ",posts.description"
+                                   ",posts.author"
+                                   ",posts.commentsURL"
+                                   ",posts.enclosureURL"
+                                   ",posts.enclosureLength"
+                                   ",posts.enclosureMimeType"
+                                   ",posts.guid"
+                                   ",posts.guidIsPermalink"
+                                   ",posts.datePublished"
+                                   ",posts.sourceURL"
+                                   ",posts.sourceTitle"
+                                   ",feeds.title"
+                                   " FROM posts"
+                                   " LEFT JOIN feeds ON feeds.id = posts.feedID"
+                                   " WHERE posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)"
+                                   "       %s"
+                                   " ORDER BY posts.datePublished DESC"
+                                   " LIMIT ? OFFSET ?",
+                                   whereClause),
+            use(mID), use(perPage), use(offset), into(id), into(isRead), into(feedID), into(title), into(link), into(description), into(author), into(commentsURL),
+            into(enclosureURL), into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle),
+            into(feedTitle), range(0, 1);
+    }
+    else
+    {
+        std::string wildcardSearchFilter = "%" + searchFilter + "%";
+        selectStmt << Poco::format("SELECT posts.id"
+                                   ",posts.isRead"
+                                   ",posts.feedID"
+                                   ",posts.title"
+                                   ",posts.link"
+                                   ",posts.description"
+                                   ",posts.author"
+                                   ",posts.commentsURL"
+                                   ",posts.enclosureURL"
+                                   ",posts.enclosureLength"
+                                   ",posts.enclosureMimeType"
+                                   ",posts.guid"
+                                   ",posts.guidIsPermalink"
+                                   ",posts.datePublished"
+                                   ",posts.sourceURL"
+                                   ",posts.sourceTitle"
+                                   ",feeds.title"
+                                   " FROM posts"
+                                   " LEFT JOIN feeds ON feeds.id = posts.feedID"
+                                   " WHERE posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)"
+                                   "   AND (posts.title LIKE ? OR posts.description LIKE ?)"
+                                   "       %s"
+                                   " ORDER BY posts.datePublished DESC"
+                                   " LIMIT ? OFFSET ?",
+                                   whereClause),
+            use(mID), use(wildcardSearchFilter), use(wildcardSearchFilter), use(perPage), use(offset), into(id), into(isRead), into(feedID), into(title), into(link),
+            into(description), into(author), into(commentsURL), into(enclosureURL), into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink),
+            into(datePublished), into(sourceURL), into(sourceTitle), into(feedTitle), range(0, 1);
+    }
 
     while (!selectStmt.done())
     {
@@ -122,20 +158,35 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::ScriptFolderLoc
     return posts;
 }
 
-uint64_t ZapFR::Engine::ScriptFolderLocal::getTotalPostCount(bool showOnlyUnread)
+uint64_t ZapFR::Engine::ScriptFolderLocal::getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter)
 {
-    std::string joinClause = showOnlyUnread ? " LEFT JOIN posts ON posts.id = scriptfolder_posts.postID" : "";
     std::string whereClause = showOnlyUnread ? " AND posts.isRead=FALSE" : "";
 
     uint64_t postCount;
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << Poco::format("SELECT COUNT(*)"
-                               " FROM scriptfolder_posts"
-                               " %s"
-                               " WHERE scriptfolderID=?"
-                               " %s",
-                               joinClause, whereClause),
-        use(mID), into(postCount), now;
+    if (searchFilter.empty())
+    {
+        std::string joinClause = showOnlyUnread ? " LEFT JOIN posts ON posts.id = scriptfolder_posts.postID" : "";
+        selectStmt << Poco::format("SELECT COUNT(*)"
+                                   " FROM scriptfolder_posts"
+                                   " %s"
+                                   " WHERE scriptfolderID=?"
+                                   " %s",
+                                   joinClause, whereClause),
+            use(mID), into(postCount), now;
+    }
+    else
+    {
+        std::string wildcardSearchFilter = "%" + searchFilter + "%";
+        selectStmt << Poco::format("SELECT COUNT(*)"
+                                   " FROM scriptfolder_posts"
+                                   " LEFT JOIN posts ON posts.id = scriptfolder_posts.postID"
+                                   " WHERE scriptfolder_posts.scriptfolderID=?"
+                                   "   AND (posts.title LIKE ? OR posts.description LIKE ?)"
+                                   " %s",
+                                   whereClause),
+            use(mID), use(wildcardSearchFilter), use(wildcardSearchFilter), into(postCount), now;
+    }
     return postCount;
 }
 

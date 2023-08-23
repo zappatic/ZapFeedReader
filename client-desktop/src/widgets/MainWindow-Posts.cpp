@@ -20,6 +20,7 @@
 #include "ZapFR/Agent.h"
 #include "ZapFR/Post.h"
 #include "widgets/MainWindow.h"
+#include "widgets/SearchWidget.h"
 #include "widgets/WebEnginePagePost.h"
 
 namespace
@@ -78,6 +79,8 @@ void ZapFR::Client::MainWindow::reloadPosts()
         QMetaObject::invokeMethod(this, "populatePosts", Qt::AutoConnection, rows, pageNumber, totalPostCount);
     };
 
+    auto searchFilter = mSearchWidget->searchQuery().toStdString();
+
     auto index = ui->tableViewScriptFolders->currentIndex();
     if (index.isValid())
     {
@@ -85,7 +88,8 @@ void ZapFR::Client::MainWindow::reloadPosts()
         auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
         if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
         {
-            ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+            ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
+                                                                           processPosts);
         }
         else
         {
@@ -104,7 +108,8 @@ void ZapFR::Client::MainWindow::reloadPosts()
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
                 if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
                 {
-                    ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+                    ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
+                                                                           processPosts);
                 }
                 else
                 {
@@ -118,7 +123,8 @@ void ZapFR::Client::MainWindow::reloadPosts()
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
                 if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
                 {
-                    ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+                    ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
+                                                                             processPosts);
                 }
                 else
                 {
@@ -131,7 +137,7 @@ void ZapFR::Client::MainWindow::reloadPosts()
                 auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
                 if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
                 {
-                    ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, processPosts);
+                    ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, processPosts);
                 }
                 else
                 {
@@ -770,6 +776,8 @@ void ZapFR::Client::MainWindow::connectPostStuff()
                 ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, {{feedID, postID}}, ZapFR::Engine::Flag::allFlagColors(),
                                                                              [&]() { QMetaObject::invokeMethod(this, "postsMarkedUnflagged", Qt::AutoConnection, false); });
             });
+
+    connect(mSearchWidget, &SearchWidget::searchRequested, [&]() { reloadPosts(); });
 }
 
 void ZapFR::Client::MainWindow::createPostContextMenus()

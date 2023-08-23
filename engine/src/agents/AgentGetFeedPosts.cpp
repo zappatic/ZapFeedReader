@@ -20,9 +20,10 @@
 #include "ZapFR/Feed.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentGetFeedPosts::AgentGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+ZapFR::Engine::AgentGetFeedPosts::AgentGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                     std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mFinishedCallback(finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter),
+      mFinishedCallback(finishedCallback)
 {
 }
 
@@ -34,14 +35,14 @@ void ZapFR::Engine::AgentGetFeedPosts::run()
         auto feed = source.value()->getFeed(mFeedID);
         if (feed.has_value())
         {
-            auto posts = feed.value()->getPosts(mPerPage, mPage, mShowOnlyUnread);
+            auto posts = feed.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter);
             std::vector<Post*> postPointers;
             for (const auto& post : posts)
             {
                 postPointers.emplace_back(post.get());
             }
 
-            mFinishedCallback(source.value()->id(), postPointers, mPage, feed.value()->getTotalPostCount(mShowOnlyUnread));
+            mFinishedCallback(source.value()->id(), postPointers, mPage, feed.value()->getTotalPostCount(mShowOnlyUnread, mSearchFilter));
         }
     }
 

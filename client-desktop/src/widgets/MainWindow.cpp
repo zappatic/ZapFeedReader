@@ -39,7 +39,14 @@
 #include "dialogs/DialogImportOPML.h"
 #include "dialogs/DialogJumpToPage.h"
 #include "models/StandardItemModelSources.h"
+#include "widgets/SearchWidget.h"
 #include "widgets/WebEnginePagePost.h"
+
+namespace
+{
+    auto gsPostPaneToolbarSpacer{"postPaneToolbarSpacer"};
+    auto gsPostPaneSearchWidget{"postPaneSearchWidget"};
+} // namespace
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -49,11 +56,23 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
 
     ui->setupUi(this);
+    initializeUI();
     configureConnects();
     createContextMenus();
     configureIcons();
     restoreSettings();
     reloadSources();
+    reloadCurrentPost();
+    updateActivePostFilter();
+}
+
+ZapFR::Client::MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void ZapFR::Client::MainWindow::initializeUI()
+{
     ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
     ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
     ui->tableViewLogs->setItemDelegate(new ItemDelegateLog(ui->tableViewLogs));
@@ -67,17 +86,14 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     auto spacerWidget = new QWidget();
     spacerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     auto action = ui->toolBar->insertWidget(ui->action_View_logs, spacerWidget);
-    action->setProperty("postPaneToolbarSpacer", true);
+    action->setProperty(gsPostPaneToolbarSpacer, true);
+
+    // add the search widget to the toolbar
+    mSearchWidget = new SearchWidget();
+    auto actionSearch = ui->toolBar->insertWidget(ui->action_View_logs, mSearchWidget);
+    actionSearch->setProperty(gsPostPaneSearchWidget, true);
 
     ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
-
-    reloadCurrentPost();
-    updateActivePostFilter();
-}
-
-ZapFR::Client::MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
@@ -346,10 +362,9 @@ void ZapFR::Client::MainWindow::updateToolbar()
 
             for (const auto& action : ui->toolBar->actions())
             {
-                if (action->property("postPaneToolbarSpacer").isValid())
+                if (action->property(gsPostPaneToolbarSpacer).isValid() || action->property(gsPostPaneSearchWidget).isValid())
                 {
                     action->setVisible(true);
-                    break;
                 }
             }
             break;

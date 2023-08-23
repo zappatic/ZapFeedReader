@@ -33,6 +33,7 @@ namespace ZapFR
         {
           public:
             explicit AgentGetScriptFolderPosts(uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                               const std::string& searchFilter,
                                                std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentGetScriptFolderPosts() = default;
 
@@ -44,6 +45,7 @@ namespace ZapFR
             uint64_t mPerPage{0};
             uint64_t mPage{0};
             bool mShowOnlyUnread{false};
+            std::string mSearchFilter{""};
             std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine

@@ -45,8 +45,8 @@ namespace ZapFR
             void moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) override;
             uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy) override;
 
-            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) override;
-            uint64_t getTotalPostCount(bool showOnlyUnread) override;
+            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter) override;
+            uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter) override;
             void markAllAsRead() override;
 
             std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;

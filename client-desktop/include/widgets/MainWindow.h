@@ -47,6 +47,7 @@ namespace ZapFR
         class DialogJumpToPage;
         class DialogEditScript;
         class DialogEditScriptFolder;
+        class SearchWidget;
 
         class MainWindow : public QMainWindow
         {
@@ -167,6 +168,8 @@ namespace ZapFR
 
             uint64_t mPreviouslySelectedSourceID{0};
 
+            SearchWidget* mSearchWidget{nullptr}; // owned by the toolbar, so plain pointer
+
             QString dataDir() const;
             QString configDir() const;
             QString settingsFile() const;
@@ -191,6 +194,7 @@ namespace ZapFR
 
             void saveSettings() const;
             void restoreSettings();
+            void initializeUI();
             QJsonArray expandedSourceTreeItems() const;
             void expandSourceTreeItems(const QJsonArray& items) const;
             std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFolderID() const;

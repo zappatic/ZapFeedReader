@@ -36,6 +36,7 @@ set(PROJECT_SOURCES
         src/widgets/TreeViewSources.cpp
         src/widgets/TreeViewEditScriptDialogSources.cpp
         src/widgets/PopupFlagChooser.cpp
+        src/widgets/SearchWidget.cpp
         src/delegates/ItemDelegateSource.cpp
         src/delegates/ItemDelegatePost.cpp
         src/delegates/ItemDelegateLog.cpp
@@ -64,6 +65,7 @@ set(PROJECT_SOURCES
         include/widgets/TreeViewSources.h
         include/widgets/TreeViewEditScriptDialogSources.h
         include/widgets/PopupFlagChooser.h
+        include/widgets/SearchWidget.h
         include/delegates/ItemDelegateSource.h
         include/delegates/ItemDelegatePost.h
         include/delegates/ItemDelegateLog.h
@@ -79,6 +81,7 @@ set(PROJECT_SOURCES
         include/models/StandardItemModelSources.h
         src/widgets/MainWindow.ui
         src/widgets/PopupFlagChooser.ui
+        src/widgets/SearchWidget.ui
         src/dialogs/DialogAddFeed.ui
         src/dialogs/DialogAddFolder.ui
         src/dialogs/DialogImportOPML.ui

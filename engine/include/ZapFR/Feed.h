@@ -71,8 +71,8 @@ namespace ZapFR
             void setUnreadCount(uint64_t unreadCount) noexcept { mUnreadCount = unreadCount; }
             void setLastRefreshError(const std::string& e) { mLastRefreshError = e; }
 
-            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
-            virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
+            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter) = 0;
+            virtual uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter) = 0;
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
 
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
