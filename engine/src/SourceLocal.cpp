@@ -678,59 +678,18 @@ uint64_t ZapFR::Engine::SourceLocal::getTotalPostCount(bool showOnlyUnread, cons
 
 std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::getLogs(uint64_t perPage, uint64_t page)
 {
-    std::vector<std::unique_ptr<Log>> logs;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
 
     auto offset = perPage * (page - 1);
+    bindings.emplace_back(use(perPage, "perPage"));
+    bindings.emplace_back(use(offset, "offset"));
 
-    uint64_t id{0};
-    std::string timestamp{""};
-    uint64_t level;
-    std::string message{""};
-    Poco::Nullable<uint64_t> feedID{0};
-    Poco::Nullable<std::string> feedTitle{};
-
-    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << "SELECT logs.id"
-                  ",logs.timestamp"
-                  ",logs.level"
-                  ",logs.message"
-                  ",logs.feedID"
-                  ",feeds.title"
-                  " FROM logs"
-                  " LEFT JOIN feeds ON feeds.id = logs.feedID"
-                  " ORDER BY logs.id DESC"
-                  " LIMIT ? OFFSET ?",
-        use(perPage), use(offset), into(id), into(timestamp), into(level), into(message), into(feedID), into(feedTitle), range(0, 1);
-
-    while (!selectStmt.done())
-    {
-        if (selectStmt.execute() > 0)
-        {
-            auto l = std::make_unique<Log>(id);
-            l->setTimestamp(timestamp);
-            l->setLevel(level);
-            l->setMessage(message);
-            if (!feedID.isNull())
-            {
-                l->setFeedID(feedID.value());
-            }
-            if (!feedTitle.isNull())
-            {
-                l->setFeedTitle(feedTitle.value());
-            }
-            logs.emplace_back(std::move(l));
-        }
-    }
-
-    return logs;
+    return Log::queryMultiple({}, "ORDER BY logs.id DESC", "LIMIT ? OFFSET ?", bindings);
 }
 
 uint64_t ZapFR::Engine::SourceLocal::getTotalLogCount()
 {
-    uint64_t logCount;
-    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << "SELECT COUNT(*) FROM logs", into(logCount), now;
-    return logCount;
+    return Log::queryCount({}, {});
 }
 
 std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceLocal::getUsedFlagColors()

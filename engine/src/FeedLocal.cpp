@@ -493,58 +493,26 @@ Poco::File ZapFR::Engine::FeedLocal::iconFile() const
 
 std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FeedLocal::getLogs(uint64_t perPage, uint64_t page)
 {
-    std::vector<std::unique_ptr<Log>> logs;
+    std::vector<std::string> whereClause;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+
+    whereClause.emplace_back("logs.feedID=?");
+    bindings.emplace_back(use(mID, "feedID"));
 
     auto offset = perPage * (page - 1);
+    bindings.emplace_back(use(perPage, "perPage"));
+    bindings.emplace_back(use(offset, "offset"));
 
-    uint64_t id{0};
-    std::string timestamp{""};
-    uint64_t level;
-    std::string message{""};
-    Poco::Nullable<uint64_t> feedID{0};
-    Poco::Nullable<std::string> feedTitle{};
-
-    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << "SELECT logs.id"
-                  ",logs.timestamp"
-                  ",logs.level"
-                  ",logs.message"
-                  ",logs.feedID"
-                  ",feeds.title"
-                  " FROM logs"
-                  " LEFT JOIN feeds ON feeds.id = logs.feedID"
-                  " WHERE logs.feedID=?"
-                  " ORDER BY logs.id DESC"
-                  " LIMIT ? OFFSET ?",
-        use(mID), use(perPage), use(offset), into(id), into(timestamp), into(level), into(message), into(feedID), into(feedTitle), range(0, 1);
-
-    while (!selectStmt.done())
-    {
-        if (selectStmt.execute() > 0)
-        {
-            auto l = std::make_unique<Log>(id);
-            l->setTimestamp(timestamp);
-            l->setLevel(level);
-            l->setMessage(message);
-            if (!feedID.isNull())
-            {
-                l->setFeedID(feedID.value());
-            }
-            if (!feedTitle.isNull())
-            {
-                l->setFeedTitle(feedTitle.value());
-            }
-            logs.emplace_back(std::move(l));
-        }
-    }
-
-    return logs;
+    return Log::queryMultiple(whereClause, "ORDER BY logs.id DESC", "LIMIT ? OFFSET ?", bindings);
 }
 
 uint64_t ZapFR::Engine::FeedLocal::getTotalLogCount()
 {
-    uint64_t logCount;
-    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << "SELECT COUNT(*) FROM logs WHERE feedID=?", use(mID), into(logCount), now;
-    return logCount;
+    std::vector<std::string> whereClause;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+
+    whereClause.emplace_back("logs.feedID=?");
+    bindings.emplace_back(use(mID, "feedID"));
+
+    return Log::queryCount(whereClause, bindings);
 }

@@ -54,6 +54,10 @@ namespace ZapFR
 
             static void log(LogLevel level, const std::string& message, std::optional<uint64_t> feedID = {});
 
+            static std::vector<std::unique_ptr<Log>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause, const std::string& limitClause,
+                                                                   const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static uint64_t queryCount(const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+
           protected:
             uint64_t mID{0};
             std::string mTimestamp{""};
