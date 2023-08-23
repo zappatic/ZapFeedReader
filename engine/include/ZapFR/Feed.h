@@ -52,6 +52,7 @@ namespace ZapFR
             std::string lastChecked() const noexcept { return mLastChecked; }
             uint64_t sortOrder() const noexcept { return mSortOrder; }
             uint64_t unreadCount() const noexcept { return mUnreadCount; }
+            std::optional<std::string> lastRefreshError() { return mLastRefreshError; }
 
             void setURL(const std::string& url) { mURL = url; }
             void setIconURL(const std::string& iconURL) { mIconURL = iconURL; }
@@ -68,6 +69,7 @@ namespace ZapFR
             void setLastChecked(const std::string& lastChecked) { mLastChecked = lastChecked; }
             void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
             void setUnreadCount(uint64_t unreadCount) noexcept { mUnreadCount = unreadCount; }
+            void setLastRefreshError(const std::string& e) { mLastRefreshError = e; }
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
             virtual uint64_t getTotalPostCount(bool showOnlyUnread) = 0;
@@ -104,6 +106,7 @@ namespace ZapFR
             std::string mLanguage{""};
             std::string mCopyright{""};
             std::string mLastChecked{""};
+            std::optional<std::string> mLastRefreshError{};
             uint64_t mSortOrder{0};
             uint64_t mUnreadCount{0};
 

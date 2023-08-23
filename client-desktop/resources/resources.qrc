@@ -21,5 +21,6 @@
         <file>script.svg</file>
         <file>edit.svg</file>
         <file>remove.svg</file>
+        <file>feedError.svg</file>
     </qresource>
 </RCC>

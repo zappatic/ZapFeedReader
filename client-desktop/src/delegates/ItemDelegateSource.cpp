@@ -74,9 +74,19 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
     // draw the icon
     if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
     {
-        auto icon = FeedIconCache::icon(index.data(SourceTreeEntryIDRole).toULongLong());
-        auto iconSize = option.rect.height() * .75;
-        auto iconTargetRect = QRectF(option.rect.left(), option.rect.top() + ((option.rect.height() - iconSize) / 2.0), iconSize, iconSize);
+        QPixmap icon;
+        auto feedError = index.data(SourceTreeEntryFeedErrorRole);
+        if (!feedError.isNull() && feedError.isValid())
+        {
+            icon = QPixmap(":/feedError.svg");
+            brushText = QBrush(Qt::darkRed);
+        }
+        else
+        {
+            icon = FeedIconCache::icon(index.data(SourceTreeEntryIDRole).toULongLong());
+        }
+        auto iconSize = titleRect.height() * .75;
+        auto iconTargetRect = QRectF(titleRect.left(), titleRect.top() + ((titleRect.height() - iconSize) / 2.0), iconSize, iconSize);
         painter->drawPixmap(iconTargetRect, icon, icon.rect());
         titleRect.adjust(static_cast<int32_t>(iconSize) + 9, 0, 0, 0);
     }

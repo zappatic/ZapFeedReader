@@ -56,6 +56,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
     std::string language;
     std::string copyright;
     std::string lastChecked;
+    Poco::Nullable<std::string> lastRefreshError;
     uint64_t sortOrder;
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
@@ -73,11 +74,12 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
                   ",language"
                   ",copyright"
                   ",lastChecked"
+                  ",lastRefreshError"
                   ",sortOrder"
                   " FROM feeds"
                   " ORDER BY sortOrder ASC",
         into(id), into(url), into(iconURL), into(iconHash), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link), into(description),
-        into(language), into(copyright), into(lastChecked), into(sortOrder), range(0, 1);
+        into(language), into(copyright), into(lastChecked), into(lastRefreshError), into(sortOrder), range(0, 1);
 
     while (!selectStmt.done())
     {
@@ -97,6 +99,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
             f->setLanguage(language);
             f->setCopyright(copyright);
             f->setLastChecked(lastChecked);
+            if (!lastRefreshError.isNull())
+            {
+                f->setLastRefreshError(lastRefreshError);
+            }
             f->setSortOrder(sortOrder);
             f->setDataFetched(true);
 
@@ -130,6 +136,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
         std::string language;
         std::string copyright;
         std::string lastChecked;
+        Poco::Nullable<std::string> lastRefreshError;
         uint64_t sortOrder;
 
         Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
@@ -147,11 +154,12 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
                       ",language"
                       ",copyright"
                       ",lastChecked"
+                      ",lastRefreshError"
                       ",sortOrder"
                       " FROM feeds"
                       " WHERE id=?",
             use(feedID), into(id), into(url), into(iconURL), into(iconHash), into(iconLastFetched), into(folder), into(guid), into(title), into(subtitle), into(link),
-            into(description), into(language), into(copyright), into(lastChecked), into(sortOrder), now;
+            into(description), into(language), into(copyright), into(lastChecked), into(lastRefreshError), into(sortOrder), now;
 
         auto rs = Poco::Data::RecordSet(selectStmt);
         if (rs.rowCount() == 1)
@@ -170,6 +178,10 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
             f->setLanguage(language);
             f->setCopyright(copyright);
             f->setLastChecked(lastChecked);
+            if (!lastRefreshError.isNull())
+            {
+                f->setLastRefreshError(lastRefreshError);
+            }
             f->setSortOrder(sortOrder);
             f->setDataFetched(true);
 

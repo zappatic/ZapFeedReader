@@ -300,6 +300,7 @@ bool ZapFR::Engine::FeedLocal::fetchData()
 {
     if (!mDataFetched)
     {
+        Poco::Nullable<std::string> lastRefreshError;
         Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
         selectStmt << "SELECT url"
                       ",folder"
@@ -311,13 +312,18 @@ bool ZapFR::Engine::FeedLocal::fetchData()
                       ",language"
                       ",copyright"
                       ",lastChecked"
+                      ",lastRefreshError"
                       ",sortOrder"
                       " FROM feeds"
                       " WHERE id=?",
             use(mID), into(mURL), into(mFolderID), into(mGuid), into(mTitle), into(mSubtitle), into(mLink), into(mDescription), into(mLanguage), into(mCopyright),
-            into(mLastChecked), into(mSortOrder), now;
+            into(mLastChecked), into(lastRefreshError), into(mSortOrder), now;
 
         mDataFetched = true;
+        if (!lastRefreshError.isNull())
+        {
+            mLastRefreshError = lastRefreshError.value();
+        }
         auto rs = Poco::Data::RecordSet(selectStmt);
         return (rs.rowCount() == 1);
     }
@@ -328,6 +334,12 @@ void ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML
 {
     Log::log(LogLevel::Info, "Refreshing feed", mID);
     fetchData();
+
+    {
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+        updateStmt << "UPDATE feeds SET lastRefreshError=NULL WHERE id=?", use(mID), now;
+    }
+
     try
     {
         FeedFetcher ff;
@@ -345,15 +357,23 @@ void ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML
     }
     catch (const Poco::Exception& e)
     {
-        Log::log(LogLevel::Error, e.displayText(), mID);
+        auto error = e.displayText();
+        Log::log(LogLevel::Error, error, mID);
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+        updateStmt << "UPDATE feeds SET lastRefreshError=? WHERE id=?", useRef(error), use(mID), now;
     }
     catch (const std::runtime_error& e)
     {
-        Log::log(LogLevel::Error, e.what(), mID);
+        auto error = e.what();
+        Log::log(LogLevel::Error, error, mID);
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+        updateStmt << "UPDATE feeds SET lastRefreshError=? WHERE id=?", useRef(error), use(mID), now;
     }
     catch (...)
     {
         Log::log(LogLevel::Error, "Unknown exception", mID);
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+        updateStmt << "UPDATE feeds SET lastRefreshError='Unkown exception' WHERE id=?", use(mID), now;
     }
 }
 

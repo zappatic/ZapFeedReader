@@ -118,6 +118,12 @@ void ZapFR::Client::MainWindow::reloadSources()
                         feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
                     }
                     feedItem->setData(true, SourceTreeEntryDisplayUnreadCountBadge);
+                    auto feedError = feed->lastRefreshError();
+                    if (feedError.has_value())
+                    {
+                        feedItem->setData(QString::fromUtf8(feedError.value()), SourceTreeEntryFeedErrorRole);
+                        feedItem->setData(QString::fromUtf8(feedError.value()), Qt::ToolTipRole);
+                    }
 
                     if (!FeedIconCache::isCached(feed->id()) || !FeedIconCache::isSameHash(feed->id(), feed->iconHash()))
                     {
