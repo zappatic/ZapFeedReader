@@ -86,16 +86,8 @@ void ZapFR::Client::MainWindow::reloadPosts()
     {
         auto sourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
         auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
-        if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
-        {
-            ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
-                                                                           processPosts);
-        }
-        else
-        {
-            ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderFlaggedPosts(mFlagFilter, sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage,
-                                                                                  mShowOnlyUnreadPosts, processPosts);
-        }
+        ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
+                                                                       mFlagFilter, processPosts);
     }
     else
     {
@@ -106,44 +98,21 @@ void ZapFR::Client::MainWindow::reloadPosts()
             {
                 auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
-                {
-                    ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
-                                                                           processPosts);
-                }
-                else
-                {
-                    ZapFR::Engine::Agent::getInstance()->queueGetFeedFlaggedPosts(mFlagFilter, sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
-                                                                                  processPosts);
-                }
+                ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
+                                                                       processPosts);
             }
             else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
             {
                 auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-                if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
-                {
-                    ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
-                                                                             processPosts);
-                }
-                else
-                {
-                    ZapFR::Engine::Agent::getInstance()->queueGetFolderFlaggedPosts(mFlagFilter, sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
-                                                                                    processPosts);
-                }
+                ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
+                                                                         processPosts);
             }
             else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
             {
                 auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                if (mFlagFilter == ZapFR::Engine::FlagColor::Gray)
-                {
-                    ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, processPosts);
-                }
-                else
-                {
-                    ZapFR::Engine::Agent::getInstance()->queueGetSourceFlaggedPosts(mFlagFilter, sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
-                                                                                    processPosts);
-                }
+                ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
+                                                                         processPosts);
             }
             else
             {

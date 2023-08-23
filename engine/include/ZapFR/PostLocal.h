@@ -39,6 +39,12 @@ namespace ZapFR
 
             void assignToScriptFolder(uint64_t scriptFolderID) override;
             void unassignFromScriptFolder(uint64_t scriptFolderID) override;
+
+            static std::vector<std::unique_ptr<Post>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+                                                                    const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static std::optional<std::unique_ptr<Post>> querySingle(const std::vector<std::string>& whereClause,
+                                                                    const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static uint64_t queryCount(const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -38,11 +38,9 @@ namespace ZapFR
             std::string title() const noexcept { return mTitle; }
             void setTitle(const std::string& title) { mTitle = title; }
 
-            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter) = 0;
-            virtual uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter) = 0;
-
-            virtual std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
-            virtual uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) = 0;
+            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                                                FlagColor flagColor) = 0;
+            virtual uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) = 0;
 
             virtual void update(const std::string& title) = 0;
 

@@ -17,6 +17,7 @@
 */
 
 #include "ZapFR/PostLocal.h"
+#include "ZapFR/Helpers.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -68,4 +69,272 @@ void ZapFR::Engine::PostLocal::unassignFromScriptFolder(uint64_t scriptFolderID)
 {
     Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
     deleteStmt << "DELETE FROM scriptfolder_posts WHERE postID=? AND scriptFolderID=?", use(mID), use(scriptFolderID), now;
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+                                                                                          const std::string& limitClause,
+                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    std::vector<std::unique_ptr<Post>> posts;
+
+    uint64_t id{0};
+    uint64_t feedID{0};
+    bool isRead{false};
+    std::string title{""};
+    std::string link{""};
+    std::string description{""};
+    std::string author{""};
+    std::string commentsURL{""};
+    std::string enclosureURL{""};
+    std::string enclosureLength{""};
+    std::string enclosureMimeType{""};
+    std::string guid{""};
+    bool guidIsPermalink{false};
+    std::string datePublished{""};
+    std::string sourceURL{""};
+    std::string sourceTitle{""};
+    std::string feedTitle{""};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT posts.id"
+          ",posts.feedID"
+          ",posts.isRead"
+          ",posts.title"
+          ",posts.link"
+          ",posts.description"
+          ",posts.author"
+          ",posts.commentsURL"
+          ",posts.enclosureURL"
+          ",posts.enclosureLength"
+          ",posts.enclosureMimeType"
+          ",posts.guid"
+          ",posts.guidIsPermalink"
+          ",posts.datePublished"
+          ",posts.sourceURL"
+          ",posts.sourceTitle"
+          ",feeds.title"
+          " FROM posts"
+          " LEFT JOIN feeds ON feeds.id = posts.feedID";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+    ss << " " << orderClause << " " << limitClause;
+
+    auto sql = ss.str();
+
+    selectStmt << sql, range(0, 1);
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(feedID));
+    selectStmt.addExtract(into(isRead));
+    selectStmt.addExtract(into(title));
+    selectStmt.addExtract(into(link));
+    selectStmt.addExtract(into(description));
+    selectStmt.addExtract(into(author));
+    selectStmt.addExtract(into(commentsURL));
+    selectStmt.addExtract(into(enclosureURL));
+    selectStmt.addExtract(into(enclosureLength));
+    selectStmt.addExtract(into(enclosureMimeType));
+    selectStmt.addExtract(into(guid));
+    selectStmt.addExtract(into(guidIsPermalink));
+    selectStmt.addExtract(into(datePublished));
+    selectStmt.addExtract(into(sourceURL));
+    selectStmt.addExtract(into(sourceTitle));
+    selectStmt.addExtract(into(feedTitle));
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            auto p = std::make_unique<PostLocal>(id);
+            p->setIsRead(isRead);
+            p->setFeedID(feedID);
+            p->setFeedTitle(feedTitle);
+            p->setTitle(title);
+            p->setLink(link);
+            p->setDescription(description);
+            p->setAuthor(author);
+            p->setCommentsURL(commentsURL);
+            p->setEnclosureURL(enclosureURL);
+            p->setEnclosureLength(enclosureLength);
+            p->setEnclosureMimeType(enclosureMimeType);
+            p->setGuid(guid);
+            p->setGuidIsPermalink(guidIsPermalink);
+            p->setDatePublished(datePublished);
+            p->setSourceURL(sourceURL);
+            p->setSourceTitle(sourceTitle);
+
+            // query flags
+            std::unordered_set<FlagColor> flags;
+            uint8_t flagID{0};
+            Poco::Data::Statement selectFlagsStmt(*(Database::getInstance()->session()));
+            selectFlagsStmt << "SELECT DISTINCT(flagID) FROM flags WHERE postID=?", use(id), into(flagID), range(0, 1);
+            while (!selectFlagsStmt.done())
+            {
+                if (selectFlagsStmt.execute() > 0)
+                {
+                    flags.insert(Flag::flagColorForID(flagID));
+                }
+            }
+            p->setFlagColors(flags);
+
+            posts.emplace_back(std::move(p));
+        }
+    }
+    return posts;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::querySingle(const std::vector<std::string>& whereClause,
+                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    uint64_t id{0};
+    uint64_t feedID{0};
+    bool isRead{false};
+    std::string title{""};
+    std::string link{""};
+    std::string description{""};
+    std::string author{""};
+    std::string commentsURL{""};
+    std::string enclosureURL{""};
+    std::string enclosureLength{""};
+    std::string enclosureMimeType{""};
+    std::string guid{""};
+    bool guidIsPermalink{false};
+    std::string datePublished{""};
+    std::string sourceURL{""};
+    std::string sourceTitle{""};
+    std::string feedTitle{""};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT posts.id"
+          ",posts.feedID"
+          ",posts.isRead"
+          ",posts.title"
+          ",posts.link"
+          ",posts.description"
+          ",posts.author"
+          ",posts.commentsURL"
+          ",posts.enclosureURL"
+          ",posts.enclosureLength"
+          ",posts.enclosureMimeType"
+          ",posts.guid"
+          ",posts.guidIsPermalink"
+          ",posts.datePublished"
+          ",posts.sourceURL"
+          ",posts.sourceTitle"
+          ",feeds.title"
+          " FROM posts"
+          " LEFT JOIN feeds ON feeds.id = posts.feedID";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+
+    auto sql = ss.str();
+
+    selectStmt << sql;
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(feedID));
+    selectStmt.addExtract(into(isRead));
+    selectStmt.addExtract(into(title));
+    selectStmt.addExtract(into(link));
+    selectStmt.addExtract(into(description));
+    selectStmt.addExtract(into(author));
+    selectStmt.addExtract(into(commentsURL));
+    selectStmt.addExtract(into(enclosureURL));
+    selectStmt.addExtract(into(enclosureLength));
+    selectStmt.addExtract(into(enclosureMimeType));
+    selectStmt.addExtract(into(guid));
+    selectStmt.addExtract(into(guidIsPermalink));
+    selectStmt.addExtract(into(datePublished));
+    selectStmt.addExtract(into(sourceURL));
+    selectStmt.addExtract(into(sourceTitle));
+    selectStmt.addExtract(into(feedTitle));
+
+    selectStmt.execute();
+
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        auto p = std::make_unique<PostLocal>(id);
+        p->setFeedID(feedID);
+        p->setFeedTitle(feedTitle);
+        p->setIsRead(isRead);
+        p->setTitle(title);
+        p->setLink(link);
+        p->setDescription(description);
+        p->setAuthor(author);
+        p->setCommentsURL(commentsURL);
+        p->setEnclosureURL(enclosureURL);
+        p->setEnclosureLength(enclosureLength);
+        p->setEnclosureMimeType(enclosureMimeType);
+        p->setGuid(guid);
+        p->setGuidIsPermalink(guidIsPermalink);
+        p->setDatePublished(datePublished);
+        p->setSourceURL(sourceURL);
+        p->setSourceTitle(sourceTitle);
+
+        // query flags
+        std::unordered_set<FlagColor> flags;
+        uint8_t flagID{0};
+        Poco::Data::Statement selectFlagsStmt(*(Database::getInstance()->session()));
+        selectFlagsStmt << "SELECT DISTINCT(flagID) FROM flags WHERE postID=?", use(id), into(flagID), range(0, 1);
+        while (!selectFlagsStmt.done())
+        {
+            if (selectFlagsStmt.execute() > 0)
+            {
+                flags.insert(Flag::flagColorForID(flagID));
+            }
+        }
+        p->setFlagColors(flags);
+
+        return p;
+    }
+
+    return {};
+}
+
+uint64_t ZapFR::Engine::PostLocal::queryCount(const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    uint64_t postCount;
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT COUNT(*) FROM posts";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+
+    auto sql = ss.str();
+
+    selectStmt << sql, into(postCount);
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.execute();
+
+    return postCount;
 }

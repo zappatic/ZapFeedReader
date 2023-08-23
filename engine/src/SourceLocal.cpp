@@ -533,6 +533,13 @@ uint64_t ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_
     return newFolderID;
 }
 
+void ZapFR::Engine::SourceLocal::markAllAsRead()
+{
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE posts SET isRead=TRUE", now;
+    updateStmt.execute();
+}
+
 uint64_t ZapFR::Engine::SourceLocal::createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy)
 {
 
@@ -612,162 +619,61 @@ uint64_t ZapFR::Engine::SourceLocal::createFolderHierarchy(uint64_t parentID, co
     return 0;
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter)
+std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                                                                       FlagColor flagColor)
 {
-    std::vector<std::unique_ptr<Post>> posts;
+    std::vector<std::string> whereClause;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+    std::string wildcardSearchFilter = "%" + searchFilter + "%";
+    auto fc = Flag::idForFlagColor(flagColor);
+
+    if (showOnlyUnread)
+    {
+        whereClause.emplace_back("posts.isRead=FALSE");
+    }
+    if (!searchFilter.empty())
+    {
+        whereClause.emplace_back("(posts.title LIKE ? OR posts.description LIKE ?)");
+        bindings.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+        bindings.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+    }
+    if (flagColor != FlagColor::Gray)
+    {
+        whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM flags WHERE flagID=?)");
+        bindings.emplace_back(use(fc, "flagColor"));
+    }
 
     auto offset = perPage * (page - 1);
+    bindings.emplace_back(use(perPage, "perPage"));
+    bindings.emplace_back(use(offset, "offset"));
 
-    uint64_t id{0};
-    uint64_t postFeedID{0};
-    bool isRead{false};
-    std::string title{""};
-    std::string link{""};
-    std::string description{""};
-    std::string author{""};
-    std::string commentsURL{""};
-    std::string enclosureURL{""};
-    std::string enclosureLength{""};
-    std::string enclosureMimeType{""};
-    std::string guid{""};
-    bool guidIsPermalink{false};
-    std::string datePublished{""};
-    std::string sourceURL{""};
-    std::string sourceTitle{""};
-    std::string feedTitle{""};
-
-    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    if (searchFilter.empty())
-    {
-        std::string whereClause = (showOnlyUnread ? " WHERE posts.isRead=FALSE" : "");
-        selectStmt << Poco::format("SELECT posts.id"
-                                   ",posts.feedID"
-                                   ",posts.isRead"
-                                   ",posts.title"
-                                   ",posts.link"
-                                   ",posts.description"
-                                   ",posts.author"
-                                   ",posts.commentsURL"
-                                   ",posts.enclosureURL"
-                                   ",posts.enclosureLength"
-                                   ",posts.enclosureMimeType"
-                                   ",posts.guid"
-                                   ",posts.guidIsPermalink"
-                                   ",posts.datePublished"
-                                   ",posts.sourceURL"
-                                   ",posts.sourceTitle"
-                                   ",feeds.title"
-                                   " FROM posts"
-                                   " LEFT JOIN feeds ON feeds.id = posts.feedID"
-                                   " %s"
-                                   " ORDER BY posts.datePublished DESC"
-                                   " LIMIT ? OFFSET ?",
-                                   whereClause),
-            use(perPage), use(offset), into(id), into(postFeedID), into(isRead), into(title), into(link), into(description), into(author), into(commentsURL),
-            into(enclosureURL), into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle),
-            into(feedTitle), range(0, 1);
-    }
-    else
-    {
-        std::string whereClause = (showOnlyUnread ? " AND posts.isRead=FALSE" : "");
-        std::string wildcardSearchFilter = "%" + searchFilter + "%";
-        selectStmt << Poco::format("SELECT posts.id"
-                                   ",posts.feedID"
-                                   ",posts.isRead"
-                                   ",posts.title"
-                                   ",posts.link"
-                                   ",posts.description"
-                                   ",posts.author"
-                                   ",posts.commentsURL"
-                                   ",posts.enclosureURL"
-                                   ",posts.enclosureLength"
-                                   ",posts.enclosureMimeType"
-                                   ",posts.guid"
-                                   ",posts.guidIsPermalink"
-                                   ",posts.datePublished"
-                                   ",posts.sourceURL"
-                                   ",posts.sourceTitle"
-                                   ",feeds.title"
-                                   " FROM posts"
-                                   " LEFT JOIN feeds ON feeds.id = posts.feedID"
-                                   " WHERE (posts.title LIKE ? OR posts.description LIKE ?)"
-                                   " %s"
-                                   " ORDER BY posts.datePublished DESC"
-                                   " LIMIT ? OFFSET ?",
-                                   whereClause),
-            useRef(wildcardSearchFilter), useRef(wildcardSearchFilter), use(perPage), use(offset), into(id), into(postFeedID), into(isRead), into(title), into(link),
-            into(description), into(author), into(commentsURL), into(enclosureURL), into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink),
-            into(datePublished), into(sourceURL), into(sourceTitle), into(feedTitle), range(0, 1);
-    }
-
-    while (!selectStmt.done())
-    {
-        if (selectStmt.execute() > 0)
-        {
-            auto p = std::make_unique<PostLocal>(id);
-            p->setIsRead(isRead);
-            p->setFeedID(postFeedID);
-            p->setFeedTitle(feedTitle);
-            p->setTitle(title);
-            p->setLink(link);
-            p->setDescription(description);
-            p->setAuthor(author);
-            p->setCommentsURL(commentsURL);
-            p->setEnclosureURL(enclosureURL);
-            p->setEnclosureLength(enclosureLength);
-            p->setEnclosureMimeType(enclosureMimeType);
-            p->setGuid(guid);
-            p->setGuidIsPermalink(guidIsPermalink);
-            p->setDatePublished(datePublished);
-            p->setSourceURL(sourceURL);
-            p->setSourceTitle(sourceTitle);
-
-            // query flags
-            std::unordered_set<FlagColor> flags;
-            uint8_t flagID{0};
-            Poco::Data::Statement selectFlagsStmt(*(Database::getInstance()->session()));
-            selectFlagsStmt << "SELECT DISTINCT(flagID) FROM flags WHERE postID=?", use(id), into(flagID), range(0, 1);
-            while (!selectFlagsStmt.done())
-            {
-                if (selectFlagsStmt.execute() > 0)
-                {
-                    flags.insert(Flag::flagColorForID(flagID));
-                }
-            }
-            p->setFlagColors(flags);
-
-            posts.emplace_back(std::move(p));
-        }
-    }
-    return posts;
+    return PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT ? OFFSET ?", bindings);
 }
 
-void ZapFR::Engine::SourceLocal::markAllAsRead()
+uint64_t ZapFR::Engine::SourceLocal::getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor)
 {
-    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-    updateStmt << "UPDATE posts SET isRead=TRUE", now;
-    updateStmt.execute();
-}
+    std::vector<std::string> whereClause;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+    std::string wildcardSearchFilter = "%" + searchFilter + "%";
+    auto fc = Flag::idForFlagColor(flagColor);
 
-uint64_t ZapFR::Engine::SourceLocal::getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter)
-{
-    uint64_t postCount;
-    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-
-    if (searchFilter.empty())
+    if (showOnlyUnread)
     {
-        std::string whereClause = (showOnlyUnread ? " WHERE posts.isRead=FALSE " : "");
-        selectStmt << Poco::format("SELECT COUNT(*) FROM posts %s", whereClause), into(postCount), now;
+        whereClause.emplace_back("posts.isRead=FALSE");
     }
-    else
+    if (!searchFilter.empty())
     {
-        std::string whereClause = (showOnlyUnread ? " AND posts.isRead=FALSE " : "");
-        std::string wildcardSearchFilter = "%" + searchFilter + "%";
-        selectStmt << Poco::format("SELECT COUNT(*) FROM posts WHERE (posts.title LIKE ? OR posts.description LIKE ?) %s", whereClause), use(wildcardSearchFilter),
-            use(wildcardSearchFilter), into(postCount), now;
+        whereClause.emplace_back("(posts.title LIKE ? OR posts.description LIKE ?)");
+        bindings.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+        bindings.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+    }
+    if (flagColor != FlagColor::Gray)
+    {
+        whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM flags WHERE flagID=?)");
+        bindings.emplace_back(use(fc, "flagColor"));
     }
 
-    return postCount;
+    return PostLocal::queryCount(whereClause, bindings);
 }
 
 std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::getLogs(uint64_t perPage, uint64_t page)
@@ -852,118 +758,6 @@ std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceLocal::getUsed
     }
 
     return flags;
-}
-
-std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceLocal::getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread)
-{
-    std::vector<std::unique_ptr<Post>> posts;
-
-    auto offset = perPage * (page - 1);
-    auto fc = Flag::idForFlagColor(flagColor);
-
-    uint64_t id{0};
-    uint64_t postFeedID{0};
-    bool isRead{false};
-    std::string title{""};
-    std::string link{""};
-    std::string description{""};
-    std::string author{""};
-    std::string commentsURL{""};
-    std::string enclosureURL{""};
-    std::string enclosureLength{""};
-    std::string enclosureMimeType{""};
-    std::string guid{""};
-    bool guidIsPermalink{false};
-    std::string datePublished{""};
-    std::string sourceURL{""};
-    std::string sourceTitle{""};
-    std::string feedTitle{""};
-
-    std::string whereClause = showOnlyUnread ? "AND posts.isRead=FALSE" : "";
-
-    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << Poco::format("SELECT posts.id"
-                               ",posts.feedID"
-                               ",posts.isRead"
-                               ",posts.title"
-                               ",posts.link"
-                               ",posts.description"
-                               ",posts.author"
-                               ",posts.commentsURL"
-                               ",posts.enclosureURL"
-                               ",posts.enclosureLength"
-                               ",posts.enclosureMimeType"
-                               ",posts.guid"
-                               ",posts.guidIsPermalink"
-                               ",posts.datePublished"
-                               ",posts.sourceURL"
-                               ",posts.sourceTitle"
-                               ",feeds.title"
-                               " FROM posts"
-                               " LEFT JOIN feeds ON feeds.id = posts.feedID"
-                               " WHERE posts.id IN (SELECT DISTINCT(postID) FROM flags WHERE flagID=?)"
-                               " %s"
-                               " ORDER BY posts.datePublished DESC"
-                               " LIMIT ? OFFSET ?",
-                               whereClause),
-        use(fc), use(perPage), use(offset), into(id), into(postFeedID), into(isRead), into(title), into(link), into(description), into(author), into(commentsURL),
-        into(enclosureURL), into(enclosureLength), into(enclosureMimeType), into(guid), into(guidIsPermalink), into(datePublished), into(sourceURL), into(sourceTitle),
-        into(feedTitle), range(0, 1);
-
-    while (!selectStmt.done())
-    {
-        if (selectStmt.execute() > 0)
-        {
-            auto p = std::make_unique<PostLocal>(id);
-            p->setIsRead(isRead);
-            p->setFeedID(postFeedID);
-            p->setFeedTitle(feedTitle);
-            p->setTitle(title);
-            p->setLink(link);
-            p->setDescription(description);
-            p->setAuthor(author);
-            p->setCommentsURL(commentsURL);
-            p->setEnclosureURL(enclosureURL);
-            p->setEnclosureLength(enclosureLength);
-            p->setEnclosureMimeType(enclosureMimeType);
-            p->setGuid(guid);
-            p->setGuidIsPermalink(guidIsPermalink);
-            p->setDatePublished(datePublished);
-            p->setSourceURL(sourceURL);
-            p->setSourceTitle(sourceTitle);
-
-            // query flags
-            std::unordered_set<FlagColor> flags;
-            uint8_t flagID{0};
-            Poco::Data::Statement selectFlagsStmt(*(Database::getInstance()->session()));
-            selectFlagsStmt << "SELECT DISTINCT(flagID) FROM flags WHERE postID=?", use(id), into(flagID), range(0, 1);
-            while (!selectFlagsStmt.done())
-            {
-                if (selectFlagsStmt.execute() > 0)
-                {
-                    flags.insert(Flag::flagColorForID(flagID));
-                }
-            }
-            p->setFlagColors(flags);
-
-            posts.emplace_back(std::move(p));
-        }
-    }
-    return posts;
-}
-
-uint64_t ZapFR::Engine::SourceLocal::getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread)
-{
-    auto fc = Flag::idForFlagColor(flagColor);
-    uint64_t postCount;
-    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    std::string sql = "SELECT COUNT(*) FROM flags WHERE flagID=?";
-    if (showOnlyUnread)
-    {
-        sql = "SELECT COUNT(*) FROM flags LEFT JOIN posts ON flags.postID=posts.id WHERE flags.flagID=? AND posts.isRead=FALSE";
-    }
-    selectStmt << sql, use(fc), into(postCount), now;
-    return postCount;
 }
 
 std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceLocal::getScriptFolders()

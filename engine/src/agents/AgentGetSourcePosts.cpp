@@ -21,8 +21,10 @@
 #include "ZapFR/Source.h"
 
 ZapFR::Engine::AgentGetSourcePosts::AgentGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                                        FlagColor flagColor,
                                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter), mFinishedCallback(finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter), mFlagColor(flagColor),
+      mFinishedCallback(finishedCallback)
 {
 }
 
@@ -31,14 +33,14 @@ void ZapFR::Engine::AgentGetSourcePosts::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto posts = source.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter);
+        auto posts = source.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
         std::vector<Post*> postPointers;
         for (const auto& post : posts)
         {
             postPointers.emplace_back(post.get());
         }
 
-        mFinishedCallback(source.value()->id(), postPointers, mPage, source.value()->getTotalPostCount(mShowOnlyUnread, mSearchFilter));
+        mFinishedCallback(source.value()->id(), postPointers, mPage, source.value()->getTotalPostCount(mShowOnlyUnread, mSearchFilter, mFlagColor));
     }
 
     mIsDone = true;

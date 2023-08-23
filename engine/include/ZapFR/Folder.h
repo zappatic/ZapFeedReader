@@ -47,15 +47,13 @@ namespace ZapFR
             virtual void fetchSubfolders() = 0;
             bool hasSubfolders();
 
-            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter) = 0;
-            virtual uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter) = 0;
+            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                                                FlagColor flagColor) = 0;
+            virtual uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) = 0;
             virtual std::unordered_set<uint64_t> markAllAsRead() = 0;
 
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
             virtual uint64_t getTotalLogCount() = 0;
-
-            virtual std::vector<std::unique_ptr<Post>> getFlaggedPosts(FlagColor flagColor, uint64_t perPage, uint64_t page, bool showOnlyUnread) = 0;
-            virtual uint64_t getTotalFlaggedPostCount(FlagColor flagColor, bool showOnlyUnread) = 0;
 
             virtual bool fetchData() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }

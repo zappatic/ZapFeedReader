@@ -27,12 +27,8 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentMarkPostsUnflagged.cpp
     agents/AgentGetFeedUnreadCount.cpp
     agents/AgentGetUsedFlagColors.cpp
-    agents/AgentGetSourceFlaggedPosts.cpp
-    agents/AgentGetFolderFlaggedPosts.cpp
-    agents/AgentGetFeedFlaggedPosts.cpp
     agents/AgentGetScriptFolders.cpp
     agents/AgentGetScriptFolderPosts.cpp
-    agents/AgentGetScriptFolderFlaggedPosts.cpp
     agents/AgentGetScripts.cpp
     agents/AgentUpdateScript.cpp
     agents/AgentRemoveScript.cpp
