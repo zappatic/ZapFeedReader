@@ -746,7 +746,12 @@ void ZapFR::Client::MainWindow::connectPostStuff()
                                                                              [&]() { QMetaObject::invokeMethod(this, "postsMarkedUnflagged", Qt::AutoConnection, false); });
             });
 
-    connect(mSearchWidget, &SearchWidget::searchRequested, [&]() { reloadPosts(); });
+    connect(mSearchWidget, &SearchWidget::searchRequested,
+            [&]()
+            {
+                updateActivePostFilter();
+                reloadPosts();
+            });
 }
 
 void ZapFR::Client::MainWindow::createPostContextMenus()

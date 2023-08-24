@@ -392,9 +392,10 @@ void ZapFR::Client::MainWindow::updateActivePostFilter()
     auto isScriptFolderFilterActive{selectedScriptFolder.isValid()};
     auto isFlagFilterActive{mFlagFilter != ZapFR::Engine::FlagColor::Gray};
     auto isOnlyUnreadFilterActive{mShowOnlyUnreadPosts};
-    auto isOtherFilterActive{isScriptFolderFilterActive || isOnlyUnreadFilterActive};
+    auto isTextSearchFilterActive{!mSearchWidget->searchQuery().isEmpty()};
+    auto isOtherFilterActive{isScriptFolderFilterActive || isOnlyUnreadFilterActive || isTextSearchFilterActive};
 
-    ui->labelActiveFilter->setVisible(isFlagFilterActive || isScriptFolderFilterActive || isOnlyUnreadFilterActive);
+    ui->labelActiveFilter->setVisible(isFlagFilterActive || isOtherFilterActive);
     ui->labelActiveFilterFlag->setVisible(isFlagFilterActive);
     ui->labelActiveFilterOther->setVisible(isOtherFilterActive);
 
@@ -405,11 +406,15 @@ void ZapFR::Client::MainWindow::updateActivePostFilter()
     QStringList otherFilters;
     if (isScriptFolderFilterActive)
     {
-        otherFilters << selectedScriptFolder.data(Qt::DisplayRole).toString();
+        otherFilters << tr("Script folder '%1'").arg(selectedScriptFolder.data(Qt::DisplayRole).toString());
     }
     if (isOnlyUnreadFilterActive)
     {
         otherFilters << tr("Only unread");
+    }
+    if (isTextSearchFilterActive)
+    {
+        otherFilters << tr("Search '%1'").arg(mSearchWidget->searchQuery());
     }
 
     if (isOtherFilterActive)
