@@ -42,6 +42,7 @@ namespace ZapFR
             virtual ~Agent() = default;
 
             static Agent* getInstance();
+            void joinAll() const;
 
             // querying posts
             void queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,

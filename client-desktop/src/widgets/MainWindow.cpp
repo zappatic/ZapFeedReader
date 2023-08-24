@@ -100,6 +100,7 @@ void ZapFR::Client::MainWindow::initializeUI()
 void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
 {
     saveSettings();
+    ZapFR::Engine::Agent::getInstance()->joinAll();
 }
 
 void ZapFR::Client::MainWindow::saveSettings() const
