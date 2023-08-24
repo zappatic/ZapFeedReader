@@ -40,13 +40,13 @@
 #include "dialogs/DialogJumpToPage.h"
 #include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
-#include "widgets/SearchWidget.h"
+#include "widgets/LineEditSearch.h"
 #include "widgets/WebEnginePagePost.h"
 
 namespace
 {
     auto gsPostPaneToolbarSpacer{"postPaneToolbarSpacer"};
-    auto gsPostPaneSearchWidget{"postPaneSearchWidget"};
+    auto gsPostPaneLineEditSearch{"postPaneLineEditSearch"};
 } // namespace
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -90,9 +90,9 @@ void ZapFR::Client::MainWindow::initializeUI()
     action->setProperty(gsPostPaneToolbarSpacer, true);
 
     // add the search widget to the toolbar
-    mSearchWidget = new SearchWidget();
-    auto actionSearch = ui->toolBar->insertWidget(ui->action_View_logs, mSearchWidget);
-    actionSearch->setProperty(gsPostPaneSearchWidget, true);
+    mLineEditSearch = new LineEditSearch();
+    auto actionSearch = ui->toolBar->insertWidget(ui->action_View_logs, mLineEditSearch);
+    actionSearch->setProperty(gsPostPaneLineEditSearch, true);
 
     ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
     ui->stackedWidgetPost->setCurrentIndex(StackedPanePost);
@@ -318,7 +318,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->frameFlagFilters->setStyleSheet(QString("QFrame { border-top: 0px; border-left: 0px; border-right: 1px solid %1; border-bottom: 1px solid %1;}")
                                             .arg(palette.color(QPalette::Active, QPalette::Dark).name()));
 
-    mSearchWidget->setSearchIconColor(currentColorScheme == Qt::ColorScheme::Dark ? "#eee" : "#333");
+    mLineEditSearch->setSearchIconColor(currentColorScheme == Qt::ColorScheme::Dark ? "#eee" : "#333");
 }
 
 void ZapFR::Client::MainWindow::updateToolbar()
@@ -383,7 +383,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
 
             for (const auto& action : ui->toolBar->actions())
             {
-                if (action->property(gsPostPaneToolbarSpacer).isValid() || action->property(gsPostPaneSearchWidget).isValid())
+                if (action->property(gsPostPaneToolbarSpacer).isValid() || action->property(gsPostPaneLineEditSearch).isValid())
                 {
                     action->setVisible(true);
                 }
@@ -413,7 +413,7 @@ void ZapFR::Client::MainWindow::updateActivePostFilter()
     auto isScriptFolderFilterActive{selectedScriptFolder.isValid()};
     auto isFlagFilterActive{mFlagFilter != ZapFR::Engine::FlagColor::Gray};
     auto isOnlyUnreadFilterActive{mShowOnlyUnreadPosts};
-    auto isTextSearchFilterActive{!mSearchWidget->searchQuery().isEmpty()};
+    auto isTextSearchFilterActive{!mLineEditSearch->text().isEmpty()};
     auto isOtherFilterActive{isScriptFolderFilterActive || isOnlyUnreadFilterActive || isTextSearchFilterActive};
 
     ui->labelActiveFilter->setVisible(isFlagFilterActive || isOtherFilterActive);
@@ -435,7 +435,7 @@ void ZapFR::Client::MainWindow::updateActivePostFilter()
     }
     if (isTextSearchFilterActive)
     {
-        otherFilters << tr("Search '%1'").arg(mSearchWidget->searchQuery());
+        otherFilters << tr("Search '%1'").arg(mLineEditSearch->text());
     }
 
     if (isOtherFilterActive)

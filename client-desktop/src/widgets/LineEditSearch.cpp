@@ -16,16 +16,16 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/SearchWidget.h"
-#include "ui_SearchWidget.h"
+#include "widgets/LineEditSearch.h"
 
-ZapFR::Client::SearchWidget::SearchWidget(QWidget* parent) : QWidget(parent), ui(new Ui::SearchWidget)
+ZapFR::Client::LineEditSearch::LineEditSearch(QWidget* parent) : QLineEdit(parent)
 {
-    ui->setupUi(this);
+    setClearButtonEnabled(true);
+    setPlaceholderText(tr("Search"));
 
-    connect(ui->lineEditSearch, &QLineEdit::returnPressed, [&]() { emit searchRequested(); });
+    connect(this, &QLineEdit::returnPressed, [&]() { emit searchRequested(); });
 
-    for (const auto& action : ui->lineEditSearch->findChildren<QAction*>())
+    for (const auto& action : findChildren<QAction*>())
     {
         connect(action, &QAction::triggered,
                 [&]()
@@ -37,20 +37,10 @@ ZapFR::Client::SearchWidget::SearchWidget(QWidget* parent) : QWidget(parent), ui
         break;
     }
 
-    mSearchIconAction = ui->lineEditSearch->addAction(QIcon(), QLineEdit::LeadingPosition);
+    mSearchIconAction = addAction(QIcon(), QLineEdit::LeadingPosition);
 }
 
-ZapFR::Client::SearchWidget::~SearchWidget()
-{
-    delete ui;
-}
-
-QString ZapFR::Client::SearchWidget::searchQuery() const
-{
-    return ui->lineEditSearch->text();
-}
-
-void ZapFR::Client::SearchWidget::setSearchIconColor(const QString& color)
+void ZapFR::Client::LineEditSearch::setSearchIconColor(const QString& color)
 {
     static QString svgContents{};
     if (svgContents.isEmpty())

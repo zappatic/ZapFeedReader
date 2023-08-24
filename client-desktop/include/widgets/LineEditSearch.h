@@ -16,44 +16,36 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_SEARCHWIDGET_H
-#define ZAPFR_CLIENT_SEARCHWIDGET_H
+#ifndef ZAPFR_CLIENT_LINEEDITSEARCH_H
+#define ZAPFR_CLIENT_LINEEDITSEARCH_H
 
 #include "ClientGlobal.h"
-#include <QWidget>
-
-namespace Ui
-{
-    class SearchWidget;
-}
 
 namespace ZapFR
 {
     namespace Client
     {
-        class SearchWidget : public QWidget
+        class LineEditSearch : public QLineEdit
         {
             Q_OBJECT
 
           public:
-            explicit SearchWidget(QWidget* parent = nullptr);
-            ~SearchWidget();
-            SearchWidget(const SearchWidget& e) = delete;
-            SearchWidget& operator=(const SearchWidget&) = delete;
-            SearchWidget(SearchWidget&&) = delete;
-            SearchWidget& operator=(SearchWidget&&) = delete;
+            explicit LineEditSearch(QWidget* parent = nullptr);
+            ~LineEditSearch() = default;
+            LineEditSearch(const LineEditSearch& e) = delete;
+            LineEditSearch& operator=(const LineEditSearch&) = delete;
+            LineEditSearch(LineEditSearch&&) = delete;
+            LineEditSearch& operator=(LineEditSearch&&) = delete;
 
-            QString searchQuery() const;
             void setSearchIconColor(const QString& color);
 
           signals:
             void searchRequested();
 
           private:
-            Ui::SearchWidget* ui;
             QAction* mSearchIconAction{nullptr};
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_SEARCHWIDGET_H
+#endif // ZAPFR_CLIENT_LINEEDITSEARCH_H

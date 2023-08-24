@@ -48,7 +48,7 @@ namespace ZapFR
         class DialogJumpToPage;
         class DialogEditScript;
         class DialogEditScriptFolder;
-        class SearchWidget;
+        class LineEditSearch;
 
         class MainWindow : public QMainWindow
         {
@@ -170,7 +170,7 @@ namespace ZapFR
 
             uint64_t mPreviouslySelectedSourceID{0};
 
-            SearchWidget* mSearchWidget{nullptr}; // owned by the toolbar, so plain pointer
+            LineEditSearch* mLineEditSearch{nullptr}; // owned by the toolbar, so plain pointer
 
             QString dataDir() const;
             QString configDir() const;

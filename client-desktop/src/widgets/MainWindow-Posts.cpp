@@ -19,8 +19,8 @@
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Post.h"
+#include "widgets/LineEditSearch.h"
 #include "widgets/MainWindow.h"
-#include "widgets/SearchWidget.h"
 #include "widgets/WebEnginePagePost.h"
 
 namespace
@@ -79,7 +79,7 @@ void ZapFR::Client::MainWindow::reloadPosts()
         QMetaObject::invokeMethod(this, "populatePosts", Qt::AutoConnection, rows, pageNumber, totalPostCount);
     };
 
-    auto searchFilter = mSearchWidget->searchQuery().toStdString();
+    auto searchFilter = mLineEditSearch->text().toStdString();
 
     auto index = ui->tableViewScriptFolders->currentIndex();
     if (index.isValid())
@@ -744,7 +744,7 @@ void ZapFR::Client::MainWindow::connectPostStuff()
                                                                              [&]() { QMetaObject::invokeMethod(this, "postsMarkedUnflagged", Qt::AutoConnection, false); });
             });
 
-    connect(mSearchWidget, &SearchWidget::searchRequested,
+    connect(mLineEditSearch, &LineEditSearch::searchRequested,
             [&]()
             {
                 updateActivePostFilter();
