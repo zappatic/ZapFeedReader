@@ -38,6 +38,7 @@
 #include "dialogs/DialogEditScriptFolder.h"
 #include "dialogs/DialogImportOPML.h"
 #include "dialogs/DialogJumpToPage.h"
+#include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
 #include "widgets/SearchWidget.h"
 #include "widgets/WebEnginePagePost.h"
@@ -111,7 +112,23 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(SETTING_SPLITTERLEFT_STATE, QString::fromUtf8(ui->splitterLeft->saveState().toBase64()));
     root.insert(SETTING_SPLITTERLEFTINNER_STATE, QString::fromUtf8(ui->splitterLeftInner->saveState().toBase64()));
     root.insert(SETTING_SPLITTERRIGHT_STATE, QString::fromUtf8(ui->splitterRight->saveState().toBase64()));
-    root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedSourceTreeItems());
+    switch (mProxyModelSources->displayMode())
+    {
+        case SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll:
+        {
+            root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedSourceTreeItems());
+            break;
+        }
+        case SortFilterProxyModelSources::SourceTreeDisplayMode::ShowSourcesOnly:
+        {
+            if (mReloadSourcesExpansionSelectionState != nullptr)
+            {
+                auto expandedItems = mReloadSourcesExpansionSelectionState->value("expanded").toArray();
+                root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedItems);
+            }
+            break;
+        }
+    }
 
     auto sf = QFile(settingsFile());
     sf.open(QIODeviceBase::WriteOnly);
@@ -474,6 +491,12 @@ void ZapFR::Client::MainWindow::configureConnects()
                         mPreviouslySelectedSourceID = 0;
                         reloadUsedFlagColors();
                         reloadPosts();
+                        if (mProxyModelSources != nullptr)
+                        {
+                            mProxyModelSources->setDisplayMode(SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll);
+                            restoreSourceTreeExpansionSelectionState(nullptr);
+                            mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
+                        }
                         break;
                     }
                     case StackedPaneLogs:
@@ -481,6 +504,12 @@ void ZapFR::Client::MainWindow::configureConnects()
                         ui->frameFlagFilters->setVisible(false);
                         ui->tableViewScriptFolders->setVisible(false);
                         setUnreadBadgesShown(false);
+                        if (mProxyModelSources != nullptr)
+                        {
+                            mProxyModelSources->setDisplayMode(SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll);
+                            restoreSourceTreeExpansionSelectionState(nullptr);
+                            mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
+                        }
                         break;
                     }
                     case StackedPaneScripts:
@@ -488,6 +517,12 @@ void ZapFR::Client::MainWindow::configureConnects()
                         ui->frameFlagFilters->setVisible(false);
                         ui->tableViewScriptFolders->setVisible(false);
                         setUnreadBadgesShown(false);
+                        if (mProxyModelSources != nullptr)
+                        {
+                            preserveSourceTreeExpansionSelectionState();
+                            mProxyModelSources->setDisplayMode(SortFilterProxyModelSources::SourceTreeDisplayMode::ShowSourcesOnly);
+                            mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources")));
+                        }
                         break;
                     }
                 }

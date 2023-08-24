@@ -47,6 +47,7 @@
 #include <QPalette>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QSortFilterProxyModel>
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QStandardPaths>

@@ -22,35 +22,19 @@
 #include "ZapFR/Feed.h"
 #include "ZapFR/Folder.h"
 #include "ZapFR/Source.h"
+#include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
 #include "widgets/MainWindow.h"
 
 void ZapFR::Client::MainWindow::reloadSources()
 {
-    // preserve the expansion of the source items and selected item data
-    if (mReloadSourcesExpansionSelectionState == nullptr)
-    {
-        // we only do this if this state hasn't been set before (which it has after app launch, when the settings are loaded from disk)
-        mReloadSourcesExpansionSelectionState = std::make_unique<QJsonObject>();
-        mReloadSourcesExpansionSelectionState->insert("expanded", expandedSourceTreeItems());
-        uint64_t selectedSourceID = 0;
-        uint64_t selectedID = 0;
-        uint32_t selectedType = 0;
-        auto index = ui->treeViewSources->currentIndex();
-        if (index.isValid())
-        {
-            selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            selectedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            selectedType = index.data(SourceTreeEntryTypeRole).toUInt();
-        }
-        mReloadSourcesExpansionSelectionState->insert("selectedSourceID", static_cast<qint64>(selectedSourceID));
-        mReloadSourcesExpansionSelectionState->insert("selectedID", static_cast<qint64>(selectedID));
-        mReloadSourcesExpansionSelectionState->insert("selectedType", static_cast<int32_t>(selectedType));
-    }
+    preserveSourceTreeExpansionSelectionState();
 
     // recreate the model
     mItemModelSources = std::make_unique<StandardItemModelSources>(this, this);
-    ui->treeViewSources->setModel(mItemModelSources.get());
+    mProxyModelSources = std::make_unique<SortFilterProxyModelSources>(this);
+    mProxyModelSources->setSourceModel(mItemModelSources.get());
+    ui->treeViewSources->setModel(mProxyModelSources.get());
     mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
 
     // get the trees of all the sources
@@ -154,48 +138,7 @@ void ZapFR::Client::MainWindow::reloadSources()
 void ZapFR::Client::MainWindow::populateSources(uint64_t /*sourceID*/, QStandardItem* sourceItem)
 {
     mItemModelSources->appendRow(sourceItem);
-
-    // restore source item expansion and selection
-    if (mReloadSourcesExpansionSelectionState != nullptr)
-    {
-        auto expandedItems = mReloadSourcesExpansionSelectionState->value("expanded").toArray();
-        auto selectedSourceID = mReloadSourcesExpansionSelectionState->value("selectedSourceID").toInteger();
-        auto selectedID = mReloadSourcesExpansionSelectionState->value("selectedID").toInteger();
-        auto selectedType = mReloadSourcesExpansionSelectionState->value("selectedType").toInteger();
-
-        expandSourceTreeItems(expandedItems);
-        if (selectedSourceID != 0 && selectedID != 0)
-        {
-            std::function<void(QStandardItem*)> selectIndex;
-            selectIndex = [&](QStandardItem* parent)
-            {
-                if (parent->data(SourceTreeEntryTypeRole).toUInt() == selectedType && parent->data(SourceTreeEntryParentSourceIDRole).toLongLong() == selectedSourceID &&
-                    parent->data(SourceTreeEntryIDRole).toLongLong() == selectedID)
-                {
-                    auto indexToSelect = mItemModelSources->indexFromItem(parent);
-                    ui->treeViewSources->setCurrentIndex(indexToSelect);
-                    return;
-                }
-                else
-                {
-                    if (parent->hasChildren())
-                    {
-                        for (int i = 0; i < parent->rowCount(); ++i)
-                        {
-                            selectIndex(parent->child(i));
-                        }
-                    }
-                }
-            };
-            selectIndex(mItemModelSources->invisibleRootItem());
-        }
-        mReloadSourcesExpansionSelectionState = nullptr;
-
-        if (!ui->treeViewSources->currentIndex().isValid())
-        {
-            ui->treeViewSources->setCurrentIndex(mItemModelSources->indexFromItem(sourceItem));
-        }
-    }
+    restoreSourceTreeExpansionSelectionState(sourceItem);
 }
 
 std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSourceAndFolderID() const
@@ -219,6 +162,75 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
     return std::make_tuple(sourceID, folderID);
 }
 
+void ZapFR::Client::MainWindow::preserveSourceTreeExpansionSelectionState()
+{
+    if (mReloadSourcesExpansionSelectionState == nullptr && mProxyModelSources != nullptr &&
+        mProxyModelSources->displayMode() == SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll)
+    {
+        // we only do this if this state hasn't been set before (which it has after app launch, when the settings are loaded from disk)
+        mReloadSourcesExpansionSelectionState = std::make_unique<QJsonObject>();
+        mReloadSourcesExpansionSelectionState->insert("expanded", expandedSourceTreeItems());
+        uint64_t selectedSourceID = 0;
+        uint64_t selectedID = 0;
+        uint32_t selectedType = 0;
+        auto index = ui->treeViewSources->currentIndex();
+        if (index.isValid())
+        {
+            selectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            selectedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            selectedType = index.data(SourceTreeEntryTypeRole).toUInt();
+        }
+        mReloadSourcesExpansionSelectionState->insert("selectedSourceID", static_cast<qint64>(selectedSourceID));
+        mReloadSourcesExpansionSelectionState->insert("selectedID", static_cast<qint64>(selectedID));
+        mReloadSourcesExpansionSelectionState->insert("selectedType", static_cast<int32_t>(selectedType));
+    }
+}
+
+void ZapFR::Client::MainWindow::restoreSourceTreeExpansionSelectionState(QStandardItem* sourceItem)
+{
+    if (mReloadSourcesExpansionSelectionState != nullptr && mProxyModelSources != nullptr &&
+        mProxyModelSources->displayMode() == SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll)
+    {
+        auto expandedItems = mReloadSourcesExpansionSelectionState->value("expanded").toArray();
+        auto selectedSourceID = mReloadSourcesExpansionSelectionState->value("selectedSourceID").toInteger();
+        auto selectedID = mReloadSourcesExpansionSelectionState->value("selectedID").toInteger();
+        auto selectedType = mReloadSourcesExpansionSelectionState->value("selectedType").toInteger();
+
+        expandSourceTreeItems(expandedItems);
+        if (selectedSourceID != 0 && selectedID != 0)
+        {
+            std::function<void(QStandardItem*)> selectIndex;
+            selectIndex = [&](QStandardItem* parent)
+            {
+                if (parent->data(SourceTreeEntryTypeRole).toUInt() == selectedType && parent->data(SourceTreeEntryParentSourceIDRole).toLongLong() == selectedSourceID &&
+                    parent->data(SourceTreeEntryIDRole).toLongLong() == selectedID)
+                {
+                    auto indexToSelect = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(parent));
+                    ui->treeViewSources->setCurrentIndex(indexToSelect);
+                    return;
+                }
+                else
+                {
+                    if (parent->hasChildren())
+                    {
+                        for (int i = 0; i < parent->rowCount(); ++i)
+                        {
+                            selectIndex(parent->child(i));
+                        }
+                    }
+                }
+            };
+            selectIndex(mItemModelSources->invisibleRootItem());
+        }
+        mReloadSourcesExpansionSelectionState = nullptr;
+
+        if (!ui->treeViewSources->currentIndex().isValid() && sourceItem != nullptr)
+        {
+            ui->treeViewSources->setCurrentIndex(mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(sourceItem)));
+        }
+    }
+}
+
 QJsonArray ZapFR::Client::MainWindow::expandedSourceTreeItems() const
 {
     QJsonArray expandedSourceTreeItems;
@@ -232,23 +244,26 @@ QJsonArray ZapFR::Client::MainWindow::expandedSourceTreeItems() const
     {
         if (parent->hasChildren())
         {
-            auto index = mItemModelSources->indexFromItem(parent);
-            if (ui->treeViewSources->isExpanded(index))
+            auto index = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(parent));
+            if (index.isValid())
             {
-                if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+                if (ui->treeViewSources->isExpanded(index))
                 {
-                    QJsonObject o;
-                    o.insert("type", "source");
-                    o.insert("id", QJsonValue::fromVariant(parent->data(SourceTreeEntryIDRole)));
-                    expandedSourceTreeItems.append(o);
-                }
-                else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
-                {
-                    QJsonObject o;
-                    o.insert("type", "folder");
-                    o.insert("sourceID", QJsonValue::fromVariant(parent->data(SourceTreeEntryParentSourceIDRole)));
-                    o.insert("id", QJsonValue::fromVariant(parent->data(SourceTreeEntryIDRole)));
-                    expandedSourceTreeItems.append(o);
+                    if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+                    {
+                        QJsonObject o;
+                        o.insert("type", "source");
+                        o.insert("id", QJsonValue::fromVariant(parent->data(SourceTreeEntryIDRole)));
+                        expandedSourceTreeItems.append(o);
+                    }
+                    else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+                    {
+                        QJsonObject o;
+                        o.insert("type", "folder");
+                        o.insert("sourceID", QJsonValue::fromVariant(parent->data(SourceTreeEntryParentSourceIDRole)));
+                        o.insert("id", QJsonValue::fromVariant(parent->data(SourceTreeEntryIDRole)));
+                        expandedSourceTreeItems.append(o);
+                    }
                 }
             }
 
@@ -306,7 +321,7 @@ void ZapFR::Client::MainWindow::expandSourceTreeItems(const QJsonArray& items) c
 
                     if (shouldExpand)
                     {
-                        auto index = mItemModelSources->indexFromItem(parent);
+                        auto index = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(parent));
                         if (index.isValid())
                         {
                             ui->treeViewSources->setExpanded(index, true);

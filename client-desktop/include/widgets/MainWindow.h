@@ -41,6 +41,7 @@ namespace ZapFR
         class WebEnginePagePost;
         class StandardItemModelSources;
         class StandardItemModelScripts;
+        class SortFilterProxyModelSources;
         class DialogAddFeed;
         class DialogAddFolder;
         class DialogImportOPML;
@@ -130,6 +131,7 @@ namespace ZapFR
           private:
             Ui::MainWindow* ui;
             std::unique_ptr<StandardItemModelSources> mItemModelSources{nullptr};
+            std::unique_ptr<SortFilterProxyModelSources> mProxyModelSources{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelLogs{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelScriptFolders{nullptr};
@@ -196,6 +198,8 @@ namespace ZapFR
             void restoreSettings();
             void initializeUI();
             QJsonArray expandedSourceTreeItems() const;
+            void preserveSourceTreeExpansionSelectionState();
+            void restoreSourceTreeExpansionSelectionState(QStandardItem* sourceItem);
             void expandSourceTreeItems(const QJsonArray& items) const;
             std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFolderID() const;
 

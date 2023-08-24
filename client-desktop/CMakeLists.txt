@@ -51,6 +51,7 @@ set(PROJECT_SOURCES
         src/dialogs/DialogEditScript.cpp
         src/dialogs/DialogEditScriptFolder.cpp
         src/models/StandardItemModelSources.cpp
+        src/models/SortFilterProxyModelSources.cpp
         include/ClientGlobal.h
         include/FeedIconCache.h
         include/Utilities.h
@@ -81,6 +82,7 @@ set(PROJECT_SOURCES
         include/dialogs/DialogEditScript.h
         include/dialogs/DialogEditScriptFolder.h
         include/models/StandardItemModelSources.h
+        include/models/SortFilterProxyModelSources.h
         src/widgets/MainWindow.ui
         src/widgets/PopupFlagChooser.ui
         src/widgets/SearchWidget.ui
