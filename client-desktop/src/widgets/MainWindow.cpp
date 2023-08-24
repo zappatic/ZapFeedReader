@@ -298,6 +298,8 @@ void ZapFR::Client::MainWindow::configureIcons()
     auto palette = ui->frameFlagFilters->palette();
     ui->frameFlagFilters->setStyleSheet(QString("QFrame { border-top: 0px; border-left: 0px; border-right: 1px solid %1; border-bottom: 1px solid %1;}")
                                             .arg(palette.color(QPalette::Active, QPalette::Dark).name()));
+
+    mSearchWidget->setSearchIconColor(currentColorScheme == Qt::ColorScheme::Dark ? "#eee" : "#333");
 }
 
 void ZapFR::Client::MainWindow::updateToolbar()

@@ -44,12 +44,14 @@ namespace ZapFR
             SearchWidget& operator=(SearchWidget&&) = delete;
 
             QString searchQuery() const;
+            void setSearchIconColor(const QString& color);
 
           signals:
             void searchRequested();
 
           private:
             Ui::SearchWidget* ui;
+            QAction* mSearchIconAction{nullptr};
         };
     } // namespace Client
 } // namespace ZapFR
