@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_WEBENGINEVIEWPOST_H
-#define ZAPFR_CLIENT_WEBENGINEVIEWPOST_H
+#ifndef ZAPFR_CLIENT_WIDGETPOSTCAPTION_H
+#define ZAPFR_CLIENT_WIDGETPOSTCAPTION_H
 
 #include "ClientGlobal.h"
 
@@ -25,22 +25,23 @@ namespace ZapFR
 {
     namespace Client
     {
-        class WebEngineViewPost : public QWebEngineView
+        class WidgetPostCaption : public QWidget
         {
             Q_OBJECT
 
           public:
-            explicit WebEngineViewPost(QWidget* parent = nullptr);
-            ~WebEngineViewPost() = default;
+            explicit WidgetPostCaption(QWidget* parent = nullptr);
+            ~WidgetPostCaption() = default;
+
+            void setCaption(const QString& caption);
 
           protected:
-            void contextMenuEvent(QContextMenuEvent* event) override;
+            void paintEvent(QPaintEvent* event) override;
 
           private:
-            QUrl mClickedURL{};
-            std::unique_ptr<QMenu> mContextMenu{nullptr};
+            QString mCaption{""};
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_WEBENGINEVIEWPOST_H
+#endif // ZAPFR_CLIENT_WIDGETPOSTCAPTION_H

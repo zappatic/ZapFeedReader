@@ -94,6 +94,7 @@ void ZapFR::Client::MainWindow::initializeUI()
     actionSearch->setProperty(gsPostPaneSearchWidget, true);
 
     ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
+    ui->stackedWidgetPost->setCurrentIndex(StackedPanePost);
 }
 
 void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)

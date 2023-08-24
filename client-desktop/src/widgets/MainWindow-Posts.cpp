@@ -358,11 +358,15 @@ void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndex
     }
     else if (selected.count() == 0)
     {
-        setPostHTML(textMessageHTML(tr("No post selected")));
+        setBlankPostPage();
+        ui->widgetPostCaption->setCaption(tr("No post selected"));
+        ui->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
     }
     else
     {
-        setPostHTML(textMessageHTML(tr("%1 posts selected").arg(selected.count())));
+        setBlankPostPage();
+        ui->widgetPostCaption->setCaption(tr("%1 posts selected").arg(selected.count()));
+        ui->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
     }
 }
 
@@ -406,13 +410,16 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
     }
     else
     {
-        setPostHTML(textMessageHTML(tr("No post selected")));
+        setBlankPostPage();
+        ui->widgetPostCaption->setCaption(tr("No post selected"));
+        ui->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
     }
 }
 
-void ZapFR::Client::MainWindow::setPostHTML(const QString& html)
+void ZapFR::Client::MainWindow::setPostHTML(const QString& html) const
 {
     ui->webViewPost->setHtml(html);
+    ui->stackedWidgetPost->setCurrentIndex(StackedPanePost);
 }
 
 QString ZapFR::Client::MainWindow::postStyles() const
@@ -458,21 +465,12 @@ QString ZapFR::Client::MainWindow::postStyles() const
         .arg(highlightColor.name());
 }
 
-QString ZapFR::Client::MainWindow::textMessageHTML(const QString& message) const
+void ZapFR::Client::MainWindow::setBlankPostPage() const
 {
-    auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
-    QString textColor = (currentColorScheme == Qt::ColorScheme::Dark ? "#444" : "#aaa");
-
     QString htmlStr;
     QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
-
-    html << "<!DOCTYPE html>\n<html><head><style type='text/css'>\n" << postStyles();
-    html << QString("h1 { color: %1; text-align: center; margin-top: 50px; }\n").arg(textColor);
-    html << "</style></head><body>";
-    html << "<h1>" << message << "</h1>";
-    html << "</body></html>";
-
-    return htmlStr;
+    html << "<!DOCTYPE html>\n<html><head><style type='text/css'>\n" << postStyles() << "</style></head><body></body></html>";
+    setPostHTML(htmlStr);
 }
 
 void ZapFR::Client::MainWindow::postsMarkedRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs)

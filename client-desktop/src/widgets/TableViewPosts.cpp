@@ -152,3 +152,24 @@ void ZapFR::Client::TableViewPosts::openPostInExternalBrowser()
         }
     }
 }
+
+void ZapFR::Client::TableViewPosts::paintEvent(QPaintEvent* event)
+{
+    TableViewPaletteCorrected::paintEvent(event);
+
+    if (model() != nullptr && model()->rowCount() == 0)
+    {
+        auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
+        auto textPen = QPen(currentColorScheme == Qt::ColorScheme::Dark ? QColor(68, 68, 68) : QColor(170, 170, 170));
+        auto vp = viewport();
+        auto textRect = QRect(0, 50, vp->width(), 100);
+        auto f = font();
+        f.setPixelSize(32);
+        f.setWeight(QFont::DemiBold);
+
+        auto painter = QPainter(vp);
+        painter.setPen(textPen);
+        painter.setFont(f);
+        painter.drawText(textRect, Qt::AlignTop | Qt::AlignHCenter, tr("No posts found"));
+    }
+}

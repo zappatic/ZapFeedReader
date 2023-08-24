@@ -501,33 +501,57 @@
              </item>
             </layout>
            </widget>
-           <widget class="QFrame" name="frame">
+           <widget class="QStackedWidget" name="stackedWidgetPost">
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_2">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="ZapFR::Client::WebEngineViewPost" name="webViewPost" native="true"/>
-             </item>
-            </layout>
+            <widget class="QWidget" name="pagePost" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="ZapFR::Client::WebEngineViewPost" name="webViewPost" native="true"/>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="pagePostCaption">
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="ZapFR::Client::WidgetPostCaption" name="widgetPostCaption" native="true"/>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </widget>
          </item>
@@ -966,6 +990,12 @@
    <class>ZapFR::Client::TableViewScripts</class>
    <extends>QTableView</extends>
    <header>widgets/TableViewScripts.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::WidgetPostCaption</class>
+   <extends>QWidget</extends>
+   <header>widgets/WidgetPostCaption.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -115,7 +115,7 @@ namespace ZapFR
             void scriptFolderAdded(uint64_t sourceID);
             void scriptFolderUpdated(uint64_t sourceID, uint64_t scriptFolderID);
             void scriptFolderRemoved(uint64_t sourceID, uint64_t scriptFolderID);
-            void setPostHTML(const QString& html);
+            void setPostHTML(const QString& html) const;
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
             void populateScripts(const QList<QList<QStandardItem*>>& scripts = {});
@@ -206,7 +206,7 @@ namespace ZapFR
             void reloadScripts(bool forceReload = false);
 
             QString postStyles() const;
-            QString textMessageHTML(const QString& message) const;
+            void setBlankPostPage() const;
             void configureIcons();
             void updateToolbar();
             void updateActivePostFilter();

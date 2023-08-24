@@ -37,6 +37,7 @@ set(PROJECT_SOURCES
         src/widgets/TreeViewEditScriptDialogSources.cpp
         src/widgets/PopupFlagChooser.cpp
         src/widgets/SearchWidget.cpp
+        src/widgets/WidgetPostCaption.cpp
         src/delegates/ItemDelegateSource.cpp
         src/delegates/ItemDelegatePost.cpp
         src/delegates/ItemDelegateLog.cpp
@@ -66,6 +67,7 @@ set(PROJECT_SOURCES
         include/widgets/TreeViewEditScriptDialogSources.h
         include/widgets/PopupFlagChooser.h
         include/widgets/SearchWidget.h
+        include/widgets/WidgetPostCaption.h
         include/delegates/ItemDelegateSource.h
         include/delegates/ItemDelegatePost.h
         include/delegates/ItemDelegateLog.h
