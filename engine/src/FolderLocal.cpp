@@ -17,11 +17,15 @@
 */
 
 #include "ZapFR/FolderLocal.h"
+#include "ZapFR/FeedLocal.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/PostLocal.h"
 
 using namespace Poco::Data::Keywords;
+
+std::mutex ZapFR::Engine::FolderLocal::msCreateFolderMutex{};
+std::mutex ZapFR::Engine::FolderLocal::msCreateFolderHierarchyMutex{};
 
 ZapFR::Engine::FolderLocal::FolderLocal(uint64_t id, uint64_t parent) : Folder(id, parent)
 {
@@ -49,31 +53,11 @@ void ZapFR::Engine::FolderLocal::fetchSubfolders()
 {
     if (!mSubfoldersFetched)
     {
-        uint64_t subID;
-        uint64_t subSortOrder;
-        std::string subTitle;
-
-        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-        selectStmt << "SELECT id"
-                      ",title"
-                      ",sortOrder"
-                      " FROM folders"
-                      " WHERE parent=?"
-                      " ORDER BY sortOrder ASC",
-            use(mID), into(subID), into(subTitle), into(subSortOrder), range(0, 1);
-
-        while (!selectStmt.done())
-        {
-            if (selectStmt.execute() > 0)
-            {
-                auto f = std::make_unique<FolderLocal>(subID, mID);
-                f->setTitle(subTitle);
-                f->setSortOrder(subSortOrder);
-                f->setDataFetched(true);
-                mSubfolders.emplace_back(std::move(f));
-            }
-        }
-
+        std::vector<std::string> whereClause;
+        std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+        whereClause.emplace_back("parent=?");
+        bindings.emplace_back(useRef(mID, "parent"));
+        mSubfolders = queryMultiple(whereClause, "ORDER BY folders.sortOrder ASC", "", bindings);
         mSubfoldersFetched = true;
     }
 }
@@ -160,9 +144,7 @@ std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAllAsRead()
         return {};
     }
 
-    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-    updateStmt << Poco::format("UPDATE posts SET isRead=TRUE WHERE feedID IN (%s)", joinedFeedIDs), now;
-    updateStmt.execute();
+    PostLocal::updateIsRead(true, {Poco::format("posts.feedID IN (%s)", joinedFeedIDs)}, {});
 
     return std::unordered_set<uint64_t>(feedIDs.begin(), feedIDs.end());
 }
@@ -248,4 +230,293 @@ uint64_t ZapFR::Engine::FolderLocal::getTotalLogCount()
     whereClause.emplace_back(Poco::format("logs.feedID IN (%s)", joinedFeedIDs));
 
     return Log::queryCount(whereClause, bindings);
+}
+
+uint64_t ZapFR::Engine::FolderLocal::nextSortOrder(uint64_t folderID)
+{
+    uint64_t sortOrder{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT MAX(sortOrder) FROM folders WHERE parent=?", into(sortOrder), use(folderID), now;
+    return sortOrder + 10;
+}
+
+uint64_t ZapFR::Engine::FolderLocal::create(uint64_t parentID, const std::string& title)
+{
+    auto sortOrder = nextSortOrder(parentID);
+    Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+    insertStmt << "INSERT INTO folders (parent,title,sortOrder) VALUES (?, ?, ?)", use(parentID), useRef(title), use(sortOrder);
+    const std::lock_guard<std::mutex> lock(msCreateFolderMutex);
+    insertStmt.execute();
+    uint64_t newFolderID{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT last_insert_rowid()", into(newFolderID), range(0, 1);
+    selectStmt.execute();
+    return newFolderID;
+}
+
+void ZapFR::Engine::FolderLocal::remove(uint64_t folderID)
+{
+    // get the parent id for this folder
+    auto f = querySingle({"folders.id=?"}, {useRef(folderID, "folderID")});
+    if (f.has_value())
+    {
+        auto folderParent = f.value()->parentID();
+
+        auto feedIDs = f.value()->feedIDsInFoldersAndSubfolders();
+        auto folderIDs = f.value()->folderAndSubfolderIDs();
+
+        // remove the icons from the cache
+        for (const auto& feedID : feedIDs)
+        {
+            auto feed = FeedLocal(feedID);
+            feed.removeIcon();
+        }
+
+        // remove feeds and their posts
+        if (feedIDs.size() > 0)
+        {
+            auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDs, ",");
+
+            // remove all posts from the affected feeds
+            auto deletePostsSQL = Poco::format("DELETE FROM posts WHERE feedID IN (%s)", joinedFeedIDs);
+            Poco::Data::Statement deletePostsStmt(*(Database::getInstance()->session()));
+            deletePostsStmt << deletePostsSQL, now;
+
+            // remove all affected feeds
+            auto deleteFeedsSQL = Poco::format("DELETE FROM feeds WHERE id IN (%s)", joinedFeedIDs);
+            Poco::Data::Statement deleteFeedsStmt(*(Database::getInstance()->session()));
+            deleteFeedsStmt << deleteFeedsSQL, now;
+        }
+
+        // remove folders
+        auto joinedFolderIDs = Helpers::joinIDNumbers(folderIDs, ",");
+        auto deleteFoldersSQL = Poco::format("DELETE FROM folders WHERE id IN (%s)", joinedFolderIDs);
+        Poco::Data::Statement deleteFoldersStmt(*(Database::getInstance()->session()));
+        deleteFoldersStmt << deleteFoldersSQL, now;
+        resort(folderParent);
+    }
+}
+
+void ZapFR::Engine::FolderLocal::resort(uint64_t parentID)
+{
+    std::vector<uint64_t> folderIDs;
+
+    uint64_t folderID{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT id FROM folders WHERE parent=? ORDER BY sortOrder ASC", use(parentID), into(folderID), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            folderIDs.emplace_back(folderID);
+        }
+    }
+    uint64_t sortOrder = 10;
+    for (auto f : folderIDs)
+    {
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+        updateStmt << "UPDATE folders SET sortOrder=? WHERE id=?", use(sortOrder), use(f), now;
+        sortOrder += 10;
+    }
+}
+
+uint64_t ZapFR::Engine::FolderLocal::createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy)
+{
+    std::function<uint64_t(ZapFR::Engine::Folder*, const std::string&)> getSubfolderWithTitle;
+    getSubfolderWithTitle = [&](ZapFR::Engine::Folder* parent, const std::string& folderTitle) -> uint64_t
+    {
+        auto existingSubFolderFound{false};
+        uint64_t existingSubfolderID{0};
+        uint64_t pID{0};
+
+        if (parent == nullptr)
+        {
+            uint64_t rootParentID{0};
+            for (const auto& subfolder : queryMultiple({"folders.parent=?"}, "", "", {use(rootParentID, "parent")}))
+            {
+                if (subfolder->title() == folderTitle)
+                {
+                    existingSubfolderID = subfolder->id();
+                    existingSubFolderFound = true;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            pID = parent->id();
+            for (const auto& subfolder : parent->subfolders())
+            {
+                if (subfolder->title() == folderTitle)
+                {
+                    existingSubfolderID = subfolder->id();
+                    existingSubFolderFound = true;
+                    break;
+                }
+            }
+        }
+
+        if (!existingSubFolderFound)
+        {
+            existingSubfolderID = create(pID, folderTitle);
+        }
+        return existingSubfolderID;
+    };
+
+    const std::lock_guard<std::mutex> lock(msCreateFolderHierarchyMutex);
+    if (parentID == 0)
+    {
+        std::unique_ptr<Folder> currentParent{};
+        for (const auto& subfolder : folderHierarchy)
+        {
+            auto subfolderID = getSubfolderWithTitle(currentParent.get(), subfolder);
+            auto subfolderInstance = querySingle({"folders.id=?"}, {use(subfolderID, "id")});
+            if (subfolderInstance.has_value())
+            {
+                currentParent = std::move(subfolderInstance.value());
+            }
+        }
+        return currentParent->id();
+    }
+    else
+    {
+        auto rootFolder = querySingle({"folders.id=?"}, {use(parentID, "id")});
+        if (rootFolder.has_value())
+        {
+            auto currentParent = std::move(rootFolder.value());
+            for (const auto& subfolder : folderHierarchy)
+            {
+                auto subfolderID = getSubfolderWithTitle(currentParent.get(), subfolder);
+                auto subfolderInstance = querySingle({"folders.id=?"}, {use(subfolderID, "id")});
+                if (subfolderInstance.has_value())
+                {
+                    currentParent = std::move(subfolderInstance.value());
+                }
+            }
+            return currentParent->id();
+        }
+    }
+    return 0;
+}
+
+void ZapFR::Engine::FolderLocal::move(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)
+{
+    auto f = querySingle({"folders.id=?"}, {use(folderID, "id")});
+    if (f.has_value())
+    {
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+        updateStmt << "UPDATE folders SET parent=?, sortOrder=? WHERE id=?", use(newParent), use(newSortOrder), use(folderID), now;
+
+        auto oldParent = f.value()->parentID();
+        resort(oldParent);
+        if (newParent != oldParent) // check in case we are moving within the same folder
+        {
+            resort(newParent);
+        }
+    }
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::FolderLocal::queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+                                                                                              const std::string& limitClause,
+                                                                                              const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    std::vector<std::unique_ptr<Folder>> folders;
+
+    uint64_t id{0};
+    uint64_t parent{0};
+    std::string title{""};
+    uint64_t sortOrder{0};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT folders.id"
+          ",folders.parent"
+          ",folders.title"
+          ",folders.sortOrder"
+          " FROM folders";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+    ss << " " << orderClause << " " << limitClause;
+
+    auto sql = ss.str();
+
+    selectStmt << sql, range(0, 1);
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(parent));
+    selectStmt.addExtract(into(title));
+    selectStmt.addExtract(into(sortOrder));
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            auto f = std::make_unique<FolderLocal>(id, parent);
+            f->setTitle(title);
+            f->setSortOrder(sortOrder);
+            f->setDataFetched(true);
+            folders.emplace_back(std::move(f));
+        }
+    }
+
+    return folders;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::FolderLocal::querySingle(const std::vector<std::string>& whereClause,
+                                                                                              const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    uint64_t id{0};
+    uint64_t parent{0};
+    std::string title{""};
+    uint64_t sortOrder{0};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT folders.id"
+          ",folders.parent"
+          ",folders.title"
+          ",folders.sortOrder"
+          " FROM folders";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+
+    auto sql = ss.str();
+
+    selectStmt << sql, range(0, 1);
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(parent));
+    selectStmt.addExtract(into(title));
+    selectStmt.addExtract(into(sortOrder));
+
+    selectStmt.execute();
+
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        auto f = std::make_unique<FolderLocal>(id, parent);
+        f->setTitle(title);
+        f->setSortOrder(sortOrder);
+        f->setDataFetched(true);
+        return f;
+    }
+    return {};
 }

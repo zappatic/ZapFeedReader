@@ -102,3 +102,186 @@ void ZapFR::Engine::ScriptLocal::update(Type /*type*/, const std::string& filena
                   " WHERE id=?",
         useRef(filename), use(enabled), useRef(joinedEvents), use(joinedFeedIDs), use(mID), now;
 }
+
+void ZapFR::Engine::ScriptLocal::remove(uint64_t scriptID)
+{
+    Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << "DELETE FROM scripts WHERE id=?", use(scriptID), now;
+}
+
+void ZapFR::Engine::ScriptLocal::create(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
+                                        const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+{
+    std::string typeStr;
+    switch (type)
+    {
+        case Script::Type::Lua:
+        {
+            typeStr = Script::msTypeLuaIdentifier;
+            break;
+        }
+    }
+
+    // join all the events into a comma separated identifier string
+    std::vector<std::string> eventStrings;
+    if (events.contains(Script::Event::NewPost))
+    {
+        eventStrings.emplace_back(Script::msEventNewPostIdentifier);
+    }
+    if (events.contains(Script::Event::UpdatePost))
+    {
+        eventStrings.emplace_back(Script::msEventUpdatePostIdentifier);
+    }
+    auto joinedEvents = Helpers::joinString(eventStrings, ",");
+
+    // join all the selected feedIDs into a comma separated string
+    Poco::Nullable<std::string> joinedFeedIDs;
+    if (feedIDs.has_value())
+    {
+        std::vector<uint64_t> f;
+        for (const auto& feedID : feedIDs.value())
+        {
+            f.emplace_back(feedID);
+        }
+        joinedFeedIDs = Helpers::joinIDNumbers(f, ",");
+    }
+
+    Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+    insertStmt << "INSERT INTO scripts"
+                  " (type,filename,isEnabled,runOnEvents,runOnFeedIDs)"
+                  " VALUES"
+                  " (?,?,?,?,?)",
+        useRef(typeStr), useRef(filename), use(enabled), useRef(joinedEvents), use(joinedFeedIDs), now;
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+                                                                                              const std::string& limitClause,
+                                                                                              const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    std::vector<std::unique_ptr<Script>> scripts;
+
+    uint64_t id{0};
+    std::string type{""};
+    std::string filename{""};
+    bool isEnabled{false};
+    std::string runOnEvents{""};
+    Poco::Nullable<std::string> runOnFeedIDs{};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT scripts.id"
+          ",scripts.type"
+          ",scripts.filename"
+          ",scripts.isEnabled"
+          ",scripts.runOnEvents"
+          ",scripts.runOnFeedIDs"
+          " FROM scripts";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+    ss << " " << orderClause << " " << limitClause;
+
+    auto sql = ss.str();
+
+    selectStmt << sql;
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(type));
+    selectStmt.addExtract(into(filename));
+    selectStmt.addExtract(into(isEnabled));
+    selectStmt.addExtract(into(runOnEvents));
+    selectStmt.addExtract(into(runOnFeedIDs));
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            if (type == Script::msTypeLuaIdentifier) // force lua for now
+            {
+                auto s = std::make_unique<ScriptLocal>(id);
+                s->setType(Script::Type::Lua);
+                s->setFilename(filename);
+                s->setIsEnabled(isEnabled);
+                s->parseRunOnEvents(runOnEvents);
+                if (!runOnFeedIDs.isNull())
+                {
+                    s->parseRunOnFeedIDs(runOnFeedIDs.value());
+                }
+                scripts.emplace_back(std::move(s));
+            }
+        }
+    }
+    return scripts;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::querySingle(const std::vector<std::string>& whereClause,
+                                                                                              const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    uint64_t id{0};
+    std::string type{""};
+    std::string filename{""};
+    bool isEnabled{false};
+    std::string runOnEvents{""};
+    Poco::Nullable<std::string> runOnFeedIDs{};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    std::stringstream ss;
+    ss << "SELECT scripts.id"
+          ",scripts.type"
+          ",scripts.filename"
+          ",scripts.isEnabled"
+          ",scripts.runOnEvents"
+          ",scripts.runOnFeedIDs"
+          " FROM scripts";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+
+    auto sql = ss.str();
+
+    selectStmt << sql;
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(type));
+    selectStmt.addExtract(into(filename));
+    selectStmt.addExtract(into(isEnabled));
+    selectStmt.addExtract(into(runOnEvents));
+    selectStmt.addExtract(into(runOnFeedIDs));
+
+    selectStmt.execute();
+
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        if (type == Script::msTypeLuaIdentifier) // force lua for now
+        {
+            auto s = std::make_unique<ScriptLocal>(id);
+            s->setType(Script::Type::Lua);
+            s->setFilename(filename);
+            s->setIsEnabled(isEnabled);
+            s->parseRunOnEvents(runOnEvents);
+            if (!runOnFeedIDs.isNull())
+            {
+                s->parseRunOnFeedIDs(runOnFeedIDs.value());
+            }
+            return s;
+        }
+    }
+
+    return {};
+}

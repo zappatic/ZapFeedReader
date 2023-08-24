@@ -18,6 +18,7 @@
 
 #include "ZapFR/ScriptFolderLocal.h"
 #include "ZapFR/Database.h"
+#include "ZapFR/Helpers.h"
 #include "ZapFR/PostLocal.h"
 
 using namespace Poco::Data::Keywords;
@@ -94,4 +95,111 @@ void ZapFR::Engine::ScriptFolderLocal::update(const std::string& title)
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE scriptfolders SET title=? WHERE id=?", useRef(title), use(mID), now;
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptFolderLocal::queryMultiple(const std::vector<std::string>& whereClause,
+                                                                                                          const std::string& orderClause, const std::string& limitClause,
+                                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    std::vector<std::unique_ptr<ScriptFolder>> scriptFolders;
+
+    uint64_t id{0};
+    std::string title{""};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT scriptfolders.id"
+          ",scriptfolders.title"
+          " FROM scriptfolders";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+    ss << " " << orderClause << " " << limitClause;
+
+    auto sql = ss.str();
+
+    selectStmt << sql, range(0, 1);
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(title));
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            auto sfl = std::make_unique<ScriptFolderLocal>(id);
+            sfl->setTitle(title);
+            scriptFolders.emplace_back(std::move(sfl));
+        }
+    }
+    return scriptFolders;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptFolderLocal::querySingle(const std::vector<std::string>& whereClause,
+                                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    uint64_t id{0};
+    std::string title{""};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT scriptfolders.id"
+          ",scriptfolders.title"
+          " FROM scriptfolders";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+
+    auto sql = ss.str();
+
+    selectStmt << sql, range(0, 1);
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(title));
+
+    selectStmt.execute();
+
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        auto sfl = std::make_unique<ScriptFolderLocal>(id);
+        sfl->setTitle(title);
+        return sfl;
+    }
+    return {};
+}
+
+void ZapFR::Engine::ScriptFolderLocal::create(const std::string& title)
+{
+    Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+    insertStmt << "INSERT INTO scriptfolders (title) VALUES (?)", useRef(title), now;
+}
+
+void ZapFR::Engine::ScriptFolderLocal::remove(uint64_t scriptFolderID)
+{
+    {
+        Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+        deleteStmt << "DELETE FROM scriptfolders WHERE id=?", use(scriptFolderID), now;
+    }
+
+    {
+        Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+        deleteStmt << "DELETE FROM scriptfolder_posts WHERE scriptFolderID=?", use(scriptFolderID), now;
+    }
 }

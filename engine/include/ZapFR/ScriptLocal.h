@@ -38,6 +38,14 @@ namespace ZapFR
             static void setScriptDir(const std::string& scriptDir);
             static std::string msScriptDir;
 
+            static std::vector<std::unique_ptr<Script>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+                                                                      const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static std::optional<std::unique_ptr<Script>> querySingle(const std::vector<std::string>& whereClause,
+                                                                      const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static void remove(uint64_t scriptID);
+            static void create(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
+                               const std::optional<std::unordered_set<uint64_t>>& feedIDs);
+
           protected:
             bool exists() const override;
         };

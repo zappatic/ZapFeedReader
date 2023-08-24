@@ -55,9 +55,22 @@ namespace ZapFR
 
             static void setIconDir(const std::string& iconDir);
 
+            static std::vector<std::unique_ptr<Feed>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+                                                                    const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static std::optional<std::unique_ptr<ZapFR::Engine::Feed>> querySingle(const std::vector<std::string>& whereClause,
+                                                                                   const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static uint64_t nextSortOrder(uint64_t folderID);
+            static std::unique_ptr<FeedLocal> create(const std::string& url, const std::string& title, uint64_t parentFolderID);
+            static void move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder);
+            static void resort(uint64_t folder);
+            static void remove(uint64_t feedID);
+
+            void update(const std::string& iconURL, const std::string& guid, const std::string& title, const std::string& subtitle, const std::string& link,
+                        const std::string& description, const std::string& language, const std::string& copyright);
+
           private:
             static std::string msIconDir;
-            static std::mutex msInsertPostMutex;
+            static std::mutex msCreateFeedMutex;
 
             Poco::File iconFile() const;
             std::optional<std::unique_ptr<Post>> getPostByGuid(const std::string& guid);

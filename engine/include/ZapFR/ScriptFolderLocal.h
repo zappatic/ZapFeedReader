@@ -35,6 +35,13 @@ namespace ZapFR
             uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
 
             void update(const std::string& title) override;
+
+            static std::vector<std::unique_ptr<ScriptFolder>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+                                                                            const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static std::optional<std::unique_ptr<ScriptFolder>> querySingle(const std::vector<std::string>& whereClause,
+                                                                            const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static void create(const std::string& title);
+            static void remove(uint64_t scriptFolderID);
         };
     } // namespace Engine
 } // namespace ZapFR

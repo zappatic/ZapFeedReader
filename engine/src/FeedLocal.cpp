@@ -30,7 +30,7 @@
 using namespace Poco::Data::Keywords;
 
 std::string ZapFR::Engine::FeedLocal::msIconDir{""};
-std::mutex ZapFR::Engine::FeedLocal::msInsertPostMutex{};
+std::mutex ZapFR::Engine::FeedLocal::msCreateFeedMutex{};
 
 ZapFR::Engine::FeedLocal::FeedLocal(uint64_t id) : Feed(id)
 {
@@ -239,33 +239,13 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
 
     for (const auto& item : parsedFeed->items())
     {
-        auto isPermaLink = item.guidIsPermalink ? 1 : 0;
-        auto guid = item.guid;
-
         // see if it already exists
-        auto existingPost = getPostByGuid(guid);
+        auto existingPost = getPostByGuid(item.guid);
         if (existingPost.has_value()) // UPDATE in case it does
         {
-            Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-            updateStmt << "UPDATE posts SET"
-                          " title=?"
-                          ",link=?"
-                          ",description=?"
-                          ",author=?"
-                          ",commentsURL=?"
-                          ",enclosureURL=?"
-                          ",enclosureLength=?"
-                          ",enclosureMimeType=?"
-                          ",guid=?"
-                          ",guidIsPermalink=?"
-                          ",datePublished=?"
-                          ",sourceURL=?"
-                          ",sourceTitle=?"
-                          " WHERE feedID=? AND guid=?",
-                useRef(item.title), useRef(item.link), useRef(item.description), useRef(item.author), useRef(item.commentsURL), useRef(item.enclosureURL),
-                useRef(item.enclosureLength), useRef(item.enclosureMimeType), useRef(item.guid), use(isPermaLink), useRef(item.datePublished), useRef(item.sourceURL),
-                useRef(item.sourceTitle), use(mID), useRef(guid);
-            updateStmt.execute();
+            dynamic_cast<PostLocal*>(existingPost.value().get())
+                ->update(item.title, item.link, item.description, item.author, item.commentsURL, item.enclosureURL, item.enclosureLength, item.enclosureMimeType, item.guid,
+                         item.guidIsPermalink, item.datePublished, item.sourceURL, item.sourceTitle);
 
             if (scriptsRanOnUpdatePost.size() > 0)
             {
@@ -300,49 +280,15 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         }
         else // INSERT in case it doesn't
         {
-            Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
-            insertStmt << "INSERT INTO posts ("
-                          " feedID"
-                          ",title"
-                          ",link"
-                          ",description"
-                          ",author"
-                          ",commentsURL"
-                          ",enclosureURL"
-                          ",enclosureLength"
-                          ",enclosureMimeType"
-                          ",guid"
-                          ",guidIsPermalink"
-                          ",datePublished"
-                          ",sourceURL"
-                          ",sourceTitle"
-                          ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                use(mID), useRef(item.title), useRef(item.link), useRef(item.description), useRef(item.author), useRef(item.commentsURL), useRef(item.enclosureURL),
-                useRef(item.enclosureLength), useRef(item.enclosureMimeType), useRef(item.guid), use(isPermaLink), useRef(item.datePublished), useRef(item.sourceURL),
-                useRef(item.sourceTitle);
+            auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.description, item.author, item.commentsURL, item.enclosureURL, item.enclosureLength,
+                                          item.enclosureMimeType, item.guid, item.guidIsPermalink, item.datePublished, item.sourceURL, item.sourceTitle);
 
             if (scriptsRanOnNewPost.size() > 0)
             {
-                uint64_t postID{0};
+                for (const auto& script : scriptsRanOnNewPost)
                 {
-                    const std::lock_guard<std::mutex> lock(msInsertPostMutex);
-                    insertStmt.execute();
-                    Poco::Data::Statement selectInsertRowIDStmt(*(Database::getInstance()->session()));
-                    selectInsertRowIDStmt << "SELECT last_insert_rowid()", into(postID), now;
+                    ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, post.get());
                 }
-
-                auto post = getPost(postID);
-                if (post.has_value())
-                {
-                    for (const auto& script : scriptsRanOnNewPost)
-                    {
-                        ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, post.value().get());
-                    }
-                }
-            }
-            else
-            {
-                insertStmt.execute();
             }
         }
     }
@@ -350,23 +296,17 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
 
 void ZapFR::Engine::FeedLocal::markAllAsRead()
 {
-    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-    updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=?", use(mID), now;
-    updateStmt.execute();
+    PostLocal::updateIsRead(true, {"posts.feedID=?"}, {use(mID, "feedID")});
 }
 
 void ZapFR::Engine::FeedLocal::markAsRead(uint64_t postID)
 {
-    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-    updateStmt << "UPDATE posts SET isRead=TRUE WHERE feedID=? AND id=?", use(mID), use(postID), now;
-    updateStmt.execute();
+    PostLocal::updateIsRead(true, {"posts.feedID=?", "posts.id=?"}, {use(mID, "feedID"), use(postID, "id")});
 }
 
 void ZapFR::Engine::FeedLocal::markAsUnread(uint64_t postID)
 {
-    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-    updateStmt << "UPDATE posts SET isRead=FALSE WHERE feedID=? AND id=?", use(mID), use(postID), now;
-    updateStmt.execute();
+    PostLocal::updateIsRead(false, {"posts.feedID=?", "posts.id=?"}, {use(mID, "feedID"), use(postID, "id")});
 }
 
 void ZapFR::Engine::FeedLocal::refreshIcon()
@@ -515,4 +455,354 @@ uint64_t ZapFR::Engine::FeedLocal::getTotalLogCount()
     bindings.emplace_back(use(mID, "feedID"));
 
     return Log::queryCount(whereClause, bindings);
+}
+
+uint64_t ZapFR::Engine::FeedLocal::nextSortOrder(uint64_t folderID)
+{
+    uint64_t sortOrder{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT MAX(sortOrder) FROM feeds WHERE folder=?", into(sortOrder), use(folderID), now;
+    return sortOrder + 10;
+}
+
+std::unique_ptr<ZapFR::Engine::FeedLocal> ZapFR::Engine::FeedLocal::create(const std::string& url, const std::string& title, uint64_t parentFolderID)
+{
+    auto sortOrder = nextSortOrder(parentFolderID);
+    auto nowDate = Poco::DateTimeFormatter::format(Poco::DateTime(), Poco::DateTimeFormat::ISO8601_FORMAT);
+
+    Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+    insertStmt << "INSERT INTO feeds ("
+                  " url"
+                  ",title"
+                  ",folder"
+                  ",sortOrder"
+                  ",lastChecked"
+                  ",title"
+                  ") VALUES (?, ?, ?, ?, ?, '')",
+        useRef(url), useRef(url), use(parentFolderID), use(sortOrder), useRef(nowDate);
+    const std::lock_guard<std::mutex> lock(msCreateFeedMutex);
+    insertStmt.execute();
+
+    uint64_t feedID{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT last_insert_rowid()", into(feedID), now;
+
+    auto f = std::make_unique<FeedLocal>(feedID);
+    f->setURL(url);
+    f->setFolder(parentFolderID);
+    f->setTitle(title);
+    f->setSortOrder(sortOrder);
+    f->setLastChecked(nowDate);
+    f->setDataFetched(true);
+
+    return f;
+}
+
+void ZapFR::Engine::FeedLocal::update(const std::string& iconURL, const std::string& guid, const std::string& title, const std::string& subtitle, const std::string& link,
+                                      const std::string& description, const std::string& language, const std::string& copyright)
+{
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE feeds SET "
+                  " iconURL=?"
+                  ",guid=?"
+                  ",title=?"
+                  ",subtitle=?"
+                  ",link=?"
+                  ",description=?"
+                  ",language=?"
+                  ",copyright=?"
+                  " WHERE id=?",
+        useRef(iconURL), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright), use(mID), now;
+
+    setIconURL(iconURL);
+    setGuid(guid);
+    setTitle(title);
+    setSubtitle(subtitle);
+    setLink(link);
+    setDescription(description);
+    setLanguage(language);
+    setCopyright(copyright);
+}
+
+void ZapFR::Engine::FeedLocal::move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
+{
+    uint64_t oldFolder{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT folder FROM feeds WHERE id=?", use(feedID), into(oldFolder), now;
+
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE feeds SET folder=?, sortOrder=? WHERE id=?", use(newFolder), use(newSortOrder), use(feedID), now;
+
+    resort(newFolder);
+    if (newFolder != oldFolder) // check in case we are moving within the same folder
+    {
+        resort(oldFolder);
+    }
+}
+
+void ZapFR::Engine::FeedLocal::resort(uint64_t folder)
+{
+    std::vector<uint64_t> feedIDs;
+
+    uint64_t feedID{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT id FROM feeds WHERE folder=? ORDER BY sortOrder ASC", use(folder), into(feedID), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            feedIDs.emplace_back(feedID);
+        }
+    }
+
+    uint64_t sortOrder = 10;
+    for (auto f : feedIDs)
+    {
+        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+        updateStmt << "UPDATE feeds SET sortOrder=? WHERE id=?", use(sortOrder), use(f), now;
+        sortOrder += 10;
+    }
+}
+
+void ZapFR::Engine::FeedLocal::remove(uint64_t feedID)
+{
+    auto feed = querySingle({"feeds.id=?"}, {use(feedID, "id")});
+    if (feed.has_value())
+    {
+        auto folder = feed.value()->folder();
+        feed.value()->removeIcon();
+
+        {
+            Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+            deleteStmt << "DELETE FROM feeds WHERE id=?", use(feedID), now;
+        }
+
+        {
+            Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+            deleteStmt << "DELETE FROM posts WHERE feedID=?", use(feedID), now;
+        }
+
+        resort(folder);
+    }
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+                                                                                          const std::string& limitClause,
+                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    std::vector<std::unique_ptr<Feed>> feeds;
+
+    uint64_t id;
+    std::string url;
+    std::string iconURL;
+    std::string iconHash;
+    std::string iconLastFetched;
+    uint64_t folder;
+    std::string guid;
+    std::string title;
+    std::string subtitle;
+    std::string link;
+    std::string description;
+    std::string language;
+    std::string copyright;
+    std::string lastChecked;
+    Poco::Nullable<std::string> lastRefreshError;
+    uint64_t sortOrder;
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT feeds.id"
+          ",feeds.url"
+          ",feeds.iconURL"
+          ",feeds.iconHash"
+          ",feeds.iconLastFetched"
+          ",feeds.folder"
+          ",feeds.guid"
+          ",feeds.title"
+          ",feeds.subtitle"
+          ",feeds.link"
+          ",feeds.description"
+          ",feeds.language"
+          ",feeds.copyright"
+          ",feeds.lastChecked"
+          ",feeds.lastRefreshError"
+          ",feeds.sortOrder"
+          " FROM feeds";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+    ss << " " << orderClause << " " << limitClause;
+
+    auto sql = ss.str();
+
+    selectStmt << sql, range(0, 1);
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(url));
+    selectStmt.addExtract(into(iconURL));
+    selectStmt.addExtract(into(iconHash));
+    selectStmt.addExtract(into(iconLastFetched));
+    selectStmt.addExtract(into(folder));
+    selectStmt.addExtract(into(guid));
+    selectStmt.addExtract(into(title));
+    selectStmt.addExtract(into(subtitle));
+    selectStmt.addExtract(into(link));
+    selectStmt.addExtract(into(description));
+    selectStmt.addExtract(into(language));
+    selectStmt.addExtract(into(copyright));
+    selectStmt.addExtract(into(lastChecked));
+    selectStmt.addExtract(into(lastRefreshError));
+    selectStmt.addExtract(into(sortOrder));
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            auto f = std::make_unique<FeedLocal>(id);
+            f->setURL(url);
+            f->setIconURL(iconURL);
+            f->setIconHash(iconHash);
+            f->setIconLastFetched(iconLastFetched);
+            f->setFolder(folder);
+            f->setGuid(guid);
+            f->setTitle(title);
+            f->setSubtitle(subtitle);
+            f->setLink(link);
+            f->setDescription(description);
+            f->setLanguage(language);
+            f->setCopyright(copyright);
+            f->setLastChecked(lastChecked);
+            if (!lastRefreshError.isNull())
+            {
+                f->setLastRefreshError(lastRefreshError);
+            }
+            f->setSortOrder(sortOrder);
+            f->setDataFetched(true);
+
+            // fetch the unread count
+            uint64_t unreadCount{0};
+            Poco::Data::Statement selectUnreadStmt(*(Database::getInstance()->session()));
+            selectUnreadStmt << "SELECT COUNT(*) FROM posts WHERE feedID=? AND isRead=FALSE", use(id), into(unreadCount), now;
+            f->setUnreadCount(unreadCount);
+
+            feeds.emplace_back(std::move(f));
+        }
+    }
+    return feeds;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::querySingle(const std::vector<std::string>& whereClause,
+                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    uint64_t id;
+    std::string url;
+    std::string iconURL;
+    std::string iconHash;
+    std::string iconLastFetched;
+    uint64_t folder;
+    std::string guid;
+    std::string title;
+    std::string subtitle;
+    std::string link;
+    std::string description;
+    std::string language;
+    std::string copyright;
+    std::string lastChecked;
+    Poco::Nullable<std::string> lastRefreshError;
+    uint64_t sortOrder;
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT feeds.id"
+          ",feeds.url"
+          ",feeds.iconURL"
+          ",feeds.iconHash"
+          ",feeds.iconLastFetched"
+          ",feeds.folder"
+          ",feeds.guid"
+          ",feeds.title"
+          ",feeds.subtitle"
+          ",feeds.link"
+          ",feeds.description"
+          ",feeds.language"
+          ",feeds.copyright"
+          ",feeds.lastChecked"
+          ",feeds.lastRefreshError"
+          ",feeds.sortOrder"
+          " FROM feeds";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+
+    auto sql = ss.str();
+    selectStmt << sql;
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(url));
+    selectStmt.addExtract(into(iconURL));
+    selectStmt.addExtract(into(iconHash));
+    selectStmt.addExtract(into(iconLastFetched));
+    selectStmt.addExtract(into(folder));
+    selectStmt.addExtract(into(guid));
+    selectStmt.addExtract(into(title));
+    selectStmt.addExtract(into(subtitle));
+    selectStmt.addExtract(into(link));
+    selectStmt.addExtract(into(description));
+    selectStmt.addExtract(into(language));
+    selectStmt.addExtract(into(copyright));
+    selectStmt.addExtract(into(lastChecked));
+    selectStmt.addExtract(into(lastRefreshError));
+    selectStmt.addExtract(into(sortOrder));
+
+    selectStmt.execute();
+
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        auto f = std::make_unique<FeedLocal>(id);
+        f->setURL(url);
+        f->setIconURL(iconURL);
+        f->setIconHash(iconHash);
+        f->setIconLastFetched(iconLastFetched);
+        f->setFolder(folder);
+        f->setGuid(guid);
+        f->setTitle(title);
+        f->setSubtitle(subtitle);
+        f->setLink(link);
+        f->setDescription(description);
+        f->setLanguage(language);
+        f->setCopyright(copyright);
+        f->setLastChecked(lastChecked);
+        if (!lastRefreshError.isNull())
+        {
+            f->setLastRefreshError(lastRefreshError);
+        }
+        f->setSortOrder(sortOrder);
+        f->setDataFetched(true);
+
+        // fetch the unread count
+        uint64_t unreadCount{0};
+        Poco::Data::Statement selectUnreadStmt(*(Database::getInstance()->session()));
+        selectUnreadStmt << "SELECT COUNT(*) FROM posts WHERE feedID=? AND isRead=FALSE", use(id), into(unreadCount), now;
+        f->setUnreadCount(unreadCount);
+        return f;
+    }
+
+    return {};
 }

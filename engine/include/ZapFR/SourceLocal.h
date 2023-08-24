@@ -36,14 +36,14 @@ namespace ZapFR
             uint64_t addFeed(const std::string& url, uint64_t folder) override;
             void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) override;
             void removeFeed(uint64_t feedID) override;
-            void removeFolder(uint64_t folder) override;
-            uint64_t addFolder(const std::string& title, uint64_t parentID) override;
 
+            // folder stuff
             std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent) override;
             std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID) override;
-            void getSubfolderIDs(uint64_t parent, std::vector<uint64_t>& ids, bool includeParent) override;
+            void removeFolder(uint64_t folder) override;
             void moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) override;
-            uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy) override;
+            uint64_t addFolder(const std::string& title, uint64_t parentID) override;
+            uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string>& folderHierarchy) override;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
             uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
@@ -64,16 +64,6 @@ namespace ZapFR
             void removeScript(uint64_t scriptID) override;
             void addScript(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
                            const std::optional<std::unordered_set<uint64_t>>& feedIDs) override;
-
-          private:
-            static std::mutex msAddFeedMutex;
-            static std::mutex msAddFolderMutex;
-            static std::mutex msCreateFolderHierarchyMutex;
-
-            void resortFeeds(uint64_t folder) const;
-            void resortFolders(uint64_t folder) const;
-            uint64_t getNextFeedSortOrder(uint64_t folder) const;
-            uint64_t getNextFolderSortOrder(uint64_t folder) const;
         };
     } // namespace Engine
 } // namespace ZapFR
