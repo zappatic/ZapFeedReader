@@ -70,6 +70,7 @@ namespace ZapFR
             void addFeed();
             void addFolder();
             void importOPML();
+            void exportOPML();
             void markAsRead();
             void markPostSelectionAsRead();
             void markPostSelectionAsUnread();

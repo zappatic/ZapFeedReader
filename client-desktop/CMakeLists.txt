@@ -7,8 +7,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets WebEngineWidgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets WebEngineWidgets LinguistTools)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Xml WebEngineWidgets LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Xml WebEngineWidgets LinguistTools)
 
 set(TS_FILES i18n/ZapFeedReader_en_US.ts)
 
@@ -132,6 +132,7 @@ target_include_directories(zapfeedreader-client PRIVATE ../engine/include)
 
 target_link_libraries(zapfeedreader-client PRIVATE  zapfeedreader-engine
                                                     Qt${QT_VERSION_MAJOR}::Widgets 
+                                                    Qt${QT_VERSION_MAJOR}::Xml 
                                                     Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
 
 

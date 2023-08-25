@@ -212,6 +212,91 @@ void ZapFR::Client::MainWindow::importOPML()
     mDialogImportOPML->open();
 }
 
+void ZapFR::Client::MainWindow::exportOPML()
+{
+    auto index = ui->treeViewSources->currentIndex();
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    auto sourceItem = findSourceStandardItem(index.data(SourceTreeEntryParentSourceIDRole).toULongLong());
+    if (sourceItem == nullptr)
+    {
+        return;
+    }
+
+    auto opmlFilePath = QFileDialog::getSaveFileName(this, tr("Export source '%1'").arg(sourceItem->data(Qt::DisplayRole).toString()), QString(), tr("OPML files (*.opml)"));
+    if (opmlFilePath.isEmpty())
+    {
+        return;
+    }
+
+    QDomDocument xml;
+
+    // QDomProcessingInstruction documentation specifically states to not use createProcessingInstruction to create
+    // the XML declaration, but doesn't bother explaining what should be done instead...
+    xml.appendChild(xml.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\""));
+
+    auto root = xml.createElement("opml");
+    root.setAttribute("version", "2.0");
+    xml.appendChild(root);
+
+    auto head = xml.createElement("head");
+    root.appendChild(head);
+
+    auto title = xml.createElement("title");
+    title.appendChild(xml.createTextNode(tr("ZapFeedReader export of source '%1'").arg(sourceItem->data(Qt::DisplayRole).toString())));
+    head.appendChild(title);
+
+    auto dateCreated = xml.createElement("dateCreated");
+    dateCreated.appendChild(xml.createTextNode(QDateTime::currentDateTime().toString(Qt::RFC2822Date)));
+    head.appendChild(dateCreated);
+
+    auto body = xml.createElement("body");
+    root.appendChild(body);
+
+    // lambda to recursively add outlines
+    std::function<void(QStandardItem*, QDomElement&)> addOutlines;
+    addOutlines = [&](QStandardItem* parentItem, QDomElement& parentElement)
+    {
+        for (int32_t i = 0; i < parentItem->rowCount(); ++i)
+        {
+            auto child = parentItem->child(i);
+            auto childType = child->data(SourceTreeEntryTypeRole).toULongLong();
+            switch (childType)
+            {
+                case SOURCETREE_ENTRY_TYPE_FOLDER:
+                {
+                    auto outline = xml.createElement("outline");
+                    outline.setAttribute("text", child->data(Qt::DisplayRole).toString());
+                    parentElement.appendChild(outline);
+                    addOutlines(child, outline);
+                    break;
+                }
+                case SOURCETREE_ENTRY_TYPE_FEED:
+                {
+                    auto outline = xml.createElement("outline");
+                    outline.setAttribute("type", "rss");
+                    outline.setAttribute("text", child->data(Qt::DisplayRole).toString());
+                    outline.setAttribute("xmlUrl", child->data(SourceTreeEntryFeedURLRole).toString());
+                    parentElement.appendChild(outline);
+                    break;
+                }
+            }
+        }
+    };
+    addOutlines(sourceItem, body);
+
+    QFile opmlFile(opmlFilePath);
+    if (opmlFile.open(QIODevice::WriteOnly | QIODeviceBase::Text))
+    {
+        QTextStream s(&opmlFile);
+        s << xml.toString();
+        opmlFile.close();
+    }
+}
+
 QString ZapFR::Client::MainWindow::dataDir() const
 {
     auto dataLocation = QStandardPaths::locate(QStandardPaths::StandardLocation::GenericDataLocation, "", QStandardPaths::LocateDirectory);
@@ -475,6 +560,7 @@ void ZapFR::Client::MainWindow::createContextMenus()
 void ZapFR::Client::MainWindow::configureConnects()
 {
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
+    connect(ui->action_Export_OPML, &QAction::triggered, this, &MainWindow::exportOPML);
 
     connect(ui->stackedWidgetRight, &QStackedWidget::currentChanged,
             [&]()

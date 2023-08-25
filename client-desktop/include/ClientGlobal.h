@@ -28,6 +28,8 @@
 #include <QDesktopServices>
 #include <QDialog>
 #include <QDir>
+#include <QDomDocument>
+#include <QDomElement>
 #include <QDropEvent>
 #include <QFile>
 #include <QFileDialog>
@@ -87,6 +89,7 @@ namespace ZapFR
         static constexpr uint32_t SourceTreeEntryDisplayUnreadCountBadge{Qt::ItemDataRole::UserRole + 5};
         static constexpr uint32_t SourceTreeEntryParentFolderIDRole{Qt::ItemDataRole::UserRole + 6};
         static constexpr uint32_t SourceTreeEntryFeedErrorRole{Qt::ItemDataRole::UserRole + 7};
+        static constexpr uint32_t SourceTreeEntryFeedURLRole{Qt::ItemDataRole::UserRole + 8};
 
         static constexpr uint32_t PostIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t PostSourceIDRole{Qt::ItemDataRole::UserRole + 2};

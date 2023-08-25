@@ -108,6 +108,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                         feedItem->setData(QString::fromUtf8(feedError.value()), SourceTreeEntryFeedErrorRole);
                         feedItem->setData(QString::fromUtf8(feedError.value()), Qt::ToolTipRole);
                     }
+                    feedItem->setData(QString::fromUtf8(feed->url()), SourceTreeEntryFeedURLRole);
 
                     if (!FeedIconCache::isCached(feed->id()) || !FeedIconCache::isSameHash(feed->id(), feed->iconHash()))
                     {

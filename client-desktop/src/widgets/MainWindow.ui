@@ -781,6 +781,7 @@
     <addaction name="action_Add_folder"/>
     <addaction name="separator"/>
     <addaction name="action_Import_OPML"/>
+    <addaction name="action_Export_OPML"/>
    </widget>
    <addaction name="menu_File"/>
   </widget>
@@ -950,6 +951,14 @@
    </property>
    <property name="toolTip">
     <string>Mark as read</string>
+   </property>
+  </action>
+  <action name="action_Export_OPML">
+   <property name="text">
+    <string>Export OPML</string>
+   </property>
+   <property name="toolTip">
+    <string>Export OPML</string>
    </property>
   </action>
  </widget>
