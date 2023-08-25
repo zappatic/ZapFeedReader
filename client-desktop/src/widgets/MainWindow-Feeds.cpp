@@ -19,6 +19,8 @@
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "dialogs/DialogAddFeed.h"
+#include "models/SortFilterProxyModelSources.h"
+#include "models/StandardItemModelSources.h"
 #include "widgets/MainWindow.h"
 
 void ZapFR::Client::MainWindow::addFeed()
@@ -82,8 +84,8 @@ void ZapFR::Client::MainWindow::refreshFeeds()
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
                     sourceID, feedID,
-                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
-                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID); });
+                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
+                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID, feedUnreadCount, error); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
@@ -91,15 +93,15 @@ void ZapFR::Client::MainWindow::refreshFeeds()
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueRefreshFolder(
                     sourceID, folderID,
-                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
-                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID); });
+                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
+                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID, feedUnreadCount, error); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_SOURCE:
             {
                 ZapFR::Engine::Agent::getInstance()->queueRefreshSource(
-                    sourceID, [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
-                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID); });
+                    sourceID, [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
+                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID, feedUnreadCount, error); });
 
                 break;
             }
@@ -130,25 +132,27 @@ void ZapFR::Client::MainWindow::feedMarkedRead(uint64_t sourceID, uint64_t feedI
     reloadPosts();
 }
 
-void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID)
+void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
 {
-    ZapFR::Engine::Agent::getInstance()->queueGetFeedUnreadCount(sourceID, feedID,
-                                                                 [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t unreadCount)
-                                                                 {
-                                                                     std::unordered_set<uint64_t> feedIDs;
-                                                                     feedIDs.insert(affectedFeedID);
-                                                                     QMetaObject::invokeMethod(this, "updateFeedUnreadCountBadge", Qt::AutoConnection, affectedSourceID,
-                                                                                               feedIDs, false, unreadCount);
-                                                                 });
-
-    // if the feed is currently selected, then refresh the posts so the new unread posts are shown
-    auto index = ui->treeViewSources->currentIndex();
-    if (index.isValid())
+    auto sourceItem = findSourceStandardItem(sourceID);
+    if (sourceItem != nullptr)
     {
-        if (index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
+        auto feedItems = findFeedStandardItems(sourceItem, {{feedID}});
+        for (const auto& feedItem : feedItems)
         {
-            auto selectedFeedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            if (selectedFeedID == feedID)
+            feedItem->setData(QVariant::fromValue<uint64_t>(feedUnreadCount), SourceTreeEntryUnreadCount);
+            if (error.has_value())
+            {
+                feedItem->setData(QString::fromUtf8(error.value()), SourceTreeEntryFeedErrorRole);
+            }
+            else
+            {
+                feedItem->setData(QVariant(), SourceTreeEntryFeedErrorRole);
+            }
+
+            // if the feed is currently selected, then refresh the posts so the new unread posts are shown
+            auto currentIndex = ui->treeViewSources->currentIndex();
+            if (currentIndex.isValid() && mItemModelSources->itemFromIndex(mProxyModelSources->mapToSource(currentIndex)) == feedItem)
             {
                 mCurrentPostPage = 1;
                 reloadPosts();
@@ -157,6 +161,73 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
     }
 
     reloadUsedFlagColors(true);
+}
+
+void ZapFR::Client::MainWindow::updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount)
+{
+    auto sourceItem = findSourceStandardItem(sourceID);
+    if (sourceItem == nullptr)
+    {
+        return;
+    }
+
+    std::unordered_set<QStandardItem*> feedItems;
+    if (markEntireSourceAsRead)
+    {
+        feedItems = findFeedStandardItems(sourceItem, {});
+    }
+    else
+    {
+        feedItems = findFeedStandardItems(sourceItem, feedIDs);
+    }
+
+    for (const auto& feedItem : feedItems)
+    {
+        feedItem->setData(QVariant::fromValue<uint64_t>(unreadCount), SourceTreeEntryUnreadCount);
+    }
+}
+
+std::unordered_set<QStandardItem*> ZapFR::Client::MainWindow::findFeedStandardItems(QStandardItem* sourceItem, const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+{
+    std::unordered_set<QStandardItem*> feedItems;
+
+    std::function<void(QStandardItem*)> findFeeds;
+    findFeeds = [&](QStandardItem* parent)
+    {
+        auto type = parent->data(SourceTreeEntryTypeRole).toULongLong();
+        switch (type)
+        {
+            case SOURCETREE_ENTRY_TYPE_SOURCE:
+            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            {
+                for (int32_t i = 0; i < parent->rowCount(); ++i)
+                {
+                    findFeeds(parent->child(i, 0));
+                }
+                break;
+            }
+            case SOURCETREE_ENTRY_TYPE_FEED:
+            {
+                auto id = parent->data(SourceTreeEntryIDRole).toULongLong();
+                if (feedIDs.has_value())
+                {
+                    if (feedIDs.value().contains(id))
+                    {
+                        feedItems.insert(parent);
+                    }
+                }
+                else // empty feedIDs means add all feed items
+                {
+                    feedItems.insert(parent);
+                }
+                break;
+            }
+        }
+    };
+
+    findFeeds(sourceItem);
+
+    return feedItems;
 }
 
 void ZapFR::Client::MainWindow::connectFeedStuff()

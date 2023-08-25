@@ -113,17 +113,19 @@ void ZapFR::Engine::Agent::enqueue(std::unique_ptr<AgentRunnable> agent)
     }
 }
 
-void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID,
+                                            std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback)
 {
     enqueue(std::make_unique<AgentRefreshFeed>(sourceID, feedID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueRefreshFolder(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueRefreshFolder(uint64_t sourceID, uint64_t folderID,
+                                              std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback)
 {
     enqueue(std::make_unique<AgentRefreshFolder>(sourceID, folderID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t, uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback)
 {
     enqueue(std::make_unique<AgentRefreshSource>(sourceID, finishedCallback));
 }

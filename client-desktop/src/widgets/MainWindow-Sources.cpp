@@ -376,9 +376,20 @@ void ZapFR::Client::MainWindow::setUnreadBadgesShown(bool b)
     }
 }
 
-void ZapFR::Client::MainWindow::updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount)
+void ZapFR::Client::MainWindow::addSource()
 {
-    // find the correct source
+    std::cout << "tst\n";
+}
+
+void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
+{
+    updateFeedUnreadCountBadge(sourceID, {}, true, 0);
+    mCurrentPostPage = 1;
+    reloadPosts();
+}
+
+QStandardItem* ZapFR::Client::MainWindow::findSourceStandardItem(uint64_t sourceID)
+{
     QStandardItem* sourceItem{nullptr};
     auto root = mItemModelSources->invisibleRootItem();
     for (int32_t i = 0; i < root->rowCount(); ++i)
@@ -402,57 +413,7 @@ void ZapFR::Client::MainWindow::updateFeedUnreadCountBadge(uint64_t sourceID, st
             }
         }
     }
-    if (sourceItem == nullptr)
-    {
-        return;
-    }
-
-    // recursively seek for the correct feed, and update its unread badge value
-    std::function<void(QStandardItem*)> updateBadgeInSource;
-    updateBadgeInSource = [&](QStandardItem* parent)
-    {
-        auto index = mItemModelSources->indexFromItem(parent);
-        if (index.isValid())
-        {
-            auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
-            switch (type)
-            {
-                case SOURCETREE_ENTRY_TYPE_SOURCE:
-                case SOURCETREE_ENTRY_TYPE_FOLDER:
-                {
-                    for (int32_t i = 0; i < parent->rowCount(); ++i)
-                    {
-                        updateBadgeInSource(parent->child(i, 0));
-                    }
-
-                    break;
-                }
-                case SOURCETREE_ENTRY_TYPE_FEED:
-                {
-                    auto id = index.data(SourceTreeEntryIDRole).toULongLong();
-                    if (markEntireSourceAsRead || feedIDs.contains(id))
-                    {
-                        parent->setData(QVariant::fromValue<uint64_t>(unreadCount), SourceTreeEntryUnreadCount);
-                    }
-                    break;
-                }
-            }
-        }
-    };
-
-    updateBadgeInSource(sourceItem);
-}
-
-void ZapFR::Client::MainWindow::addSource()
-{
-    std::cout << "tst\n";
-}
-
-void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
-{
-    updateFeedUnreadCountBadge(sourceID, {}, true, 0);
-    mCurrentPostPage = 1;
-    reloadPosts();
+    return sourceItem;
 }
 
 void ZapFR::Client::MainWindow::connectSourceStuff()

@@ -31,14 +31,14 @@ namespace ZapFR
         class AgentRefreshSource : public AgentRunnable
         {
           public:
-            explicit AgentRefreshSource(uint64_t sourceID, std::function<void(uint64_t, uint64_t)> finishedCallback);
+            explicit AgentRefreshSource(uint64_t sourceID, std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback);
             virtual ~AgentRefreshSource() = default;
 
             void run() override;
 
           private:
             uint64_t mSourceID{0};
-            std::function<void(uint64_t, uint64_t)> mFinishedCallback{};
+            std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

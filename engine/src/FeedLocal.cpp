@@ -159,7 +159,7 @@ bool ZapFR::Engine::FeedLocal::fetchData()
     return true;
 }
 
-void ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML)
+bool ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML)
 {
     Log::log(LogLevel::Info, "Refreshing feed", mID);
     fetchData();
@@ -183,27 +183,24 @@ void ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML
             processItems(parsedFeed.get());
         }
         refreshIcon();
+        fetchUnreadCount();
     }
     catch (const Poco::Exception& e)
     {
-        auto error = e.displayText();
-        Log::log(LogLevel::Error, error, mID);
-        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-        updateStmt << "UPDATE feeds SET lastRefreshError=? WHERE id=?", useRef(error), use(mID), now;
+        updateAndLogLastRefreshError(e.displayText());
+        return false;
     }
     catch (const std::runtime_error& e)
     {
-        auto error = e.what();
-        Log::log(LogLevel::Error, error, mID);
-        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-        updateStmt << "UPDATE feeds SET lastRefreshError=? WHERE id=?", useRef(error), use(mID), now;
+        updateAndLogLastRefreshError(e.what());
+        return false;
     }
     catch (...)
     {
-        Log::log(LogLevel::Error, "Unknown exception", mID);
-        Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-        updateStmt << "UPDATE feeds SET lastRefreshError='Unkown exception' WHERE id=?", use(mID), now;
+        updateAndLogLastRefreshError("Unknown exception");
+        return false;
     }
+    return true;
 }
 
 void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
@@ -498,6 +495,22 @@ std::unique_ptr<ZapFR::Engine::FeedLocal> ZapFR::Engine::FeedLocal::create(const
     return f;
 }
 
+void ZapFR::Engine::FeedLocal::fetchUnreadCount()
+{
+    uint64_t unreadCount{0};
+    Poco::Data::Statement selectUnreadStmt(*(Database::getInstance()->session()));
+    selectUnreadStmt << "SELECT COUNT(*) FROM posts WHERE feedID=? AND isRead=FALSE", use(mID), into(unreadCount), now;
+    setUnreadCount(unreadCount);
+}
+
+void ZapFR::Engine::FeedLocal::updateAndLogLastRefreshError(const std::string& error)
+{
+    Log::log(LogLevel::Error, error, mID);
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE feeds SET lastRefreshError=? WHERE id=?", useRef(error), use(mID), now;
+    setLastRefreshError(error);
+}
+
 void ZapFR::Engine::FeedLocal::update(const std::string& iconURL, const std::string& guid, const std::string& title, const std::string& subtitle, const std::string& link,
                                       const std::string& description, const std::string& language, const std::string& copyright)
 {
@@ -685,14 +698,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
                 f->setLastRefreshError(lastRefreshError);
             }
             f->setSortOrder(sortOrder);
+            f->fetchUnreadCount();
             f->setDataFetched(true);
-
-            // fetch the unread count
-            uint64_t unreadCount{0};
-            Poco::Data::Statement selectUnreadStmt(*(Database::getInstance()->session()));
-            selectUnreadStmt << "SELECT COUNT(*) FROM posts WHERE feedID=? AND isRead=FALSE", use(id), into(unreadCount), now;
-            f->setUnreadCount(unreadCount);
-
             feeds.emplace_back(std::move(f));
         }
     }
@@ -794,13 +801,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
             f->setLastRefreshError(lastRefreshError);
         }
         f->setSortOrder(sortOrder);
+        f->fetchUnreadCount();
         f->setDataFetched(true);
-
-        // fetch the unread count
-        uint64_t unreadCount{0};
-        Poco::Data::Statement selectUnreadStmt(*(Database::getInstance()->session()));
-        selectUnreadStmt << "SELECT COUNT(*) FROM posts WHERE feedID=? AND isRead=FALSE", use(id), into(unreadCount), now;
-        f->setUnreadCount(unreadCount);
         return f;
     }
 

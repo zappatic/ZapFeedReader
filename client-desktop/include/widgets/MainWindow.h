@@ -94,7 +94,7 @@ namespace ZapFR
             void postsTableViewSelectionChanged(const QModelIndexList& selected);
 
             // callbacks
-            void feedRefreshed(uint64_t sourceID, uint64_t feedID);
+            void feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::optional<std::string>& error);
             void feedAdded();
             void feedRemoved();
             void feedMoved();
@@ -216,6 +216,8 @@ namespace ZapFR
             void updateActivePostFilter();
             void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
             std::vector<std::tuple<uint64_t, uint64_t>> selectedPostIDs() const;
+            QStandardItem* findSourceStandardItem(uint64_t sourceID);
+            std::unordered_set<QStandardItem*> findFeedStandardItems(QStandardItem* sourceItem, const std::optional<std::unordered_set<uint64_t>>& feedIDs);
 
             static constexpr uint64_t msPostsPerPage{100};
             static constexpr uint64_t msLogsPerPage{100};

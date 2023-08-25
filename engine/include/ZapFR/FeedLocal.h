@@ -42,7 +42,7 @@ namespace ZapFR
             uint64_t getTotalLogCount() override;
 
             bool fetchData() override;
-            void refresh(const std::optional<std::string>& feedXML) override;
+            bool refresh(const std::optional<std::string>& feedXML) override;
             void markAllAsRead() override;
             void markAsRead(uint64_t postID) override;
             void markAsUnread(uint64_t postID) override;
@@ -74,6 +74,8 @@ namespace ZapFR
 
             Poco::File iconFile() const;
             std::optional<std::unique_ptr<Post>> getPostByGuid(const std::string& guid);
+            void fetchUnreadCount();
+            void updateAndLogLastRefreshError(const std::string& error);
         };
     } // namespace Engine
 } // namespace ZapFR
