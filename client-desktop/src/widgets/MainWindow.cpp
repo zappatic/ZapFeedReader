@@ -45,8 +45,10 @@
 
 namespace
 {
-    auto gsPostPaneToolbarSpacer{"postPaneToolbarSpacer"};
+    auto gsPostPaneToolbarSpacerRight{"postPaneToolbarSpacerRight"};
+    auto gsPostPaneToolbarSpacerLeft{"postPaneToolbarSpacerLeft"};
     auto gsPostPaneLineEditSearch{"postPaneLineEditSearch"};
+    auto gsHamburgerMenuButton{"hamburgerMenuButton"};
 } // namespace
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -83,16 +85,32 @@ void ZapFR::Client::MainWindow::initializeUI()
     // prevent the left splitter from resizing while the window resizes
     ui->splitterLeft->setStretchFactor(1, 100);
 
-    // add a spacer in the toolbar
+    // add a spacer in the toolbar to separate the left from the right buttons
     auto spacerWidget = new QWidget();
     spacerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    auto action = ui->toolBar->insertWidget(ui->action_View_logs, spacerWidget);
-    action->setProperty(gsPostPaneToolbarSpacer, true);
+    auto spacerAction = ui->toolBar->insertWidget(ui->action_View_logs, spacerWidget);
+    spacerAction->setProperty(gsPostPaneToolbarSpacerLeft, true);
 
     // add the search widget to the toolbar
     mLineEditSearch = new LineEditSearch();
     auto actionSearch = ui->toolBar->insertWidget(ui->action_View_logs, mLineEditSearch);
     actionSearch->setProperty(gsPostPaneLineEditSearch, true);
+
+    // add the hamburger menu button to the toolbar
+    mHamburgerMenuButton = new QPushButton();
+    mHamburgerMenuButton->setFlat(true);
+    mHamburgerMenuButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    auto actionHamburgerMenu = ui->toolBar->insertWidget(ui->action_Dummy, mHamburgerMenuButton);
+    actionHamburgerMenu->setProperty(gsHamburgerMenuButton, true);
+    ui->toolBar->removeAction(ui->action_Dummy);
+
+    // add a spacer in the toolbar before the hamburger menu to ensure it is always at the right
+    auto spacerWidget2 = new QWidget();
+    spacerWidget2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto spacerAction2 = ui->toolBar->insertWidget(actionHamburgerMenu, spacerWidget2);
+    spacerAction2->setProperty(gsPostPaneToolbarSpacerRight, true);
+
+    ui->menubar->setVisible(false);
 
     ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
     ui->stackedWidgetPost->setCurrentIndex(StackedPanePost);
@@ -384,6 +402,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->pushButtonLogFirstPage->setIcon(configureIcon(":/firstPage.svg"));
     ui->pushButtonLogNextPage->setIcon(configureIcon(":/nextPage.svg"));
     ui->pushButtonLogLastPage->setIcon(configureIcon(":/lastPage.svg"));
+    mHamburgerMenuButton->setIcon(configureIcon(":/hamburger.svg"));
 
     auto labelFont = ui->labelTotalPostCount->font();
     labelFont.setPointSizeF(10.0f);
@@ -411,7 +430,10 @@ void ZapFR::Client::MainWindow::updateToolbar()
     // hide all actions
     for (const auto& action : ui->toolBar->actions())
     {
-        action->setVisible(false);
+        if (!action->property(gsHamburgerMenuButton).isValid())
+        {
+            action->setVisible(false);
+        }
     }
 
     switch (ui->stackedWidgetRight->currentIndex())
@@ -468,7 +490,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
 
             for (const auto& action : ui->toolBar->actions())
             {
-                if (action->property(gsPostPaneToolbarSpacer).isValid() || action->property(gsPostPaneLineEditSearch).isValid())
+                if (action->property(gsPostPaneToolbarSpacerLeft).isValid() || action->property(gsPostPaneLineEditSearch).isValid())
                 {
                     action->setVisible(true);
                 }
@@ -478,6 +500,13 @@ void ZapFR::Client::MainWindow::updateToolbar()
         case StackedPaneLogs:
         {
             ui->action_Back_to_posts->setVisible(true);
+            for (const auto& action : ui->toolBar->actions())
+            {
+                if (action->property(gsPostPaneToolbarSpacerRight).isValid())
+                {
+                    action->setVisible(true);
+                }
+            }
             break;
         }
         case StackedPaneScripts:
@@ -486,6 +515,13 @@ void ZapFR::Client::MainWindow::updateToolbar()
             ui->action_Edit_script->setVisible(true);
             ui->action_Remove_script->setVisible(true);
             ui->action_Add_script->setVisible(true);
+            for (const auto& action : ui->toolBar->actions())
+            {
+                if (action->property(gsPostPaneToolbarSpacerRight).isValid())
+                {
+                    action->setVisible(true);
+                }
+            }
             break;
         }
     }
@@ -561,6 +597,15 @@ void ZapFR::Client::MainWindow::configureConnects()
 {
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
     connect(ui->action_Export_OPML, &QAction::triggered, this, &MainWindow::exportOPML);
+    connect(ui->action_Exit, &QAction::triggered, [&]() { QGuiApplication::quit(); });
+
+    connect(mHamburgerMenuButton, &QPushButton::clicked,
+            [&]()
+            {
+                auto p = qobject_cast<QWidget*>(ui->toolBar->parent())->mapToGlobal(ui->toolBar->geometry().bottomRight());
+                p.setX(p.x() - ui->menu_Hamburger->sizeHint().width());
+                ui->menu_Hamburger->popup(p);
+            });
 
     connect(ui->stackedWidgetRight, &QStackedWidget::currentChanged,
             [&]()

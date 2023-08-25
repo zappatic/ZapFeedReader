@@ -23,5 +23,6 @@
         <file>remove.svg</file>
         <file>feedError.svg</file>
         <file>search.svg</file>
+        <file>hamburger.svg</file>
     </qresource>
 </RCC>

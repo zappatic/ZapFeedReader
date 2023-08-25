@@ -171,7 +171,8 @@ namespace ZapFR
 
             uint64_t mPreviouslySelectedSourceID{0};
 
-            LineEditSearch* mLineEditSearch{nullptr}; // owned by the toolbar, so plain pointer
+            LineEditSearch* mLineEditSearch{nullptr};   // owned by the toolbar, so plain pointer
+            QPushButton* mHamburgerMenuButton{nullptr}; // owned by the toolbar, so plain pointer
 
             QString dataDir() const;
             QString configDir() const;
