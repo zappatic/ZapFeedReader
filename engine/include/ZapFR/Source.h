@@ -39,14 +39,28 @@ namespace ZapFR
             explicit Source(uint64_t id) : mID(id) {}
             virtual ~Source() = default;
 
+            enum class Statistic
+            {
+                FeedCount,
+                PostCount,
+                FlaggedPostCount,
+                OldestPost,
+                NewestPost,
+            };
+
             uint64_t id() const noexcept { return mID; }
             std::string title() const noexcept { return mTitle; }
+            std::string type() const noexcept { return mType; }
             uint64_t sortOrder() const noexcept { return mSortOrder; }
             std::string configData() const noexcept { return mConfigData; }
+            std::unordered_map<Statistic, std::string> statistics() { return mStatistics; }
 
             void setTitle(const std::string& title) { mTitle = title; }
+            void setType(const std::string& type) { mType = type; }
             void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
             void setConfigData(const std::string& configData) { mConfigData = configData; }
+
+            void updateTitle(const std::string& newTitle);
 
             virtual std::vector<std::unique_ptr<Feed>> getFeeds() = 0;
             virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, bool fetchData = true) = 0;
@@ -82,6 +96,8 @@ namespace ZapFR
             virtual void addScript(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
                                    const std::optional<std::unordered_set<uint64_t>>& feedIDs) = 0;
 
+            virtual void fetchStatistics() = 0;
+
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);
             static std::unique_ptr<ZapFR::Engine::Source> createSourceInstance(uint64_t id, const std::string& type);
@@ -89,8 +105,10 @@ namespace ZapFR
           protected:
             uint64_t mID{0};
             std::string mTitle{""};
+            std::string mType{""};
             uint64_t mSortOrder{0};
             std::string mConfigData{""};
+            std::unordered_map<Statistic, std::string> mStatistics{};
         };
     } // namespace Engine
 } // namespace ZapFR

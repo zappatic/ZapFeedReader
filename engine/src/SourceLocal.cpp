@@ -295,3 +295,49 @@ void ZapFR::Engine::SourceLocal::addScript(Script::Type type, const std::string&
 {
     ScriptLocal::create(type, filename, enabled, events, feedIDs);
 }
+
+/* ************************** SOURCE STUFF ************************** */
+void ZapFR::Engine::SourceLocal::fetchStatistics()
+{
+    mStatistics.clear();
+
+    // total feed count
+    {
+        uint64_t totalFeedCount{0};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT COUNT(*) FROM feeds", into(totalFeedCount), now;
+        mStatistics[Statistic::FeedCount] = std::to_string(totalFeedCount);
+    }
+
+    // total post count
+    {
+        uint64_t totalPostCount{0};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT COUNT(*) FROM posts", into(totalPostCount), now;
+        mStatistics[Statistic::PostCount] = std::to_string(totalPostCount);
+    }
+
+    // total flagged post count
+    {
+        uint64_t totalFlaggedPostCount{0};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT COUNT(*) FROM flags", into(totalFlaggedPostCount), now;
+        mStatistics[Statistic::FlaggedPostCount] = std::to_string(totalFlaggedPostCount);
+    }
+
+    // oldest post
+    {
+        Poco::Nullable<std::string> oldestPost{};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT MIN(datePublished) FROM posts", into(oldestPost), now;
+        mStatistics[Statistic::OldestPost] = oldestPost.isNull() ? "" : oldestPost.value();
+    }
+
+    // newest post
+    {
+        Poco::Nullable<std::string> newestPost{};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT MAX(datePublished) FROM posts", into(newestPost), now;
+        mStatistics[Statistic::NewestPost] = newestPost.isNull() ? "" : newestPost.value();
+    }
+}

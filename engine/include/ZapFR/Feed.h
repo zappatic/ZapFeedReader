@@ -90,7 +90,7 @@ namespace ZapFR
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
             virtual uint64_t getTotalLogCount() = 0;
 
-            virtual void updateProperties(const std::string feedURL, std::optional<uint64_t> refreshIntervalInSeconds) = 0;
+            virtual void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) = 0;
             virtual bool refresh(const std::optional<std::string>& feedXML) = 0;
             virtual void markAllAsRead() = 0;
             virtual void markAsRead(uint64_t postID) = 0;

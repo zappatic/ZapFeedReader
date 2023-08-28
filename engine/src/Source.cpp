@@ -24,9 +24,11 @@ using namespace Poco::Data::Keywords;
 
 std::unique_ptr<ZapFR::Engine::Source> ZapFR::Engine::Source::createSourceInstance(uint64_t id, const std::string& type)
 {
-    if (type == "local")
+    if (type == "zapfeedreader.local")
     {
-        return std::make_unique<SourceLocal>(id);
+        auto s = std::make_unique<SourceLocal>(id);
+        s->setType(type);
+        return s;
     }
     else
     {
@@ -106,4 +108,10 @@ std::optional<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::get
         return s;
     }
     return {};
+}
+
+void ZapFR::Engine::Source::updateTitle(const std::string& newTitle)
+{
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE sources SET title=? WHERE id=?", useRef(newTitle), use(mID), now;
 }

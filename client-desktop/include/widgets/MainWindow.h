@@ -127,6 +127,7 @@ namespace ZapFR
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
             void feedPropertiesReceived(const QMap<QString, QVariant>& props);
             void folderPropertiesReceived(const QMap<QString, QVariant>& props);
+            void sourcePropertiesReceived(const QMap<QString, QVariant>& props);
 
           protected:
             void closeEvent(QCloseEvent* event) override;

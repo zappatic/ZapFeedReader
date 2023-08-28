@@ -70,6 +70,7 @@ namespace ZapFR
             // querying sources
             void queueGetSourceTree(uint64_t sourceID,
                                     std::function<void(uint64_t, const std::string&, const std::vector<Folder*>&, const std::vector<Feed*>&)> finishedCallback);
+            void queueGetSource(uint64_t sourceID, std::function<void(Source*)> finishedCallback);
 
             // post manipulation
             void queueMarkPostsRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,

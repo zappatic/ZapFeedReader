@@ -66,7 +66,7 @@ namespace ZapFR
             static void resort(uint64_t folder);
             static void remove(uint64_t feedID);
 
-            void updateProperties(const std::string feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
+            void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
 
             void update(const std::string& iconURL, const std::string& guid, const std::string& title, const std::string& subtitle, const std::string& link,
                         const std::string& description, const std::string& language, const std::string& copyright);

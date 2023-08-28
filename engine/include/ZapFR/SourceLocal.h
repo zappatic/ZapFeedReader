@@ -64,6 +64,8 @@ namespace ZapFR
             void removeScript(uint64_t scriptID) override;
             void addScript(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
                            const std::optional<std::unordered_set<uint64_t>>& feedIDs) override;
+
+            void fetchStatistics() override;
         };
     } // namespace Engine
 } // namespace ZapFR

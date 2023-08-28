@@ -41,6 +41,7 @@ set(PROJECT_SOURCES
         src/widgets/WidgetPostCaption.cpp
         src/widgets/WidgetPropertiesPaneFeed.cpp
         src/widgets/WidgetPropertiesPaneFolder.cpp
+        src/widgets/WidgetPropertiesPaneSource.cpp
         src/delegates/ItemDelegateSource.cpp
         src/delegates/ItemDelegatePost.cpp
         src/delegates/ItemDelegateLog.cpp
@@ -74,6 +75,7 @@ set(PROJECT_SOURCES
         include/widgets/WidgetPostCaption.h
         include/widgets/WidgetPropertiesPaneFeed.h
         include/widgets/WidgetPropertiesPaneFolder.h
+        include/widgets/WidgetPropertiesPaneSource.h
         include/delegates/ItemDelegateSource.h
         include/delegates/ItemDelegatePost.h
         include/delegates/ItemDelegateLog.h
@@ -92,6 +94,7 @@ set(PROJECT_SOURCES
         src/widgets/PopupFlagChooser.ui
         src/widgets/WidgetPropertiesPaneFeed.ui
         src/widgets/WidgetPropertiesPaneFolder.ui
+        src/widgets/WidgetPropertiesPaneSource.ui
         src/dialogs/DialogAddFeed.ui
         src/dialogs/DialogAddFolder.ui
         src/dialogs/DialogImportOPML.ui

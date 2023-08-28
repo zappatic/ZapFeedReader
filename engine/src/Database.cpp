@@ -146,7 +146,7 @@ void ZapFR::Engine::Database::installDBSchemaV1()
             now;
 
         std::string localSourceName = "On this computer";
-        std::string localType = "local";
+        std::string localType = "zapfeedreader.local";
         uint64_t localSortOrder = 10;
         Poco::Data::Statement insertStmt(*mSession);
         insertStmt << "INSERT INTO sources ("

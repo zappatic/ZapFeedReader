@@ -20,13 +20,29 @@
 #include "ZapFR/Agent.h"
 #include "ZapFR/Feed.h"
 #include "ZapFR/Folder.h"
+#include "ZapFR/Source.h"
+#include "models/StandardItemModelSources.h"
 #include "widgets/MainWindow.h"
 #include "widgets/WidgetPropertiesPaneFeed.h"
 #include "widgets/WidgetPropertiesPaneFolder.h"
+#include "widgets/WidgetPropertiesPaneSource.h"
 
 void ZapFR::Client::MainWindow::connectPropertiesStuff()
 {
     connect(ui->action_View_properties, &QAction::triggered, [&]() { reloadPropertiesPane(); });
+    connect(ui->widgetPropertiesPaneSource, &WidgetPropertiesPaneSource::sourceTitleUpdated,
+            [&](uint64_t sourceID, const QString& newTitle)
+            {
+                auto root = mItemModelSources->invisibleRootItem();
+                for (int32_t i = 0; i < root->rowCount(); ++i)
+                {
+                    auto child = root->child(i);
+                    if (child->data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_SOURCE && child->data(SourceTreeEntryIDRole).toULongLong() == sourceID)
+                    {
+                        child->setData(newTitle, Qt::DisplayRole);
+                    }
+                }
+            });
 }
 
 void ZapFR::Client::MainWindow::reloadPropertiesPane()
@@ -39,7 +55,24 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
         {
             case SOURCETREE_ENTRY_TYPE_SOURCE:
             {
-                ui->stackedWidgetProperties->setCurrentIndex(StackedPanePropertiesSource);
+                ZapFR::Engine::Agent::getInstance()->queueGetSource(sourceID,
+                                                                    [&](ZapFR::Engine::Source* source)
+                                                                    {
+                                                                        QMap<QString, QVariant> props;
+                                                                        props["sourceID"] = QVariant::fromValue<uint64_t>(source->id());
+                                                                        props["title"] = QString::fromUtf8(source->title());
+                                                                        props["type"] = QString::fromUtf8(source->type());
+
+                                                                        QMap<uint64_t, QString> stats;
+                                                                        for (const auto& [s, v] : source->statistics())
+                                                                        {
+                                                                            stats[static_cast<std::underlying_type_t<ZapFR::Engine::Folder::Statistic>>(s)] =
+                                                                                QString::fromUtf8(v);
+                                                                        }
+                                                                        props["statistics"] = QVariant::fromValue<QMap<uint64_t, QString>>(stats);
+
+                                                                        QMetaObject::invokeMethod(this, "sourcePropertiesReceived", Qt::AutoConnection, props);
+                                                                    });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
@@ -121,4 +154,11 @@ void ZapFR::Client::MainWindow::folderPropertiesReceived(const QMap<QString, QVa
     ui->stackedWidgetRight->setCurrentIndex(StackedPaneProperties);
     ui->stackedWidgetProperties->setCurrentIndex(StackedPanePropertiesFolder);
     ui->widgetPropertiesPaneFolder->reset(props);
+}
+
+void ZapFR::Client::MainWindow::sourcePropertiesReceived(const QMap<QString, QVariant>& props)
+{
+    ui->stackedWidgetRight->setCurrentIndex(StackedPaneProperties);
+    ui->stackedWidgetProperties->setCurrentIndex(StackedPanePropertiesSource);
+    ui->widgetPropertiesPaneSource->reset(props);
 }

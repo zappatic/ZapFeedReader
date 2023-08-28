@@ -781,9 +781,27 @@
          <item>
           <widget class="QStackedWidget" name="stackedWidgetProperties">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
-           <widget class="QWidget" name="pagePropertiesSource"/>
+           <widget class="QWidget" name="pagePropertiesSource">
+            <layout class="QVBoxLayout" name="verticalLayout_11">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="ZapFR::Client::WidgetPropertiesPaneSource" name="widgetPropertiesPaneSource" native="true"/>
+             </item>
+            </layout>
+           </widget>
            <widget class="QWidget" name="pagePropertiesFolder">
             <layout class="QVBoxLayout" name="verticalLayout_9">
              <property name="leftMargin">
@@ -1103,6 +1121,12 @@
    <class>ZapFR::Client::WidgetPropertiesPaneFolder</class>
    <extends>QWidget</extends>
    <header>widgets/WidgetPropertiesPaneFolder.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::WidgetPropertiesPaneSource</class>
+   <extends>QWidget</extends>
+   <header>widgets/WidgetPropertiesPaneSource.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

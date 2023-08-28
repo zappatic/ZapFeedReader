@@ -579,7 +579,7 @@ void ZapFR::Engine::FeedLocal::update(const std::string& iconURL, const std::str
     setCopyright(copyright);
 }
 
-void ZapFR::Engine::FeedLocal::updateProperties(const std::string feedURL, std::optional<uint64_t> refreshIntervalInSeconds)
+void ZapFR::Engine::FeedLocal::updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds)
 {
     Poco::Nullable<uint64_t> ri;
     if (refreshIntervalInSeconds.has_value())

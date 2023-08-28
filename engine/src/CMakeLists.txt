@@ -35,6 +35,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentScriptRemove.cpp
     agents/AgentScriptUpdate.cpp
     agents/AgentScriptsGet.cpp
+    agents/AgentSourceGet.cpp
     agents/AgentSourceGetLogs.cpp
     agents/AgentSourceGetPosts.cpp
     agents/AgentSourceGetTree.cpp
