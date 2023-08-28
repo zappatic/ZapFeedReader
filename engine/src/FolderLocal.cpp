@@ -62,6 +62,65 @@ void ZapFR::Engine::FolderLocal::fetchSubfolders()
     }
 }
 
+void ZapFR::Engine::FolderLocal::fetchStatistics()
+{
+    mStatistics.clear();
+
+    auto feedIDs = feedIDsInFoldersAndSubfolders();
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDs, ",");
+    if (joinedFeedIDs.empty())
+    {
+        mStatistics[Statistic::FeedCount] = "0";
+        mStatistics[Statistic::PostCount] = "0";
+        mStatistics[Statistic::FlaggedPostCount] = "0";
+        mStatistics[Statistic::OldestPost] = "";
+        mStatistics[Statistic::NewestPost] = "";
+        return;
+    }
+
+    // total feed count
+    {
+        mStatistics[Statistic::FeedCount] = std::to_string(feedIDs.size());
+    }
+
+    // total post count
+    {
+        uint64_t totalPostCount{0};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << Poco::format("SELECT COUNT(*) FROM posts WHERE feedID IN (%s)", joinedFeedIDs), into(totalPostCount), now;
+        mStatistics[Statistic::PostCount] = std::to_string(totalPostCount);
+    }
+
+    // total flagged post count
+    {
+        uint64_t totalFlaggedPostCount{0};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << Poco::format("SELECT COUNT(*)"
+                                   " FROM flags"
+                                   " LEFT JOIN posts ON posts.id = flags.postID"
+                                   " WHERE posts.feedID IN (%s)",
+                                   joinedFeedIDs),
+            into(totalFlaggedPostCount), use(mID), now;
+        mStatistics[Statistic::FlaggedPostCount] = std::to_string(totalFlaggedPostCount);
+    }
+
+    // oldest post
+    {
+        Poco::Nullable<std::string> oldestPost{};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << Poco::format("SELECT MIN(datePublished) FROM posts WHERE feedID IN (%s)", joinedFeedIDs), into(oldestPost), use(mID), now;
+        mStatistics[Statistic::OldestPost] = oldestPost.isNull() ? "" : oldestPost.value();
+    }
+
+    // newest post
+    {
+        Poco::Nullable<std::string> newestPost{};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << Poco::format("SELECT MAX(datePublished) FROM posts WHERE feedID IN (%s)", joinedFeedIDs), into(newestPost), use(mID), now;
+        mStatistics[Statistic::NewestPost] = newestPost.isNull() ? "" : newestPost.value();
+    }
+}
+
 std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                                        FlagColor flagColor)
 {

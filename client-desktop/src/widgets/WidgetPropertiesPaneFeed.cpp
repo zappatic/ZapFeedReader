@@ -115,7 +115,7 @@ void ZapFR::Client::WidgetPropertiesPaneFeed::reset(const QMap<QString, QVariant
         ui->labelStatAmountOfFlaggedPostsValue->setText(tr("Unknown"));
     }
     auto oldestPostKey = static_cast<std::underlying_type_t<ZapFR::Engine::Feed::Statistic>>(ZapFR::Engine::Feed::Statistic::OldestPost);
-    if (stats.contains(oldestPostKey))
+    if (stats.contains(oldestPostKey) && !stats[oldestPostKey].isEmpty())
     {
         ui->labelStatOldestPostValue->setText(Utilities::prettyDate(stats[oldestPostKey]));
     }
@@ -124,7 +124,7 @@ void ZapFR::Client::WidgetPropertiesPaneFeed::reset(const QMap<QString, QVariant
         ui->labelStatOldestPostValue->setText(tr("Unknown"));
     }
     auto newestPostKey = static_cast<std::underlying_type_t<ZapFR::Engine::Feed::Statistic>>(ZapFR::Engine::Feed::Statistic::NewestPost);
-    if (stats.contains(newestPostKey))
+    if (stats.contains(newestPostKey) && !stats[newestPostKey].isEmpty())
     {
         ui->labelStatNewestPostValue->setText(Utilities::prettyDate(stats[newestPostKey]));
     }

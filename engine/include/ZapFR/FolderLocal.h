@@ -41,6 +41,7 @@ namespace ZapFR
 
             void fetchSubfolders() override;
             bool fetchData() override;
+            void fetchStatistics() override;
 
             std::vector<uint64_t> folderAndSubfolderIDs() const override;
             std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const override;

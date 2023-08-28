@@ -19,8 +19,10 @@
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Feed.h"
+#include "ZapFR/Folder.h"
 #include "widgets/MainWindow.h"
 #include "widgets/WidgetPropertiesPaneFeed.h"
+#include "widgets/WidgetPropertiesPaneFolder.h"
 
 void ZapFR::Client::MainWindow::connectPropertiesStuff()
 {
@@ -42,7 +44,26 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
             {
-                ui->stackedWidgetProperties->setCurrentIndex(StackedPanePropertiesFolder);
+                auto folderID = currentIndex.data(SourceTreeEntryIDRole).toULongLong();
+                ZapFR::Engine::Agent::getInstance()->queueGetFolder(sourceID, folderID,
+                                                                    [&](ZapFR::Engine::Folder* folder)
+                                                                    {
+                                                                        QMap<QString, QVariant> props;
+
+                                                                        props["sourceID"] = QVariant::fromValue<uint64_t>(sourceID);
+                                                                        props["folderID"] = QVariant::fromValue<uint64_t>(folder->id());
+                                                                        props["title"] = QString::fromUtf8(folder->title());
+
+                                                                        QMap<uint64_t, QString> stats;
+                                                                        for (const auto& [s, v] : folder->statistics())
+                                                                        {
+                                                                            stats[static_cast<std::underlying_type_t<ZapFR::Engine::Folder::Statistic>>(s)] =
+                                                                                QString::fromUtf8(v);
+                                                                        }
+                                                                        props["statistics"] = QVariant::fromValue<QMap<uint64_t, QString>>(stats);
+
+                                                                        QMetaObject::invokeMethod(this, "folderPropertiesReceived", Qt::AutoConnection, props);
+                                                                    });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FEED:
@@ -93,4 +114,11 @@ void ZapFR::Client::MainWindow::feedPropertiesReceived(const QMap<QString, QVari
     ui->stackedWidgetRight->setCurrentIndex(StackedPaneProperties);
     ui->stackedWidgetProperties->setCurrentIndex(StackedPanePropertiesFeed);
     ui->widgetPropertiesPaneFeed->reset(props);
+}
+
+void ZapFR::Client::MainWindow::folderPropertiesReceived(const QMap<QString, QVariant>& props)
+{
+    ui->stackedWidgetRight->setCurrentIndex(StackedPaneProperties);
+    ui->stackedWidgetProperties->setCurrentIndex(StackedPanePropertiesFolder);
+    ui->widgetPropertiesPaneFolder->reset(props);
 }

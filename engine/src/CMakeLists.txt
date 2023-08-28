@@ -13,6 +13,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentGetSourcePosts.cpp
     agents/AgentGetSourceTree.cpp
     agents/AgentAddFolder.cpp
+    agents/AgentGetFolder.cpp
     agents/AgentMoveFeed.cpp
     agents/AgentMoveFolder.cpp
     agents/AgentMarkPostsRead.cpp

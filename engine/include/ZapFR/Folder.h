@@ -35,10 +35,20 @@ namespace ZapFR
             Folder(uint64_t id, uint64_t parent);
             virtual ~Folder() = default;
 
+            enum class Statistic
+            {
+                FeedCount,
+                PostCount,
+                FlaggedPostCount,
+                OldestPost,
+                NewestPost,
+            };
+
             uint64_t id() const noexcept { return mID; }
             uint64_t parentID() const noexcept { return mParent; }
             std::string title() const noexcept { return mTitle; }
             uint64_t sortOrder() const noexcept { return mSortOrder; }
+            std::unordered_map<Statistic, std::string> statistics() { return mStatistics; }
 
             void setTitle(const std::string& title) { mTitle = title; }
             void setSortOrder(uint64_t sortOrder) { mSortOrder = sortOrder; }
@@ -56,6 +66,7 @@ namespace ZapFR
             virtual uint64_t getTotalLogCount() = 0;
 
             virtual bool fetchData() = 0;
+            virtual void fetchStatistics() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }
 
             virtual std::vector<uint64_t> folderAndSubfolderIDs() const = 0;
@@ -67,6 +78,7 @@ namespace ZapFR
             uint64_t mParent{0};
             uint64_t mSortOrder{0};
             std::vector<std::unique_ptr<Folder>> mSubfolders{};
+            std::unordered_map<Statistic, std::string> mStatistics{};
 
             bool mDataFetched{false};
             bool mSubfoldersFetched{false};

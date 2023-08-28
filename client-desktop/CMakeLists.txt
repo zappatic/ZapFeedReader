@@ -40,6 +40,7 @@ set(PROJECT_SOURCES
         src/widgets/LineEditSearch.cpp
         src/widgets/WidgetPostCaption.cpp
         src/widgets/WidgetPropertiesPaneFeed.cpp
+        src/widgets/WidgetPropertiesPaneFolder.cpp
         src/delegates/ItemDelegateSource.cpp
         src/delegates/ItemDelegatePost.cpp
         src/delegates/ItemDelegateLog.cpp
@@ -72,6 +73,7 @@ set(PROJECT_SOURCES
         include/widgets/LineEditSearch.h
         include/widgets/WidgetPostCaption.h
         include/widgets/WidgetPropertiesPaneFeed.h
+        include/widgets/WidgetPropertiesPaneFolder.h
         include/delegates/ItemDelegateSource.h
         include/delegates/ItemDelegatePost.h
         include/delegates/ItemDelegateLog.h
@@ -89,6 +91,7 @@ set(PROJECT_SOURCES
         src/widgets/MainWindow.ui
         src/widgets/PopupFlagChooser.ui
         src/widgets/WidgetPropertiesPaneFeed.ui
+        src/widgets/WidgetPropertiesPaneFolder.ui
         src/dialogs/DialogAddFeed.ui
         src/dialogs/DialogAddFolder.ui
         src/dialogs/DialogImportOPML.ui
