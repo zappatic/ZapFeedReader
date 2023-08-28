@@ -455,6 +455,47 @@ uint64_t ZapFR::Engine::FeedLocal::getTotalLogCount()
     return Log::queryCount(whereClause, bindings);
 }
 
+void ZapFR::Engine::FeedLocal::fetchStatistics()
+{
+    mStatistics.clear();
+
+    // total post count
+    {
+        uint64_t totalPostCount{0};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT COUNT(*) FROM posts WHERE feedID=?", into(totalPostCount), use(mID), now;
+        mStatistics[Statistic::PostCount] = std::to_string(totalPostCount);
+    }
+
+    // total flagged post count
+    {
+        uint64_t totalFlaggedPostCount{0};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT COUNT(*)"
+                      " FROM flags"
+                      " LEFT JOIN posts ON posts.id = flags.postID"
+                      " WHERE posts.feedID=?",
+            into(totalFlaggedPostCount), use(mID), now;
+        mStatistics[Statistic::FlaggedPostCount] = std::to_string(totalFlaggedPostCount);
+    }
+
+    // oldest post
+    {
+        Poco::Nullable<std::string> oldestPost{};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT MIN(datePublished) FROM posts WHERE feedID=?", into(oldestPost), use(mID), now;
+        mStatistics[Statistic::OldestPost] = oldestPost.isNull() ? "" : oldestPost.value();
+    }
+
+    // newest post
+    {
+        Poco::Nullable<std::string> newestPost{};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT MAX(datePublished) FROM posts WHERE feedID=?", into(newestPost), use(mID), now;
+        mStatistics[Statistic::NewestPost] = newestPost.isNull() ? "" : newestPost.value();
+    }
+}
+
 uint64_t ZapFR::Engine::FeedLocal::nextSortOrder(uint64_t folderID)
 {
     uint64_t sortOrder{0};

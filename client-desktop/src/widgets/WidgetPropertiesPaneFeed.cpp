@@ -20,6 +20,7 @@
 #include "FeedIconCache.h"
 #include "Utilities.h"
 #include "ZapFR/Agent.h"
+#include "ZapFR/Feed.h"
 #include "ui_WidgetPropertiesPaneFeed.h"
 
 ZapFR::Client::WidgetPropertiesPaneFeed::WidgetPropertiesPaneFeed(QWidget* parent) : QWidget(parent), ui(new Ui::WidgetPropertiesPaneFeed)
@@ -92,6 +93,45 @@ void ZapFR::Client::WidgetPropertiesPaneFeed::reset(const QMap<QString, QVariant
         ui->labelLastErrorValue->setText(lastError);
     }
     ui->labelLastRefreshedValue->setText(Utilities::prettyDate(props["lastRefreshed"].toString()));
+
+    auto stats = props["statistics"].value<QMap<uint64_t, QString>>();
+
+    auto postCountKey = static_cast<std::underlying_type_t<ZapFR::Engine::Feed::Statistic>>(ZapFR::Engine::Feed::Statistic::PostCount);
+    if (stats.contains(postCountKey))
+    {
+        ui->labelStatAmountOfPostsValue->setText(stats[postCountKey]);
+    }
+    else
+    {
+        ui->labelStatAmountOfPostsValue->setText(tr("Unknown"));
+    }
+    auto flaggedPostCountKey = static_cast<std::underlying_type_t<ZapFR::Engine::Feed::Statistic>>(ZapFR::Engine::Feed::Statistic::FlaggedPostCount);
+    if (stats.contains(flaggedPostCountKey))
+    {
+        ui->labelStatAmountOfFlaggedPostsValue->setText(stats[flaggedPostCountKey]);
+    }
+    else
+    {
+        ui->labelStatAmountOfFlaggedPostsValue->setText(tr("Unknown"));
+    }
+    auto oldestPostKey = static_cast<std::underlying_type_t<ZapFR::Engine::Feed::Statistic>>(ZapFR::Engine::Feed::Statistic::OldestPost);
+    if (stats.contains(oldestPostKey))
+    {
+        ui->labelStatOldestPostValue->setText(Utilities::prettyDate(stats[oldestPostKey]));
+    }
+    else
+    {
+        ui->labelStatOldestPostValue->setText(tr("Unknown"));
+    }
+    auto newestPostKey = static_cast<std::underlying_type_t<ZapFR::Engine::Feed::Statistic>>(ZapFR::Engine::Feed::Statistic::NewestPost);
+    if (stats.contains(newestPostKey))
+    {
+        ui->labelStatNewestPostValue->setText(Utilities::prettyDate(stats[newestPostKey]));
+    }
+    else
+    {
+        ui->labelStatNewestPostValue->setText(tr("Unknown"));
+    }
 }
 
 void ZapFR::Client::WidgetPropertiesPaneFeed::save()

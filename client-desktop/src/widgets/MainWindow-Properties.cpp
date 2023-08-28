@@ -73,6 +73,13 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
                                                                           props["lastError"] = QString::fromUtf8(feed->lastRefreshError().value());
                                                                       }
 
+                                                                      QMap<uint64_t, QString> stats;
+                                                                      for (const auto& [s, v] : feed->statistics())
+                                                                      {
+                                                                          stats[static_cast<std::underlying_type_t<ZapFR::Engine::Feed::Statistic>>(s)] = QString::fromUtf8(v);
+                                                                      }
+                                                                      props["statistics"] = QVariant::fromValue<QMap<uint64_t, QString>>(stats);
+
                                                                       QMetaObject::invokeMethod(this, "feedPropertiesReceived", Qt::AutoConnection, props);
                                                                   });
                 break;

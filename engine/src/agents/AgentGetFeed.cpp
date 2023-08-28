@@ -33,6 +33,7 @@ void ZapFR::Engine::AgentGetFeed::run()
         auto feed = source.value()->getFeed(mFeedID);
         if (feed.has_value())
         {
+            feed.value()->fetchStatistics();
             mFinishedCallback(feed.value().get());
         }
     }

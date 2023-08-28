@@ -42,6 +42,7 @@ namespace ZapFR
             uint64_t getTotalLogCount() override;
 
             bool fetchData() override;
+            void fetchStatistics() override;
             bool refresh(const std::optional<std::string>& feedXML) override;
             void markAllAsRead() override;
             void markAsRead(uint64_t postID) override;

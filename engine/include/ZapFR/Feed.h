@@ -35,6 +35,14 @@ namespace ZapFR
             explicit Feed(uint64_t id) : mID(id) {}
             virtual ~Feed() = default;
 
+            enum class Statistic
+            {
+                PostCount,
+                FlaggedPostCount,
+                OldestPost,
+                NewestPost,
+            };
+
             uint64_t id() const noexcept { return mID; }
             std::string url() const noexcept { return mURL; }
             uint64_t folder() const noexcept { return mFolderID; }
@@ -54,6 +62,7 @@ namespace ZapFR
             uint64_t unreadCount() const noexcept { return mUnreadCount; }
             std::optional<std::string> lastRefreshError() { return mLastRefreshError; }
             std::optional<uint64_t> refreshInterval() { return mRefreshInterval; }
+            std::unordered_map<Statistic, std::string> statistics() { return mStatistics; }
 
             void setURL(const std::string& url) { mURL = url; }
             void setIconURL(const std::string& iconURL) { mIconURL = iconURL; }
@@ -90,6 +99,7 @@ namespace ZapFR
             virtual void removeIcon() = 0;
 
             virtual bool fetchData() = 0;
+            virtual void fetchStatistics() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }
 
           protected:
@@ -111,6 +121,7 @@ namespace ZapFR
             std::optional<uint64_t> mRefreshInterval{};
             uint64_t mSortOrder{0};
             uint64_t mUnreadCount{0};
+            std::unordered_map<Statistic, std::string> mStatistics{};
 
             bool mDataFetched{false};
         };
