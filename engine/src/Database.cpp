@@ -95,6 +95,7 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ",sortOrder INTEGER NOT NULL"
                        ",lastChecked INTEGER NOT NULL DEFAULT 0"
                        ",lastRefreshError TEXT"
+                       ",refreshInterval INTEGER"
                        ")",
             now;
     }

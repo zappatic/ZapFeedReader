@@ -165,8 +165,9 @@ bool ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML
     fetchData();
 
     {
+        auto nowISO = Poco::DateTimeFormatter::format(Poco::DateTime(), Poco::DateTimeFormat::ISO8601_FORMAT);
         Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-        updateStmt << "UPDATE feeds SET lastRefreshError=NULL WHERE id=?", use(mID), now;
+        updateStmt << "UPDATE feeds SET lastRefreshError=NULL, lastChecked=? WHERE id=?", useRef(nowISO), use(mID), now;
     }
 
     try
@@ -537,6 +538,25 @@ void ZapFR::Engine::FeedLocal::update(const std::string& iconURL, const std::str
     setCopyright(copyright);
 }
 
+void ZapFR::Engine::FeedLocal::updateProperties(const std::string feedURL, std::optional<uint64_t> refreshIntervalInSeconds)
+{
+    Poco::Nullable<uint64_t> ri;
+    if (refreshIntervalInSeconds.has_value())
+    {
+        ri = refreshIntervalInSeconds.value();
+    }
+
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE feeds SET "
+                  " url=?"
+                  ",refreshInterval=?"
+                  " WHERE id=?",
+        useRef(feedURL), use(ri), use(mID), now;
+
+    setURL(feedURL);
+    setRefreshInterval(refreshIntervalInSeconds);
+}
+
 void ZapFR::Engine::FeedLocal::move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
 {
     uint64_t oldFolder{0};
@@ -620,6 +640,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
     std::string copyright;
     std::string lastChecked;
     Poco::Nullable<std::string> lastRefreshError;
+    Poco::Nullable<uint64_t> refreshInterval;
     uint64_t sortOrder;
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
@@ -640,6 +661,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
           ",feeds.copyright"
           ",feeds.lastChecked"
           ",feeds.lastRefreshError"
+          ",feeds.refreshInterval"
           ",feeds.sortOrder"
           " FROM feeds";
     if (!whereClause.empty())
@@ -673,6 +695,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
     selectStmt.addExtract(into(copyright));
     selectStmt.addExtract(into(lastChecked));
     selectStmt.addExtract(into(lastRefreshError));
+    selectStmt.addExtract(into(refreshInterval));
     selectStmt.addExtract(into(sortOrder));
 
     while (!selectStmt.done())
@@ -695,7 +718,11 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
             f->setLastChecked(lastChecked);
             if (!lastRefreshError.isNull())
             {
-                f->setLastRefreshError(lastRefreshError);
+                f->setLastRefreshError(lastRefreshError.value());
+            }
+            if (!refreshInterval.isNull())
+            {
+                f->setRefreshInterval(refreshInterval.value());
             }
             f->setSortOrder(sortOrder);
             f->fetchUnreadCount();
@@ -724,6 +751,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
     std::string copyright;
     std::string lastChecked;
     Poco::Nullable<std::string> lastRefreshError;
+    Poco::Nullable<uint64_t> refreshInterval;
     uint64_t sortOrder;
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
@@ -744,6 +772,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
           ",feeds.copyright"
           ",feeds.lastChecked"
           ",feeds.lastRefreshError"
+          ",feeds.refreshInterval"
           ",feeds.sortOrder"
           " FROM feeds";
     if (!whereClause.empty())
@@ -775,6 +804,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
     selectStmt.addExtract(into(copyright));
     selectStmt.addExtract(into(lastChecked));
     selectStmt.addExtract(into(lastRefreshError));
+    selectStmt.addExtract(into(refreshInterval));
     selectStmt.addExtract(into(sortOrder));
 
     selectStmt.execute();
@@ -798,7 +828,11 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
         f->setLastChecked(lastChecked);
         if (!lastRefreshError.isNull())
         {
-            f->setLastRefreshError(lastRefreshError);
+            f->setLastRefreshError(lastRefreshError.value());
+        }
+        if (!refreshInterval.isNull())
+        {
+            f->setRefreshInterval(refreshInterval.value());
         }
         f->setSortOrder(sortOrder);
         f->fetchUnreadCount();

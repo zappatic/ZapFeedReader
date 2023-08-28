@@ -53,6 +53,7 @@ namespace ZapFR
             uint64_t sortOrder() const noexcept { return mSortOrder; }
             uint64_t unreadCount() const noexcept { return mUnreadCount; }
             std::optional<std::string> lastRefreshError() { return mLastRefreshError; }
+            std::optional<uint64_t> refreshInterval() { return mRefreshInterval; }
 
             void setURL(const std::string& url) { mURL = url; }
             void setIconURL(const std::string& iconURL) { mIconURL = iconURL; }
@@ -70,6 +71,7 @@ namespace ZapFR
             void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
             void setUnreadCount(uint64_t unreadCount) noexcept { mUnreadCount = unreadCount; }
             void setLastRefreshError(const std::string& e) { mLastRefreshError = e; }
+            void setRefreshInterval(std::optional<uint64_t> ri) { mRefreshInterval = ri; }
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                 FlagColor flagColor) = 0;
@@ -79,6 +81,7 @@ namespace ZapFR
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
             virtual uint64_t getTotalLogCount() = 0;
 
+            virtual void updateProperties(const std::string feedURL, std::optional<uint64_t> refreshIntervalInSeconds) = 0;
             virtual bool refresh(const std::optional<std::string>& feedXML) = 0;
             virtual void markAllAsRead() = 0;
             virtual void markAsRead(uint64_t postID) = 0;
@@ -105,6 +108,7 @@ namespace ZapFR
             std::string mCopyright{""};
             std::string mLastChecked{""};
             std::optional<std::string> mLastRefreshError{};
+            std::optional<uint64_t> mRefreshInterval{};
             uint64_t mSortOrder{0};
             uint64_t mUnreadCount{0};
 

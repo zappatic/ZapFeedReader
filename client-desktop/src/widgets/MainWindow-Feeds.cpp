@@ -242,7 +242,9 @@ void ZapFR::Client::MainWindow::createFeedContextMenus()
     mSourceContextMenuFeed = std::make_unique<QMenu>(nullptr);
     mSourceContextMenuFeed->addAction(ui->action_Refresh_feeds);
     mSourceContextMenuFeed->addAction(ui->action_Mark_as_read);
-    mSourceContextMenuFeed->addAction(ui->action_View_logs);
     mSourceContextMenuFeed->addSeparator();
     mSourceContextMenuFeed->addAction(ui->action_Remove_feed);
+    mSourceContextMenuFeed->addSeparator();
+    mSourceContextMenuFeed->addAction(ui->action_View_logs);
+    mSourceContextMenuFeed->addAction(ui->action_View_properties);
 }

@@ -125,6 +125,7 @@ namespace ZapFR
             void populateUsedFlags(uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
             void populateScriptFolders(uint64_t sourceID, const QList<QList<QStandardItem*>>& scriptFolders);
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
+            void feedPropertiesReceived(const QMap<QString, QVariant>& props);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -187,6 +188,7 @@ namespace ZapFR
             void connectFlagStuff();
             void connectScriptStuff();
             void connectScriptFolderStuff();
+            void connectPropertiesStuff();
 
             void createContextMenus();
             void createSourceContextMenus();
@@ -210,6 +212,7 @@ namespace ZapFR
             void reloadUsedFlagColors(bool forceReload = false);
             void reloadScriptFolders(bool forceReload = false);
             void reloadScripts(bool forceReload = false);
+            void reloadPropertiesPane();
 
             QString postStyles() const;
             void setBlankPostPage() const;

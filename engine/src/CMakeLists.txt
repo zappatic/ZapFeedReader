@@ -8,6 +8,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentRemoveFeed.cpp
     agents/AgentSubscribeFeed.cpp
     agents/AgentGetFeedPosts.cpp
+    agents/AgentGetFeed.cpp
     agents/AgentGetFolderPosts.cpp
     agents/AgentGetSourcePosts.cpp
     agents/AgentGetSourceTree.cpp
@@ -38,6 +39,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentRemoveScriptFolder.cpp
     agents/AgentAssignPostsToScriptFolder.cpp
     agents/AgentRemovePostsFromScriptFolder.cpp
+    agents/AgentSetFeedProperties.cpp
     Database.cpp
     Log.cpp
     FeedFetcher.cpp

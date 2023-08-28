@@ -42,6 +42,7 @@
 #include <QLineEdit>
 #include <QLocale>
 #include <QMainWindow>
+#include <QMap>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
@@ -113,10 +114,16 @@ namespace ZapFR
         static constexpr uint32_t StackedPanePosts = 0;
         static constexpr uint32_t StackedPaneLogs = 1;
         static constexpr uint32_t StackedPaneScripts = 2;
+        static constexpr uint32_t StackedPaneProperties = 3;
 
         // ui->stackedWidgetPost's panes
         static constexpr uint32_t StackedPanePost = 0;
         static constexpr uint32_t StackedPanePostCaption = 1;
+
+        // ui->stackedWidgetProperties's panes
+        static constexpr uint32_t StackedPanePropertiesSource = 0;
+        static constexpr uint32_t StackedPanePropertiesFolder = 1;
+        static constexpr uint32_t StackedPanePropertiesFeed = 2;
 
         static constexpr uint32_t LogsColumnLogLevel = 0;
         static constexpr uint32_t LogsColumnFeed = 1;

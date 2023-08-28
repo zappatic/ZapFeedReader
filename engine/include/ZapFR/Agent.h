@@ -61,6 +61,9 @@ namespace ZapFR
             void queueGetFeedLogs(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
                                   std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
 
+            // querying feeds
+            void queueGetFeed(uint64_t sourceID, uint64_t feedID, std::function<void(Feed*)> finishedCallback);
+
             // querying sources
             void queueGetSourceTree(uint64_t sourceID,
                                     std::function<void(uint64_t, const std::string&, const std::vector<Folder*>&, const std::vector<Feed*>&)> finishedCallback);
@@ -88,6 +91,8 @@ namespace ZapFR
             void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback);
             void queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
                                     std::function<void()> finishedCallback);
+            void queueSetFeedProperties(uint64_t sourceID, uint64_t feedID, const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds,
+                                        std::function<void()> finishedCallback);
 
             // folder manipulation
             void queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);

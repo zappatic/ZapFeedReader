@@ -24,6 +24,7 @@
 #include "ZapFR/agents/AgentAddScript.h"
 #include "ZapFR/agents/AgentAddScriptFolder.h"
 #include "ZapFR/agents/AgentAssignPostsToScriptFolder.h"
+#include "ZapFR/agents/AgentGetFeed.h"
 #include "ZapFR/agents/AgentGetFeedLogs.h"
 #include "ZapFR/agents/AgentGetFeedPosts.h"
 #include "ZapFR/agents/AgentGetFeedUnreadCount.h"
@@ -54,6 +55,7 @@
 #include "ZapFR/agents/AgentRemovePostsFromScriptFolder.h"
 #include "ZapFR/agents/AgentRemoveScript.h"
 #include "ZapFR/agents/AgentRemoveScriptFolder.h"
+#include "ZapFR/agents/AgentSetFeedProperties.h"
 #include "ZapFR/agents/AgentSubscribeFeed.h"
 #include "ZapFR/agents/AgentUpdateScript.h"
 #include "ZapFR/agents/AgentUpdateScriptFolder.h"
@@ -134,6 +136,11 @@ void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::stri
                                               std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentSubscribeFeed>(sourceID, url, folder, newFolderHierarchy, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueGetFeed(uint64_t sourceID, uint64_t feedID, std::function<void(Feed*)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentGetFeed>(sourceID, feedID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
@@ -318,4 +325,10 @@ void ZapFR::Engine::Agent::queueAddScript(uint64_t sourceID, Script::Type type, 
                                           const std::optional<std::unordered_set<uint64_t>>& feedIDs, std::function<void(uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentAddScript>(sourceID, type, filename, enabled, events, feedIDs, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueSetFeedProperties(uint64_t sourceID, uint64_t feedID, const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds,
+                                                  std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentSetFeedProperties>(sourceID, feedID, feedURL, refreshIntervalInSeconds, finishedCallback));
 }

@@ -24,5 +24,6 @@
         <file>feedError.svg</file>
         <file>search.svg</file>
         <file>hamburger.svg</file>
+        <file>properties.svg</file>
     </qresource>
 </RCC>

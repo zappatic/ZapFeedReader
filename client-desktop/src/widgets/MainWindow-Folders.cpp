@@ -17,9 +17,9 @@
 */
 
 #include "./ui_MainWindow.h"
-#include "widgets/MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "dialogs/DialogAddFolder.h"
+#include "widgets/MainWindow.h"
 
 void ZapFR::Client::MainWindow::addFolder()
 {
@@ -105,7 +105,8 @@ void ZapFR::Client::MainWindow::createFolderContextMenus()
     mSourceContextMenuFolder->addSeparator();
     mSourceContextMenuFolder->addAction(ui->action_Add_feed);
     mSourceContextMenuFolder->addAction(ui->action_Add_folder);
-    mSourceContextMenuFolder->addAction(ui->action_View_logs);
-    mSourceContextMenuFolder->addSeparator();
     mSourceContextMenuFolder->addAction(ui->action_Remove_folder);
+    mSourceContextMenuFolder->addSeparator();
+    mSourceContextMenuFolder->addAction(ui->action_View_logs);
+    mSourceContextMenuFolder->addAction(ui->action_View_properties);
 }

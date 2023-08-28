@@ -25,6 +25,7 @@ set(PROJECT_SOURCES
         src/widgets/MainWindow-Flags.cpp
         src/widgets/MainWindow-Scripts.cpp
         src/widgets/MainWindow-ScriptFolders.cpp
+        src/widgets/MainWindow-Properties.cpp
         src/widgets/WebEnginePagePost.cpp
         src/widgets/WebEngineViewPost.cpp
         src/widgets/TableViewPaletteCorrected.cpp
@@ -38,6 +39,7 @@ set(PROJECT_SOURCES
         src/widgets/PopupFlagChooser.cpp
         src/widgets/LineEditSearch.cpp
         src/widgets/WidgetPostCaption.cpp
+        src/widgets/WidgetPropertiesPaneFeed.cpp
         src/delegates/ItemDelegateSource.cpp
         src/delegates/ItemDelegatePost.cpp
         src/delegates/ItemDelegateLog.cpp
@@ -69,6 +71,7 @@ set(PROJECT_SOURCES
         include/widgets/PopupFlagChooser.h
         include/widgets/LineEditSearch.h
         include/widgets/WidgetPostCaption.h
+        include/widgets/WidgetPropertiesPaneFeed.h
         include/delegates/ItemDelegateSource.h
         include/delegates/ItemDelegatePost.h
         include/delegates/ItemDelegateLog.h
@@ -85,6 +88,7 @@ set(PROJECT_SOURCES
         include/models/SortFilterProxyModelSources.h
         src/widgets/MainWindow.ui
         src/widgets/PopupFlagChooser.ui
+        src/widgets/WidgetPropertiesPaneFeed.ui
         src/dialogs/DialogAddFeed.ui
         src/dialogs/DialogAddFolder.ui
         src/dialogs/DialogImportOPML.ui

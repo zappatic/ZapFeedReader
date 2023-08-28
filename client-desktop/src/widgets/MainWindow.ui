@@ -16,6 +16,9 @@
     <height>600</height>
    </size>
   </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
+  </property>
   <property name="windowTitle">
    <string notr="true">Zap Feed Reader</string>
   </property>
@@ -212,7 +215,7 @@
       </widget>
       <widget class="QStackedWidget" name="stackedWidgetRight">
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="pagePosts">
         <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -758,6 +761,53 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="pageProperties">
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QStackedWidget" name="stackedWidgetProperties">
+           <property name="currentIndex">
+            <number>2</number>
+           </property>
+           <widget class="QWidget" name="pagePropertiesSource"/>
+           <widget class="QWidget" name="pagePropertiesFolder"/>
+           <widget class="QWidget" name="pagePropertiesFeed">
+            <layout class="QVBoxLayout" name="verticalLayout_10">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="ZapFR::Client::WidgetPropertiesPaneFeed" name="widgetPropertiesPaneFeed" native="true"/>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -972,6 +1022,14 @@
     <string>Exit</string>
    </property>
   </action>
+  <action name="action_View_properties">
+   <property name="text">
+    <string>View properties</string>
+   </property>
+   <property name="toolTip">
+    <string>View properties</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1015,6 +1073,12 @@
    <class>ZapFR::Client::WidgetPostCaption</class>
    <extends>QWidget</extends>
    <header>widgets/WidgetPostCaption.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::WidgetPropertiesPaneFeed</class>
+   <extends>QWidget</extends>
+   <header>widgets/WidgetPropertiesPaneFeed.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

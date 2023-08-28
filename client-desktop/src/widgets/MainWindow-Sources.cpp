@@ -480,6 +480,11 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                             reloadScripts();
                             break;
                         }
+                        case StackedPaneProperties:
+                        {
+                            reloadPropertiesPane();
+                            break;
+                        }
                     }
                 }
             });
@@ -493,5 +498,7 @@ void ZapFR::Client::MainWindow::createSourceContextMenus()
     mSourceContextMenuSource->addSeparator();
     mSourceContextMenuSource->addAction(ui->action_Add_feed);
     mSourceContextMenuSource->addAction(ui->action_Add_folder);
+    mSourceContextMenuSource->addSeparator();
     mSourceContextMenuSource->addAction(ui->action_View_logs);
+    mSourceContextMenuSource->addAction(ui->action_View_properties);
 }
