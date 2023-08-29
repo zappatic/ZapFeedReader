@@ -405,16 +405,6 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->pushButtonLogLastPage->setIcon(configureIcon(":/lastPage.svg"));
     mHamburgerMenuButton->setIcon(configureIcon(":/hamburger.svg"));
 
-    auto labelFont = ui->labelTotalPostCount->font();
-    labelFont.setPointSizeF(10.0f);
-    ui->pushButtonPostPageNumber->setFont(labelFont);
-    ui->pushButtonLogPageNumber->setFont(labelFont);
-    ui->labelTotalPostCount->setFont(labelFont);
-    ui->pushButtonToggleShowUnread->setFont(labelFont);
-    ui->pushButtonToggleShowUnread->setFont(labelFont);
-    ui->labelActiveFilter->setFont(labelFont);
-    ui->labelActiveFilterOther->setFont(labelFont);
-
     ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
                                        "QToolButton:disabled { color:%1; }\n")
                                    .arg(colorDisabled));

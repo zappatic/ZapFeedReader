@@ -215,7 +215,7 @@
       </widget>
       <widget class="QStackedWidget" name="stackedWidgetRight">
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="pagePosts">
         <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -300,6 +300,11 @@
                  </item>
                  <item>
                   <widget class="QLabel" name="labelActiveFilter">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Active filter:</string>
                    </property>
@@ -329,6 +334,11 @@
                  </item>
                  <item>
                   <widget class="QLabel" name="labelActiveFilterOther">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string/>
                    </property>
@@ -351,6 +361,11 @@
                </item>
                <item>
                 <widget class="QLabel" name="labelTotalPostCount">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>_ posts</string>
                  </property>
@@ -365,6 +380,11 @@
                </item>
                <item>
                 <widget class="QPushButton" name="pushButtonToggleShowUnread">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Show only unread posts</string>
                  </property>
@@ -438,6 +458,11 @@
                   </item>
                   <item>
                    <widget class="QPushButton" name="pushButtonPostPageNumber">
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
                     <property name="cursor">
                      <cursorShape>PointingHandCursor</cursorShape>
                     </property>
@@ -660,6 +685,11 @@
               </item>
               <item>
                <widget class="QPushButton" name="pushButtonLogPageNumber">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
                 <property name="text">
                  <string>Page _/_</string>
                 </property>
