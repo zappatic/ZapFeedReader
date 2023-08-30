@@ -16,28 +16,18 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_SERVER_DAEMON_H
-#define ZAPFR_SERVER_DAEMON_H
-
-#include "ServerGlobal.h"
+#ifndef ZAPFR_SERVER_APIERRORS_H
+#define ZAPFR_SERVER_APIERRORS_H
 
 namespace ZapFR
 {
     namespace Server
     {
-        class Daemon : public Poco::Util::ServerApplication
+        enum class APIErrorCode
         {
-          public:
-            int main(const std::vector<std::string>& args) override;
-            void initialize(Poco::Util::Application& self) override;
-            void uninitialize() override;
 
-          private:
-            std::string dataDir();
-
-            Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
         };
-    } // namespace Server
+    }
 } // namespace ZapFR
 
-#endif // ZAPFR_SERVER_DAEMON_H
+#endif // ZAPFR_SERVER_APIERRORS_H

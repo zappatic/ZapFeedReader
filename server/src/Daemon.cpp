@@ -17,22 +17,37 @@
 */
 
 #include "Daemon.h"
-#include "Feed.h"
-#include "FeedFetcher.h"
-#include "Post.h"
-#include "Source.h"
+#include "HTTPServer.h"
+#include "ZapFR/Database.h"
+#include "ZapFR/FeedLocal.h"
+#include "ZapFR/ScriptLocal.h"
+
+namespace
+{
+    static const std::string gsConfigurationPath{"/etc/zapfeedreader/zapfeedreader.conf"};
+}
 
 int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
 {
-    // TODO: setIconDir
-    // TODO: setScriptDir
-    ZapFR::Engine::Database::setDatabasePath(dataDir() + Poco::Path::separator() + "zapfeedreader-server.db");
+    mConfiguration = Poco::AutoPtr<Poco::Util::JSONConfiguration>(new Poco::Util::JSONConfiguration(gsConfigurationPath));
 
-    // auto url = "https://en.wikipedia.org/w/api.php?hidebots=1&hidecategorization=1&hideWikibase=1&urlversion=1&days=7&limit=50&action=feedrecentchanges&feedformat=rss";
-    // auto url = "https://www.vrt.be/vrtnieuws/nl.rss.articles.xml";
-    auto url = "https://news.ycombinator.com/rss";
-    auto ff = Engine::FeedFetcher(mDatabase.get());
-    ff.subscribeToFeed(url);
+    ZapFR::Engine::ScriptLocal::setScriptDir(dataDir() + Poco::Path::separator() + "scripts");
+    ZapFR::Engine::FeedLocal::setIconDir(dataDir() + Poco::Path::separator() + "icons");
+    ZapFR::Engine::Database::getInstance()->initialize(dataDir() + Poco::Path::separator() + "zapfeedreader.db", ZapFR::Engine::ApplicationType::Server);
+
+    auto bindAddress = mConfiguration->getString("zapfr.bind", "0.0.0.0");
+    auto bindPort = static_cast<uint16_t>(mConfiguration->getUInt("zapfr.port", 443));
+    auto sslPubCert = mConfiguration->getString("zapfr.ssl_pubcert", "");
+    auto sslPrivKey = mConfiguration->getString("zapfr.ssl_privkey", "");
+
+    HTTPServer server(this, bindAddress, bindPort, sslPubCert, sslPrivKey);
+    server.start();
+
+    auto user = mConfiguration->getString("zapfr.user", "");
+    auto group = mConfiguration->getString("zapfr.group", "");
+    server.dropRootPrivilege(user, group);
+
+    waitForTerminationRequest();
 
     return Poco::Util::Application::ExitCode::EXIT_OK;
 }
@@ -51,7 +66,7 @@ void ZapFR::Server::Daemon::uninitialize()
 
 std::string ZapFR::Server::Daemon::dataDir()
 {
-    Poco::File dir(config().getString("system.dataHomeDir") + Poco::Path::separator() + "ZapFeedReader");
+    Poco::File dir(config().getString("system.dataHomeDir") + Poco::Path::separator() + "ZapFeedReader" + Poco::Path::separator() + "server");
     if (!dir.exists())
     {
         dir.createDirectories();

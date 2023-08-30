@@ -29,15 +29,11 @@ ZapFR::Engine::Database* ZapFR::Engine::Database::getInstance()
     return &instance;
 }
 
-void ZapFR::Engine::Database::setDatabasePath(const std::string& dbPath)
-{
-    Database::getInstance()->initialize(dbPath);
-}
-
-void ZapFR::Engine::Database::initialize(const std::string& dbPath)
+void ZapFR::Engine::Database::initialize(const std::string& dbPath, ApplicationType appType)
 {
     Poco::Data::SQLite::Connector::registerConnector();
     mSession = std::make_unique<Poco::Data::Session>("SQLite", dbPath);
+    mAppType = appType;
 
     upgrade();
 }
@@ -145,7 +141,20 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ")",
             now;
 
-        std::string localSourceName = "On this computer";
+        std::string localSourceName;
+        switch (mAppType)
+        {
+            case ApplicationType::Client:
+            {
+                localSourceName = "On this computer";
+                break;
+            }
+            case ApplicationType::Server:
+            {
+                localSourceName = "ZapFeedReader server";
+                break;
+            }
+        }
         std::string localType = "zapfeedreader.local";
         uint64_t localSortOrder = 10;
         Poco::Data::Statement insertStmt(*mSession);

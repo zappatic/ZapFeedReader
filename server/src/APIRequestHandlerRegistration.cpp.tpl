@@ -16,28 +16,19 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_SERVER_DAEMON_H
-#define ZAPFR_SERVER_DAEMON_H
+#include "API.h"
+#include "APIHandlers.h"
 
-#include "ServerGlobal.h"
+std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = std::vector<std::unique_ptr<API>>();
 
-namespace ZapFR
-{
-    namespace Server
-    {
-        class Daemon : public Poco::Util::ServerApplication
+        bool ZapFR::Server::API::msAPIsLoaded = false;
+
+        void ZapFR::Server::API::initializeAPIs(Daemon* daemon)
         {
-          public:
-            int main(const std::vector<std::string>& args) override;
-            void initialize(Poco::Util::Application& self) override;
-            void uninitialize() override;
+        if (!msAPIsLoaded)
+        {
+        %REGISTERAPIS%
+        msAPIsLoaded = true;
+        }
+}
 
-          private:
-            std::string dataDir();
-
-            Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
-        };
-    } // namespace Server
-} // namespace ZapFR
-
-#endif // ZAPFR_SERVER_DAEMON_H

@@ -17,6 +17,6 @@
 */
 
 #include "Daemon.h"
-#include "Global.h"
+#include "ServerGlobal.h"
 
 POCO_SERVER_MAIN(ZapFR::Server::Daemon);

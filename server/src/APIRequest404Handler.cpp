@@ -16,28 +16,17 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_SERVER_DAEMON_H
-#define ZAPFR_SERVER_DAEMON_H
+#include "APIRequest404Handler.h"
 
-#include "ServerGlobal.h"
-
-namespace ZapFR
+void ZapFR::Server::APIRequest404Handler::handleRequest(Poco::Net::HTTPServerRequest& /*request*/, Poco::Net::HTTPServerResponse& response)
 {
-    namespace Server
-    {
-        class Daemon : public Poco::Util::ServerApplication
-        {
-          public:
-            int main(const std::vector<std::string>& args) override;
-            void initialize(Poco::Util::Application& self) override;
-            void uninitialize() override;
+    response.set("Access-Control-Allow-Origin", "*");
 
-          private:
-            std::string dataDir();
-
-            Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
-        };
-    } // namespace Server
-} // namespace ZapFR
-
-#endif // ZAPFR_SERVER_DAEMON_H
+    response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_NOT_FOUND);
+    response.setContentType("application/json");
+    auto jsonErrObj = Poco::JSON::Object();
+    jsonErrObj.set("success", false);
+    jsonErrObj.set("error", "404 - not found");
+    jsonErrObj.set("message", "404 - not found");
+    Poco::JSON::Stringifier::stringify(jsonErrObj, response.send());
+}

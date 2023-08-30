@@ -16,28 +16,22 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_SERVER_DAEMON_H
-#define ZAPFR_SERVER_DAEMON_H
+#include "APIRequestHandlerFactory.h"
+#include "API.h"
+#include "APIRequest404Handler.h"
+#include "APIRequestHandler.h"
 
-#include "ServerGlobal.h"
-
-namespace ZapFR
+ZapFR::Server::APIRequestHandlerFactory::APIRequestHandlerFactory(Daemon* daemon) : mDaemon(daemon)
 {
-    namespace Server
+    API::initializeAPIs(mDaemon);
+}
+
+Poco::Net::HTTPRequestHandler* ZapFR::Server::APIRequestHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest& request)
+{
+    auto api = API::findAPIForRequest(request);
+    if (api != nullptr)
     {
-        class Daemon : public Poco::Util::ServerApplication
-        {
-          public:
-            int main(const std::vector<std::string>& args) override;
-            void initialize(Poco::Util::Application& self) override;
-            void uninitialize() override;
-
-          private:
-            std::string dataDir();
-
-            Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
-        };
-    } // namespace Server
-} // namespace ZapFR
-
-#endif // ZAPFR_SERVER_DAEMON_H
+        return new APIRequestHandler(api);
+    }
+    return new APIRequest404Handler();
+}

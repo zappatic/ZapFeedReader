@@ -55,7 +55,8 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
 {
     ZapFR::Engine::ScriptLocal::setScriptDir(QDir::cleanPath(dataDir() + QDir::separator() + "scripts").toStdString());
     ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
-    ZapFR::Engine::Database::setDatabasePath(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader-client.db").toStdString());
+    ZapFR::Engine::Database::getInstance()->initialize(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader.db").toStdString(),
+                                                       ZapFR::Engine::ApplicationType::Client);
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
 
     ui->setupUi(this);

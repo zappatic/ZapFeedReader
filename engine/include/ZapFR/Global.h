@@ -67,4 +67,17 @@
 
 #include <fmt/core.h>
 
+namespace ZapFR
+{
+    namespace Engine
+    {
+        enum class ApplicationType
+        {
+            Server,
+            Client
+        };
+
+    }
+} // namespace ZapFR
+
 #endif // ZAPFR_ENGINE_GLOBAL_H

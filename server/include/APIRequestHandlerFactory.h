@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_SERVER_DAEMON_H
-#define ZAPFR_SERVER_DAEMON_H
+#ifndef ZAPFR_SERVER_APIREQUESTHANDLERFACTORY_H
+#define ZAPFR_SERVER_APIREQUESTHANDLERFACTORY_H
 
 #include "ServerGlobal.h"
 
@@ -25,19 +25,24 @@ namespace ZapFR
 {
     namespace Server
     {
-        class Daemon : public Poco::Util::ServerApplication
+        class Daemon;
+
+        class APIRequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory
         {
           public:
-            int main(const std::vector<std::string>& args) override;
-            void initialize(Poco::Util::Application& self) override;
-            void uninitialize() override;
+            explicit APIRequestHandlerFactory(Daemon* daemon);
+            ~APIRequestHandlerFactory() = default;
+            APIRequestHandlerFactory(const APIRequestHandlerFactory& e) = delete;
+            APIRequestHandlerFactory& operator=(const APIRequestHandlerFactory&) = delete;
+            APIRequestHandlerFactory(APIRequestHandlerFactory&&) = delete;
+            APIRequestHandlerFactory& operator=(APIRequestHandlerFactory&&) = delete;
+
+            Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request) override;
 
           private:
-            std::string dataDir();
-
-            Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
+            Daemon* mDaemon{nullptr};
         };
     } // namespace Server
 } // namespace ZapFR
 
-#endif // ZAPFR_SERVER_DAEMON_H
+#endif // ZAPFR_SERVER_APIREQUESTHANDLERFACTORY_H

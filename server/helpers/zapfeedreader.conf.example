@@ -1,0 +1,10 @@
+{
+  "zapfr": {
+    "bind": "<ip address the server should bind to>",
+    "port": "<port the server should listen to, 16016 is the standard port>",
+    "ssl_pubcert": "<path to the public SSL cert, leave blank for HTTP serving instead of HTTPS>",
+    "ssl_privkey": "<path to the private SSL key, leave blank for HTTP serving instead of HTTPS>",
+    "user": "<the user the server should run as, after dropping root privileges>",
+    "group": "<the group the server should run as, after dropping root privileges>"
+  }
+}

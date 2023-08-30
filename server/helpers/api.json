@@ -1,0 +1,13 @@
+{
+  "index": {
+    "section": "UI",
+    "description": "Returns the index page",
+    "method": "GET",
+    "path": "^\\/$",
+    "prettyPath": "/",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": false,
+    "contentType": "text/html"
+  }
+}

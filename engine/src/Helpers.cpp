@@ -25,6 +25,19 @@ namespace
     static std::mutex gsSSLContextMutex{};
 } // namespace
 
+void ZapFR::Engine::Helpers::splitString(const std::string& sourceString, char delimiter, std::vector<std::string>& outSubstrings)
+{
+    std::stringstream ss(sourceString);
+    std::string item;
+    while (std::getline(ss, item, delimiter))
+    {
+        if (!item.empty())
+        {
+            outSubstrings.emplace_back(item);
+        }
+    }
+}
+
 std::string ZapFR::Engine::Helpers::joinString(const std::vector<std::string>& sourceVector, const char* delimiter)
 {
     switch (sourceVector.size())

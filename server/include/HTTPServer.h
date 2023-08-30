@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_SERVER_DAEMON_H
-#define ZAPFR_SERVER_DAEMON_H
+#ifndef ZAPFR_SERVER_HTTPSERVER_H
+#define ZAPFR_SERVER_HTTPSERVER_H
 
 #include "ServerGlobal.h"
 
@@ -25,17 +25,30 @@ namespace ZapFR
 {
     namespace Server
     {
-        class Daemon : public Poco::Util::ServerApplication
+        class Daemon;
+
+        class HTTPServer
         {
           public:
-            int main(const std::vector<std::string>& args) override;
-            void initialize(Poco::Util::Application& self) override;
-            void uninitialize() override;
+            HTTPServer(Daemon* daemon, const std::string& bindAddress, uint16_t port, const std::string& pubCert, const std::string& privKey);
+            virtual ~HTTPServer() = default;
+            HTTPServer(const HTTPServer& e) = delete;
+            HTTPServer& operator=(const HTTPServer&) = delete;
+            HTTPServer(HTTPServer&&) = delete;
+            HTTPServer& operator=(HTTPServer&&) = delete;
+
+            void start();
+            void dropRootPrivilege(const std::string& user, const std::string& group) const;
 
           private:
-            std::string dataDir();
+            Daemon* mDaemon{nullptr};
+            std::string mBindAddress{""};
+            uint16_t mBindPort{0};
+            std::string mPubCert{""};
+            std::string mPrivKey{""};
 
-            Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
+            Poco::Net::Context::Ptr mHTTPSContext{nullptr};
+            std::unique_ptr<Poco::Net::HTTPServer> mPocoHTTPServer{nullptr};
         };
     } // namespace Server
 } // namespace ZapFR

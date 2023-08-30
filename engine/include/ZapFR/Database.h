@@ -38,14 +38,14 @@ namespace ZapFR
             virtual ~Database() = default;
 
             static Database* getInstance();
-            static void setDatabasePath(const std::string& dbPath);
+            void initialize(const std::string& dbPath, ApplicationType appType);
 
             Poco::Data::Session* session() const noexcept;
 
           private:
             std::unique_ptr<Poco::Data::Session> mSession{nullptr};
+            ApplicationType mAppType{ApplicationType::Client};
 
-            void initialize(const std::string& dbPath);
             void upgrade();
             void installDBSchemaV1();
         };

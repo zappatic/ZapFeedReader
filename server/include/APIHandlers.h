@@ -1,3 +1,11 @@
+/* **************************************************************************** */
+/* **** THIS FILE IS AUTO GENERATED                                        **** */
+/* **** DO NOT MODIFY THIS FILE, ANY CHANGES WILL BE UNDONE UPON RECOMPILE **** */
+/* **** USE APIHandlers.h.tpl INSTEAD                                      **** */
+/* **************************************************************************** */
+
+
+
 /*
     ZapFeedReader - RSS/Atom feed reader
     Copyright (C) 2023-present  Kasper Nauwelaerts (zapfr at zappatic dot net)
@@ -16,8 +24,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_SERVER_DAEMON_H
-#define ZAPFR_SERVER_DAEMON_H
+#ifndef ZAPFR_SERVER_APIHANDLERS_H
+#define ZAPFR_SERVER_APIHANDLERS_H
 
 #include "ServerGlobal.h"
 
@@ -25,19 +33,13 @@ namespace ZapFR
 {
     namespace Server
     {
-        class Daemon : public Poco::Util::ServerApplication
-        {
-          public:
-            int main(const std::vector<std::string>& args) override;
-            void initialize(Poco::Util::Application& self) override;
-            void uninitialize() override;
+        class APIRequest;
 
-          private:
-            std::string dataDir();
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_index(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 
-            Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
-        };
     } // namespace Server
 } // namespace ZapFR
 
-#endif // ZAPFR_SERVER_DAEMON_H
+#endif // ZAPFR_SERVER_APIHANDLERS_H
+
+
