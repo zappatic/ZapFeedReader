@@ -46,6 +46,9 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPalette>

@@ -17,7 +17,8 @@ target_sources(zapfeedreader-server PRIVATE
     APIRequest.cpp
     API.cpp
 
-    handlers/APIHandler_index.cpp
+    handlers/APIHandler_about.cpp
+	handlers/APIHandler_index.cpp
 
 )
 

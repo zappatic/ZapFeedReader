@@ -155,7 +155,7 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                 break;
             }
         }
-        std::string localType = "zapfeedreader.local";
+        std::string localType = ZapFR::Engine::IdentifierLocalServer;
         uint64_t localSortOrder = 10;
         Poco::Data::Statement insertStmt(*mSession);
         insertStmt << "INSERT INTO sources ("

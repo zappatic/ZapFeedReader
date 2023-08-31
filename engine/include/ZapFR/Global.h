@@ -77,7 +77,11 @@ namespace ZapFR
             Client
         };
 
-    }
+        static const uint64_t APIVersion{1};
+        static const uint16_t DefaultServerPort{16016};
+        [[maybe_unused]] static const char* IdentifierLocalServer{"zapfeedreader.local"};
+        [[maybe_unused]] static const char* IdentifierRemoteServer{"zapfeedreader.remote"};
+    } // namespace Engine
 } // namespace ZapFR
 
 #endif // ZAPFR_ENGINE_GLOBAL_H

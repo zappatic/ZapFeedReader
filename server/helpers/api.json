@@ -9,5 +9,17 @@
     "parameters": [],
     "requireCredentials": false,
     "contentType": "text/html"
+  },
+  "about": {
+    "section": "UI",
+    "description": "Returns general info about the server",
+    "method": "GET",
+    "path": "^\\/about$",
+    "prettyPath": "/about",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": false,
+    "contentType": "application/json",
+    "jsonOutput": "object"
   }
 }

@@ -36,6 +36,17 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
         if (!msAPIsLoaded)
         {
         		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(UI)", R"(Returns general info about the server)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/about$)", R"(/about)");
+				entry->setRequiresCredentials(false);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(object)");
+				entry->setHandler(ZapFR::Server::APIHandler_about);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(UI)", R"(Returns the index page)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/$)", R"(/)");

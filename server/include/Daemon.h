@@ -32,6 +32,8 @@ namespace ZapFR
             void initialize(Poco::Util::Application& self) override;
             void uninitialize() override;
 
+            std::string configString(const std::string& key);
+
           private:
             std::string dataDir();
 

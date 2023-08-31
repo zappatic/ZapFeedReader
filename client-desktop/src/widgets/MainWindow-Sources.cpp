@@ -22,6 +22,7 @@
 #include "ZapFR/Feed.h"
 #include "ZapFR/Folder.h"
 #include "ZapFR/Source.h"
+#include "dialogs/DialogAddSource.h"
 #include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
 #include "widgets/MainWindow.h"
@@ -379,7 +380,30 @@ void ZapFR::Client::MainWindow::setUnreadBadgesShown(bool b)
 
 void ZapFR::Client::MainWindow::addSource()
 {
-    std::cout << "tst\n";
+    if (mDialogAddSource == nullptr)
+    {
+        mDialogAddSource = std::make_unique<DialogAddSource>(this);
+        connect(mDialogAddSource.get(), &QDialog::finished,
+                [&](int result)
+                {
+                    if (result == QDialog::DialogCode::Accepted)
+                    {
+                        auto sourceType = mDialogAddSource->sourceType().toStdString();
+                        auto sourceTitle = mDialogAddSource->serverName().toStdString();
+                        auto configData = QJsonObject();
+                        configData["host"] = mDialogAddSource->hostName();
+                        configData["port"] = mDialogAddSource->port();
+                        configData["login"] = mDialogAddSource->login();
+                        configData["password"] = mDialogAddSource->password();
+                        auto configDataStr = QJsonDocument(configData).toJson(QJsonDocument::Compact).toStdString();
+                        ZapFR::Engine::Source::create(sourceType, sourceTitle, configDataStr);
+                        reloadSources();
+                    }
+                });
+    }
+
+    mDialogAddSource->reset();
+    mDialogAddSource->open();
 }
 
 void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)

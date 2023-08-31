@@ -23,31 +23,21 @@
 
 // ::API
 //
-//	Returns the index page
-//	/ (GET)
+//	Returns general info about the server
+//	/about (GET)
 //
-//	Content-Type: text/html
+//	Content-Type: application/json
+//	JSON output: object
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_index([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_about([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    std::stringstream ss;
-    ss << "<!DOCTYPE html>"
-          "<html>"
-          "	<head>"
-          "		<title>ZapFeedReader \""
-       << apiRequest->api()->daemon()->configString("zapfr.servername")
-       << "\"</title>"
-          "		<style type='text/css'>* {font-family: sans-serif;}</style>"
-          "	</head>"
-          "	<body>"
-          "		<h1>ZapFeedReader \""
-       << apiRequest->api()->daemon()->configString("zapfr.servername")
-       << "\"</h1>"
-          "	</body>"
-          "</html>";
-    response.send() << ss.str();
+    Poco::JSON::Object o;
+    o.set("name", apiRequest->api()->daemon()->configString("zapfr.servername"));
+    o.set("version", ZapFR::Engine::APIVersion);
+
+    Poco::JSON::Stringifier::stringify(o, response.send());
 
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

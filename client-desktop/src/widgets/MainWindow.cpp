@@ -34,6 +34,7 @@
 #include "delegates/ItemDelegateSource.h"
 #include "dialogs/DialogAddFeed.h"
 #include "dialogs/DialogAddFolder.h"
+#include "dialogs/DialogAddSource.h"
 #include "dialogs/DialogEditScript.h"
 #include "dialogs/DialogEditScriptFolder.h"
 #include "dialogs/DialogImportOPML.h"

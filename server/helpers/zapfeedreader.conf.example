@@ -5,6 +5,7 @@
     "ssl_pubcert": "<path to the public SSL cert, leave blank for HTTP serving instead of HTTPS>",
     "ssl_privkey": "<path to the private SSL key, leave blank for HTTP serving instead of HTTPS>",
     "user": "<the user the server should run as, after dropping root privileges>",
-    "group": "<the group the server should run as, after dropping root privileges>"
+    "group": "<the group the server should run as, after dropping root privileges>",
+    "servername": "<the name of the server, shown as the source name in the client>"
   }
 }

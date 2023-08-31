@@ -7,8 +7,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Xml WebEngineWidgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Xml WebEngineWidgets LinguistTools)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Xml Network WebEngineWidgets LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Xml Network WebEngineWidgets LinguistTools)
 
 set(TS_FILES i18n/ZapFeedReader_en_US.ts)
 
@@ -50,6 +50,7 @@ set(PROJECT_SOURCES
         src/dialogs/DialogWithSourcesAndFolders.cpp
         src/dialogs/DialogAddFeed.cpp
         src/dialogs/DialogAddFolder.cpp
+        src/dialogs/DialogAddSource.cpp
         src/dialogs/DialogImportOPML.cpp
         src/dialogs/DialogJumpToPage.cpp
         src/dialogs/DialogEditScript.cpp
@@ -84,6 +85,7 @@ set(PROJECT_SOURCES
         include/dialogs/DialogWithSourcesAndFolders.h
         include/dialogs/DialogAddFeed.h
         include/dialogs/DialogAddFolder.h
+        include/dialogs/DialogAddSource.h
         include/dialogs/DialogImportOPML.h
         include/dialogs/DialogJumpToPage.h
         include/dialogs/DialogEditScript.h
@@ -97,6 +99,7 @@ set(PROJECT_SOURCES
         src/widgets/WidgetPropertiesPaneSource.ui
         src/dialogs/DialogAddFeed.ui
         src/dialogs/DialogAddFolder.ui
+        src/dialogs/DialogAddSource.ui
         src/dialogs/DialogImportOPML.ui
         src/dialogs/DialogJumpToPage.ui
         src/dialogs/DialogEditScript.ui
@@ -143,6 +146,7 @@ target_include_directories(zapfeedreader-client PRIVATE ../engine/include)
 target_link_libraries(zapfeedreader-client PRIVATE  zapfeedreader-engine
                                                     Qt${QT_VERSION_MAJOR}::Widgets 
                                                     Qt${QT_VERSION_MAJOR}::Xml 
+                                                    Qt${QT_VERSION_MAJOR}::Network
                                                     Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
 
 

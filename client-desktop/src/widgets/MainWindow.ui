@@ -892,6 +892,8 @@
     <property name="title">
      <string notr="true">Hamburger</string>
     </property>
+    <addaction name="action_Add_source"/>
+    <addaction name="separator"/>
     <addaction name="action_Import_OPML"/>
     <addaction name="action_Export_OPML"/>
     <addaction name="separator"/>

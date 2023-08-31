@@ -22,13 +22,20 @@
 
 using namespace Poco::Data::Keywords;
 
+std::mutex ZapFR::Engine::Source::msCreateSourceMutex{};
+
 std::unique_ptr<ZapFR::Engine::Source> ZapFR::Engine::Source::createSourceInstance(uint64_t id, const std::string& type)
 {
-    if (type == "zapfeedreader.local")
+    if (type == ZapFR::Engine::IdentifierLocalServer)
     {
         auto s = std::make_unique<SourceLocal>(id);
         s->setType(type);
         return s;
+    }
+    else if (type == ZapFR::Engine::IdentifierRemoteServer)
+    {
+        // TODO
+        return nullptr;
     }
     else
     {
@@ -114,4 +121,28 @@ void ZapFR::Engine::Source::updateTitle(const std::string& newTitle)
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE sources SET title=? WHERE id=?", useRef(newTitle), use(mID), now;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::create(const std::string& type, const std::string& title, const std::string& configData)
+{
+    auto sortOrder = nextSortOrder();
+    Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+    insertStmt << "INSERT INTO sources (type,title,sortOrder,configData) VALUES (?,?,?,?)", useRef(type), useRef(title), use(sortOrder), useRef(configData);
+
+    std::lock_guard<std::mutex> lock(msCreateSourceMutex);
+    insertStmt.execute();
+
+    uint64_t sourceID{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT last_insert_rowid()", into(sourceID), now;
+
+    return Source::getSource(sourceID);
+}
+
+uint64_t ZapFR::Engine::Source::nextSortOrder()
+{
+    uint64_t sortOrder{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT MAX(sortOrder) FROM sources", into(sortOrder), now;
+    return sortOrder + 10;
 }

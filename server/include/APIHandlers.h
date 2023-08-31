@@ -35,6 +35,7 @@ namespace ZapFR
     {
         class APIRequest;
 
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_about(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_index(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 
     } // namespace Server

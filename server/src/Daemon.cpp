@@ -36,7 +36,7 @@ int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
     ZapFR::Engine::Database::getInstance()->initialize(dataDir() + Poco::Path::separator() + "zapfeedreader.db", ZapFR::Engine::ApplicationType::Server);
 
     auto bindAddress = mConfiguration->getString("zapfr.bind", "0.0.0.0");
-    auto bindPort = static_cast<uint16_t>(mConfiguration->getUInt("zapfr.port", 443));
+    auto bindPort = static_cast<uint16_t>(mConfiguration->getUInt("zapfr.port", ZapFR::Engine::DefaultServerPort));
     auto sslPubCert = mConfiguration->getString("zapfr.ssl_pubcert", "");
     auto sslPrivKey = mConfiguration->getString("zapfr.ssl_privkey", "");
 
@@ -72,4 +72,9 @@ std::string ZapFR::Server::Daemon::dataDir()
         dir.createDirectories();
     }
     return dir.path();
+}
+
+std::string ZapFR::Server::Daemon::configString(const std::string& key)
+{
+    return mConfiguration->getString(key, "");
 }

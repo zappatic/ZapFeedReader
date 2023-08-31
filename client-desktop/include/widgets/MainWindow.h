@@ -42,6 +42,7 @@ namespace ZapFR
         class StandardItemModelSources;
         class StandardItemModelScripts;
         class SortFilterProxyModelSources;
+        class DialogAddSource;
         class DialogAddFeed;
         class DialogAddFolder;
         class DialogImportOPML;
@@ -141,6 +142,7 @@ namespace ZapFR
             std::unique_ptr<QStandardItemModel> mItemModelScriptFolders{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelScripts{nullptr};
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
+            std::unique_ptr<DialogAddSource> mDialogAddSource{nullptr};
             std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
             std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};

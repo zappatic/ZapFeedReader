@@ -101,6 +101,8 @@ namespace ZapFR
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);
             static std::unique_ptr<ZapFR::Engine::Source> createSourceInstance(uint64_t id, const std::string& type);
+            static std::optional<std::unique_ptr<Source>> create(const std::string& type, const std::string& title, const std::string& configData);
+            static uint64_t nextSortOrder();
 
           protected:
             uint64_t mID{0};
@@ -109,6 +111,8 @@ namespace ZapFR
             uint64_t mSortOrder{0};
             std::string mConfigData{""};
             std::unordered_map<Statistic, std::string> mStatistics{};
+
+            static std::mutex msCreateSourceMutex;
         };
     } // namespace Engine
 } // namespace ZapFR
