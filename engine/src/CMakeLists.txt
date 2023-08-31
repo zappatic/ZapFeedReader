@@ -1,6 +1,19 @@
 target_sources(zapfeedreader-engine PRIVATE
     Helpers.cpp
     Agent.cpp
+    Database.cpp
+    Log.cpp
+    OPMLParser.cpp
+    FeedFetcher.cpp
+    FeedParser.cpp
+    FeedParserRSS20.cpp
+    FeedParserATOM10.cpp
+    FavIconParser.cpp
+    Flag.cpp
+    Source.cpp
+    Folder.cpp
+    Script.cpp
+    ScriptLua.cpp
     agents/AgentFeedGet.cpp
     agents/AgentFeedGetLogs.cpp
     agents/AgentFeedGetPosts.cpp
@@ -42,24 +55,11 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentSourceGetUsedFlagColors.cpp
     agents/AgentSourceMarkRead.cpp
     agents/AgentSourceRefresh.cpp
-    Database.cpp
-    Log.cpp
-    FeedFetcher.cpp
-    FeedParser.cpp
-    FeedParserRSS20.cpp
-    FeedParserATOM10.cpp
-    Source.cpp
-    SourceLocal.cpp
-    Folder.cpp
-    FolderLocal.cpp
-    FeedLocal.cpp
-    PostLocal.cpp
-    OPMLParser.cpp
-    FavIconParser.cpp
-    Flag.cpp
-    ScriptFolderLocal.cpp
-    Script.cpp
-    ScriptLocal.cpp
-    ScriptLua.cpp
+    local/SourceLocal.cpp
+    local/FolderLocal.cpp
+    local/FeedLocal.cpp
+    local/PostLocal.cpp
+    local/ScriptFolderLocal.cpp
+    local/ScriptLocal.cpp
     lua/LuaProxyPost.cpp
 )

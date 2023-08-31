@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_SOURCELOCAL_H
 #define ZAPFR_ENGINE_SOURCELOCAL_H
 
-#include "Source.h"
+#include "../Source.h"
 
 namespace ZapFR
 {

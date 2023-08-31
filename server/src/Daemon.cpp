@@ -19,8 +19,8 @@
 #include "Daemon.h"
 #include "HTTPServer.h"
 #include "ZapFR/Database.h"
-#include "ZapFR/FeedLocal.h"
-#include "ZapFR/ScriptLocal.h"
+#include "ZapFR/local/FeedLocal.h"
+#include "ZapFR/local/ScriptLocal.h"
 
 namespace
 {

@@ -17,7 +17,6 @@
 */
 
 #include "ZapFR/FeedFetcher.h"
-#include "ZapFR/FeedLocal.h"
 #include "ZapFR/FeedParserATOM10.h"
 #include "ZapFR/FeedParserRSS20.h"
 #include "ZapFR/Helpers.h"

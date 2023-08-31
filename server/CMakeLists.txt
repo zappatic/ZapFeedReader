@@ -1,33 +1,18 @@
 add_executable(zapfeedreader-server)
 
-# poco
-if (EXISTS ${CMAKE_SOURCE_DIR}/3rdParty/poco-static/)
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/3rdParty/poco/cmake)
-    list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/3rdParty/poco-static/lib/cmake/Poco)
-    find_package(PostgreSQL REQUIRED)
-    find_package(Poco REQUIRED Foundation Util XML Net NetSSL JSON Data DataSQLite) 
-    target_link_libraries(zapfeedreader-server  PRIVATE Poco::Foundation
-                                                        Poco::Util
-                                                        Poco::XML
-                                                        Poco::Net
-                                                        Poco::NetSSL
-                                                        Poco::JSON
-                                                        Poco::Data
-                                                        Poco::DataSQLite)
-
-endif()
-
-# fmtlib
-if (EXISTS ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib-install/)
-    list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib-install/lib/cmake/fmt)
-    find_package(fmt)
-    target_link_libraries(zapfeedreader-server PRIVATE fmt::fmt)
-endif()
-
 target_include_directories(zapfeedreader-server PRIVATE include)
 target_include_directories(zapfeedreader-server PRIVATE ../engine/include)
+target_include_directories(zapfeedreader-server SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib/include)
 
-target_link_libraries(zapfeedreader-server PRIVATE zapfeedreader-engine)
+target_link_libraries(zapfeedreader-server PRIVATE  zapfeedreader-engine 
+                                                    Poco::Foundation
+                                                    Poco::Util
+                                                    Poco::XML
+                                                    Poco::Net
+                                                    Poco::NetSSL
+                                                    Poco::JSON
+                                                    Poco::Data
+                                                    Poco::DataSQLite)
 
 add_subdirectory(src)
 

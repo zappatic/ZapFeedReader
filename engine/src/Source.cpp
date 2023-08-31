@@ -18,7 +18,7 @@
 
 #include "ZapFR/Source.h"
 #include "ZapFR/Database.h"
-#include "ZapFR/SourceLocal.h"
+#include "ZapFR/local/SourceLocal.h"
 
 using namespace Poco::Data::Keywords;
 

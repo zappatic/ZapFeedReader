@@ -116,38 +116,23 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-# poco
-if (EXISTS ${CMAKE_SOURCE_DIR}/3rdParty/poco-static/)
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/3rdParty/poco/cmake)
-    list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/3rdParty/poco-static/lib/cmake/Poco)
-    find_package(PostgreSQL REQUIRED)
-    find_package(Poco REQUIRED Foundation Util XML Net NetSSL JSON Data DataSQLite) 
-    target_link_libraries(zapfeedreader-client PRIVATE  Poco::Foundation
-                                                        Poco::Util
-                                                        Poco::XML
-                                                        Poco::Net
-                                                        Poco::NetSSL
-                                                        Poco::JSON
-                                                        Poco::Data
-                                                        Poco::DataSQLite)
-
-endif()
-
-# fmtlib
-if (EXISTS ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib-install/)
-    list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib-install/lib/cmake/fmt)
-    find_package(fmt)
-    target_link_libraries(zapfeedreader-client PRIVATE fmt::fmt)
-endif()
-
 target_include_directories(zapfeedreader-client PRIVATE include)
 target_include_directories(zapfeedreader-client PRIVATE ../engine/include)
+target_include_directories(zapfeedreader-client SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib/include)
 
 target_link_libraries(zapfeedreader-client PRIVATE  zapfeedreader-engine
                                                     Qt${QT_VERSION_MAJOR}::Widgets 
                                                     Qt${QT_VERSION_MAJOR}::Xml 
                                                     Qt${QT_VERSION_MAJOR}::Network
-                                                    Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
+                                                    Qt${QT_VERSION_MAJOR}::WebEngineWidgets
+                                                    Poco::Foundation
+                                                    Poco::Util
+                                                    Poco::XML
+                                                    Poco::Net
+                                                    Poco::NetSSL
+                                                    Poco::JSON
+                                                    Poco::Data
+                                                    Poco::DataSQLite)
 
 
 install(TARGETS zapfeedreader-client

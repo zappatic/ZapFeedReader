@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_SCRIPTFOLDERLOCAL_H
 #define ZAPFR_ENGINE_SCRIPTFOLDERLOCAL_H
 
-#include "ScriptFolder.h"
+#include "../ScriptFolder.h"
 
 namespace ZapFR
 {

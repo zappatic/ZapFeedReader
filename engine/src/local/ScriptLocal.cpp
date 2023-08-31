@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/ScriptLocal.h"
+#include "ZapFR/local/ScriptLocal.h"
 #include "ZapFR/Database.h"
 #include "ZapFR/Helpers.h"
 

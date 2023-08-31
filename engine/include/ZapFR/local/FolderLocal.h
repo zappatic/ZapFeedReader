@@ -19,8 +19,7 @@
 #ifndef ZAPFR_ENGINE_FOLDERLOCAL_H
 #define ZAPFR_ENGINE_FOLDERLOCAL_H
 
-#include "Folder.h"
-#include "Global.h"
+#include "../Folder.h"
 
 namespace ZapFR
 {

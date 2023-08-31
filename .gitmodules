@@ -1,6 +1,3 @@
-[submodule "3rdParty/poco"]
-	path = 3rdParty/poco
-	url = https://github.com/pocoproject/poco
 [submodule "3rdParty/fmtlib"]
 	path = 3rdParty/fmtlib
 	url = https://github.com/fmtlib/fmt
