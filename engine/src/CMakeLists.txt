@@ -61,5 +61,6 @@ target_sources(zapfeedreader-engine PRIVATE
     local/PostLocal.cpp
     local/ScriptFolderLocal.cpp
     local/ScriptLocal.cpp
+    remote/SourceRemote.cpp
     lua/LuaProxyPost.cpp
 )

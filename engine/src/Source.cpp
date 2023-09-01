@@ -19,6 +19,7 @@
 #include "ZapFR/Source.h"
 #include "ZapFR/Database.h"
 #include "ZapFR/local/SourceLocal.h"
+#include "ZapFR/remote/SourceRemote.h"
 
 using namespace Poco::Data::Keywords;
 
@@ -34,8 +35,9 @@ std::unique_ptr<ZapFR::Engine::Source> ZapFR::Engine::Source::createSourceInstan
     }
     else if (type == ZapFR::Engine::IdentifierRemoteServer)
     {
-        // TODO
-        return nullptr;
+        auto s = std::make_unique<SourceRemote>(id);
+        s->setType(type);
+        return s;
     }
     else
     {
@@ -62,7 +64,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSo
                       ",sortOrder"
                       ",configData"
                       " FROM sources"
-                      " WHERE type=?",
+                      " WHERE type=?"
+                      " ORDER BY sortOrder ASC",
             useRef(typeFilter.value()), into(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), range(0, 1);
     }
     else
@@ -72,7 +75,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSo
                       ",title"
                       ",sortOrder"
                       ",configData"
-                      " FROM sources",
+                      " FROM sources"
+                      " ORDER BY sortOrder ASC",
             into(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), range(0, 1);
     }
     while (!selectStmt.done())

@@ -36,15 +36,17 @@ void ZapFR::Client::MainWindow::reloadSources()
     mProxyModelSources = std::make_unique<SortFilterProxyModelSources>(this);
     mProxyModelSources->setSourceModel(mItemModelSources.get());
     ui->treeViewSources->setModel(mProxyModelSources.get());
+    ui->treeViewSources->sortByColumn(0, Qt::AscendingOrder);
     mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
 
     // get the trees of all the sources
     auto sources = ZapFR::Engine::Source::getSources({});
+    mInitialSourceCount = sources.size();
     for (const auto& source : sources)
     {
         ZapFR::Engine::Agent::getInstance()->queueGetSourceTree(
             source->id(),
-            [&](uint64_t sourceID, const std::string& sourceTitle, const std::vector<ZapFR::Engine::Folder*>& rootFolders, const std::vector<ZapFR::Engine::Feed*>& feeds)
+            [&](ZapFR::Engine::Source* retrievedSource, const std::vector<ZapFR::Engine::Folder*>& rootFolders, const std::vector<ZapFR::Engine::Feed*>& feeds)
             {
                 // lambda to recursively create folder items
                 std::unordered_map<uint64_t, QStandardItem*> folderIDToItemMapping; // a map to quickly look up folder items when adding feed items
@@ -56,6 +58,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                     folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), SourceTreeEntryIDRole);
                     folderItem->setData(QVariant::fromValue<uint64_t>(folder->parentID()), SourceTreeEntryParentFolderIDRole);
                     folderItem->setData(QVariant::fromValue<uint64_t>(currentSourceID), SourceTreeEntryParentSourceIDRole);
+                    folderItem->setData(QVariant::fromValue<uint64_t>(folder->sortOrder()), SourceTreeEntrySortOrderRole);
                     parentItem->appendRow(folderItem);
 
                     if (folder->hasSubfolders())
@@ -68,15 +71,17 @@ void ZapFR::Client::MainWindow::reloadSources()
                     folderIDToItemMapping[folder->id()] = folderItem;
                 };
                 // create the parent source item
-                auto sourceItem = new QStandardItem(QString::fromUtf8(sourceTitle));
+                auto sourceItem = new QStandardItem(QString::fromUtf8(retrievedSource->title()));
                 sourceItem->setData(SOURCETREE_ENTRY_TYPE_SOURCE, SourceTreeEntryTypeRole);
-                sourceItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryIDRole);
-                sourceItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryParentSourceIDRole);
+                sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), SourceTreeEntryIDRole);
+                sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), SourceTreeEntryParentSourceIDRole);
+                sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->sortOrder()), SourceTreeEntrySortOrderRole);
+                sourceItem->setData(QString::fromUtf8(retrievedSource->type()), SourceTreeEntrySourceTypeRole);
 
                 // add all the folders and subfolders
                 for (const auto& folder : rootFolders)
                 {
-                    createFolderItems(folder, sourceID, sourceItem);
+                    createFolderItems(folder, retrievedSource->id(), sourceItem);
                 }
 
                 // add all the feeds
@@ -94,7 +99,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                     auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
                     feedItem->setData(SOURCETREE_ENTRY_TYPE_FEED, SourceTreeEntryTypeRole);
                     feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), SourceTreeEntryIDRole);
-                    feedItem->setData(QVariant::fromValue<uint64_t>(sourceID), SourceTreeEntryParentSourceIDRole);
+                    feedItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), SourceTreeEntryParentSourceIDRole);
                     feedItem->setData(QVariant::fromValue<uint64_t>(folderID), SourceTreeEntryParentFolderIDRole);
                     auto unreadCount = feed->unreadCount();
                     feedItem->setData(QVariant::fromValue<uint64_t>(unreadCount), SourceTreeEntryUnreadCount);
@@ -110,6 +115,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                         feedItem->setData(QString::fromUtf8(feedError.value()), Qt::ToolTipRole);
                     }
                     feedItem->setData(QString::fromUtf8(feed->url()), SourceTreeEntryFeedURLRole);
+                    feedItem->setData(QVariant::fromValue<uint64_t>(feed->sortOrder()), SourceTreeEntrySortOrderRole);
 
                     if (!FeedIconCache::isCached(feed->id()) || !FeedIconCache::isSameHash(feed->id(), feed->iconHash()))
                     {
@@ -132,7 +138,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                     }
                     parentItem->appendRow(feedItem);
                 }
-                QMetaObject::invokeMethod(this, "populateSources", Qt::AutoConnection, sourceID, sourceItem);
+                QMetaObject::invokeMethod(this, "populateSources", Qt::AutoConnection, retrievedSource->id(), sourceItem);
             });
     }
 }
@@ -166,10 +172,8 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::MainWindow::getCurrentlySelectedSo
 
 void ZapFR::Client::MainWindow::preserveSourceTreeExpansionSelectionState()
 {
-    if (mReloadSourcesExpansionSelectionState == nullptr && mProxyModelSources != nullptr &&
-        mProxyModelSources->displayMode() == SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll)
+    if (mProxyModelSources != nullptr && mProxyModelSources->displayMode() == SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll)
     {
-        // we only do this if this state hasn't been set before (which it has after app launch, when the settings are loaded from disk)
         mReloadSourcesExpansionSelectionState = std::make_unique<QJsonObject>();
         mReloadSourcesExpansionSelectionState->insert("expanded", expandedSourceTreeItems());
         uint64_t selectedSourceID = 0;
@@ -188,7 +192,7 @@ void ZapFR::Client::MainWindow::preserveSourceTreeExpansionSelectionState()
     }
 }
 
-void ZapFR::Client::MainWindow::restoreSourceTreeExpansionSelectionState(QStandardItem* sourceItem)
+void ZapFR::Client::MainWindow::restoreSourceTreeExpansionSelectionState(QStandardItem* /*sourceItem*/)
 {
     if (mReloadSourcesExpansionSelectionState != nullptr && mProxyModelSources != nullptr &&
         mProxyModelSources->displayMode() == SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll)
@@ -224,11 +228,44 @@ void ZapFR::Client::MainWindow::restoreSourceTreeExpansionSelectionState(QStanda
             };
             selectIndex(mItemModelSources->invisibleRootItem());
         }
-        mReloadSourcesExpansionSelectionState = nullptr;
 
-        if (!ui->treeViewSources->currentIndex().isValid() && sourceItem != nullptr)
+        // if nothing is selected in the source tree (as it is on startup):
+        // select the local source if it has children or there is no remote source
+        // else select the first remote source
+        // only do this when ALL the sources have been loaded (as this function is called from each source retrieval callback)
+        if (!ui->treeViewSources->currentIndex().isValid() && mItemModelSources->invisibleRootItem()->rowCount() == static_cast<int32_t>(mInitialSourceCount))
         {
-            ui->treeViewSources->setCurrentIndex(mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(sourceItem)));
+            QStandardItem* localSource{nullptr};
+            QStandardItem* firstRemoteSource{nullptr};
+            for (auto i = 0; i < mItemModelSources->invisibleRootItem()->rowCount(); ++i)
+            {
+                auto child = mItemModelSources->invisibleRootItem()->child(i);
+                if (child->data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_SOURCE)
+                {
+                    if (child->data(SourceTreeEntrySourceTypeRole).toString().toStdString() == ZapFR::Engine::IdentifierLocalServer)
+                    {
+                        localSource = child;
+                    }
+                    else if (firstRemoteSource == nullptr && child->data(SourceTreeEntrySourceTypeRole).toString().toStdString() == ZapFR::Engine::IdentifierRemoteServer)
+                    {
+                        firstRemoteSource = child;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            QStandardItem* toSelect{nullptr};
+            if (localSource != nullptr && (localSource->rowCount() > 0 || firstRemoteSource == nullptr))
+            {
+                toSelect = localSource;
+            }
+            else if (firstRemoteSource != nullptr)
+            {
+                toSelect = firstRemoteSource;
+            }
+            ui->treeViewSources->setCurrentIndex(mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(toSelect)));
         }
     }
 }
@@ -287,51 +324,50 @@ void ZapFR::Client::MainWindow::expandSourceTreeItems(const QJsonArray& items) c
     {
         if (parent->hasChildren())
         {
-            auto idToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
-            auto sourceIDToMatch = parent->data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            uint64_t folderIDToMatch = 0;
-            auto typeToMatch = QString("");
-            if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+            auto index = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(parent));
+            if (index.isValid())
             {
-                typeToMatch = "source";
-            }
-            else if (parent->data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
-            {
-                typeToMatch = "folder";
-                folderIDToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
-            }
-
-            for (const auto& entry : items)
-            {
-                auto o = entry.toObject();
-                auto type = o.value("type").toString();
-                if (type == typeToMatch)
+                auto idToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
+                auto sourceIDToMatch = parent->data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                uint64_t folderIDToMatch = 0;
+                auto typeToMatch = QString("");
+                if (parent->data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_SOURCE)
                 {
-                    auto shouldExpand{false};
+                    typeToMatch = "source";
+                }
+                else if (parent->data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FOLDER)
+                {
+                    typeToMatch = "folder";
+                    folderIDToMatch = parent->data(SourceTreeEntryIDRole).toULongLong();
+                }
 
-                    if (type == "source")
+                for (const auto& entry : items)
+                {
+                    auto o = entry.toObject();
+                    auto type = o.value("type").toString();
+                    if (type == typeToMatch)
                     {
-                        auto id = o.value("id").toVariant().toULongLong();
-                        shouldExpand = id == idToMatch;
-                    }
-                    else if (type == "folder")
-                    {
-                        auto sourceID = o.value("sourceID").toVariant().toULongLong();
-                        auto folderID = o.value("id").toVariant().toULongLong();
-                        shouldExpand = (sourceID == sourceIDToMatch && folderID == folderIDToMatch);
-                    }
+                        auto shouldExpand{false};
 
-                    if (shouldExpand)
-                    {
-                        auto index = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(parent));
-                        if (index.isValid())
+                        if (type == "source")
+                        {
+                            auto id = o.value("id").toVariant().toULongLong();
+                            shouldExpand = id == idToMatch;
+                        }
+                        else if (type == "folder")
+                        {
+                            auto sourceID = o.value("sourceID").toVariant().toULongLong();
+                            auto folderID = o.value("id").toVariant().toULongLong();
+                            shouldExpand = (sourceID == sourceIDToMatch && folderID == folderIDToMatch);
+                        }
+
+                        if (shouldExpand)
                         {
                             ui->treeViewSources->setExpanded(index, true);
                         }
                     }
                 }
             }
-
             for (auto i = 0; i < parent->rowCount(); ++i)
             {
                 auto child = parent->child(i);

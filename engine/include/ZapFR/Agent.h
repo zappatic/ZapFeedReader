@@ -68,8 +68,7 @@ namespace ZapFR
             void queueGetFolder(uint64_t sourceID, uint64_t folderID, std::function<void(Folder*)> finishedCallback);
 
             // querying sources
-            void queueGetSourceTree(uint64_t sourceID,
-                                    std::function<void(uint64_t, const std::string&, const std::vector<Folder*>&, const std::vector<Feed*>&)> finishedCallback);
+            void queueGetSourceTree(uint64_t sourceID, std::function<void(Source*, const std::vector<Folder*>&, const std::vector<Feed*>&)> finishedCallback);
             void queueGetSource(uint64_t sourceID, std::function<void(Source*)> finishedCallback);
 
             // post manipulation

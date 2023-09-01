@@ -21,8 +21,8 @@
 #include "ZapFR/Folder.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentSourceGetTree::AgentSourceGetTree(
-    uint64_t sourceID, std::function<void(uint64_t, const std::string&, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback)
+ZapFR::Engine::AgentSourceGetTree::AgentSourceGetTree(uint64_t sourceID,
+                                                      std::function<void(Source*, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
 {
 }
@@ -60,7 +60,7 @@ void ZapFR::Engine::AgentSourceGetTree::run()
             folderPointers.emplace_back(folder.get());
         }
 
-        mFinishedCallback(source.value()->id(), source.value()->title(), folderPointers, feedPointers);
+        mFinishedCallback(source.value().get(), folderPointers, feedPointers);
     }
 
     mIsDone = true;

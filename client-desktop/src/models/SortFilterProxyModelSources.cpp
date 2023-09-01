@@ -20,6 +20,7 @@
 
 ZapFR::Client::SortFilterProxyModelSources::SortFilterProxyModelSources(QObject* parent) : QSortFilterProxyModel(parent)
 {
+    setSortRole(SourceTreeEntrySortOrderRole);
 }
 
 bool ZapFR::Client::SortFilterProxyModelSources::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const

@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_SOURCELOCAL_H
-#define ZAPFR_ENGINE_SOURCELOCAL_H
+#ifndef ZAPFR_ENGINE_SOURCEREMOTE_H
+#define ZAPFR_ENGINE_SOURCEREMOTE_H
 
 #include "../Source.h"
 
@@ -25,11 +25,11 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class SourceLocal : public Source
+        class SourceRemote : public Source
         {
           public:
-            explicit SourceLocal(uint64_t id);
-            ~SourceLocal() = default;
+            explicit SourceRemote(uint64_t id);
+            ~SourceRemote() = default;
 
             // feed stuff
             std::vector<std::unique_ptr<Feed>> getFeeds() override;
@@ -77,4 +77,4 @@ namespace ZapFR
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_SOURCELOCAL_H
+#endif // ZAPFR_ENGINE_SOURCEREMOTE_H

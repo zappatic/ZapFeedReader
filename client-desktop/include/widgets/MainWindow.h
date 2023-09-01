@@ -175,6 +175,7 @@ namespace ZapFR
             uint64_t mCurrentLogPageCount{1};
 
             uint64_t mPreviouslySelectedSourceID{0};
+            uint64_t mInitialSourceCount{0};
 
             LineEditSearch* mLineEditSearch{nullptr};   // owned by the toolbar, so plain pointer
             QPushButton* mHamburgerMenuButton{nullptr}; // owned by the toolbar, so plain pointer

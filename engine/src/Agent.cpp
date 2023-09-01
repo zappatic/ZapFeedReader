@@ -272,8 +272,7 @@ void ZapFR::Engine::Agent::queueRemovePostsFromScriptFolder(uint64_t sourceID, u
     enqueue(std::make_unique<AgentScriptFolderRemovePosts>(sourceID, scriptFolderID, feedAndPostIDs, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueGetSourceTree(uint64_t sourceID,
-                                              std::function<void(uint64_t, const std::string&, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback)
+void ZapFR::Engine::Agent::queueGetSourceTree(uint64_t sourceID, std::function<void(Source*, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback)
 {
     enqueue(std::make_unique<AgentSourceGetTree>(sourceID, finishedCallback));
 }
