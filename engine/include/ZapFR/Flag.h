@@ -19,7 +19,6 @@
 #ifndef ZAPFR_ENGINE_FLAG_H
 #define ZAPFR_ENGINE_FLAG_H
 
-#include "Database.h"
 #include "Global.h"
 
 namespace ZapFR

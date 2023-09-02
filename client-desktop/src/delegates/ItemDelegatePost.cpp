@@ -82,7 +82,7 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
         }
         case PostColumnFeed:
         {
-            auto pixmap = FeedIconCache::icon(index.data(PostFeedIDRole).toULongLong());
+            auto pixmap = FeedIconCache::icon(index.data(PostSourceIDRole).toULongLong(), index.data(PostFeedIDRole).toULongLong());
             if (!pixmap.isNull())
             {
                 painter->drawPixmap(Utilities::centeredSquareInRectangle(option.rect, 0.6f), pixmap, pixmap.rect());

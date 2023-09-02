@@ -38,7 +38,7 @@ namespace ZapFR
             HTTPServer& operator=(HTTPServer&&) = delete;
 
             void start();
-            void dropRootPrivilege(const std::string& user, const std::string& group) const;
+            const char* dropRootPrivilege(const std::string& user, const std::string& group) const;
 
           private:
             Daemon* mDaemon{nullptr};

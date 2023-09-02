@@ -31,7 +31,7 @@ namespace ZapFR
         class AgentFeedGet : public AgentRunnable
         {
           public:
-            explicit AgentFeedGet(uint64_t sourceID, uint64_t feedID, std::function<void(Feed*)> finishedCallback);
+            explicit AgentFeedGet(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed*)> finishedCallback);
             virtual ~AgentFeedGet() = default;
 
             void run() override;
@@ -39,7 +39,7 @@ namespace ZapFR
           private:
             uint64_t mSourceID{0};
             uint64_t mFeedID{0};
-            std::function<void(Feed*)> mFinishedCallback{};
+            std::function<void(uint64_t, Feed*)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

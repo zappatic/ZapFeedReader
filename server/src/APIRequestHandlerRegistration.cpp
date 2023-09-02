@@ -41,8 +41,44 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setPath(R"(^\/about$)", R"(/about)");
 				entry->setRequiresCredentials(false);
 				entry->setContentType(R"(application/json)");
-				entry->setJSONOutput(R"(object)");
+				entry->setJSONOutput(R"(Object)");
 				entry->setHandler(ZapFR::Server::APIHandler_about);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Adds a feed)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/feed$)", R"(/feed)");
+				entry->addBodyParameter({R"(url)", true, R"(The url of the feed to add)"});
+				entry->addBodyParameter({R"(folder)", true, R"(The ID of the folder in which to add the new feed)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_feed_add);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Removes a feed)");
+				entry->setMethod("DELETE");
+				entry->setPath(R"(^\/feed/([0-9]+)$)", R"(/feed/<feedID>)");
+				entry->addURIParameter({R"(feedID)", R"(The id of the feed to delete)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_feed_remove);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Returns all the feeds within the source)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/feeds$)", R"(/feeds)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Array)");
+				entry->setHandler(ZapFR::Server::APIHandler_feeds_list);
 				msAPIs.emplace_back(std::move(entry));
 			}
 

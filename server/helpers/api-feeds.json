@@ -1,0 +1,51 @@
+{
+  "feeds-list": {
+    "section": "Feeds",
+    "description": "Returns all the feeds within the source",
+    "method": "GET",
+    "path": "^\\/feeds$",
+    "prettyPath": "/feeds",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
+  },
+  "feed-add": {
+    "section": "Feeds",
+    "description": "Adds a feed",
+    "method": "POST",
+    "path": "^\\/feed$",
+    "prettyPath": "/feed",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "url",
+        "required": true,
+        "description": "The url of the feed to add"
+      },
+      {
+        "name": "folder",
+        "required": true,
+        "description": "The ID of the folder in which to add the new feed"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "feed-remove": {
+    "section": "Feeds",
+    "description": "Removes a feed",
+    "method": "DELETE",
+    "path": "^\\/feed/([0-9]+)$",
+    "prettyPath": "/feed/<feedID>",
+    "uriParameters": [
+      { "name": "feedID", "description": "The id of the feed to delete" }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  }
+}

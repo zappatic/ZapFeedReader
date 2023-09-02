@@ -19,23 +19,38 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "Daemon.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Source.h"
 
 // ::API
 //
-//	Returns general info about the server
-//	/about (GET)
+//	Adds a feed
+//	/feed (POST)
+//
+//	Parameters:
+//		url (REQD) - The url of the feed to add - apiRequest->parameter("url")
+//		folder (REQD) - The ID of the folder in which to add the new feed - apiRequest->parameter("folder")
 //
 //	Content-Type: application/json
 //	JSON output: Object
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_about([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_add([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
+    const auto url = apiRequest->parameter("url");
+    const auto folderStr = apiRequest->parameter("folder");
+
+    uint64_t folderID{0};
+    Poco::NumberParser::tryParseUnsigned64(folderStr, folderID);
+
     Poco::JSON::Object o;
-    o.set("name", apiRequest->api()->daemon()->configString("zapfr.servername"));
-    o.set("version", ZapFR::Engine::APIVersion);
+
+    auto source = ZapFR::Engine::Source::getSource(1);
+    if (source.has_value())
+    {
+        o.set(ZapFR::Engine::Feed::JSONIdentifierFeedID, source.value()->addFeed(url, folderID));
+    }
 
     Poco::JSON::Stringifier::stringify(o, response.send());
 

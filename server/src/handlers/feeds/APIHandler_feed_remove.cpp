@@ -19,23 +19,39 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "Daemon.h"
+#include "ZapFR/Source.h"
 
 // ::API
 //
-//	Returns general info about the server
-//	/about (GET)
+//	Removes a feed
+//	/feed/<feedID> (DELETE)
+//
+//	URI parameters:
+//		feedID - The id of the feed to delete - apiRequest->pathComponentAt(1)
 //
 //	Content-Type: application/json
 //	JSON output: Object
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_about([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_remove([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
+    const auto feedIDStr = apiRequest->pathComponentAt(1);
+
+    uint64_t feedID{0};
+    Poco::NumberParser::tryParseUnsigned64(feedIDStr, feedID);
+
+    if (feedID != 0)
+    {
+        auto source = ZapFR::Engine::Source::getSource(1);
+        if (source.has_value())
+        {
+            source.value()->removeFeed(feedID);
+        }
+    }
+
     Poco::JSON::Object o;
-    o.set("name", apiRequest->api()->daemon()->configString("zapfr.servername"));
-    o.set("version", ZapFR::Engine::APIVersion);
+    o.set("success", true);
 
     Poco::JSON::Stringifier::stringify(o, response.send());
 

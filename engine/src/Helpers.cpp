@@ -70,7 +70,8 @@ std::string ZapFR::Engine::Helpers::joinIDNumbers(const std::vector<uint64_t>& s
     }
 }
 
-std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, const std::string& method, std::optional<uint64_t> associatedFeedID)
+std::string ZapFR::Engine::Helpers::performHTTPRequest(const Poco::URI& url, const std::string& method, Poco::Net::HTTPCredentials& credentials,
+                                                       const std::map<std::string, std::string>& parameters, std::optional<uint64_t> associatedFeedID)
 {
     {
         std::lock_guard<std::mutex> lock(gsSSLContextMutex);
@@ -81,7 +82,7 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, c
     }
 
     // lambda to convert relative url to absolute url, in case a 301/302 redirect is received
-    const auto ensureRedirectLocationIsAbsolute = [](const std::string& originalURL, const std::string& newLocation) -> std::string
+    const auto ensureRedirectLocationIsAbsolute = [](const Poco::URI& originalURL, const std::string& newLocation) -> Poco::URI
     {
         Poco::URI newURI(originalURL);
         if (!newLocation.starts_with("http"))
@@ -92,28 +93,26 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, c
         {
             newURI = Poco::URI(newLocation);
         }
-        return newURI.toString();
+        return newURI;
     };
-
-    Poco::URI uri(url);
 
     std::unique_ptr<Poco::Net::HTTPClientSession> session;
 
-    auto scheme = uri.getScheme();
+    auto scheme = url.getScheme();
     if (scheme == "https")
     {
-        session = std::make_unique<Poco::Net::HTTPSClientSession>(uri.getHost(), uri.getPort(), gsSSLContext);
+        session = std::make_unique<Poco::Net::HTTPSClientSession>(url.getHost(), url.getPort(), gsSSLContext);
     }
     else if (scheme == "http")
     {
-        session = std::make_unique<Poco::Net::HTTPClientSession>(uri.getHost(), uri.getPort());
+        session = std::make_unique<Poco::Net::HTTPClientSession>(url.getHost(), url.getPort());
     }
     else
     {
-        throw std::runtime_error(fmt::format("Unknown scheme in URL: {}", url));
+        throw std::runtime_error(fmt::format("Unknown scheme in URL: {}", url.toString()));
     }
 
-    auto path = uri.getPathAndQuery();
+    auto path = url.getPathAndQuery();
     if (path.empty())
     {
         path = "/";
@@ -123,35 +122,65 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const std::string& url, c
     Poco::Net::HTTPRequest request(method, path, Poco::Net::HTTPMessage::HTTP_1_1);
     request.setKeepAlive(false);
 
-    session->sendRequest(request);
+    static const auto userAgent = fmt::format("ZapFeedReader/{}", ZapFR::Engine::APIVersion);
+    request.set("User-Agent", userAgent);
+
+    if (method == Poco::Net::HTTPRequest::HTTP_POST)
+    {
+        Poco::Net::HTMLForm form;
+        for (const auto& [k, v] : parameters)
+        {
+            form.add(k, v);
+        }
+        form.prepareSubmit(request);
+        form.write(session->sendRequest(request));
+    }
+    else
+    {
+        session->sendRequest(request);
+    }
 
     Poco::Net::HTTPResponse response;
     std::istream& responseStream = session->receiveResponse(response);
 
     auto status = response.getStatus();
+    std::string resultStr;
+    Poco::StreamCopier::copyToString(responseStream, resultStr);
 
     if (status == 301)
     {
         auto newURL = ensureRedirectLocationIsAbsolute(url, response.get("Location"));
-        Log::log(LogLevel::Info, fmt::format("Moved permanently to {}", newURL), associatedFeedID);
+        Log::log(LogLevel::Info, fmt::format("Moved permanently to {}", newURL.toString()), associatedFeedID);
         // TODO: limit amount of redirects
-        return performHTTPRequest(newURL, method, associatedFeedID);
+        return performHTTPRequest(newURL, method, credentials, parameters, associatedFeedID);
     }
     else if (status == 302)
     {
         auto newURL = ensureRedirectLocationIsAbsolute(url, response.get("Location"));
-        Log::log(LogLevel::Info, fmt::format("Moved temporarily to {}", newURL), associatedFeedID);
+        Log::log(LogLevel::Info, fmt::format("Moved temporarily to {}", newURL.toString()), associatedFeedID);
         // TODO: limit amount of redirects
-        return performHTTPRequest(newURL, method, associatedFeedID);
+        return performHTTPRequest(newURL, method, credentials, parameters, associatedFeedID);
+    }
+    else if (status == 401)
+    {
+        if (!credentials.empty())
+        {
+            credentials.authenticate(request, response);
+            session->sendRequest(request);
+            std::istream& authenticatedResponseStream = session->receiveResponse(response);
+            Poco::StreamCopier::copyToString(authenticatedResponseStream, resultStr);
+            status = response.getStatus();
+        }
+        else
+        {
+            throw std::runtime_error("HTTP status 401 Unauthorized; no credentials provided");
+        }
     }
 
     if (status < 200 || status > 299)
     {
-        throw std::runtime_error(fmt::format("HTTP status {} received for {} {}", static_cast<uint32_t>(response.getStatus()), method, url));
+        throw std::runtime_error(fmt::format("HTTP status {} received for {} {}", static_cast<uint32_t>(response.getStatus()), method, url.toString()));
     }
-
-    std::string resultStr;
-    Poco::StreamCopier::copyToString(responseStream, resultStr);
 
     return resultStr;
 }

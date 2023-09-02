@@ -17,6 +17,7 @@
 */
 
 #include "ZapFR/local/PostLocal.h"
+#include "ZapFR/Database.h"
 #include "ZapFR/Helpers.h"
 
 using namespace Poco::Data::Keywords;

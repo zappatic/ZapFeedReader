@@ -17,14 +17,14 @@
 */
 
 #include "./ui_MainWindow.h"
-#include "widgets/MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Log.h"
+#include "widgets/MainWindow.h"
 
 void ZapFR::Client::MainWindow::reloadLogs()
 {
     // lambda for the callback, retrieving the logs
-    auto processLogs = [&](uint64_t /*sourceID*/, const std::vector<ZapFR::Engine::Log*> logs, uint64_t page, uint64_t totalRecordCount)
+    auto processLogs = [&](uint64_t sourceID, const std::vector<ZapFR::Engine::Log*> logs, uint64_t page, uint64_t totalRecordCount)
     {
         QList<QList<QStandardItem*>> rows;
         for (const auto& log : logs)
@@ -64,6 +64,7 @@ void ZapFR::Client::MainWindow::reloadLogs()
             if (log->feedID().has_value())
             {
                 feedItem->setData(QVariant::fromValue<uint64_t>(log->feedID().value()), LogFeedIDRole);
+                feedItem->setData(QVariant::fromValue<uint64_t>(sourceID), LogParentSourceIDRole);
             }
             if (log->feedTitle().has_value())
             {

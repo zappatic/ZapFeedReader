@@ -29,6 +29,7 @@ namespace ZapFR
     namespace Engine
     {
         class Feed;
+        class Source;
         class Post;
         class Log;
         class Folder;
@@ -62,7 +63,7 @@ namespace ZapFR
                                   std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
 
             // querying feeds
-            void queueGetFeed(uint64_t sourceID, uint64_t feedID, std::function<void(Feed*)> finishedCallback);
+            void queueGetFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed*)> finishedCallback);
 
             // querying folders
             void queueGetFolder(uint64_t sourceID, uint64_t folderID, std::function<void(Folder*)> finishedCallback);

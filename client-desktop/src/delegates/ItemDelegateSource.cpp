@@ -83,7 +83,7 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         }
         else
         {
-            icon = FeedIconCache::icon(index.data(SourceTreeEntryIDRole).toULongLong());
+            icon = FeedIconCache::icon(index.data(SourceTreeEntryParentSourceIDRole).toULongLong(), index.data(SourceTreeEntryIDRole).toULongLong());
         }
         auto iconSize = titleRect.height() * .75;
         auto iconTargetRect = QRectF(titleRect.left(), titleRect.top() + ((titleRect.height() - iconSize) / 2.0), iconSize, iconSize);

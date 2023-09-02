@@ -103,11 +103,11 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
             {
                 auto feedID = currentIndex.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueGetFeed(sourceID, feedID,
-                                                                  [&](ZapFR::Engine::Feed* feed)
+                                                                  [&](uint64_t retrievedSourceID, ZapFR::Engine::Feed* feed)
                                                                   {
                                                                       QMap<QString, QVariant> props;
 
-                                                                      props["sourceID"] = QVariant::fromValue<uint64_t>(sourceID);
+                                                                      props["sourceID"] = QVariant::fromValue<uint64_t>(retrievedSourceID);
                                                                       props["feedID"] = QVariant::fromValue<uint64_t>(feed->id());
                                                                       props["title"] = QString::fromUtf8(feed->title());
                                                                       props["url"] = QString::fromUtf8(feed->url());

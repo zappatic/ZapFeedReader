@@ -19,6 +19,9 @@ target_sources(zapfeedreader-server PRIVATE
 
     handlers/APIHandler_about.cpp
 	handlers/APIHandler_index.cpp
+	handlers/feeds/APIHandler_feed_add.cpp
+	handlers/feeds/APIHandler_feed_remove.cpp
+	handlers/feeds/APIHandler_feeds_list.cpp
 
 )
 

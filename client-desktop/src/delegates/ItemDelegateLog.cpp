@@ -69,7 +69,8 @@ void ZapFR::Client::ItemDelegateLog::paint(QPainter* painter, const QStyleOption
             auto feedIDVariant = index.data(LogFeedIDRole);
             if (!feedIDVariant.isNull() && feedIDVariant.isValid())
             {
-                auto pixmap = FeedIconCache::icon(feedIDVariant.toULongLong());
+                auto sourceID = index.data(LogParentSourceIDRole).toULongLong();
+                auto pixmap = FeedIconCache::icon(sourceID, feedIDVariant.toULongLong());
                 if (!pixmap.isNull())
                 {
                     painter->drawPixmap(Utilities::centeredSquareInRectangle(option.rect, 0.6f), pixmap, pixmap.rect());

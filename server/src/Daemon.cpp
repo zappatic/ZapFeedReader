@@ -25,15 +25,12 @@
 namespace
 {
     static const std::string gsConfigurationPath{"/etc/zapfeedreader/zapfeedreader.conf"};
-}
+    static std::string gsUserHomePath{""};
+} // namespace
 
 int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
 {
     mConfiguration = Poco::AutoPtr<Poco::Util::JSONConfiguration>(new Poco::Util::JSONConfiguration(gsConfigurationPath));
-
-    ZapFR::Engine::ScriptLocal::setScriptDir(dataDir() + Poco::Path::separator() + "scripts");
-    ZapFR::Engine::FeedLocal::setIconDir(dataDir() + Poco::Path::separator() + "icons");
-    ZapFR::Engine::Database::getInstance()->initialize(dataDir() + Poco::Path::separator() + "zapfeedreader.db", ZapFR::Engine::ApplicationType::Server);
 
     auto bindAddress = mConfiguration->getString("zapfr.bind", "0.0.0.0");
     auto bindPort = static_cast<uint16_t>(mConfiguration->getUInt("zapfr.port", ZapFR::Engine::DefaultServerPort));
@@ -45,7 +42,11 @@ int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
 
     auto user = mConfiguration->getString("zapfr.user", "");
     auto group = mConfiguration->getString("zapfr.group", "");
-    server.dropRootPrivilege(user, group);
+    gsUserHomePath = server.dropRootPrivilege(user, group);
+
+    ZapFR::Engine::ScriptLocal::setScriptDir(dataDir() + Poco::Path::separator() + "scripts");
+    ZapFR::Engine::FeedLocal::setIconDir(dataDir() + Poco::Path::separator() + "icons");
+    ZapFR::Engine::Database::getInstance()->initialize(dataDir() + Poco::Path::separator() + "zapfeedreader.db", ZapFR::Engine::ApplicationType::Server);
 
     waitForTerminationRequest();
 
@@ -66,7 +67,12 @@ void ZapFR::Server::Daemon::uninitialize()
 
 std::string ZapFR::Server::Daemon::dataDir()
 {
-    Poco::File dir(config().getString("system.dataHomeDir") + Poco::Path::separator() + "ZapFeedReader" + Poco::Path::separator() + "server");
+    if (gsUserHomePath.empty())
+    {
+        throw std::runtime_error("No HOME folder found");
+    }
+
+    Poco::File dir(gsUserHomePath + Poco::Path::separator() + ".local/share/ZapFeedReader/server");
     if (!dir.exists())
     {
         dir.createDirectories();

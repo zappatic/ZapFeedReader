@@ -75,11 +75,11 @@ void ZapFR::Client::ItemDelegateEditScriptDialogSource::paint(QPainter* painter,
         QPixmap icon;
         if (parentTreeView->isEnabled())
         {
-            icon = FeedIconCache::icon(index.data(SourceTreeEntryIDRole).toULongLong());
+            icon = FeedIconCache::icon(index.data(SourceTreeEntryParentSourceIDRole).toULongLong(), index.data(SourceTreeEntryIDRole).toULongLong());
         }
         else
         {
-            icon = FeedIconCache::iconGrayscale(index.data(SourceTreeEntryIDRole).toULongLong());
+            icon = FeedIconCache::iconGrayscale(index.data(SourceTreeEntryParentSourceIDRole).toULongLong(), index.data(SourceTreeEntryIDRole).toULongLong());
         }
         auto iconSize = option.rect.height() * .75;
         auto iconTargetRect = QRectF(titleRect.left(), option.rect.top() + ((option.rect.height() - iconSize) / 2.0), iconSize, iconSize);

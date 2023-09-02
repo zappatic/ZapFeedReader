@@ -48,30 +48,32 @@ void ZapFR::Server::HTTPServer::start()
     mPocoHTTPServer->start();
 }
 
-void ZapFR::Server::HTTPServer::dropRootPrivilege(const std::string& user, const std::string& group) const
+const char* ZapFR::Server::HTTPServer::dropRootPrivilege(const std::string& user, const std::string& group) const
 {
     auto groupInfo = getgrnam(group.c_str());
     auto userInfo = getpwnam(user.c_str());
     if (groupInfo == nullptr)
     {
         std::cerr << "Unknown group name specified in zapfeedreader.conf; cannot drop root privilege\n";
-        return;
+        return "";
     }
     if (userInfo == nullptr)
     {
         std::cerr << "Unknown user name specified in zapfeedreader.conf; cannot drop root privilege\n";
-        return;
+        return "";
     }
 
     if (setgid(groupInfo->gr_gid) == -1)
     {
         std::cerr << "Failed setting group ID to " << groupInfo->gr_gid << "\n";
-        return;
+        return "";
     }
 
     if (setuid(userInfo->pw_uid) == -1)
     {
         std::cerr << "Failed setting user ID to " << groupInfo->gr_gid << "\n";
-        return;
+        return "";
     }
+
+    return getpwuid(getuid())->pw_dir;
 }

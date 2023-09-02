@@ -44,7 +44,7 @@ void ZapFR::Client::WidgetPropertiesPaneFeed::reset(const QMap<QString, QVariant
 {
     mSourceID = props["sourceID"].toULongLong();
     mFeedID = props["feedID"].toULongLong();
-    auto pixmap = FeedIconCache::icon(mFeedID);
+    auto pixmap = FeedIconCache::icon(mSourceID, mFeedID);
     if (!pixmap.isNull())
     {
         ui->labelIcon->setPixmap(pixmap);

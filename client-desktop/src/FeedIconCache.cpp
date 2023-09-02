@@ -18,39 +18,59 @@
 
 #include "FeedIconCache.h"
 
-std::unordered_map<uint64_t, QPixmap> ZapFR::Client::FeedIconCache::msPixmapCache{};
-std::unordered_map<uint64_t, QPixmap> ZapFR::Client::FeedIconCache::msPixmapGrayscaleCache{};
-std::unordered_map<uint64_t, std::string> ZapFR::Client::FeedIconCache::msHashCache{};
+std::unordered_map<uint64_t, std::unordered_map<uint64_t, QPixmap>> ZapFR::Client::FeedIconCache::msPixmapCache{};
+std::unordered_map<uint64_t, std::unordered_map<uint64_t, QPixmap>> ZapFR::Client::FeedIconCache::msPixmapGrayscaleCache{};
+std::unordered_map<uint64_t, std::unordered_map<uint64_t, std::string>> ZapFR::Client::FeedIconCache::msHashCache{};
 std::mutex ZapFR::Client::FeedIconCache::msCacheMutex{};
 
-void ZapFR::Client::FeedIconCache::cache(uint64_t feedID, const std::string& hash, const QPixmap& pixmap)
+void ZapFR::Client::FeedIconCache::cache(uint64_t sourceID, uint64_t feedID, const std::string& hash, const QPixmap& pixmap)
 {
     std::lock_guard<std::mutex> lock(msCacheMutex);
-    msPixmapCache[feedID] = pixmap;
-    msHashCache[feedID] = hash;
+    if (!msPixmapCache.contains(sourceID))
+    {
+        msPixmapCache[sourceID] = {};
+    }
+    if (!msPixmapGrayscaleCache.contains(sourceID))
+    {
+        msPixmapGrayscaleCache[sourceID] = {};
+    }
+    if (!msHashCache.contains(sourceID))
+    {
+        msHashCache[sourceID] = {};
+    }
+    msPixmapCache[sourceID][feedID] = pixmap;
+    msHashCache[sourceID][feedID] = hash;
 
     // create a grayscale version of the icon
     auto img = pixmap.toImage();
     auto imgGrayscale = img.convertToFormat(QImage::Format_Grayscale8);
-    msPixmapGrayscaleCache[feedID] = QPixmap::fromImage(imgGrayscale);
+    msPixmapGrayscaleCache[sourceID][feedID] = QPixmap::fromImage(imgGrayscale);
 }
 
-QPixmap ZapFR::Client::FeedIconCache::icon(uint64_t feedID)
+QPixmap ZapFR::Client::FeedIconCache::icon(uint64_t sourceID, uint64_t feedID)
 {
     std::lock_guard<std::mutex> lock(msCacheMutex);
-    if (msPixmapCache.contains(feedID))
+    if (msPixmapCache.contains(sourceID))
     {
-        return msPixmapCache.at(feedID);
+        auto& s = msPixmapCache.at(sourceID);
+        if (s.contains(feedID))
+        {
+            return s.at(feedID);
+        }
     }
     return QPixmap(":/rss.png");
 }
 
-QPixmap ZapFR::Client::FeedIconCache::iconGrayscale(uint64_t feedID)
+QPixmap ZapFR::Client::FeedIconCache::iconGrayscale(uint64_t sourceID, uint64_t feedID)
 {
     std::lock_guard<std::mutex> lock(msCacheMutex);
-    if (msPixmapGrayscaleCache.contains(feedID))
+    if (msPixmapGrayscaleCache.contains(sourceID))
     {
-        return msPixmapGrayscaleCache.at(feedID);
+        auto& s = msPixmapGrayscaleCache.at(sourceID);
+        if (s.contains(feedID))
+        {
+            return s.at(feedID);
+        }
     }
     static QPixmap rssIcon;
 
@@ -63,18 +83,22 @@ QPixmap ZapFR::Client::FeedIconCache::iconGrayscale(uint64_t feedID)
     return rssIcon;
 }
 
-bool ZapFR::Client::FeedIconCache::isCached(uint64_t feedID)
+bool ZapFR::Client::FeedIconCache::isCached(uint64_t sourceID, uint64_t feedID)
 {
     std::lock_guard<std::mutex> lock(msCacheMutex);
-    return (msPixmapCache.contains(feedID));
+    return (msPixmapCache.contains(sourceID) && msPixmapCache.at(sourceID).contains(feedID));
 }
 
-bool ZapFR::Client::FeedIconCache::isSameHash(uint64_t feedID, const std::string& hash)
+bool ZapFR::Client::FeedIconCache::isSameHash(uint64_t sourceID, uint64_t feedID, const std::string& hash)
 {
     std::lock_guard<std::mutex> lock(msCacheMutex);
-    if (msHashCache.contains(feedID))
+    if (msHashCache.contains(sourceID))
     {
-        return msHashCache.at(feedID) == hash;
+        auto& s = msHashCache.at(sourceID);
+        if (s.contains(feedID))
+        {
+            return s.at(feedID) == hash;
+        }
     }
     return false;
 }

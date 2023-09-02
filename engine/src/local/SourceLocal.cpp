@@ -60,10 +60,8 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
     try
     {
         auto feed = FeedLocal::create(url, url, folder);
-
         FeedFetcher ff;
         auto parsedFeed = ff.parseURL(url, feedID);
-
         auto guid = parsedFeed->guid();
         auto title = parsedFeed->title();
         auto subtitle = parsedFeed->subtitle();

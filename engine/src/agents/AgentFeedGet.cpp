@@ -20,7 +20,7 @@
 #include "ZapFR/Feed.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentFeedGet::AgentFeedGet(uint64_t sourceID, uint64_t feedID, std::function<void(Feed*)> finishedCallback)
+ZapFR::Engine::AgentFeedGet::AgentFeedGet(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed*)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
@@ -34,7 +34,7 @@ void ZapFR::Engine::AgentFeedGet::run()
         if (feed.has_value())
         {
             feed.value()->fetchStatistics();
-            mFinishedCallback(feed.value().get());
+            mFinishedCallback(mSourceID, feed.value().get());
         }
     }
 

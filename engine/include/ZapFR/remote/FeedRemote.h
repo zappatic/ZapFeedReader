@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FEEDLOCAL_H
-#define ZAPFR_ENGINE_FEEDLOCAL_H
+#ifndef ZAPFR_ENGINE_FEEDREMOTE_H
+#define ZAPFR_ENGINE_FEEDREMOTE_H
 
 #include "../Feed.h"
 
@@ -25,13 +25,11 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class FeedParser;
-
-        class FeedLocal : public Feed
+        class FeedRemote : public Feed
         {
           public:
-            explicit FeedLocal(uint64_t id);
-            virtual ~FeedLocal() = default;
+            explicit FeedRemote(uint64_t id);
+            virtual ~FeedRemote() = default;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
             uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
@@ -51,37 +49,9 @@ namespace ZapFR
 
             std::string icon() const override;
 
-            void processItems(FeedParser* parsedFeed);
-
-            static void setIconDir(const std::string& iconDir);
-
-            static std::vector<std::unique_ptr<Feed>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
-                                                                    const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static std::optional<std::unique_ptr<ZapFR::Engine::Feed>> querySingle(const std::vector<std::string>& whereClause,
-                                                                                   const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static uint64_t nextSortOrder(uint64_t folderID);
-            static std::unique_ptr<FeedLocal> create(const std::string& url, const std::string& title, uint64_t parentFolderID);
-            static void move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder);
-            static void resort(uint64_t folder);
-            static void remove(uint64_t feedID);
-
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
-
-            void update(const std::string& iconURL, const std::string& guid, const std::string& title, const std::string& subtitle, const std::string& link,
-                        const std::string& description, const std::string& language, const std::string& copyright);
-
-            Poco::JSON::Object toJSON() const;
-
-          private:
-            static std::string msIconDir;
-            static std::mutex msCreateFeedMutex;
-
-            Poco::File iconFile() const;
-            std::optional<std::unique_ptr<Post>> getPostByGuid(const std::string& guid);
-            void fetchUnreadCount();
-            void updateAndLogLastRefreshError(const std::string& error);
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FEEDLOCAL_H
+#endif // ZAPFR_ENGINE_FEEDREMOTE_H

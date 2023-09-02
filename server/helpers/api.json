@@ -20,6 +20,6 @@
     "parameters": [],
     "requireCredentials": false,
     "contentType": "application/json",
-    "jsonOutput": "object"
+    "jsonOutput": "Object"
   }
 }

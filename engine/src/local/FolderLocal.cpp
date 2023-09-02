@@ -17,6 +17,7 @@
 */
 
 #include "ZapFR/local/FolderLocal.h"
+#include "ZapFR/Database.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/local/FeedLocal.h"

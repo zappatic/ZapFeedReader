@@ -114,6 +114,7 @@ namespace ZapFR
         static constexpr uint32_t LogIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t LogFeedIDRole{Qt::ItemDataRole::UserRole + 2};
         static constexpr uint32_t LogLevelRole{Qt::ItemDataRole::UserRole + 3};
+        static constexpr uint32_t LogParentSourceIDRole{Qt::ItemDataRole::UserRole + 4};
 
         // ui->stackedWidgetRight's panes
         static constexpr uint32_t StackedPanePosts = 0;

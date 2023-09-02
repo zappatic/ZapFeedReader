@@ -102,6 +102,21 @@ namespace ZapFR
             virtual void fetchStatistics() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }
 
+            static constexpr const char* JSONIdentifierFeedID{"id"};
+            static constexpr const char* JSONIdentifierFeedURL{"url"};
+            static constexpr const char* JSONIdentifierFeedFolder{"folder"};
+            static constexpr const char* JSONIdentifierFeedGUID{"guid"};
+            static constexpr const char* JSONIdentifierFeedTitle{"title"};
+            static constexpr const char* JSONIdentifierFeedSubtitle{"subtitle"};
+            static constexpr const char* JSONIdentifierFeedLink{"link"};
+            static constexpr const char* JSONIdentifierFeedDescription{"description"};
+            static constexpr const char* JSONIdentifierFeedLanguage{"language"};
+            static constexpr const char* JSONIdentifierFeedCopyright{"copyright"};
+            static constexpr const char* JSONIdentifierFeedLastRefreshError{"lastRefreshError"};
+            static constexpr const char* JSONIdentifierFeedRefreshInterval{"refreshInterval"};
+            static constexpr const char* JSONIdentifierFeedSortOrder{"sortOrder"};
+            static constexpr const char* JSONIdentifierFeedUnreadCount{"unreadCount"};
+
           protected:
             uint64_t mID{0};
             std::string mURL{""};

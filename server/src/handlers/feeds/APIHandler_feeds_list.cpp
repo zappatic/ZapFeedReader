@@ -19,25 +19,35 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "Daemon.h"
+#include "ZapFR/local/FeedLocal.h"
+#include "ZapFR/local/SourceLocal.h"
 
 // ::API
 //
-//	Returns general info about the server
-//	/about (GET)
+//	Returns all the feeds within the source
+//	/feeds (GET)
 //
 //	Content-Type: application/json
-//	JSON output: Object
+//	JSON output: Array
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_about([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feeds_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    Poco::JSON::Object o;
-    o.set("name", apiRequest->api()->daemon()->configString("zapfr.servername"));
-    o.set("version", ZapFR::Engine::APIVersion);
+    Poco::JSON::Array a;
 
-    Poco::JSON::Stringifier::stringify(o, response.send());
+    auto source = ZapFR::Engine::Source::getSource(1);
+    if (source.has_value())
+    {
+        auto feeds = source.value()->getFeeds();
+        for (const auto& feed : feeds)
+        {
+            auto localFeed = dynamic_cast<ZapFR::Engine::FeedLocal*>(feed.get());
+            a.add(localFeed->toJSON());
+        }
+    }
+
+    Poco::JSON::Stringifier::stringify(a, response.send());
 
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

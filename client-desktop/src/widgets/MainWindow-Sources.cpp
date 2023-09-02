@@ -117,7 +117,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                     feedItem->setData(QString::fromUtf8(feed->url()), SourceTreeEntryFeedURLRole);
                     feedItem->setData(QVariant::fromValue<uint64_t>(feed->sortOrder()), SourceTreeEntrySortOrderRole);
 
-                    if (!FeedIconCache::isCached(feed->id()) || !FeedIconCache::isSameHash(feed->id(), feed->iconHash()))
+                    if (!FeedIconCache::isCached(retrievedSource->id(), feed->id()) || !FeedIconCache::isSameHash(retrievedSource->id(), feed->id(), feed->iconHash()))
                     {
                         auto iconData = feed->icon();
                         if (!iconData.empty())
@@ -132,7 +132,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                                 ds.close();
                                 auto iconHash = Poco::DigestEngine::digestToHex(md5.digest());
 
-                                FeedIconCache::cache(feed->id(), iconHash, icon);
+                                FeedIconCache::cache(retrievedSource->id(), feed->id(), iconHash, icon);
                             }
                         }
                     }
@@ -431,6 +431,7 @@ void ZapFR::Client::MainWindow::addSource()
                         configData["port"] = mDialogAddSource->port();
                         configData["login"] = mDialogAddSource->login();
                         configData["password"] = mDialogAddSource->password();
+                        configData["useHTTPS"] = mDialogAddSource->useHTTPS();
                         auto configDataStr = QJsonDocument(configData).toJson(QJsonDocument::Compact).toStdString();
                         ZapFR::Engine::Source::create(sourceType, sourceTitle, configDataStr);
                         reloadSources();

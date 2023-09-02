@@ -26,7 +26,8 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
         return;
     }
 
-    auto html = Helpers::performHTTPRequest(url, "GET", associatedFeedID);
+    Poco::Net::HTTPCredentials creds; // TODO
+    auto html = Helpers::performHTTPRequest(Poco::URI(url), Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID);
 
     // try to locate <link rel="icon" href="..."> with a sax parser
     FavIconSaxParser handler;

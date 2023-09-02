@@ -73,6 +73,14 @@ namespace ZapFR
 
             // statistics
             void fetchStatistics() override;
+
+          private:
+            mutable Poco::URI mRemoteURL{};
+            mutable std::string mRemoteLogin{""};
+            mutable std::string mRemotePassword{""};
+            mutable bool mRemoteURLIsValid{false};
+
+            Poco::URI remoteURL() const;
         };
     } // namespace Engine
 } // namespace ZapFR

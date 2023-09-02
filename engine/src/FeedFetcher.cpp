@@ -23,7 +23,8 @@
 
 std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseURL(const std::string& url, uint64_t associatedFeedID)
 {
-    auto xml = Helpers::performHTTPRequest(url, "GET", associatedFeedID);
+    Poco::Net::HTTPCredentials creds;
+    auto xml = Helpers::performHTTPRequest(Poco::URI(url), Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID);
     return parseString(xml, url);
 }
 

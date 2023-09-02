@@ -349,7 +349,8 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
     {
         try
         {
-            iconData = Helpers::performHTTPRequest(iconURLToQuery, "GET", mID);
+            Poco::Net::HTTPCredentials creds; // TODO
+            iconData = Helpers::performHTTPRequest(Poco::URI(iconURLToQuery), "GET", creds, {}, mID);
         }
         catch (...) // we ignore errors here because a missing favicon shouldn't put the feed in error state
         {
@@ -427,6 +428,26 @@ Poco::File ZapFR::Engine::FeedLocal::iconFile() const
     }
 
     return Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
+}
+
+Poco::JSON::Object ZapFR::Engine::FeedLocal::toJSON() const
+{
+    Poco::JSON::Object o;
+    o.set(Feed::JSONIdentifierFeedID, mID);
+    o.set(Feed::JSONIdentifierFeedURL, mURL);
+    o.set(Feed::JSONIdentifierFeedFolder, mFolderID);
+    o.set(Feed::JSONIdentifierFeedGUID, mGuid);
+    o.set(Feed::JSONIdentifierFeedTitle, mTitle);
+    o.set(Feed::JSONIdentifierFeedSubtitle, mSubtitle);
+    o.set(Feed::JSONIdentifierFeedLink, mLink);
+    o.set(Feed::JSONIdentifierFeedDescription, mDescription);
+    o.set(Feed::JSONIdentifierFeedLanguage, mLanguage);
+    o.set(Feed::JSONIdentifierFeedCopyright, mCopyright);
+    o.set(Feed::JSONIdentifierFeedLastRefreshError, mLastRefreshError.has_value() ? mLastRefreshError.value() : "");
+    o.set(Feed::JSONIdentifierFeedRefreshInterval, mRefreshInterval.has_value() ? mRefreshInterval.value() : 0);
+    o.set(Feed::JSONIdentifierFeedSortOrder, mSortOrder);
+    o.set(Feed::JSONIdentifierFeedUnreadCount, mUnreadCount);
+    return o;
 }
 
 std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FeedLocal::getLogs(uint64_t perPage, uint64_t page)

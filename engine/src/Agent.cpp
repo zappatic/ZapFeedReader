@@ -140,7 +140,7 @@ void ZapFR::Engine::Agent::queueSubscribeFeed(uint64_t sourceID, const std::stri
     enqueue(std::make_unique<AgentFeedSubscribe>(sourceID, url, folder, newFolderHierarchy, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueGetFeed(uint64_t sourceID, uint64_t feedID, std::function<void(Feed*)> finishedCallback)
+void ZapFR::Engine::Agent::queueGetFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed*)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFeedGet>(sourceID, feedID, finishedCallback));
 }
