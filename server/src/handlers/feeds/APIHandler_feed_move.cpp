@@ -20,42 +20,50 @@
 #include "APIHandlers.h"
 #include "APIRequest.h"
 #include "ZapFR/Source.h"
-#include "ZapFR/local/FolderLocal.h"
 
 // ::API
 //
-//	Returns all the folders within the source
-//	/folders (GET)
+//	Moves a feed to a new subfolder and/or position within the folder
+//	/feed/<feedID>/move (POST)
+//
+//	URI parameters:
+//		feedID - The id of the feed to move - apiRequest->pathComponentAt(1)
 //
 //	Parameters:
-//		parentFolderID - The ID of the folder for which to retrieve the subfolders; optional, defaults to root(0) - apiRequest->parameter("parentFolderID")
+//		sortOrder (REQD) - The new sort order of the feed (the position within the new parent folder) - apiRequest->parameter("sortOrder")
+//		parentFolderID (REQD) - The (new) folder parent to put the feed in - apiRequest->parameter("parentFolderID")
 //
 //	Content-Type: application/json
-//	JSON output: Array
+//	JSON output: Object
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folders_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_move([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
+    const auto feedIDStr = apiRequest->pathComponentAt(1);
+    const auto sortOrderStr = apiRequest->parameter("sortOrder");
     const auto parentFolderIDStr = apiRequest->parameter("parentFolderID");
 
+    uint64_t feedID{0};
+    uint64_t sortOrder{0};
     uint64_t parentFolderID{0};
+    Poco::NumberParser::tryParseUnsigned64(feedIDStr, feedID);
+    Poco::NumberParser::tryParseUnsigned64(sortOrderStr, sortOrder);
     Poco::NumberParser::tryParseUnsigned64(parentFolderIDStr, parentFolderID);
 
-    Poco::JSON::Array arr;
-
-    auto source = ZapFR::Engine::Source::getSource(1);
-    if (source.has_value())
+    if (feedID != 0)
     {
-        auto folders = source.value()->getFolders(parentFolderID);
-        for (const auto& folder : folders)
+        auto source = ZapFR::Engine::Source::getSource(1);
+        if (source.has_value())
         {
-            auto localFolder = dynamic_cast<ZapFR::Engine::FolderLocal*>(folder.get());
-            arr.add(localFolder->toJSON(true));
+            source.value()->moveFeed(feedID, parentFolderID, sortOrder);
         }
     }
 
-    Poco::JSON::Stringifier::stringify(arr, response.send());
+    Poco::JSON::Object o;
+    o.set("success", true);
+
+    Poco::JSON::Stringifier::stringify(o, response.send());
 
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

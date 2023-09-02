@@ -72,6 +72,20 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Moves a feed to a new subfolder and/or position within the folder)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/feed/([0-9]+)/move$)", R"(/feed/<feedID>/move)");
+				entry->addURIParameter({R"(feedID)", R"(The id of the feed to move)"});
+				entry->addBodyParameter({R"(sortOrder)", true, R"(The new sort order of the feed (the position within the new parent folder))"});
+				entry->addBodyParameter({R"(parentFolderID)", true, R"(The (new) folder parent to put the feed in)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_feed_move);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Removes a feed)");
 				entry->setMethod("DELETE");
 				entry->setPath(R"(^\/feed/([0-9]+)$)", R"(/feed/<feedID>)");
@@ -104,6 +118,32 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
 				entry->setHandler(ZapFR::Server::APIHandler_folder_add);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Retrieves a folder (subfolders are not populated))");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/folder/([0-9]+)$)", R"(/folder/<folderID>)");
+				entry->addURIParameter({R"(folderID)", R"(The id of the folder to retrieve)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_folder_get);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Moves a folder to a new subfolder and/or position within the parent folder)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/folder/([0-9]+)/move$)", R"(/folder/<folderID>/move)");
+				entry->addURIParameter({R"(folderID)", R"(The id of the folder to move)"});
+				entry->addBodyParameter({R"(sortOrder)", true, R"(The new sort order of the folder (the position within the new parent folder))"});
+				entry->addBodyParameter({R"(parentFolderID)", true, R"(The (new) folder parent to put the folder in)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_folder_move);
 				msAPIs.emplace_back(std::move(entry));
 			}
 

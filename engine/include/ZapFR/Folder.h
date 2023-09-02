@@ -52,6 +52,7 @@ namespace ZapFR
 
             void setTitle(const std::string& title) { mTitle = title; }
             void setSortOrder(uint64_t sortOrder) { mSortOrder = sortOrder; }
+            void setStatistics(const std::unordered_map<Statistic, std::string>& stats) { mStatistics = stats; }
 
             std::vector<Folder*> subfolders();
             virtual void fetchSubfolders() = 0;
@@ -78,6 +79,9 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierFolderParent{"parent"};
             static constexpr const char* JSONIdentifierFolderSortOrder{"sortOrder"};
             static constexpr const char* JSONIdentifierFolderSubfolders{"subfolders"};
+            static constexpr const char* JSONIdentifierFolderStatistics{"statistics"};
+            static const std::unordered_map<std::string, Statistic> JSONIdentifierFolderStatisticMap;
+            static const std::unordered_map<Statistic, std::string> FolderStatisticJSONIdentifierMap;
 
           protected:
             uint64_t mID{0};

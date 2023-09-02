@@ -31,10 +31,12 @@ bool ZapFR::Engine::FolderRemote::fetchData()
 
 void ZapFR::Engine::FolderRemote::fetchSubfolders()
 {
+    // nop, the subfolders will be included in the remote 'GET /folders' call
 }
 
 void ZapFR::Engine::FolderRemote::fetchStatistics()
 {
+    // nop, the stats will be included in the remote 'GET /folder' call
 }
 
 std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderRemote::getPosts(uint64_t /*perPage*/, uint64_t /*page*/, bool /*showOnlyUnread*/,

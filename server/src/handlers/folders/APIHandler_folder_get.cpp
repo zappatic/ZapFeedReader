@@ -24,38 +24,41 @@
 
 // ::API
 //
-//	Returns all the folders within the source
-//	/folders (GET)
+//	Retrieves a folder (subfolders are not populated)
+//	/folder/<folderID> (GET)
 //
-//	Parameters:
-//		parentFolderID - The ID of the folder for which to retrieve the subfolders; optional, defaults to root(0) - apiRequest->parameter("parentFolderID")
+//	URI parameters:
+//		folderID - The id of the folder to retrieve - apiRequest->pathComponentAt(1)
 //
 //	Content-Type: application/json
-//	JSON output: Array
+//	JSON output: Object
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folders_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_get([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto parentFolderIDStr = apiRequest->parameter("parentFolderID");
+    const auto folderIDStr = apiRequest->pathComponentAt(1);
 
-    uint64_t parentFolderID{0};
-    Poco::NumberParser::tryParseUnsigned64(parentFolderIDStr, parentFolderID);
+    uint64_t folderID{0};
+    Poco::NumberParser::tryParseUnsigned64(folderIDStr, folderID);
 
-    Poco::JSON::Array arr;
-
-    auto source = ZapFR::Engine::Source::getSource(1);
-    if (source.has_value())
+    Poco::JSON::Object o;
+    if (folderID != 0)
     {
-        auto folders = source.value()->getFolders(parentFolderID);
-        for (const auto& folder : folders)
+        auto source = ZapFR::Engine::Source::getSource(1);
+        if (source.has_value())
         {
-            auto localFolder = dynamic_cast<ZapFR::Engine::FolderLocal*>(folder.get());
-            arr.add(localFolder->toJSON(true));
+            auto folder = source.value()->getFolder(folderID);
+            if (folder.has_value())
+            {
+                auto localFolder = dynamic_cast<ZapFR::Engine::FolderLocal*>(folder.value().get());
+                localFolder->fetchStatistics();
+                o = localFolder->toJSON(false);
+            }
         }
     }
 
-    Poco::JSON::Stringifier::stringify(arr, response.send());
+    Poco::JSON::Stringifier::stringify(o, response.send());
 
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

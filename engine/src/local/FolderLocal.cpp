@@ -300,7 +300,7 @@ uint64_t ZapFR::Engine::FolderLocal::nextSortOrder(uint64_t folderID)
     return sortOrder + 10;
 }
 
-Poco::JSON::Object ZapFR::Engine::FolderLocal::toJSON()
+Poco::JSON::Object ZapFR::Engine::FolderLocal::toJSON(bool fetchSubfolders)
 {
     Poco::JSON::Object o;
     o.set(Folder::JSONIdentifierFolderID, mID);
@@ -308,14 +308,27 @@ Poco::JSON::Object ZapFR::Engine::FolderLocal::toJSON()
     o.set(Folder::JSONIdentifierFolderParent, mParent);
     o.set(Folder::JSONIdentifierFolderSortOrder, mSortOrder);
 
-    fetchSubfolders();
-    Poco::JSON::Array subFolders;
-    for (const auto& subFolder : mSubfolders)
+    if (fetchSubfolders)
     {
-        auto localSubfolder = dynamic_cast<FolderLocal*>(subFolder.get());
-        subFolders.add(localSubfolder->toJSON());
+        this->fetchSubfolders();
+        Poco::JSON::Array subFolders;
+        for (const auto& subFolder : mSubfolders)
+        {
+            auto localSubfolder = dynamic_cast<FolderLocal*>(subFolder.get());
+            subFolders.add(localSubfolder->toJSON(fetchSubfolders));
+        }
+        o.set(Folder::JSONIdentifierFolderSubfolders, subFolders);
     }
-    o.set(Folder::JSONIdentifierFolderSubfolders, subFolders);
+
+    if (mStatistics.size() > 0)
+    {
+        Poco::JSON::Object statsObj;
+        for (const auto& [stat, value] : mStatistics)
+        {
+            statsObj.set(Folder::FolderStatisticJSONIdentifierMap.at(stat), value);
+        }
+        o.set(Folder::JSONIdentifierFolderStatistics, statsObj);
+    }
     return o;
 }
 

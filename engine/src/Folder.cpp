@@ -18,6 +18,16 @@
 
 #include "ZapFR/Folder.h"
 
+const std::unordered_map<std::string, ZapFR::Engine::Folder::Statistic> ZapFR::Engine::Folder::JSONIdentifierFolderStatisticMap{
+    {"feedCount", Statistic::FeedCount},   {"postCount", Statistic::PostCount},   {"flaggedPostCount", Statistic::FlaggedPostCount},
+    {"oldestPost", Statistic::OldestPost}, {"newestPost", Statistic::NewestPost},
+};
+
+const std::unordered_map<ZapFR::Engine::Folder::Statistic, std::string> ZapFR::Engine::Folder::FolderStatisticJSONIdentifierMap{
+    {Statistic::FeedCount, "feedCount"},   {Statistic::PostCount, "postCount"},   {Statistic::FlaggedPostCount, "flaggedPostCount"},
+    {Statistic::OldestPost, "oldestPost"}, {Statistic::NewestPost, "newestPost"},
+};
+
 ZapFR::Engine::Folder::Folder(uint64_t id, uint64_t parent) : mID(id), mParent(parent)
 {
 }

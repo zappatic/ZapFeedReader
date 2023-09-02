@@ -52,6 +52,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_get([[maybe_u
             if (feed.has_value())
             {
                 auto localFeed = dynamic_cast<ZapFR::Engine::FeedLocal*>(feed.value().get());
+                localFeed->fetchStatistics();
                 o = localFeed->toJSON();
             }
         }

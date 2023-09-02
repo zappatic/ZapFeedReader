@@ -12,6 +12,7 @@ target_sources(zapfeedreader-engine PRIVATE
     Flag.cpp
     Source.cpp
     Folder.cpp
+    Feed.cpp
     Script.cpp
     ScriptLua.cpp
     agents/AgentFeedGet.cpp

@@ -445,8 +445,18 @@ Poco::JSON::Object ZapFR::Engine::FeedLocal::toJSON() const
     o.set(Feed::JSONIdentifierFeedCopyright, mCopyright);
     o.set(Feed::JSONIdentifierFeedLastRefreshError, mLastRefreshError.has_value() ? mLastRefreshError.value() : "");
     o.set(Feed::JSONIdentifierFeedRefreshInterval, mRefreshInterval.has_value() ? mRefreshInterval.value() : 0);
+    o.set(Feed::JSONIdentifierFeedLastChecked, mLastChecked);
     o.set(Feed::JSONIdentifierFeedSortOrder, mSortOrder);
     o.set(Feed::JSONIdentifierFeedUnreadCount, mUnreadCount);
+    if (mStatistics.size() > 0)
+    {
+        Poco::JSON::Object statsObj;
+        for (const auto& [stat, value] : mStatistics)
+        {
+            statsObj.set(Feed::FeedStatisticJSONIdentifierMap.at(stat), value);
+        }
+        o.set(Feed::JSONIdentifierFeedStatistics, statsObj);
+    }
     return o;
 }
 

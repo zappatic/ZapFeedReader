@@ -32,7 +32,7 @@ namespace ZapFR
         class Feed
         {
           public:
-            explicit Feed(uint64_t id) : mID(id) {}
+            explicit Feed(uint64_t id);
             virtual ~Feed() = default;
 
             enum class Statistic
@@ -81,6 +81,7 @@ namespace ZapFR
             void setUnreadCount(uint64_t unreadCount) noexcept { mUnreadCount = unreadCount; }
             void setLastRefreshError(const std::string& e) { mLastRefreshError = e; }
             void setRefreshInterval(std::optional<uint64_t> ri) { mRefreshInterval = ri; }
+            void setStatistics(const std::unordered_map<Statistic, std::string>& stats) { mStatistics = stats; }
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                 FlagColor flagColor) = 0;
@@ -114,8 +115,12 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierFeedCopyright{"copyright"};
             static constexpr const char* JSONIdentifierFeedLastRefreshError{"lastRefreshError"};
             static constexpr const char* JSONIdentifierFeedRefreshInterval{"refreshInterval"};
+            static constexpr const char* JSONIdentifierFeedLastChecked{"lastChecked"};
             static constexpr const char* JSONIdentifierFeedSortOrder{"sortOrder"};
             static constexpr const char* JSONIdentifierFeedUnreadCount{"unreadCount"};
+            static constexpr const char* JSONIdentifierFeedStatistics{"statistics"};
+            static const std::unordered_map<std::string, Statistic> JSONIdentifierFeedStatisticMap;
+            static const std::unordered_map<Statistic, std::string> FeedStatisticJSONIdentifierMap;
 
           protected:
             uint64_t mID{0};

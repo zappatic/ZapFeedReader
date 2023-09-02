@@ -17,6 +17,21 @@
     "contentType": "application/json",
     "jsonOutput": "Array"
   },
+  "folder-get": {
+    "section": "Folders",
+    "description": "Retrieves a folder (subfolders are not populated)",
+    "method": "GET",
+    "path": "^\\/folder/([0-9]+)$",
+    "prettyPath": "/folder/<folderID>",
+    "uriParameters": [
+      { "name": "folderID", "description": "The id of the folder to retrieve" }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+
   "folder-add": {
     "section": "Folders",
     "description": "Adds a folder",
@@ -50,6 +65,31 @@
       { "name": "folderID", "description": "The id of the folder to delete" }
     ],
     "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "folder-move": {
+    "section": "Folders",
+    "description": "Moves a folder to a new subfolder and/or position within the parent folder",
+    "method": "POST",
+    "path": "^\\/folder/([0-9]+)/move$",
+    "prettyPath": "/folder/<folderID>/move",
+    "uriParameters": [
+      { "name": "folderID", "description": "The id of the folder to move" }
+    ],
+    "parameters": [
+      {
+        "name": "sortOrder",
+        "required": true,
+        "description": "The new sort order of the folder (the position within the new parent folder)"
+      },
+      {
+        "name": "parentFolderID",
+        "required": true,
+        "description": "The (new) folder parent to put the folder in"
+      }
+    ],
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"

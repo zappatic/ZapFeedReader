@@ -56,7 +56,7 @@ namespace ZapFR
             static uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy);
             static void move(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder);
 
-            Poco::JSON::Object toJSON();
+            Poco::JSON::Object toJSON(bool fetchSubfolders);
 
           private:
             static std::mutex msCreateFolderMutex;

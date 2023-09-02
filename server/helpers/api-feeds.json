@@ -61,5 +61,30 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "feed-move": {
+    "section": "Feeds",
+    "description": "Moves a feed to a new subfolder and/or position within the folder",
+    "method": "POST",
+    "path": "^\\/feed/([0-9]+)/move$",
+    "prettyPath": "/feed/<feedID>/move",
+    "uriParameters": [
+      { "name": "feedID", "description": "The id of the feed to move" }
+    ],
+    "parameters": [
+      {
+        "name": "sortOrder",
+        "required": true,
+        "description": "The new sort order of the feed (the position within the new parent folder)"
+      },
+      {
+        "name": "parentFolderID",
+        "required": true,
+        "description": "The (new) folder parent to put the feed in"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }
