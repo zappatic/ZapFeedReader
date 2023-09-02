@@ -54,9 +54,7 @@ namespace ZapFR
             void setSortOrder(uint64_t sortOrder) { mSortOrder = sortOrder; }
             void setStatistics(const std::unordered_map<Statistic, std::string>& stats) { mStatistics = stats; }
 
-            std::vector<Folder*> subfolders();
-            virtual void fetchSubfolders() = 0;
-            bool hasSubfolders();
+            const std::vector<std::unique_ptr<Folder>>& subfolders() { return mSubfolders; }
             void appendSubfolder(std::unique_ptr<Folder> subfolder);
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
@@ -67,8 +65,6 @@ namespace ZapFR
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
             virtual uint64_t getTotalLogCount() = 0;
 
-            virtual bool fetchData() = 0;
-            virtual void fetchStatistics() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }
 
             virtual std::vector<uint64_t> folderAndSubfolderIDs() const = 0;

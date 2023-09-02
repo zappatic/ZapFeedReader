@@ -50,7 +50,7 @@ void ZapFR::Engine::AgentPostsMarkRead::run()
         // mark the posts as read per feed
         for (const auto& [feedID, posts] : feedsWithPostsMap)
         {
-            auto feed = source.value()->getFeed(feedID, false);
+            auto feed = source.value()->getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
             for (const auto& postID : posts)
             {
                 feed.value()->markAsRead(postID);

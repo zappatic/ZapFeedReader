@@ -48,6 +48,13 @@ namespace ZapFR
                 NewestPost,
             };
 
+            enum FetchInfo
+            {
+                None = 0,
+                Data = 1,
+                Statistics = 2,
+            };
+
             uint64_t id() const noexcept { return mID; }
             std::string title() const noexcept { return mTitle; }
             std::string type() const noexcept { return mType; }
@@ -63,13 +70,13 @@ namespace ZapFR
             void updateTitle(const std::string& newTitle);
 
             virtual std::vector<std::unique_ptr<Feed>> getFeeds() = 0;
-            virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, bool fetchData = true) = 0;
+            virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, uint32_t feedFetchInfo) = 0;
             virtual uint64_t addFeed(const std::string& url, uint64_t folder) = 0;
             virtual void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) = 0;
             virtual void removeFeed(uint64_t feedID) = 0;
 
             virtual std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent) = 0;
-            virtual std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID) = 0;
+            virtual std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID, uint32_t folderFetchInfo) = 0;
             virtual uint64_t addFolder(const std::string& title, uint64_t parentID) = 0;
             virtual void removeFolder(uint64_t folderID) = 0;
             virtual void moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) = 0;

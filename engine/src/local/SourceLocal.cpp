@@ -40,11 +40,17 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
     return FeedLocal::queryMultiple({}, "ORDER BY sortOrder ASC", "", {});
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID, bool fetchData)
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID, uint32_t fetchInfo)
 {
-    if (fetchData)
+    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
     {
-        return FeedLocal::querySingle({"feeds.id=?"}, {use(feedID, "id")});
+        auto feed = FeedLocal::querySingle({"feeds.id=?"}, {use(feedID, "id")});
+        if (feed.has_value() && (fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
+        {
+            auto localFeed = dynamic_cast<FeedLocal*>(feed.value().get());
+            localFeed->fetchStatistics();
+        }
+        return feed;
     }
     else
     {
@@ -112,7 +118,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::
     return FolderLocal::queryMultiple(whereClause, "ORDER BY folders.sortOrder ASC", "", bindings);
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolder(uint64_t folderID)
+std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolder(uint64_t folderID, uint32_t folderFetchInfo)
 {
     std::vector<std::string> whereClause;
     std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
@@ -120,7 +126,13 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal
     whereClause.emplace_back("id=?");
     bindings.emplace_back(useRef(folderID, "folderID"));
 
-    return FolderLocal::querySingle(whereClause, bindings);
+    auto folder = FolderLocal::querySingle(whereClause, bindings);
+    if ((folderFetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
+    {
+        auto localFolder = dynamic_cast<FolderLocal*>(folder.value().get());
+        localFolder->fetchStatistics();
+    }
+    return folder;
 }
 
 uint64_t ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_t parentID)

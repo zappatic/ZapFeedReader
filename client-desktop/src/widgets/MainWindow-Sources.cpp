@@ -61,12 +61,9 @@ void ZapFR::Client::MainWindow::reloadSources()
                     folderItem->setData(QVariant::fromValue<uint64_t>(folder->sortOrder()), SourceTreeEntrySortOrderRole);
                     parentItem->appendRow(folderItem);
 
-                    if (folder->hasSubfolders())
+                    for (const auto& subfolder : folder->subfolders())
                     {
-                        for (const auto& subfolder : folder->subfolders())
-                        {
-                            createFolderItems(subfolder, currentSourceID, folderItem);
-                        }
+                        createFolderItems(subfolder.get(), currentSourceID, folderItem);
                     }
                     folderIDToItemMapping[folder->id()] = folderItem;
                 };

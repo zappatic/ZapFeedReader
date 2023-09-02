@@ -125,7 +125,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedLocal::ge
     return PostLocal::querySingle(whereClause, bindings);
 }
 
-bool ZapFR::Engine::FeedLocal::fetchData()
+void ZapFR::Engine::FeedLocal::fetchData()
 {
     if (!mDataFetched)
     {
@@ -153,10 +153,7 @@ bool ZapFR::Engine::FeedLocal::fetchData()
         {
             mLastRefreshError = lastRefreshError.value();
         }
-        auto rs = Poco::Data::RecordSet(selectStmt);
-        return (rs.rowCount() == 1);
     }
-    return true;
 }
 
 bool ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML)

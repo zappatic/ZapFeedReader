@@ -40,8 +40,8 @@ namespace ZapFR
             std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
             uint64_t getTotalLogCount() override;
 
-            bool fetchData() override;
-            void fetchStatistics() override;
+            void fetchData();
+            void fetchStatistics();
             bool refresh(const std::optional<std::string>& feedXML) override;
             void markAllAsRead() override;
             void markAsRead(uint64_t postID) override;

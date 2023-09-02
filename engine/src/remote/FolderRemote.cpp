@@ -24,21 +24,6 @@ ZapFR::Engine::FolderRemote::FolderRemote(uint64_t id, uint64_t parent) : Folder
 {
 }
 
-bool ZapFR::Engine::FolderRemote::fetchData()
-{
-    return true;
-}
-
-void ZapFR::Engine::FolderRemote::fetchSubfolders()
-{
-    // nop, the subfolders will be included in the remote 'GET /folders' call
-}
-
-void ZapFR::Engine::FolderRemote::fetchStatistics()
-{
-    // nop, the stats will be included in the remote 'GET /folder' call
-}
-
 std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderRemote::getPosts(uint64_t /*perPage*/, uint64_t /*page*/, bool /*showOnlyUnread*/,
                                                                                         const std::string& /*searchFilter*/, FlagColor /*flagColor*/)
 {

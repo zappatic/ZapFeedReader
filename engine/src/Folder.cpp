@@ -32,30 +32,6 @@ ZapFR::Engine::Folder::Folder(uint64_t id, uint64_t parent) : mID(id), mParent(p
 {
 }
 
-bool ZapFR::Engine::Folder::hasSubfolders()
-{
-    if (!mSubfoldersFetched)
-    {
-        fetchSubfolders();
-    }
-    return mSubfolders.size() > 0;
-}
-
-std::vector<ZapFR::Engine::Folder*> ZapFR::Engine::Folder::subfolders()
-{
-    if (!mSubfoldersFetched)
-    {
-        fetchSubfolders();
-    }
-
-    std::vector<Folder*> folders;
-    for (const auto& f : mSubfolders)
-    {
-        folders.emplace_back(f.get());
-    }
-    return folders;
-}
-
 void ZapFR::Engine::Folder::appendSubfolder(std::unique_ptr<Folder> subfolder)
 {
     mSubfolders.emplace_back(std::move(subfolder));

@@ -81,16 +81,6 @@ uint64_t ZapFR::Engine::FeedRemote::getTotalLogCount()
     return 0;
 }
 
-bool ZapFR::Engine::FeedRemote::fetchData()
-{
-    return true;
-}
-
-void ZapFR::Engine::FeedRemote::fetchStatistics()
-{
-    // nop, the stats will be included in the remote 'GET /feed' call
-}
-
 void ZapFR::Engine::FeedRemote::updateProperties(const std::string& /*feedURL*/, std::optional<uint64_t> /*refreshIntervalInSeconds*/)
 {
 }

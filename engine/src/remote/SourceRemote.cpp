@@ -92,9 +92,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::g
     return feeds;
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::getFeed(uint64_t feedID, bool fetchData)
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::getFeed(uint64_t feedID, uint32_t fetchInfo)
 {
-    if (fetchData)
+    // FetchInfo::Statistics is implied
+    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
     {
         auto uri = remoteURL();
         if (mRemoteURLIsValid)
@@ -265,8 +266,9 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote:
     return folders;
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote::getFolder(uint64_t folderID)
+std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote::getFolder(uint64_t folderID, uint32_t /*folderFetchInfo*/)
 {
+    // FolderFetchInfo::Statistics is implied
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
     {

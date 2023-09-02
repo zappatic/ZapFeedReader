@@ -32,7 +32,7 @@ void ZapFR::Engine::AgentFolderGetLogs::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto folder = source.value()->getFolder(mFolderID);
+        auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
         if (folder.has_value())
         {
             auto logs = folder.value()->getLogs(mPerPage, mPage);

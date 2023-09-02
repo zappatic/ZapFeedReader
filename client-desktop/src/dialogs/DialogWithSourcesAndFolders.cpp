@@ -114,12 +114,9 @@ void ZapFR::Client::DialogWithSourcesAndFolders::currentSourceChanged(int /*inde
 
         currentIndex++;
 
-        if (folder->hasSubfolders())
+        for (const auto& subfolder : folder->subfolders())
         {
-            for (const auto& subfolder : folder->subfolders())
-            {
-                createFolderItems(subfolder, depth + 1);
-            }
+            createFolderItems(subfolder.get(), depth + 1);
         }
     };
 

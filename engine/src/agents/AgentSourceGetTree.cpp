@@ -32,12 +32,9 @@ void ZapFR::Engine::AgentSourceGetTree::run()
     std::function<void(Folder*)> loadFolder;
     loadFolder = [&](Folder* folder)
     {
-        if (folder->hasSubfolders())
+        for (const auto& subfolder : folder->subfolders())
         {
-            for (const auto& subfolder : folder->subfolders())
-            {
-                loadFolder(subfolder);
-            }
+            loadFolder(subfolder.get());
         }
     };
 

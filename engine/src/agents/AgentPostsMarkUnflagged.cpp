@@ -51,7 +51,7 @@ void ZapFR::Engine::AgentPostsMarkUnflagged::run()
         // mark the posts as flagged per feed
         for (const auto& [feedID, posts] : feedsWithPostsMap)
         {
-            auto feed = source.value()->getFeed(feedID, false);
+            auto feed = source.value()->getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
             for (const auto& postID : posts)
             {
                 auto post = feed.value()->getPost(postID);

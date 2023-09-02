@@ -38,9 +38,8 @@ namespace ZapFR
             std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
             uint64_t getTotalLogCount() override;
 
-            void fetchSubfolders() override;
-            bool fetchData() override;
-            void fetchStatistics() override;
+            void fetchSubfolders();
+            void fetchStatistics();
 
             std::vector<uint64_t> folderAndSubfolderIDs() const override;
             std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const override;

@@ -30,10 +30,9 @@ void ZapFR::Engine::AgentFeedGet::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
+        auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::Data | ZapFR::Engine::Source::FetchInfo::Statistics);
         if (feed.has_value())
         {
-            feed.value()->fetchStatistics();
             mFinishedCallback(mSourceID, feed.value().get());
         }
     }

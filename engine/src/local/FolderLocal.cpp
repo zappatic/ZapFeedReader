@@ -32,24 +32,6 @@ ZapFR::Engine::FolderLocal::FolderLocal(uint64_t id, uint64_t parent) : Folder(i
 {
 }
 
-bool ZapFR::Engine::FolderLocal::fetchData()
-{
-    if (!mDataFetched)
-    {
-        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-        selectStmt << "SELECT title"
-                      ",sortOrder"
-                      " FROM folders"
-                      " WHERE id=?",
-            use(mID), into(mTitle), into(mSortOrder), now;
-
-        mDataFetched = true;
-        auto rs = Poco::Data::RecordSet(selectStmt);
-        return (rs.rowCount() == 1);
-    }
-    return true;
-}
-
 void ZapFR::Engine::FolderLocal::fetchSubfolders()
 {
     if (!mSubfoldersFetched)

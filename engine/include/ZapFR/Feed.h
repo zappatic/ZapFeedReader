@@ -99,8 +99,6 @@ namespace ZapFR
             virtual void refreshIcon() = 0;
             virtual void removeIcon() = 0;
 
-            virtual bool fetchData() = 0;
-            virtual void fetchStatistics() = 0;
             void setDataFetched(bool b) { mDataFetched = b; }
 
             static constexpr const char* JSONIdentifierFeedID{"id"};
