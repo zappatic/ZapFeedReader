@@ -11,6 +11,20 @@
     "contentType": "application/json",
     "jsonOutput": "Array"
   },
+  "feed-get": {
+    "section": "Feeds",
+    "description": "Retrieves a feed",
+    "method": "GET",
+    "path": "^\\/feed/([0-9]+)$",
+    "prettyPath": "/feed/<feedID>",
+    "uriParameters": [
+      { "name": "feedID", "description": "The id of the feed to retrieve" }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
   "feed-add": {
     "section": "Feeds",
     "description": "Adds a feed",

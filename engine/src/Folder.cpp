@@ -45,3 +45,8 @@ std::vector<ZapFR::Engine::Folder*> ZapFR::Engine::Folder::subfolders()
     }
     return folders;
 }
+
+void ZapFR::Engine::Folder::appendSubfolder(std::unique_ptr<Folder> subfolder)
+{
+    mSubfolders.emplace_back(std::move(subfolder));
+}

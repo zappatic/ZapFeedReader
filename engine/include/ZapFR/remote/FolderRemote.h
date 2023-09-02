@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FOLDERLOCAL_H
-#define ZAPFR_ENGINE_FOLDERLOCAL_H
+#ifndef ZAPFR_ENGINE_FOLDERREMOTE_H
+#define ZAPFR_ENGINE_FOLDERREMOTE_H
 
 #include "../Folder.h"
 
@@ -25,11 +25,11 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class FolderLocal : public Folder
+        class FolderRemote : public Folder
         {
           public:
-            explicit FolderLocal(uint64_t id, uint64_t parent);
-            virtual ~FolderLocal() = default;
+            explicit FolderRemote(uint64_t id, uint64_t parent);
+            virtual ~FolderRemote() = default;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
             uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
@@ -44,25 +44,8 @@ namespace ZapFR
 
             std::vector<uint64_t> folderAndSubfolderIDs() const override;
             std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const override;
-
-            static std::vector<std::unique_ptr<Folder>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
-                                                                      const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static std::optional<std::unique_ptr<Folder>> querySingle(const std::vector<std::string>& whereClause,
-                                                                      const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static uint64_t nextSortOrder(uint64_t folderID);
-            static uint64_t create(uint64_t parentID, const std::string& title);
-            static void remove(uint64_t folderID);
-            static void resort(uint64_t parentID);
-            static uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy);
-            static void move(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder);
-
-            Poco::JSON::Object toJSON();
-
-          private:
-            static std::mutex msCreateFolderMutex;
-            static std::mutex msCreateFolderHierarchyMutex;
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FOLDERLOCAL_H
+#endif // ZAPFR_ENGINE_FOLDERREMOTE_H

@@ -1,0 +1,57 @@
+{
+  "folders-list": {
+    "section": "Folders",
+    "description": "Returns all the folders within the source",
+    "method": "GET",
+    "path": "^\\/folders$",
+    "prettyPath": "/folders",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "parentFolderID",
+        "required": false,
+        "description": "The ID of the folder for which to retrieve the subfolders; optional, defaults to root(0)"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
+  },
+  "folder-add": {
+    "section": "Folders",
+    "description": "Adds a folder",
+    "method": "POST",
+    "path": "^\\/folder$",
+    "prettyPath": "/folder",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "title",
+        "required": true,
+        "description": "The title of the folder to add"
+      },
+      {
+        "name": "parentFolderID",
+        "required": true,
+        "description": "The ID of the folder under which to add the new subfolder"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "folder-remove": {
+    "section": "Folders",
+    "description": "Removes a folder",
+    "method": "DELETE",
+    "path": "^\\/folder/([0-9]+)$",
+    "prettyPath": "/folder/<folderID>",
+    "uriParameters": [
+      { "name": "folderID", "description": "The id of the folder to delete" }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  }
+}

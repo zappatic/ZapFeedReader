@@ -30,7 +30,7 @@ void ZapFR::Engine::AgentFeedMarkRead::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
+        auto feed = source.value()->getFeed(mFeedID, false);
         if (feed.has_value())
         {
             feed.value()->markAllAsRead();

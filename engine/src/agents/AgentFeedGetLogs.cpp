@@ -32,7 +32,7 @@ void ZapFR::Engine::AgentFeedGetLogs::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
+        auto feed = source.value()->getFeed(mFeedID, false);
         if (feed.has_value())
         {
             auto logs = feed.value()->getLogs(mPerPage, mPage);

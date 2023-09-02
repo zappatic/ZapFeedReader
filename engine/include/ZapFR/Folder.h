@@ -56,6 +56,7 @@ namespace ZapFR
             std::vector<Folder*> subfolders();
             virtual void fetchSubfolders() = 0;
             bool hasSubfolders();
+            void appendSubfolder(std::unique_ptr<Folder> subfolder);
 
             virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                 FlagColor flagColor) = 0;
@@ -71,6 +72,12 @@ namespace ZapFR
 
             virtual std::vector<uint64_t> folderAndSubfolderIDs() const = 0;
             virtual std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const = 0;
+
+            static constexpr const char* JSONIdentifierFolderID{"id"};
+            static constexpr const char* JSONIdentifierFolderTitle{"title"};
+            static constexpr const char* JSONIdentifierFolderParent{"parent"};
+            static constexpr const char* JSONIdentifierFolderSortOrder{"sortOrder"};
+            static constexpr const char* JSONIdentifierFolderSubfolders{"subfolders"};
 
           protected:
             uint64_t mID{0};

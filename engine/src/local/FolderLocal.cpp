@@ -300,6 +300,25 @@ uint64_t ZapFR::Engine::FolderLocal::nextSortOrder(uint64_t folderID)
     return sortOrder + 10;
 }
 
+Poco::JSON::Object ZapFR::Engine::FolderLocal::toJSON()
+{
+    Poco::JSON::Object o;
+    o.set(Folder::JSONIdentifierFolderID, mID);
+    o.set(Folder::JSONIdentifierFolderTitle, mTitle);
+    o.set(Folder::JSONIdentifierFolderParent, mParent);
+    o.set(Folder::JSONIdentifierFolderSortOrder, mSortOrder);
+
+    fetchSubfolders();
+    Poco::JSON::Array subFolders;
+    for (const auto& subFolder : mSubfolders)
+    {
+        auto localSubfolder = dynamic_cast<FolderLocal*>(subFolder.get());
+        subFolders.add(localSubfolder->toJSON());
+    }
+    o.set(Folder::JSONIdentifierFolderSubfolders, subFolders);
+    return o;
+}
+
 uint64_t ZapFR::Engine::FolderLocal::create(uint64_t parentID, const std::string& title)
 {
     auto sortOrder = nextSortOrder(parentID);

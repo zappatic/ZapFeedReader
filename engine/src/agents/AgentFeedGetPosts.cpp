@@ -34,7 +34,7 @@ void ZapFR::Engine::AgentFeedGetPosts::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID);
+        auto feed = source.value()->getFeed(mFeedID, false);
         if (feed.has_value())
         {
             auto posts = feed.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColorFilter);

@@ -133,9 +133,9 @@ void ZapFR::Engine::SourceLocal::moveFolder(uint64_t folderID, uint64_t newParen
     FolderLocal::move(folderID, newParent, newSortOrder);
 }
 
-void ZapFR::Engine::SourceLocal::removeFolder(uint64_t folder)
+void ZapFR::Engine::SourceLocal::removeFolder(uint64_t folderID)
 {
-    FolderLocal::remove(folder);
+    FolderLocal::remove(folderID);
 }
 
 uint64_t ZapFR::Engine::SourceLocal::createFolderHierarchy(uint64_t parentID, const std::vector<std::string>& folderHierarchy)

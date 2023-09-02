@@ -60,6 +60,18 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Retrieves a feed)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/feed/([0-9]+)$)", R"(/feed/<feedID>)");
+				entry->addURIParameter({R"(feedID)", R"(The id of the feed to retrieve)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_feed_get);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Removes a feed)");
 				entry->setMethod("DELETE");
 				entry->setPath(R"(^\/feed/([0-9]+)$)", R"(/feed/<feedID>)");
@@ -79,6 +91,43 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Array)");
 				entry->setHandler(ZapFR::Server::APIHandler_feeds_list);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Adds a folder)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/folder$)", R"(/folder)");
+				entry->addBodyParameter({R"(title)", true, R"(The title of the folder to add)"});
+				entry->addBodyParameter({R"(parentFolderID)", true, R"(The ID of the folder under which to add the new subfolder)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_folder_add);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Removes a folder)");
+				entry->setMethod("DELETE");
+				entry->setPath(R"(^\/folder/([0-9]+)$)", R"(/folder/<folderID>)");
+				entry->addURIParameter({R"(folderID)", R"(The id of the folder to delete)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_folder_remove);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Returns all the folders within the source)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/folders$)", R"(/folders)");
+				entry->addBodyParameter({R"(parentFolderID)", false, R"(The ID of the folder for which to retrieve the subfolders; optional, defaults to root(0))"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Array)");
+				entry->setHandler(ZapFR::Server::APIHandler_folders_list);
 				msAPIs.emplace_back(std::move(entry));
 			}
 

@@ -128,7 +128,7 @@ void ZapFR::Client::DialogWithSourcesAndFolders::currentSourceChanged(int /*inde
     auto source = ZapFR::Engine::Source::getSource(sourceID);
     if (source.has_value())
     {
-        auto rootFolders = source.value()->getFolders(0);
+        auto rootFolders = source.value()->getFolders(0); // TODO: this should be over an agent !!
         for (const auto& folder : rootFolders)
         {
             createFolderItems(folder.get(), 0);

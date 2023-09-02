@@ -24,6 +24,7 @@
 #include "ZapFR/Post.h"
 #include "ZapFR/ScriptFolder.h"
 #include "ZapFR/remote/FeedRemote.h"
+#include "ZapFR/remote/FolderRemote.h"
 
 ZapFR::Engine::SourceRemote::SourceRemote(uint64_t id) : Source(id)
 {
@@ -79,36 +80,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::g
                 for (size_t i = 0; i < feedArr->size(); ++i)
                 {
                     auto feedObj = feedArr->getObject(static_cast<uint32_t>(i));
-                    auto feedID = feedObj->getValue<uint64_t>(Feed::JSONIdentifierFeedID);
-
-                    auto feed = std::make_unique<FeedRemote>(feedID);
-                    feed->setURL(feedObj->getValue<std::string>(Feed::JSONIdentifierFeedURL));
-                    feed->setFolder(feedObj->getValue<uint64_t>(Feed::JSONIdentifierFeedFolder));
-                    feed->setGuid(feedObj->getValue<std::string>(Feed::JSONIdentifierFeedGUID));
-                    feed->setTitle(feedObj->getValue<std::string>(Feed::JSONIdentifierFeedTitle));
-                    feed->setSubtitle(feedObj->getValue<std::string>(Feed::JSONIdentifierFeedSubtitle));
-                    feed->setLink(feedObj->getValue<std::string>(Feed::JSONIdentifierFeedLink));
-                    feed->setDescription(feedObj->getValue<std::string>(Feed::JSONIdentifierFeedDescription));
-                    feed->setLanguage(feedObj->getValue<std::string>(Feed::JSONIdentifierFeedLanguage));
-                    feed->setCopyright(feedObj->getValue<std::string>(Feed::JSONIdentifierFeedCopyright));
-
-                    auto lre = feedObj->getValue<std::string>(Feed::JSONIdentifierFeedLastRefreshError);
-                    if (!lre.empty())
-                    {
-                        feed->setLastRefreshError(lre);
-                    }
-
-                    auto ri = feedObj->getValue<uint64_t>(Feed::JSONIdentifierFeedRefreshInterval);
-                    if (ri > 0)
-                    {
-                        feed->setRefreshInterval(ri);
-                    }
-
-                    feed->setSortOrder(feedObj->getValue<uint64_t>(Feed::JSONIdentifierFeedSortOrder));
-                    feed->setUnreadCount(feedObj->getValue<uint64_t>(Feed::JSONIdentifierFeedUnreadCount));
-                    feed->setDataFetched(true);
-
-                    feeds.emplace_back(std::move(feed));
+                    feeds.emplace_back(std::move(constructFeedFromJSONObject(feedObj)));
                 }
             }
         }
@@ -120,9 +92,72 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::g
     return feeds;
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::getFeed(uint64_t /*feedID*/, bool /*fetchData*/)
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::getFeed(uint64_t feedID, bool fetchData)
 {
+    if (fetchData)
+    {
+        auto uri = remoteURL();
+        if (mRemoteURLIsValid)
+        {
+            uri.setPath(fmt::format("/feed/{}", feedID));
+            auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+            try
+            {
+                auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+                auto parser = Poco::JSON::Parser();
+                auto root = parser.parse(json);
+                auto feedObj = root.extract<Poco::JSON::Object::Ptr>();
+                if (!feedObj.isNull())
+                {
+                    return constructFeedFromJSONObject(feedObj);
+                }
+            }
+            catch (...)
+            {
+                return {};
+            }
+        }
+    }
+    else
+    {
+        return std::make_unique<FeedRemote>(feedID);
+    }
     return {};
+}
+
+std::unique_ptr<ZapFR::Engine::Feed> ZapFR::Engine::SourceRemote::constructFeedFromJSONObject(const Poco::JSON::Object::Ptr o)
+{
+    auto feedID = o->getValue<uint64_t>(Feed::JSONIdentifierFeedID);
+
+    auto feed = std::make_unique<FeedRemote>(feedID);
+    feed->setURL(o->getValue<std::string>(Feed::JSONIdentifierFeedURL));
+    feed->setFolder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedFolder));
+    feed->setGuid(o->getValue<std::string>(Feed::JSONIdentifierFeedGUID));
+    feed->setTitle(o->getValue<std::string>(Feed::JSONIdentifierFeedTitle));
+    feed->setSubtitle(o->getValue<std::string>(Feed::JSONIdentifierFeedSubtitle));
+    feed->setLink(o->getValue<std::string>(Feed::JSONIdentifierFeedLink));
+    feed->setDescription(o->getValue<std::string>(Feed::JSONIdentifierFeedDescription));
+    feed->setLanguage(o->getValue<std::string>(Feed::JSONIdentifierFeedLanguage));
+    feed->setCopyright(o->getValue<std::string>(Feed::JSONIdentifierFeedCopyright));
+
+    auto lre = o->getValue<std::string>(Feed::JSONIdentifierFeedLastRefreshError);
+    if (!lre.empty())
+    {
+        feed->setLastRefreshError(lre);
+    }
+
+    auto ri = o->getValue<uint64_t>(Feed::JSONIdentifierFeedRefreshInterval);
+    if (ri > 0)
+    {
+        feed->setRefreshInterval(ri);
+    }
+
+    feed->setSortOrder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedSortOrder));
+    feed->setUnreadCount(o->getValue<uint64_t>(Feed::JSONIdentifierFeedUnreadCount));
+    feed->setDataFetched(true);
+
+    return feed;
 }
 
 uint64_t ZapFR::Engine::SourceRemote::addFeed(const std::string& url, uint64_t folder)
@@ -151,6 +186,7 @@ uint64_t ZapFR::Engine::SourceRemote::addFeed(const std::string& url, uint64_t f
 
 void ZapFR::Engine::SourceRemote::moveFeed(uint64_t /*feedID*/, uint64_t /*newFolder*/, uint64_t /*newSortOrder*/)
 {
+    // TODO
 }
 
 void ZapFR::Engine::SourceRemote::removeFeed(uint64_t feedID)
@@ -159,16 +195,46 @@ void ZapFR::Engine::SourceRemote::removeFeed(uint64_t feedID)
     if (mRemoteURLIsValid)
     {
         uri.setPath(fmt::format("/feed/{}", feedID));
-        std::cout << uri.toString() << "\n";
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_DELETE, creds, {});
     }
 }
 
 /* ************************** FOLDER STUFF ************************** */
-std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote::getFolders(uint64_t /*parent*/)
+std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote::getFolders(uint64_t parent)
 {
-    return {};
+    std::vector<std::unique_ptr<ZapFR::Engine::Folder>> folders;
+
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/folders");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        std::map<std::string, std::string> params;
+        params["parentFolderID"] = std::to_string(parent);
+
+        try
+        {
+            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+            auto parser = Poco::JSON::Parser();
+            auto root = parser.parse(json);
+            auto folderArr = root.extract<Poco::JSON::Array::Ptr>();
+            if (!folderArr.isNull())
+            {
+                for (size_t i = 0; i < folderArr->size(); ++i)
+                {
+                    auto folderObj = folderArr->getObject(static_cast<uint32_t>(i));
+                    folders.emplace_back(std::move(constructFolderFromJSONObject(folderObj)));
+                }
+            }
+        }
+        catch (...)
+        {
+            return folders;
+        }
+    }
+    return folders;
 }
 
 std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote::getFolder(uint64_t /*folderID*/)
@@ -176,8 +242,52 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemot
     return {};
 }
 
-uint64_t ZapFR::Engine::SourceRemote::addFolder(const std::string& /*title*/, uint64_t /*parentID*/)
+std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::SourceRemote::constructFolderFromJSONObject(const Poco::JSON::Object::Ptr o)
 {
+    std::function<std::unique_ptr<Folder>(const Poco::JSON::Object::Ptr)> constructFolder;
+    constructFolder = [&](const Poco::JSON::Object::Ptr folderObj) -> std::unique_ptr<Folder>
+    {
+        auto folderID = folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderID);
+        auto folderParentID = folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderParent);
+
+        auto folder = std::make_unique<FolderRemote>(folderID, folderParentID);
+        folder->setTitle(folderObj->getValue<std::string>(Folder::JSONIdentifierFolderTitle));
+        folder->setSortOrder(folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderSortOrder));
+        folder->setDataFetched(true);
+
+        auto subfolders = folderObj->getArray(Folder::JSONIdentifierFolderSubfolders);
+        for (size_t i = 0; i < subfolders->size(); ++i)
+        {
+            auto subfolderObj = subfolders->getObject(static_cast<int32_t>(i));
+            folder->appendSubfolder(constructFolder(subfolderObj));
+        }
+        return folder;
+    };
+
+    return constructFolder(o);
+}
+
+uint64_t ZapFR::Engine::SourceRemote::addFolder(const std::string& title, uint64_t parentID)
+{
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/folder");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        std::map<std::string, std::string> params;
+        params["title"] = title;
+        params["parentFolderID"] = std::to_string(parentID);
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto o = root.extract<Poco::JSON::Object::Ptr>();
+        if (!o.isNull())
+        {
+            return o->getValue<uint64_t>(Folder::JSONIdentifierFolderID);
+        }
+    }
     return 0;
 }
 
@@ -185,8 +295,15 @@ void ZapFR::Engine::SourceRemote::moveFolder(uint64_t /*folderID*/, uint64_t /*n
 {
 }
 
-void ZapFR::Engine::SourceRemote::removeFolder(uint64_t /*folder*/)
+void ZapFR::Engine::SourceRemote::removeFolder(uint64_t folderID)
 {
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath(fmt::format("/folder/{}", folderID));
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_DELETE, creds, {});
+    }
 }
 
 uint64_t ZapFR::Engine::SourceRemote::createFolderHierarchy(uint64_t /*parentID*/, const std::vector<std::string>& /*folderHierarchy*/)
