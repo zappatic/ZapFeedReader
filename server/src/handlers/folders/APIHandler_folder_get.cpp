@@ -51,8 +51,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_get([[maybe
             auto folder = source.value()->getFolder(folderID, ZapFR::Engine::Source::FetchInfo::Statistics);
             if (folder.has_value())
             {
-                auto localFolder = dynamic_cast<ZapFR::Engine::FolderLocal*>(folder.value().get());
-                o = localFolder->toJSON(false);
+                o = folder.value()->toJSON();
             }
         }
     }

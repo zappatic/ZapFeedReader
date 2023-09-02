@@ -29,7 +29,7 @@ namespace ZapFR
         class Post
         {
           public:
-            explicit Post(uint64_t id) : mID(id) {}
+            explicit Post(uint64_t id);
             virtual ~Post() = default;
 
             uint64_t id() const noexcept { return mID; }
@@ -77,6 +77,25 @@ namespace ZapFR
 
             virtual void assignToScriptFolder(uint64_t scriptFolderID) = 0;
             virtual void unassignFromScriptFolder(uint64_t scriptFolderID) = 0;
+
+            virtual Poco::JSON::Object toJSON();
+            static constexpr const char* JSONIdentifierPostID{"id"};
+            static constexpr const char* JSONIdentifierPostIsRead{"isRead"};
+            static constexpr const char* JSONIdentifierPostFeedID{"feedID"};
+            static constexpr const char* JSONIdentifierPostFeedTitle{"feedTitle"};
+            static constexpr const char* JSONIdentifierPostTitle{"title"};
+            static constexpr const char* JSONIdentifierPostDescription{"description"};
+            static constexpr const char* JSONIdentifierPostAuthor{"author"};
+            static constexpr const char* JSONIdentifierPostCommentsURL{"commentsURL"};
+            static constexpr const char* JSONIdentifierPostEnclosureURL{"enclosureURL"};
+            static constexpr const char* JSONIdentifierPostEnclosureLength{"enclosureLength"};
+            static constexpr const char* JSONIdentifierPostEnclosureMimetype{"enclosureMimetype"};
+            static constexpr const char* JSONIdentifierPostGuid{"guid"};
+            static constexpr const char* JSONIdentifierPostGuidIsPermalink{"guidIsPermalink"};
+            static constexpr const char* JSONIdentifierPostDatePublished{"datePublished"};
+            static constexpr const char* JSONIdentifierPostSourceURL{"sourceURL"};
+            static constexpr const char* JSONIdentifierPostSourceTitle{"sourceTitle"};
+            static constexpr const char* JSONIdentifierPostFlagColors{"flagColors"};
 
           protected:
             uint64_t mID{0};

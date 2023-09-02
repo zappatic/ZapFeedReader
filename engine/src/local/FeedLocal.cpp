@@ -32,7 +32,7 @@ using namespace Poco::Data::Keywords;
 std::string ZapFR::Engine::FeedLocal::msIconDir{""};
 std::mutex ZapFR::Engine::FeedLocal::msCreateFeedMutex{};
 
-ZapFR::Engine::FeedLocal::FeedLocal(uint64_t id) : Feed(id)
+ZapFR::Engine::FeedLocal::FeedLocal(uint64_t id, Source* parentSource) : Feed(id, parentSource)
 {
 }
 
@@ -347,7 +347,8 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
         try
         {
             Poco::Net::HTTPCredentials creds; // TODO
-            iconData = Helpers::performHTTPRequest(Poco::URI(iconURLToQuery), "GET", creds, {}, mID);
+            auto uri = Poco::URI(iconURLToQuery);
+            iconData = Helpers::performHTTPRequest(uri, "GET", creds, {}, mID);
         }
         catch (...) // we ignore errors here because a missing favicon shouldn't put the feed in error state
         {
@@ -427,36 +428,6 @@ Poco::File ZapFR::Engine::FeedLocal::iconFile() const
     return Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
 }
 
-Poco::JSON::Object ZapFR::Engine::FeedLocal::toJSON() const
-{
-    Poco::JSON::Object o;
-    o.set(Feed::JSONIdentifierFeedID, mID);
-    o.set(Feed::JSONIdentifierFeedURL, mURL);
-    o.set(Feed::JSONIdentifierFeedFolder, mFolderID);
-    o.set(Feed::JSONIdentifierFeedGUID, mGuid);
-    o.set(Feed::JSONIdentifierFeedTitle, mTitle);
-    o.set(Feed::JSONIdentifierFeedSubtitle, mSubtitle);
-    o.set(Feed::JSONIdentifierFeedLink, mLink);
-    o.set(Feed::JSONIdentifierFeedDescription, mDescription);
-    o.set(Feed::JSONIdentifierFeedLanguage, mLanguage);
-    o.set(Feed::JSONIdentifierFeedCopyright, mCopyright);
-    o.set(Feed::JSONIdentifierFeedLastRefreshError, mLastRefreshError.has_value() ? mLastRefreshError.value() : "");
-    o.set(Feed::JSONIdentifierFeedRefreshInterval, mRefreshInterval.has_value() ? mRefreshInterval.value() : 0);
-    o.set(Feed::JSONIdentifierFeedLastChecked, mLastChecked);
-    o.set(Feed::JSONIdentifierFeedSortOrder, mSortOrder);
-    o.set(Feed::JSONIdentifierFeedUnreadCount, mUnreadCount);
-    if (mStatistics.size() > 0)
-    {
-        Poco::JSON::Object statsObj;
-        for (const auto& [stat, value] : mStatistics)
-        {
-            statsObj.set(Feed::FeedStatisticJSONIdentifierMap.at(stat), value);
-        }
-        o.set(Feed::JSONIdentifierFeedStatistics, statsObj);
-    }
-    return o;
-}
-
 std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FeedLocal::getLogs(uint64_t perPage, uint64_t page)
 {
     std::vector<std::string> whereClause;
@@ -532,7 +503,7 @@ uint64_t ZapFR::Engine::FeedLocal::nextSortOrder(uint64_t folderID)
     return sortOrder + 10;
 }
 
-std::unique_ptr<ZapFR::Engine::FeedLocal> ZapFR::Engine::FeedLocal::create(const std::string& url, const std::string& title, uint64_t parentFolderID)
+std::unique_ptr<ZapFR::Engine::FeedLocal> ZapFR::Engine::FeedLocal::create(Source* parentSource, const std::string& url, const std::string& title, uint64_t parentFolderID)
 {
     auto sortOrder = nextSortOrder(parentFolderID);
     auto nowDate = Poco::DateTimeFormatter::format(Poco::DateTime(), Poco::DateTimeFormat::ISO8601_FORMAT);
@@ -554,7 +525,7 @@ std::unique_ptr<ZapFR::Engine::FeedLocal> ZapFR::Engine::FeedLocal::create(const
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT last_insert_rowid()", into(feedID), now;
 
-    auto f = std::make_unique<FeedLocal>(feedID);
+    auto f = std::make_unique<FeedLocal>(feedID, parentSource);
     f->setURL(url);
     f->setFolder(parentFolderID);
     f->setTitle(title);
@@ -666,9 +637,9 @@ void ZapFR::Engine::FeedLocal::resort(uint64_t folder)
     }
 }
 
-void ZapFR::Engine::FeedLocal::remove(uint64_t feedID)
+void ZapFR::Engine::FeedLocal::remove(Source* parentSource, uint64_t feedID)
 {
-    auto feed = querySingle({"feeds.id=?"}, {use(feedID, "id")});
+    auto feed = querySingle(parentSource, {"feeds.id=?"}, {use(feedID, "id")});
     if (feed.has_value())
     {
         auto folder = feed.value()->folder();
@@ -688,8 +659,8 @@ void ZapFR::Engine::FeedLocal::remove(uint64_t feedID)
     }
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
-                                                                                          const std::string& limitClause,
+std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
+                                                                                          const std::string& orderClause, const std::string& limitClause,
                                                                                           const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
 {
     std::vector<std::unique_ptr<Feed>> feeds;
@@ -771,7 +742,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
     {
         if (selectStmt.execute() > 0)
         {
-            auto f = std::make_unique<FeedLocal>(id);
+            auto f = std::make_unique<FeedLocal>(id, parentSource);
             f->setURL(url);
             f->setIconURL(iconURL);
             f->setIconHash(iconHash);
@@ -802,7 +773,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
     return feeds;
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::querySingle(const std::vector<std::string>& whereClause,
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                           const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
 {
     uint64_t id;
@@ -881,7 +852,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
     auto rs = Poco::Data::RecordSet(selectStmt);
     if (rs.rowCount() == 1)
     {
-        auto f = std::make_unique<FeedLocal>(id);
+        auto f = std::make_unique<FeedLocal>(id, parentSource);
         f->setURL(url);
         f->setIconURL(iconURL);
         f->setIconHash(iconHash);

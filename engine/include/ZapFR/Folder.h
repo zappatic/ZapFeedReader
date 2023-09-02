@@ -27,13 +27,18 @@ namespace ZapFR
     namespace Engine
     {
         class Post;
+        class Source;
         class Log;
 
         class Folder
         {
           public:
-            Folder(uint64_t id, uint64_t parent);
+            Folder(uint64_t id, uint64_t parentFolderID, Source* parentSource);
             virtual ~Folder() = default;
+            Folder(const Folder& e) = delete;
+            Folder& operator=(const Folder&) = delete;
+            Folder(Folder&&) = delete;
+            Folder& operator=(Folder&&) = delete;
 
             enum class Statistic
             {
@@ -45,7 +50,7 @@ namespace ZapFR
             };
 
             uint64_t id() const noexcept { return mID; }
-            uint64_t parentID() const noexcept { return mParent; }
+            uint64_t parentID() const noexcept { return mParentFolderID; }
             std::string title() const noexcept { return mTitle; }
             uint64_t sortOrder() const noexcept { return mSortOrder; }
             std::unordered_map<Statistic, std::string> statistics() { return mStatistics; }
@@ -70,6 +75,7 @@ namespace ZapFR
             virtual std::vector<uint64_t> folderAndSubfolderIDs() const = 0;
             virtual std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const = 0;
 
+            virtual Poco::JSON::Object toJSON();
             static constexpr const char* JSONIdentifierFolderID{"id"};
             static constexpr const char* JSONIdentifierFolderTitle{"title"};
             static constexpr const char* JSONIdentifierFolderParent{"parent"};
@@ -81,8 +87,9 @@ namespace ZapFR
 
           protected:
             uint64_t mID{0};
+            uint64_t mParentFolderID{0};
+            Source* mParentSource{nullptr};
             std::string mTitle{""};
-            uint64_t mParent{0};
             uint64_t mSortOrder{0};
             std::vector<std::unique_ptr<Folder>> mSubfolders{};
             std::unordered_map<Statistic, std::string> mStatistics{};

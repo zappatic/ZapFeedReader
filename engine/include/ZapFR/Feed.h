@@ -27,13 +27,18 @@ namespace ZapFR
     namespace Engine
     {
         class Post;
+        class Source;
         class Log;
 
         class Feed
         {
           public:
-            explicit Feed(uint64_t id);
+            Feed(uint64_t id, Source* parentSource);
             virtual ~Feed() = default;
+            Feed(const Feed& e) = delete;
+            Feed& operator=(const Feed&) = delete;
+            Feed(Feed&&) = delete;
+            Feed& operator=(Feed&&) = delete;
 
             enum class Statistic
             {
@@ -101,6 +106,7 @@ namespace ZapFR
 
             void setDataFetched(bool b) { mDataFetched = b; }
 
+            virtual Poco::JSON::Object toJSON() const;
             static constexpr const char* JSONIdentifierFeedID{"id"};
             static constexpr const char* JSONIdentifierFeedURL{"url"};
             static constexpr const char* JSONIdentifierFeedFolder{"folder"};
@@ -122,6 +128,7 @@ namespace ZapFR
 
           protected:
             uint64_t mID{0};
+            Source* mParentSource{nullptr};
             std::string mURL{""};
             std::string mIconURL{""};
             std::string mIconHash{""};

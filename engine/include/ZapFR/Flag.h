@@ -42,6 +42,7 @@ namespace ZapFR
             static std::tuple<uint8_t, uint8_t, uint8_t> rgbForColor(FlagColor color);
             static FlagColor flagColorForID(uint8_t id);
             static FlagColor flagColorForName(const std::string& name);
+            static std::string nameForFlagColor(FlagColor flagColor);
             static uint8_t idForFlagColor(FlagColor flagColor);
             static const std::unordered_set<FlagColor>& allFlagColors();
 
@@ -49,6 +50,8 @@ namespace ZapFR
             static std::unordered_map<FlagColor, std::tuple<uint8_t, uint8_t, uint8_t>> msColorRGBMapping;
             static std::unordered_map<FlagColor, uint8_t> msColorIDMapping;
             static std::unordered_map<uint8_t, FlagColor> msIDColorMapping;
+            static std::unordered_map<FlagColor, std::string> msColorNameMapping;
+            static std::unordered_map<std::string, FlagColor> msNameColorMapping;
         };
 
     } // namespace Engine

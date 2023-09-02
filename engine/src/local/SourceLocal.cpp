@@ -37,14 +37,14 @@ ZapFR::Engine::SourceLocal::SourceLocal(uint64_t id) : Source(id)
 /* ************************** FEED STUFF ************************** */
 std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeeds()
 {
-    return FeedLocal::queryMultiple({}, "ORDER BY sortOrder ASC", "", {});
+    return FeedLocal::queryMultiple(this, {}, "ORDER BY sortOrder ASC", "", {});
 }
 
 std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID, uint32_t fetchInfo)
 {
     if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
     {
-        auto feed = FeedLocal::querySingle({"feeds.id=?"}, {use(feedID, "id")});
+        auto feed = FeedLocal::querySingle(this, {"feeds.id=?"}, {use(feedID, "id")});
         if (feed.has_value() && (fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
         {
             auto localFeed = dynamic_cast<FeedLocal*>(feed.value().get());
@@ -54,7 +54,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
     }
     else
     {
-        return std::make_unique<FeedLocal>(feedID);
+        return std::make_unique<FeedLocal>(feedID, this);
     }
 }
 
@@ -65,7 +65,7 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
     uint64_t feedID{0};
     try
     {
-        auto feed = FeedLocal::create(url, url, folder);
+        auto feed = FeedLocal::create(this, url, url, folder);
         FeedFetcher ff;
         auto parsedFeed = ff.parseURL(url, feedID);
         auto guid = parsedFeed->guid();
@@ -103,7 +103,7 @@ void ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, uint64_t newFolder, u
 
 void ZapFR::Engine::SourceLocal::removeFeed(uint64_t feedID)
 {
-    FeedLocal::remove(feedID);
+    FeedLocal::remove(this, feedID);
 }
 
 /* ************************** FOLDER STUFF ************************** */
@@ -115,7 +115,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::
     whereClause.emplace_back("parent=?");
     bindings.emplace_back(useRef(parent, "parent"));
 
-    return FolderLocal::queryMultiple(whereClause, "ORDER BY folders.sortOrder ASC", "", bindings);
+    return FolderLocal::queryMultiple(this, whereClause, "ORDER BY folders.sortOrder ASC", "", bindings);
 }
 
 std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolder(uint64_t folderID, uint32_t folderFetchInfo)
@@ -126,7 +126,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal
     whereClause.emplace_back("id=?");
     bindings.emplace_back(useRef(folderID, "folderID"));
 
-    auto folder = FolderLocal::querySingle(whereClause, bindings);
+    auto folder = FolderLocal::querySingle(this, whereClause, bindings);
     if ((folderFetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
     {
         auto localFolder = dynamic_cast<FolderLocal*>(folder.value().get());
@@ -142,17 +142,17 @@ uint64_t ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_
 
 void ZapFR::Engine::SourceLocal::moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)
 {
-    FolderLocal::move(folderID, newParent, newSortOrder);
+    FolderLocal::move(this, folderID, newParent, newSortOrder);
 }
 
 void ZapFR::Engine::SourceLocal::removeFolder(uint64_t folderID)
 {
-    FolderLocal::remove(folderID);
+    FolderLocal::remove(this, folderID);
 }
 
 uint64_t ZapFR::Engine::SourceLocal::createFolderHierarchy(uint64_t parentID, const std::vector<std::string>& folderHierarchy)
 {
-    return FolderLocal::createFolderHierarchy(parentID, folderHierarchy);
+    return FolderLocal::createFolderHierarchy(this, parentID, folderHierarchy);
 }
 
 /* ************************** POST STUFF ************************** */

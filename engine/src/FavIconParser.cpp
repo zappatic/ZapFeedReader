@@ -27,7 +27,8 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
     }
 
     Poco::Net::HTTPCredentials creds; // TODO
-    auto html = Helpers::performHTTPRequest(Poco::URI(url), Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID);
+    auto uri = Poco::URI(url);
+    auto html = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID);
 
     // try to locate <link rel="icon" href="..."> with a sax parser
     FavIconSaxParser handler;
@@ -90,10 +91,10 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
     }
 
     // point to <site>/favicon.ico as a last resort
-    auto uri = Poco::URI(url);
-    uri.setPath("/favicon.ico");
+    auto lastResortURI = Poco::URI(url);
+    lastResortURI.setPath("/favicon.ico");
     // todo: log std::cout << "fallback to " << uri.toString() << "\n";
-    mFavIcon = uri.toString();
+    mFavIcon = lastResortURI.toString();
 }
 
 std::string ZapFR::Engine::FavIconParser::favIcon() const noexcept

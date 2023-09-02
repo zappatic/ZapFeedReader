@@ -50,8 +50,8 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folders_list([[may
         auto folders = source.value()->getFolders(parentFolderID);
         for (const auto& folder : folders)
         {
-            auto localFolder = dynamic_cast<ZapFR::Engine::FolderLocal*>(folder.get());
-            arr.add(localFolder->toJSON(true));
+            dynamic_cast<ZapFR::Engine::FolderLocal*>(folder.get())->setExportSubfoldersInJSON(true);
+            arr.add(folder->toJSON());
         }
     }
 

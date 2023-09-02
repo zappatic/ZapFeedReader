@@ -32,6 +32,36 @@ const std::unordered_map<ZapFR::Engine::Feed::Statistic, std::string> ZapFR::Eng
     {Statistic::NewestPost, "newestPost"},
 };
 
-ZapFR::Engine::Feed::Feed(uint64_t feedID) : mID(feedID)
+ZapFR::Engine::Feed::Feed(uint64_t feedID, Source* parentSource) : mID(feedID), mParentSource(parentSource)
 {
+}
+
+Poco::JSON::Object ZapFR::Engine::Feed::toJSON() const
+{
+    Poco::JSON::Object o;
+    o.set(JSONIdentifierFeedID, mID);
+    o.set(JSONIdentifierFeedURL, mURL);
+    o.set(JSONIdentifierFeedFolder, mFolderID);
+    o.set(JSONIdentifierFeedGUID, mGuid);
+    o.set(JSONIdentifierFeedTitle, mTitle);
+    o.set(JSONIdentifierFeedSubtitle, mSubtitle);
+    o.set(JSONIdentifierFeedLink, mLink);
+    o.set(JSONIdentifierFeedDescription, mDescription);
+    o.set(JSONIdentifierFeedLanguage, mLanguage);
+    o.set(JSONIdentifierFeedCopyright, mCopyright);
+    o.set(JSONIdentifierFeedLastRefreshError, mLastRefreshError.has_value() ? mLastRefreshError.value() : "");
+    o.set(JSONIdentifierFeedRefreshInterval, mRefreshInterval.has_value() ? mRefreshInterval.value() : 0);
+    o.set(JSONIdentifierFeedLastChecked, mLastChecked);
+    o.set(JSONIdentifierFeedSortOrder, mSortOrder);
+    o.set(JSONIdentifierFeedUnreadCount, mUnreadCount);
+    if (mStatistics.size() > 0)
+    {
+        Poco::JSON::Object statsObj;
+        for (const auto& [stat, value] : mStatistics)
+        {
+            statsObj.set(FeedStatisticJSONIdentifierMap.at(stat), value);
+        }
+        o.set(JSONIdentifierFeedStatistics, statsObj);
+    }
+    return o;
 }

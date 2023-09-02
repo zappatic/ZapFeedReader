@@ -78,7 +78,6 @@ void ZapFR::Server::APIRequestHandler::handleRequest(Poco::Net::HTTPServerReques
         response.setContentType("application/json");
         auto jsonErrObj = Poco::JSON::Object();
         jsonErrObj.set("error", exceptionMessage);
-        jsonErrObj.set("status", httpStatus);
         Poco::JSON::Stringifier::stringify(jsonErrObj, response.send());
     }
 }

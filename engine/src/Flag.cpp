@@ -28,6 +28,14 @@ std::unordered_map<ZapFR::Engine::FlagColor, uint8_t> ZapFR::Engine::Flag::msCol
 std::unordered_map<uint8_t, ZapFR::Engine::FlagColor> ZapFR::Engine::Flag::msIDColorMapping{
     {1, FlagColor::Gray}, {2, FlagColor::Blue}, {3, FlagColor::Green}, {4, FlagColor::Yellow}, {5, FlagColor::Orange}, {6, FlagColor::Red}, {7, FlagColor::Purple}};
 
+std::unordered_map<ZapFR::Engine::FlagColor, std::string> ZapFR::Engine::Flag::msColorNameMapping{
+    {FlagColor::Gray, "gray"},     {FlagColor::Blue, "blue"}, {FlagColor::Green, "green"},  {FlagColor::Yellow, "yellow"},
+    {FlagColor::Orange, "orange"}, {FlagColor::Red, "red"},   {FlagColor::Purple, "purple"}};
+
+std::unordered_map<std::string, ZapFR::Engine::FlagColor> ZapFR::Engine::Flag::msNameColorMapping{
+    {"gray", FlagColor::Gray},     {"blue", FlagColor::Blue}, {"green", FlagColor::Green},  {"yellow", FlagColor::Yellow},
+    {"orange", FlagColor::Orange}, {"red", FlagColor::Red},   {"purple", FlagColor::Purple}};
+
 std::tuple<uint8_t, uint8_t, uint8_t> ZapFR::Engine::Flag::rgbForColor(FlagColor color)
 {
     if (msColorRGBMapping.contains(color))
@@ -61,38 +69,20 @@ const std::unordered_set<ZapFR::Engine::FlagColor>& ZapFR::Engine::Flag::allFlag
 
 ZapFR::Engine::FlagColor ZapFR::Engine::Flag::flagColorForName(const std::string& name)
 {
-    if (name == "gray")
+    if (msNameColorMapping.contains(name))
     {
-        return FlagColor::Gray;
+        return msNameColorMapping.at(name);
     }
-    else if (name == "blue")
+    throw std::runtime_error("Unknown flag color name requested");
+}
+
+std::string ZapFR::Engine::Flag::nameForFlagColor(FlagColor flagColor)
+{
+    if (msColorNameMapping.contains(flagColor))
     {
-        return FlagColor::Blue;
+        return msColorNameMapping.at(flagColor);
     }
-    else if (name == "green")
-    {
-        return FlagColor::Green;
-    }
-    else if (name == "yellow")
-    {
-        return FlagColor::Yellow;
-    }
-    else if (name == "orange")
-    {
-        return FlagColor::Orange;
-    }
-    else if (name == "red")
-    {
-        return FlagColor::Red;
-    }
-    else if (name == "purple")
-    {
-        return FlagColor::Purple;
-    }
-    else
-    {
-        throw std::runtime_error("Unknown color name requested");
-    }
+    throw std::runtime_error("Unknown flag color name requested");
 }
 
 uint8_t ZapFR::Engine::Flag::idForFlagColor(FlagColor flagColor)

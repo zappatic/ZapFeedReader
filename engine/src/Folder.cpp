@@ -28,11 +28,31 @@ const std::unordered_map<ZapFR::Engine::Folder::Statistic, std::string> ZapFR::E
     {Statistic::OldestPost, "oldestPost"}, {Statistic::NewestPost, "newestPost"},
 };
 
-ZapFR::Engine::Folder::Folder(uint64_t id, uint64_t parent) : mID(id), mParent(parent)
+ZapFR::Engine::Folder::Folder(uint64_t id, uint64_t parentFolderID, Source* parentSource) : mID(id), mParentFolderID(parentFolderID), mParentSource(parentSource)
 {
 }
 
 void ZapFR::Engine::Folder::appendSubfolder(std::unique_ptr<Folder> subfolder)
 {
     mSubfolders.emplace_back(std::move(subfolder));
+}
+
+Poco::JSON::Object ZapFR::Engine::Folder::toJSON()
+{
+    Poco::JSON::Object o;
+    o.set(Folder::JSONIdentifierFolderID, mID);
+    o.set(Folder::JSONIdentifierFolderTitle, mTitle);
+    o.set(Folder::JSONIdentifierFolderParent, mParentFolderID);
+    o.set(Folder::JSONIdentifierFolderSortOrder, mSortOrder);
+
+    if (mStatistics.size() > 0)
+    {
+        Poco::JSON::Object statsObj;
+        for (const auto& [stat, value] : mStatistics)
+        {
+            statsObj.set(Folder::FolderStatisticJSONIdentifierMap.at(stat), value);
+        }
+        o.set(Folder::JSONIdentifierFolderStatistics, statsObj);
+    }
+    return o;
 }

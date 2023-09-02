@@ -28,7 +28,7 @@ namespace ZapFR
         class FolderRemote : public Folder
         {
           public:
-            explicit FolderRemote(uint64_t id, uint64_t parent);
+            FolderRemote(uint64_t id, uint64_t parentFolderID, Source* parentSource);
             virtual ~FolderRemote() = default;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
@@ -40,6 +40,8 @@ namespace ZapFR
 
             std::vector<uint64_t> folderAndSubfolderIDs() const override;
             std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const override;
+
+            static std::unique_ptr<Folder> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
         };
     } // namespace Engine
 } // namespace ZapFR

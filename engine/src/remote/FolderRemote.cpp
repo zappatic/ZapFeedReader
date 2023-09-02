@@ -17,17 +17,59 @@
 */
 
 #include "ZapFR/remote/FolderRemote.h"
+#include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/Post.h"
+#include "ZapFR/remote/PostRemote.h"
+#include "ZapFR/remote/SourceRemote.h"
 
-ZapFR::Engine::FolderRemote::FolderRemote(uint64_t id, uint64_t parent) : Folder(id, parent)
+ZapFR::Engine::FolderRemote::FolderRemote(uint64_t id, uint64_t parentFolderID, Source* parentSource) : Folder(id, parentFolderID, parentSource)
 {
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderRemote::getPosts(uint64_t /*perPage*/, uint64_t /*page*/, bool /*showOnlyUnread*/,
-                                                                                        const std::string& /*searchFilter*/, FlagColor /*flagColor*/)
+std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                                                                        FlagColor flagColor)
 {
-    return {};
+    std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
+
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath("/posts");
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        std::map<std::string, std::string> params;
+        params["parentType"] = "folder";
+        params["parentID"] = std::to_string(mID);
+        params["perPage"] = std::to_string(perPage);
+        params["page"] = std::to_string(page);
+        params["showOnlyUnread"] = showOnlyUnread ? "true" : "false";
+        params["searchFilter"] = searchFilter;
+        params["flagColor"] = Flag::nameForFlagColor(flagColor);
+
+        try
+        {
+            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+            auto parser = Poco::JSON::Parser();
+            auto root = parser.parse(json);
+            auto postArr = root.extract<Poco::JSON::Array::Ptr>();
+            if (!postArr.isNull())
+            {
+                for (size_t i = 0; i < postArr->size(); ++i)
+                {
+                    auto postObj = postArr->getObject(static_cast<uint32_t>(i));
+                    posts.emplace_back(std::move(PostRemote::fromJSON(postObj)));
+                }
+            }
+        }
+        catch (...)
+        {
+            return posts;
+        }
+    }
+
+    return posts;
 }
 
 uint64_t ZapFR::Engine::FolderRemote::getTotalPostCount(bool /*showOnlyUnread*/, const std::string& /*searchFilter*/, FlagColor /*flagColor*/)
@@ -58,4 +100,48 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FolderRemote::ge
 uint64_t ZapFR::Engine::FolderRemote::getTotalLogCount()
 {
     return 0;
+}
+
+std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::FolderRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)
+{
+    std::function<std::unique_ptr<Folder>(const Poco::JSON::Object::Ptr)> constructFolder;
+    constructFolder = [&](const Poco::JSON::Object::Ptr folderObj) -> std::unique_ptr<Folder>
+    {
+        auto folderID = folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderID);
+        auto folderParentID = folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderParent);
+
+        auto folder = std::make_unique<FolderRemote>(folderID, folderParentID, parentSource);
+        folder->setTitle(folderObj->getValue<std::string>(Folder::JSONIdentifierFolderTitle));
+        folder->setSortOrder(folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderSortOrder));
+        folder->setDataFetched(true);
+
+        if (folderObj->has(Folder::JSONIdentifierFolderStatistics))
+        {
+            std::unordered_map<Folder::Statistic, std::string> stats;
+            auto statsObj = o->getObject(Folder::JSONIdentifierFolderStatistics);
+            auto statsObjNames = statsObj->getNames();
+            for (size_t i = 0; i < statsObjNames.size(); ++i)
+            {
+                auto key = statsObjNames.at(i);
+                if (Folder::JSONIdentifierFolderStatisticMap.contains(key))
+                {
+                    stats[Folder::JSONIdentifierFolderStatisticMap.at(key)] = statsObj->getValue<std::string>(key);
+                }
+            }
+            folder->setStatistics(stats);
+        }
+
+        if (folderObj->has(Folder::JSONIdentifierFolderSubfolders))
+        {
+            auto subfolders = folderObj->getArray(Folder::JSONIdentifierFolderSubfolders);
+            for (size_t i = 0; i < subfolders->size(); ++i)
+            {
+                auto subfolderObj = subfolders->getObject(static_cast<int32_t>(i));
+                folder->appendSubfolder(constructFolder(subfolderObj));
+            }
+        }
+        return folder;
+    };
+
+    return constructFolder(o);
 }

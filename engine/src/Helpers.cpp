@@ -70,7 +70,7 @@ std::string ZapFR::Engine::Helpers::joinIDNumbers(const std::vector<uint64_t>& s
     }
 }
 
-std::string ZapFR::Engine::Helpers::performHTTPRequest(const Poco::URI& url, const std::string& method, Poco::Net::HTTPCredentials& credentials,
+std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std::string& method, Poco::Net::HTTPCredentials& credentials,
                                                        const std::map<std::string, std::string>& parameters, std::optional<uint64_t> associatedFeedID)
 {
     {
@@ -112,6 +112,14 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const Poco::URI& url, con
         throw std::runtime_error(fmt::format("Unknown scheme in URL: {}", url.toString()));
     }
 
+    if (method == Poco::Net::HTTPRequest::HTTP_GET)
+    {
+        for (const auto& [k, v] : parameters)
+        {
+            url.addQueryParameter(k, v);
+        }
+    }
+
     auto path = url.getPathAndQuery();
     if (path.empty())
     {
@@ -125,7 +133,7 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(const Poco::URI& url, con
     static const auto userAgent = fmt::format("ZapFeedReader/{}", ZapFR::Engine::APIVersion);
     request.set("User-Agent", userAgent);
 
-    if (method == Poco::Net::HTTPRequest::HTTP_POST)
+    if (method == Poco::Net::HTTPRequest::HTTP_POST || method == Poco::Net::HTTPRequest::HTTP_PUT)
     {
         Poco::Net::HTMLForm form;
         for (const auto& [k, v] : parameters)

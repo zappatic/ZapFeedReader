@@ -28,7 +28,7 @@ namespace ZapFR
         class FeedRemote : public Feed
         {
           public:
-            explicit FeedRemote(uint64_t id);
+            FeedRemote(uint64_t id, Source* parentSource);
             virtual ~FeedRemote() = default;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
@@ -48,6 +48,8 @@ namespace ZapFR
             std::string icon() const override;
 
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
+
+            static std::unique_ptr<Feed> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
         };
     } // namespace Engine
 } // namespace ZapFR

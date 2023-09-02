@@ -74,15 +74,16 @@ namespace ZapFR
             // statistics
             void fetchStatistics() override;
 
+            Poco::URI remoteURL() const;
+            bool remoteURLIsValid() const noexcept { return mRemoteURLIsValid; }
+            std::string remoteLogin() const noexcept { return mRemoteLogin; }
+            std::string remotePassword() const noexcept { return mRemotePassword; }
+
           private:
             mutable Poco::URI mRemoteURL{};
             mutable std::string mRemoteLogin{""};
             mutable std::string mRemotePassword{""};
             mutable bool mRemoteURLIsValid{false};
-
-            Poco::URI remoteURL() const;
-            std::unique_ptr<Feed> constructFeedFromJSONObject(const Poco::JSON::Object::Ptr o);
-            std::unique_ptr<Folder> constructFolderFromJSONObject(const Poco::JSON::Object::Ptr o);
         };
     } // namespace Engine
 } // namespace ZapFR

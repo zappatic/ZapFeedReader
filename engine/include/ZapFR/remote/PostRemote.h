@@ -16,25 +16,33 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_HELPERS_H
-#define ZAPFR_ENGINE_HELPERS_H
+#ifndef ZAPFR_ENGINE_POSTREMOTE_H
+#define ZAPFR_ENGINE_POSTREMOTE_H
 
-#include "Global.h"
+#include "../Post.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class Helpers
+        class PostRemote : public Post
         {
           public:
-            static void splitString(const std::string& sourceString, char delimiter, std::vector<std::string>& outSubstrings);
-            static std::string joinString(const std::vector<std::string>& sourceVector, const char* delimiter);
-            static std::string joinIDNumbers(const std::vector<uint64_t>& sourceVector, const char* delimiter);
-            static std::string performHTTPRequest(Poco::URI& url, const std::string& method, Poco::Net::HTTPCredentials& credentials,
-                                                  const std::map<std::string, std::string>& parameters, std::optional<uint64_t> associatedFeedID = {});
+            explicit PostRemote(uint64_t id);
+            ~PostRemote() = default;
+
+            void markFlagged(FlagColor flagColor) override;
+            void markUnflagged(FlagColor flagColor) override;
+
+            void markAsRead() override;
+            void markAsUnread() override;
+
+            void assignToScriptFolder(uint64_t scriptFolderID) override;
+            void unassignFromScriptFolder(uint64_t scriptFolderID) override;
+
+            static std::unique_ptr<Post> fromJSON(const Poco::JSON::Object::Ptr o);
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_HELPERS_H
+#endif // ZAPFR_ENGINE_POSTREMOTE_H

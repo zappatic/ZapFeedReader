@@ -25,6 +25,7 @@
 #include "ZapFR/ScriptFolder.h"
 #include "ZapFR/remote/FeedRemote.h"
 #include "ZapFR/remote/FolderRemote.h"
+#include "ZapFR/remote/PostRemote.h"
 
 ZapFR::Engine::SourceRemote::SourceRemote(uint64_t id) : Source(id)
 {
@@ -80,7 +81,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::g
                 for (size_t i = 0; i < feedArr->size(); ++i)
                 {
                     auto feedObj = feedArr->getObject(static_cast<uint32_t>(i));
-                    feeds.emplace_back(std::move(constructFeedFromJSONObject(feedObj)));
+                    feeds.emplace_back(std::move(FeedRemote::fromJSON(this, feedObj)));
                 }
             }
         }
@@ -111,7 +112,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote:
                 auto feedObj = root.extract<Poco::JSON::Object::Ptr>();
                 if (!feedObj.isNull())
                 {
-                    return constructFeedFromJSONObject(feedObj);
+                    return FeedRemote::fromJSON(this, feedObj);
                 }
             }
             catch (...)
@@ -122,60 +123,9 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote:
     }
     else
     {
-        return std::make_unique<FeedRemote>(feedID);
+        return std::make_unique<FeedRemote>(feedID, this);
     }
     return {};
-}
-
-std::unique_ptr<ZapFR::Engine::Feed> ZapFR::Engine::SourceRemote::constructFeedFromJSONObject(const Poco::JSON::Object::Ptr o)
-{
-    auto feedID = o->getValue<uint64_t>(Feed::JSONIdentifierFeedID);
-
-    auto feed = std::make_unique<FeedRemote>(feedID);
-    feed->setURL(o->getValue<std::string>(Feed::JSONIdentifierFeedURL));
-    feed->setFolder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedFolder));
-    feed->setGuid(o->getValue<std::string>(Feed::JSONIdentifierFeedGUID));
-    feed->setTitle(o->getValue<std::string>(Feed::JSONIdentifierFeedTitle));
-    feed->setSubtitle(o->getValue<std::string>(Feed::JSONIdentifierFeedSubtitle));
-    feed->setLink(o->getValue<std::string>(Feed::JSONIdentifierFeedLink));
-    feed->setDescription(o->getValue<std::string>(Feed::JSONIdentifierFeedDescription));
-    feed->setLanguage(o->getValue<std::string>(Feed::JSONIdentifierFeedLanguage));
-    feed->setCopyright(o->getValue<std::string>(Feed::JSONIdentifierFeedCopyright));
-
-    auto lre = o->getValue<std::string>(Feed::JSONIdentifierFeedLastRefreshError);
-    if (!lre.empty())
-    {
-        feed->setLastRefreshError(lre);
-    }
-
-    auto ri = o->getValue<uint64_t>(Feed::JSONIdentifierFeedRefreshInterval);
-    if (ri > 0)
-    {
-        feed->setRefreshInterval(ri);
-    }
-
-    feed->setSortOrder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedSortOrder));
-    feed->setLastChecked(o->getValue<std::string>(Feed::JSONIdentifierFeedLastChecked));
-    feed->setUnreadCount(o->getValue<uint64_t>(Feed::JSONIdentifierFeedUnreadCount));
-    feed->setDataFetched(true);
-
-    if (o->has(Feed::JSONIdentifierFeedStatistics))
-    {
-        std::unordered_map<Feed::Statistic, std::string> stats;
-        auto statsObj = o->getObject(Feed::JSONIdentifierFeedStatistics);
-        auto statsObjNames = statsObj->getNames();
-        for (size_t i = 0; i < statsObjNames.size(); ++i)
-        {
-            auto key = statsObjNames.at(i);
-            if (Feed::JSONIdentifierFeedStatisticMap.contains(key))
-            {
-                stats[Feed::JSONIdentifierFeedStatisticMap.at(key)] = statsObj->getValue<std::string>(key);
-            }
-        }
-        feed->setStatistics(stats);
-    }
-
-    return feed;
 }
 
 uint64_t ZapFR::Engine::SourceRemote::addFeed(const std::string& url, uint64_t folder)
@@ -254,7 +204,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote:
                 for (size_t i = 0; i < folderArr->size(); ++i)
                 {
                     auto folderObj = folderArr->getObject(static_cast<uint32_t>(i));
-                    folders.emplace_back(std::move(constructFolderFromJSONObject(folderObj)));
+                    folders.emplace_back(std::move(FolderRemote::fromJSON(this, folderObj)));
                 }
             }
         }
@@ -283,7 +233,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemot
             auto folderObj = root.extract<Poco::JSON::Object::Ptr>();
             if (!folderObj.isNull())
             {
-                return constructFolderFromJSONObject(folderObj);
+                return FolderRemote::fromJSON(this, folderObj);
             }
         }
         catch (...)
@@ -292,50 +242,6 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemot
         }
     }
     return {};
-}
-
-std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::SourceRemote::constructFolderFromJSONObject(const Poco::JSON::Object::Ptr o)
-{
-    std::function<std::unique_ptr<Folder>(const Poco::JSON::Object::Ptr)> constructFolder;
-    constructFolder = [&](const Poco::JSON::Object::Ptr folderObj) -> std::unique_ptr<Folder>
-    {
-        auto folderID = folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderID);
-        auto folderParentID = folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderParent);
-
-        auto folder = std::make_unique<FolderRemote>(folderID, folderParentID);
-        folder->setTitle(folderObj->getValue<std::string>(Folder::JSONIdentifierFolderTitle));
-        folder->setSortOrder(folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderSortOrder));
-        folder->setDataFetched(true);
-
-        if (folderObj->has(Folder::JSONIdentifierFolderStatistics))
-        {
-            std::unordered_map<Folder::Statistic, std::string> stats;
-            auto statsObj = o->getObject(Folder::JSONIdentifierFolderStatistics);
-            auto statsObjNames = statsObj->getNames();
-            for (size_t i = 0; i < statsObjNames.size(); ++i)
-            {
-                auto key = statsObjNames.at(i);
-                if (Folder::JSONIdentifierFolderStatisticMap.contains(key))
-                {
-                    stats[Folder::JSONIdentifierFolderStatisticMap.at(key)] = statsObj->getValue<std::string>(key);
-                }
-            }
-            folder->setStatistics(stats);
-        }
-
-        if (folderObj->has(Folder::JSONIdentifierFolderSubfolders))
-        {
-            auto subfolders = folderObj->getArray(Folder::JSONIdentifierFolderSubfolders);
-            for (size_t i = 0; i < subfolders->size(); ++i)
-            {
-                auto subfolderObj = subfolders->getObject(static_cast<int32_t>(i));
-                folder->appendSubfolder(constructFolder(subfolderObj));
-            }
-        }
-        return folder;
-    };
-
-    return constructFolder(o);
 }
 
 uint64_t ZapFR::Engine::SourceRemote::addFolder(const std::string& title, uint64_t parentID)
@@ -391,14 +297,51 @@ void ZapFR::Engine::SourceRemote::removeFolder(uint64_t folderID)
 
 uint64_t ZapFR::Engine::SourceRemote::createFolderHierarchy(uint64_t /*parentID*/, const std::vector<std::string>& /*folderHierarchy*/)
 {
-    return 0;
+    return 0; // TODO (OPML import)
 }
 
 /* ************************** POST STUFF ************************** */
-std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceRemote::getPosts(uint64_t /*perPage*/, uint64_t /*page*/, bool /*showOnlyUnread*/,
-                                                                                        const std::string& /*searchFilter*/, FlagColor /*flagColor*/)
+std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::SourceRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                                                                        FlagColor flagColor)
 {
-    return {};
+    std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
+
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/posts");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        std::map<std::string, std::string> params;
+        params["parentType"] = "source";
+        params["perPage"] = std::to_string(perPage);
+        params["page"] = std::to_string(page);
+        params["showOnlyUnread"] = showOnlyUnread ? "true" : "false";
+        params["searchFilter"] = searchFilter;
+        params["flagColor"] = Flag::nameForFlagColor(flagColor);
+
+        try
+        {
+            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+            auto parser = Poco::JSON::Parser();
+            auto root = parser.parse(json);
+            auto postArr = root.extract<Poco::JSON::Array::Ptr>();
+            if (!postArr.isNull())
+            {
+                for (size_t i = 0; i < postArr->size(); ++i)
+                {
+                    auto postObj = postArr->getObject(static_cast<uint32_t>(i));
+                    posts.emplace_back(std::move(PostRemote::fromJSON(postObj)));
+                }
+            }
+        }
+        catch (...)
+        {
+            return posts;
+        }
+    }
+
+    return posts;
 }
 
 uint64_t ZapFR::Engine::SourceRemote::getTotalPostCount(bool /*showOnlyUnread*/, const std::string& /*searchFilter*/, FlagColor /*flagColor*/)

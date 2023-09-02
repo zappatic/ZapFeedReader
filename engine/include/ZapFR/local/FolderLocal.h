@@ -28,7 +28,7 @@ namespace ZapFR
         class FolderLocal : public Folder
         {
           public:
-            explicit FolderLocal(uint64_t id, uint64_t parent);
+            FolderLocal(uint64_t id, uint64_t parentFolderID, Source* parentSource);
             virtual ~FolderLocal() = default;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
@@ -44,22 +44,25 @@ namespace ZapFR
             std::vector<uint64_t> folderAndSubfolderIDs() const override;
             std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const override;
 
-            static std::vector<std::unique_ptr<Folder>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+            static std::vector<std::unique_ptr<Folder>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,
                                                                       const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static std::optional<std::unique_ptr<Folder>> querySingle(const std::vector<std::string>& whereClause,
+            static std::optional<std::unique_ptr<Folder>> querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                       const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static uint64_t nextSortOrder(uint64_t folderID);
             static uint64_t create(uint64_t parentID, const std::string& title);
-            static void remove(uint64_t folderID);
+            static void remove(Source* parentSource, uint64_t folderID);
             static void resort(uint64_t parentID);
-            static uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string> folderHierarchy);
-            static void move(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder);
+            static uint64_t createFolderHierarchy(Source* parentSource, uint64_t parentID, const std::vector<std::string> folderHierarchy);
+            static void move(Source* parentSource, uint64_t folderID, uint64_t newParent, uint64_t newSortOrder);
 
-            Poco::JSON::Object toJSON(bool fetchSubfolders);
+            Poco::JSON::Object toJSON() override;
+            void setExportSubfoldersInJSON(bool b) { mExportSubfoldersInJSON = b; }
 
           private:
             static std::mutex msCreateFolderMutex;
             static std::mutex msCreateFolderHierarchyMutex;
+
+            bool mExportSubfoldersInJSON{false};
         };
     } // namespace Engine
 } // namespace ZapFR

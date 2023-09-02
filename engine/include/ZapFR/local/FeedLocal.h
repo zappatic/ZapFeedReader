@@ -30,7 +30,7 @@ namespace ZapFR
         class FeedLocal : public Feed
         {
           public:
-            explicit FeedLocal(uint64_t id);
+            FeedLocal(uint64_t id, Source* parentSource);
             virtual ~FeedLocal() = default;
 
             std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
@@ -55,22 +55,20 @@ namespace ZapFR
 
             static void setIconDir(const std::string& iconDir);
 
-            static std::vector<std::unique_ptr<Feed>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+            static std::vector<std::unique_ptr<Feed>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,
                                                                     const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static std::optional<std::unique_ptr<ZapFR::Engine::Feed>> querySingle(const std::vector<std::string>& whereClause,
+            static std::optional<std::unique_ptr<ZapFR::Engine::Feed>> querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                    const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static uint64_t nextSortOrder(uint64_t folderID);
-            static std::unique_ptr<FeedLocal> create(const std::string& url, const std::string& title, uint64_t parentFolderID);
+            static std::unique_ptr<FeedLocal> create(Source* parentSource, const std::string& url, const std::string& title, uint64_t parentFolderID);
             static void move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder);
             static void resort(uint64_t folder);
-            static void remove(uint64_t feedID);
+            static void remove(Source* parentSource, uint64_t feedID);
 
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
 
             void update(const std::string& iconURL, const std::string& guid, const std::string& title, const std::string& subtitle, const std::string& link,
                         const std::string& description, const std::string& language, const std::string& copyright);
-
-            Poco::JSON::Object toJSON() const;
 
           private:
             static std::string msIconDir;

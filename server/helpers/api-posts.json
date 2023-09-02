@@ -1,0 +1,50 @@
+{
+  "posts-list": {
+    "section": "Posts",
+    "description": "Returns all the posts belonging to a feed, folder or source with various filters applied",
+    "method": "GET",
+    "path": "^\\/posts$",
+    "prettyPath": "/posts",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "parentType",
+        "required": true,
+        "description": "The type (source, folder, feed) to retrieve posts for"
+      },
+      {
+        "name": "parentID",
+        "required": false,
+        "description": "The ID of the parent type (feedID or folderID); optional in case of 'source'"
+      },
+      {
+        "name": "perPage",
+        "required": true,
+        "description": "The amount of records per page to retrieve"
+      },
+      {
+        "name": "page",
+        "required": true,
+        "description": "The page number to retrieve"
+      },
+      {
+        "name": "showOnlyUnread",
+        "required": false,
+        "description": "Whether to only retrieve unread posts - 'true' or 'false' - optional (default: false)"
+      },
+      {
+        "name": "searchFilter",
+        "required": false,
+        "description": "An optional search filter to apply"
+      },
+      {
+        "name": "flagColor",
+        "required": false,
+        "description": "The ID of a flag color to apply as a filter"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
+  }
+}
