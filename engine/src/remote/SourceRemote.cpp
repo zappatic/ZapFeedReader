@@ -353,6 +353,38 @@ void ZapFR::Engine::SourceRemote::markAllAsRead()
 {
 }
 
+void ZapFR::Engine::SourceRemote::markPostsAsRead(const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs)
+{
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/mark-posts-as-read");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        Poco::JSON::Array arr;
+        for (const auto& [feedID, postID] : feedsAndPostIDs)
+        {
+            Poco::JSON::Object o;
+            o.set("feedID", feedID);
+            o.set("postID", postID);
+            arr.add(o);
+        }
+        std::stringstream ss;
+        Poco::JSON::Stringifier::stringify(arr, ss);
+
+        std::map<std::string, std::string> params;
+        params["feedsAndPostIDs"] = ss.str();
+
+        try
+        {
+            Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        }
+        catch (...)
+        {
+        }
+    }
+}
+
 /* ************************** LOGS STUFF ************************** */
 std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceRemote::getLogs(uint64_t /*perPage*/, uint64_t /*page*/)
 {

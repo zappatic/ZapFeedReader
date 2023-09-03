@@ -200,6 +200,18 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Marks posts as read in bulk)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/mark-posts-as-read$)", R"(/mark-posts-as-read)");
+				entry->addBodyParameter({R"(feedsAndPostIDs)", true, R"(Stringified json array: [ {feedID: x, postID: x}, {...}, ...])"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_source_markpostsasread);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Retrieves statistics of a source)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/statistics$)", R"(/statistics)");

@@ -10,5 +10,23 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "source-markpostsasread": {
+    "section": "Sources",
+    "description": "Marks posts as read in bulk",
+    "method": "POST",
+    "path": "^\\/mark-posts-as-read$",
+    "prettyPath": "/mark-posts-as-read",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "feedsAndPostIDs",
+        "required": true,
+        "description": "Stringified json array: [ {feedID: x, postID: x}, {...}, ...]"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }
