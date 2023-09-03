@@ -414,9 +414,31 @@ void ZapFR::Engine::SourceRemote::fetchStatistics()
 {
     mStatistics.clear();
 
-    mStatistics[Statistic::FeedCount] = "0";
-    mStatistics[Statistic::PostCount] = "0";
-    mStatistics[Statistic::FlaggedPostCount] = "0";
-    mStatistics[Statistic::OldestPost] = "";
-    mStatistics[Statistic::NewestPost] = "";
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/statistics");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        try
+        {
+            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+            auto parser = Poco::JSON::Parser();
+            auto root = parser.parse(json);
+            auto statsObj = root.extract<Poco::JSON::Object::Ptr>();
+            if (!statsObj.isNull())
+            {
+                for (const auto& [k, v] : Source::SourceStatisticJSONIdentifierMap)
+                {
+                    if (statsObj->has(v))
+                    {
+                        mStatistics[k] = statsObj->getValue<std::string>(v);
+                    }
+                }
+            }
+        }
+        catch (...)
+        {
+        }
+    }
 }

@@ -1,0 +1,14 @@
+{
+  "source-statistics": {
+    "section": "Sources",
+    "description": "Retrieves statistics of a source",
+    "method": "GET",
+    "path": "^\\/statistics$",
+    "prettyPath": "/statistics",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  }
+}

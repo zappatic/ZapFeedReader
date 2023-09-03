@@ -110,6 +110,9 @@ namespace ZapFR
             static std::optional<std::unique_ptr<Source>> create(const std::string& type, const std::string& title, const std::string& configData);
             static uint64_t nextSortOrder();
 
+            static const std::unordered_map<std::string, Statistic> JSONIdentifierSourceStatisticMap;
+            static const std::unordered_map<Statistic, std::string> SourceStatisticJSONIdentifierMap;
+
           protected:
             uint64_t mID{0};
             std::string mTitle{""};

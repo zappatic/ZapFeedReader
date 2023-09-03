@@ -19,40 +19,32 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/local/SourceLocal.h"
 
 // ::API
 //
-//	Removes a folder
-//	/folder/<folderID> (DELETE)
-//
-//	URI parameters:
-//		folderID - The id of the folder to delete - apiRequest->pathComponentAt(1)
+//	Retrieves statistics of a source
+//	/statistics (GET)
 //
 //	Content-Type: application/json
 //	JSON output: Object
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_remove([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_statistics([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto folderIDStr = apiRequest->pathComponentAt(1);
-
-    uint64_t folderID{0};
-    Poco::NumberParser::tryParseUnsigned64(folderIDStr, folderID);
-
-    if (folderID != 0)
-    {
-        auto source = ZapFR::Engine::Source::getSource(1);
-        if (source.has_value())
-        {
-            source.value()->removeFolder(folderID);
-        }
-    }
 
     Poco::JSON::Object o;
-    o.set("success", true);
 
+    auto source = ZapFR::Engine::Source::getSource(1);
+    if (source.has_value())
+    {
+        source.value()->fetchStatistics();
+        for (const auto& [stat, value] : source.value()->statistics())
+        {
+            o.set(ZapFR::Engine::Source::SourceStatisticJSONIdentifierMap.at(stat), value);
+        }
+    }
     Poco::JSON::Stringifier::stringify(o, response.send());
 
     return Poco::Net::HTTPResponse::HTTP_OK;
