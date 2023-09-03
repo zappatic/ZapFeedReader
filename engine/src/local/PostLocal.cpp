@@ -327,7 +327,6 @@ uint64_t ZapFR::Engine::PostLocal::queryCount(const std::vector<std::string>& wh
     }
 
     auto sql = ss.str();
-
     selectStmt << sql, into(postCount);
 
     for (const auto& binding : bindings)

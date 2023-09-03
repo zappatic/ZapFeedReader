@@ -104,8 +104,8 @@ void ZapFR::Engine::FolderLocal::fetchStatistics()
     }
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                                       FlagColor flagColor)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                                                                             const std::string& searchFilter, FlagColor flagColor)
 {
     auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
     if (joinedFeedIDs.empty())
@@ -114,7 +114,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::ge
     }
 
     std::vector<std::string> whereClause;
-    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindingsPostQuery;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindingsCountQuery;
     std::string wildcardSearchFilter = "%" + searchFilter + "%";
     auto fc = Flag::idForFlagColor(flagColor);
 
@@ -127,54 +128,25 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderLocal::ge
     if (!searchFilter.empty())
     {
         whereClause.emplace_back("(posts.title LIKE ? OR posts.description LIKE ?)");
-        bindings.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
-        bindings.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+        bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+        bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+        bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+        bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
     }
     if (flagColor != FlagColor::Gray)
     {
         whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM flags WHERE flagID=?)");
-        bindings.emplace_back(use(fc, "flagColor"));
+        bindingsPostQuery.emplace_back(use(fc, "flagColor"));
+        bindingsCountQuery.emplace_back(use(fc, "flagColor"));
     }
 
     auto offset = perPage * (page - 1);
-    bindings.emplace_back(use(perPage, "perPage"));
-    bindings.emplace_back(use(offset, "offset"));
+    bindingsPostQuery.emplace_back(use(perPage, "perPage"));
+    bindingsPostQuery.emplace_back(use(offset, "offset"));
 
-    return PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT ? OFFSET ?", bindings);
-}
-
-uint64_t ZapFR::Engine::FolderLocal::getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor)
-{
-    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
-    if (joinedFeedIDs.empty())
-    {
-        return 0;
-    }
-
-    std::vector<std::string> whereClause;
-    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
-    std::string wildcardSearchFilter = "%" + searchFilter + "%";
-    auto fc = Flag::idForFlagColor(flagColor);
-
-    whereClause.emplace_back(Poco::format("posts.feedID IN (%s)", joinedFeedIDs));
-
-    if (showOnlyUnread)
-    {
-        whereClause.emplace_back("posts.isRead=FALSE");
-    }
-    if (!searchFilter.empty())
-    {
-        whereClause.emplace_back("(posts.title LIKE ? OR posts.description LIKE ?)");
-        bindings.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
-        bindings.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
-    }
-    if (flagColor != FlagColor::Gray)
-    {
-        whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM flags WHERE flagID=?)");
-        bindings.emplace_back(use(fc, "flagColor"));
-    }
-
-    return PostLocal::queryCount(whereClause, bindings);
+    auto posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT ? OFFSET ?", bindingsPostQuery);
+    auto count = PostLocal::queryCount(whereClause, bindingsCountQuery);
+    return std::make_tuple(count, std::move(posts));
 }
 
 std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAllAsRead()

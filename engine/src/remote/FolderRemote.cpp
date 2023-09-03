@@ -27,10 +27,11 @@ ZapFR::Engine::FolderRemote::FolderRemote(uint64_t id, uint64_t parentFolderID, 
 {
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                                        FlagColor flagColor)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FolderRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                                                                              const std::string& searchFilter, FlagColor flagColor)
 {
     std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
+    uint64_t postCount{0};
 
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
     auto uri = remoteSource->remoteURL();
@@ -53,28 +54,28 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FolderRemote::g
             auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
             auto parser = Poco::JSON::Parser();
             auto root = parser.parse(json);
-            auto postArr = root.extract<Poco::JSON::Array::Ptr>();
-            if (!postArr.isNull())
+            auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+            if (!rootObj.isNull())
             {
-                for (size_t i = 0; i < postArr->size(); ++i)
+                postCount = rootObj->getValue<uint64_t>("count");
+                auto postArr = rootObj->getArray("posts");
+                if (!postArr.isNull())
                 {
-                    auto postObj = postArr->getObject(static_cast<uint32_t>(i));
-                    posts.emplace_back(std::move(PostRemote::fromJSON(postObj)));
+                    for (size_t i = 0; i < postArr->size(); ++i)
+                    {
+                        auto postObj = postArr->getObject(static_cast<uint32_t>(i));
+                        posts.emplace_back(std::move(PostRemote::fromJSON(postObj)));
+                    }
                 }
             }
         }
         catch (...)
         {
-            return posts;
+            return std::make_tuple(postCount, std::move(posts));
         }
     }
 
-    return posts;
-}
-
-uint64_t ZapFR::Engine::FolderRemote::getTotalPostCount(bool /*showOnlyUnread*/, const std::string& /*searchFilter*/, FlagColor /*flagColor*/)
-{
-    return 0;
+    return std::make_tuple(postCount, std::move(posts));
 }
 
 std::unordered_set<uint64_t> ZapFR::Engine::FolderRemote::markAllAsRead()

@@ -37,14 +37,14 @@ void ZapFR::Engine::AgentFolderGetPosts::run()
         auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
         if (folder.has_value())
         {
-            auto posts = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
+            auto [postCount, posts] = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
             std::vector<Post*> postPointers;
             for (const auto& post : posts)
             {
                 postPointers.emplace_back(post.get());
             }
 
-            mFinishedCallback(source.value()->id(), postPointers, mPage, folder.value()->getTotalPostCount(mShowOnlyUnread, mSearchFilter, mFlagColor));
+            mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
         }
     }
 

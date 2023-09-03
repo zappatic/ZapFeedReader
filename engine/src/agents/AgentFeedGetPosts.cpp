@@ -37,14 +37,14 @@ void ZapFR::Engine::AgentFeedGetPosts::run()
         auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
         if (feed.has_value())
         {
-            auto posts = feed.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColorFilter);
+            auto [postCount, posts] = feed.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColorFilter);
             std::vector<Post*> postPointers;
             for (const auto& post : posts)
             {
                 postPointers.emplace_back(post.get());
             }
 
-            mFinishedCallback(source.value()->id(), postPointers, mPage, feed.value()->getTotalPostCount(mShowOnlyUnread, mSearchFilter, mFlagColorFilter));
+            mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
         }
     }
 

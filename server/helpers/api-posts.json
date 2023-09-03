@@ -45,6 +45,6 @@
     ],
     "requireCredentials": true,
     "contentType": "application/json",
-    "jsonOutput": "Array"
+    "jsonOutput": "Object"
   }
 }

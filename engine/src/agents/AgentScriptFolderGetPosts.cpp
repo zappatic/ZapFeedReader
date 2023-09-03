@@ -37,14 +37,14 @@ void ZapFR::Engine::AgentScriptFolderGetPosts::run()
         auto scriptFolder = source.value()->getScriptFolder(mScriptFolderID);
         if (scriptFolder.has_value())
         {
-            auto posts = scriptFolder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
+            auto [postCount, posts] = scriptFolder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
             std::vector<Post*> postPointers;
             for (const auto& post : posts)
             {
                 postPointers.emplace_back(post.get());
             }
 
-            mFinishedCallback(source.value()->id(), postPointers, mPage, scriptFolder.value()->getTotalPostCount(mShowOnlyUnread, mSearchFilter, mFlagColor));
+            mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
         }
     }
 

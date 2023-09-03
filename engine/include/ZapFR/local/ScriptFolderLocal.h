@@ -31,8 +31,8 @@ namespace ZapFR
             explicit ScriptFolderLocal(uint64_t id);
             ~ScriptFolderLocal() = default;
 
-            std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
-            uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) override;
+            std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                                                              FlagColor flagColor) override;
 
             void update(const std::string& title) override;
 

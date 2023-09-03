@@ -24,6 +24,7 @@
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/FolderLocal.h"
 #include "ZapFR/local/PostLocal.h"
+#include "ZapFR/local/ScriptFolderLocal.h"
 
 // ::API
 //
@@ -40,7 +41,7 @@
 //		flagColor - The ID of a flag color to apply as a filter - apiRequest->parameter("flagColor")
 //
 //	Content-Type: application/json
-//	JSON output: Array
+//	JSON output: Object
 //
 // API::
 
@@ -67,30 +68,48 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
     Poco::NumberParser::tryParseUnsigned64(pageStr, page);
     Poco::NumberParser::tryParseUnsigned64(parentIDStr, parentID);
 
-    Poco::JSON::Array arr;
-
+    Poco::JSON::Object o;
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
+        Poco::JSON::Array arr;
+        uint64_t postCount{0};
+
         std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
         if (parentType == "feed")
         {
             auto feed = source.value()->getFeed(parentID, ZapFR::Engine::Source::FetchInfo::None);
             if (feed.has_value())
             {
-                posts = feed.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
+                auto t = feed.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
+                postCount = std::get<uint64_t>(t);
+                posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
             }
         }
         else if (parentType == "source")
         {
-            posts = source.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
+            auto t = source.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
+            postCount = std::get<uint64_t>(t);
+            posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
         }
         else if (parentType == "folder")
         {
             auto folder = source.value()->getFolder(parentID, ZapFR::Engine::Source::FetchInfo::None);
             if (folder.has_value())
             {
-                posts = folder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
+                auto t = folder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
+                postCount = std::get<uint64_t>(t);
+                posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
+            }
+        }
+        else if (parentType == "scriptfolder")
+        {
+            auto scriptFolder = source.value()->getScriptFolder(parentID /*, ZapFR::Engine::Source::FetchInfo::None*/); // TODO: fix scriptfolder
+            if (scriptFolder.has_value())
+            {
+                auto t = scriptFolder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
+                postCount = std::get<uint64_t>(t);
+                posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
             }
         }
         else
@@ -102,9 +121,11 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
         {
             arr.add(post->toJSON());
         }
+        o.set("posts", arr);
+        o.set("count", postCount);
     }
 
-    Poco::JSON::Stringifier::stringify(arr, response.send());
+    Poco::JSON::Stringifier::stringify(o, response.send());
 
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

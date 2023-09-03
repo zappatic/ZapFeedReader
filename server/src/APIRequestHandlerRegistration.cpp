@@ -194,7 +194,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->addBodyParameter({R"(flagColor)", false, R"(The ID of a flag color to apply as a filter)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
-				entry->setJSONOutput(R"(Array)");
+				entry->setJSONOutput(R"(Object)");
 				entry->setHandler(ZapFR::Server::APIHandler_posts_list);
 				msAPIs.emplace_back(std::move(entry));
 			}

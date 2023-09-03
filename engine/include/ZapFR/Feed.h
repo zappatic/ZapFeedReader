@@ -88,9 +88,8 @@ namespace ZapFR
             void setRefreshInterval(std::optional<uint64_t> ri) { mRefreshInterval = ri; }
             void setStatistics(const std::unordered_map<Statistic, std::string>& stats) { mStatistics = stats; }
 
-            virtual std::vector<std::unique_ptr<Post>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                FlagColor flagColor) = 0;
-            virtual uint64_t getTotalPostCount(bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor) = 0;
+            virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                                                                      FlagColor flagColor) = 0;
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
 
             virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;

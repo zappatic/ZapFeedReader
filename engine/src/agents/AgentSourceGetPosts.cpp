@@ -34,14 +34,14 @@ void ZapFR::Engine::AgentSourceGetPosts::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto posts = source.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
+        auto [postCount, posts] = source.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
         std::vector<Post*> postPointers;
         for (const auto& post : posts)
         {
             postPointers.emplace_back(post.get());
         }
 
-        mFinishedCallback(source.value()->id(), postPointers, mPage, source.value()->getTotalPostCount(mShowOnlyUnread, mSearchFilter, mFlagColor));
+        mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
     }
 
     mIsDone = true;
