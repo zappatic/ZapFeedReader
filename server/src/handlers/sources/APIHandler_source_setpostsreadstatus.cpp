@@ -23,10 +23,11 @@
 
 // ::API
 //
-//	Marks posts as read in bulk
-//	/mark-posts-as-read (POST)
+//	Sets the read status of posts in bulk
+//	/set-posts-read-status (POST)
 //
 //	Parameters:
+//		markAsRead (REQD) - Whether to mark the posts as read or unread ('true' or 'false') - apiRequest->parameter("markAsRead")
 //		feedsAndPostIDs (REQD) - Stringified json array: [ {feedID: x, postID: x}, {...}, ...] - apiRequest->parameter("feedsAndPostIDs")
 //
 //	Content-Type: application/json
@@ -34,9 +35,10 @@
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_markpostsasread([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_setpostsreadstatus([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto feedsAndPostIDsStr = apiRequest->parameter("feedsAndPostIDs");
+    const auto markAsRead = (apiRequest->parameter("markAsRead") == "true");
 
     Poco::JSON::Object o;
 
@@ -63,7 +65,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_markpostsas
 
             if (tuples.size() > 0)
             {
-                source.value()->markPostsAsRead(tuples);
+                source.value()->setPostsReadStatus(markAsRead, tuples);
             }
         }
     }

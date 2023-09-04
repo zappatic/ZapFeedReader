@@ -16,24 +16,33 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/AgentPostsMarkUnread.h"
-#include "ZapFR/Feed.h"
+#include "API.h"
+#include "APIHandlers.h"
+#include "APIRequest.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentPostsMarkUnread::AgentPostsMarkUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
-                                                          std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFinishedCallback(finishedCallback)
-{
-}
+// ::API
+//
+//	Marks all posts in the source as read
+//	/mark-as-read (POST)
+//
+//	Content-Type: application/json
+//	JSON output: Object
+//
+// API::
 
-void ZapFR::Engine::AgentPostsMarkUnread::run()
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_markasread([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    auto source = Source::getSource(mSourceID);
+    auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        source.value()->setPostsReadStatus(false, mFeedAndPostIDs);
-        mFinishedCallback(mSourceID, mFeedAndPostIDs);
+        source.value()->markAllAsRead();
     }
 
-    mIsDone = true;
+    Poco::JSON::Object o;
+    o.set("success", true);
+
+    Poco::JSON::Stringifier::stringify(o, response.send());
+
+    return Poco::Net::HTTPResponse::HTTP_OK;
 }

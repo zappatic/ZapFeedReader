@@ -90,6 +90,15 @@ bool ZapFR::Engine::FeedRemote::refresh(const std::optional<std::string>& /*feed
 
 void ZapFR::Engine::FeedRemote::markAllAsRead()
 {
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath(fmt::format("/feed/{}/mark-as-read", mID));
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
+    }
 }
 
 void ZapFR::Engine::FeedRemote::markAsRead(uint64_t /*postID*/)

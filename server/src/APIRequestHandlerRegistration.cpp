@@ -72,6 +72,18 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Marks all posts in the feed as read)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/feed/([0-9]+)/mark-as-read$)", R"(/feed/<feedID>/mark-as-read)");
+				entry->addURIParameter({R"(feedID)", R"(The id of the feed to mark as read)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_feed_markasread);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Moves a feed to a new subfolder and/or position within the folder)");
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/feed/([0-9]+)/move$)", R"(/feed/<feedID>/move)");
@@ -130,6 +142,18 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
 				entry->setHandler(ZapFR::Server::APIHandler_folder_get);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(FeFolderseds)", R"(Marks all posts in the folder as read, returns the affected feedIDs)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/folder/([0-9]+)/mark-as-read$)", R"(/folder/<folderID>/mark-as-read)");
+				entry->addURIParameter({R"(folderID)", R"(The id of the folder to mark as read)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Array)");
+				entry->setHandler(ZapFR::Server::APIHandler_folder_markasread);
 				msAPIs.emplace_back(std::move(entry));
 			}
 
@@ -200,14 +224,26 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
-				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Marks posts as read in bulk)");
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Marks all posts in the source as read)");
 				entry->setMethod("POST");
-				entry->setPath(R"(^\/mark-posts-as-read$)", R"(/mark-posts-as-read)");
+				entry->setPath(R"(^\/mark-as-read$)", R"(/mark-as-read)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_source_markasread);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Sets the read status of posts in bulk)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/set-posts-read-status$)", R"(/set-posts-read-status)");
+				entry->addBodyParameter({R"(markAsRead)", true, R"(Whether to mark the posts as read or unread ('true' or 'false'))"});
 				entry->addBodyParameter({R"(feedsAndPostIDs)", true, R"(Stringified json array: [ {feedID: x, postID: x}, {...}, ...])"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
-				entry->setHandler(ZapFR::Server::APIHandler_source_markpostsasread);
+				entry->setHandler(ZapFR::Server::APIHandler_source_setpostsreadstatus);
 				msAPIs.emplace_back(std::move(entry));
 			}
 

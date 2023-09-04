@@ -31,7 +31,7 @@ void ZapFR::Engine::AgentPostsMarkRead::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->markPostsAsRead(mFeedAndPostIDs);
+        source.value()->setPostsReadStatus(true, mFeedAndPostIDs);
         mFinishedCallback(mSourceID, mFeedAndPostIDs);
     }
 

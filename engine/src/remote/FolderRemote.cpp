@@ -80,7 +80,27 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
 
 std::unordered_set<uint64_t> ZapFR::Engine::FolderRemote::markAllAsRead()
 {
-    return {};
+    std::unordered_set<uint64_t> affectedFeedIDs;
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath(fmt::format("/folder/{}/mark-as-read", mID));
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootArr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!rootArr.isNull())
+        {
+            for (size_t i = 0; i < rootArr->size(); ++i)
+            {
+                affectedFeedIDs.insert(rootArr->getElement<uint64_t>(static_cast<int32_t>(i)));
+            }
+        }
+    }
+    return affectedFeedIDs;
 }
 
 std::vector<uint64_t> ZapFR::Engine::FolderRemote::folderAndSubfolderIDs() const

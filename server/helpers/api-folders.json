@@ -93,5 +93,22 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "folder-markasread": {
+    "section": "FeFolderseds",
+    "description": "Marks all posts in the folder as read, returns the affected feedIDs",
+    "method": "POST",
+    "path": "^\\/folder/([0-9]+)/mark-as-read$",
+    "prettyPath": "/folder/<folderID>/mark-as-read",
+    "uriParameters": [
+      {
+        "name": "folderID",
+        "description": "The id of the folder to mark as read"
+      }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
   }
 }

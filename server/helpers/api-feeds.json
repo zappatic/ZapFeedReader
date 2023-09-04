@@ -86,5 +86,19 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "feed-markasread": {
+    "section": "Feeds",
+    "description": "Marks all posts in the feed as read",
+    "method": "POST",
+    "path": "^\\/feed/([0-9]+)/mark-as-read$",
+    "prettyPath": "/feed/<feedID>/mark-as-read",
+    "uriParameters": [
+      { "name": "feedID", "description": "The id of the feed to mark as read" }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }

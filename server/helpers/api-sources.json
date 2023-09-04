@@ -11,20 +11,37 @@
     "contentType": "application/json",
     "jsonOutput": "Object"
   },
-  "source-markpostsasread": {
+  "source-setpostsreadstatus": {
     "section": "Sources",
-    "description": "Marks posts as read in bulk",
+    "description": "Sets the read status of posts in bulk",
     "method": "POST",
-    "path": "^\\/mark-posts-as-read$",
-    "prettyPath": "/mark-posts-as-read",
+    "path": "^\\/set-posts-read-status$",
+    "prettyPath": "/set-posts-read-status",
     "uriParameters": [],
     "parameters": [
+      {
+        "name": "markAsRead",
+        "required": true,
+        "description": "Whether to mark the posts as read or unread ('true' or 'false')"
+      },
       {
         "name": "feedsAndPostIDs",
         "required": true,
         "description": "Stringified json array: [ {feedID: x, postID: x}, {...}, ...]"
       }
     ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "source-markasread": {
+    "section": "Sources",
+    "description": "Marks all posts in the source as read",
+    "method": "POST",
+    "path": "^\\/mark-as-read$",
+    "prettyPath": "/mark-as-read",
+    "uriParameters": [],
+    "parameters": [],
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
