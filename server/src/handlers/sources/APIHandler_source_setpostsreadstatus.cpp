@@ -40,8 +40,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_setpostsrea
     const auto feedsAndPostIDsStr = apiRequest->parameter("feedsAndPostIDs");
     const auto markAsRead = (apiRequest->parameter("markAsRead") == "true");
 
-    Poco::JSON::Object o;
-
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
@@ -69,6 +67,8 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_setpostsrea
             }
         }
     }
+
+    Poco::JSON::Object o;
     o.set("success", true);
 
     Poco::JSON::Stringifier::stringify(o, response.send());

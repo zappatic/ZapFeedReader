@@ -250,6 +250,20 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Sets the flag status of posts in bulk)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/set-posts-flag-status$)", R"(/set-posts-flag-status)");
+				entry->addBodyParameter({R"(markFlagged)", true, R"(Whether to mark the posts as flagged or unflagged ('true' or 'false'))"});
+				entry->addBodyParameter({R"(flagColors)", true, R"(Stringified json array of flag color names to apply)"});
+				entry->addBodyParameter({R"(feedsAndPostIDs)", true, R"(Stringified json array: [ {feedID: x, postID: x}, {...}, ...])"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_source_setpostsflagstatus);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Sets the read status of posts in bulk)");
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/set-posts-read-status$)", R"(/set-posts-read-status)");
@@ -270,6 +284,17 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
 				entry->setHandler(ZapFR::Server::APIHandler_source_statistics);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Retrieves all the flag colors in use)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/used-flag-colors$)", R"(/used-flag-colors)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Array)");
+				entry->setHandler(ZapFR::Server::APIHandler_source_usedflagcolors);
 				msAPIs.emplace_back(std::move(entry));
 			}
 

@@ -34,8 +34,10 @@ target_sources(zapfeedreader-server PRIVATE
 	handlers/logs/APIHandler_logs_list.cpp
 	handlers/posts/APIHandler_posts_list.cpp
 	handlers/sources/APIHandler_source_markasread.cpp
+	handlers/sources/APIHandler_source_setpostsflagstatus.cpp
 	handlers/sources/APIHandler_source_setpostsreadstatus.cpp
 	handlers/sources/APIHandler_source_statistics.cpp
+	handlers/sources/APIHandler_source_usedflagcolors.cpp
 
 )
 

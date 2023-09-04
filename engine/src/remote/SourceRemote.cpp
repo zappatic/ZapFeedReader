@@ -360,6 +360,43 @@ void ZapFR::Engine::SourceRemote::setPostsReadStatus(bool markAsRead, const std:
     }
 }
 
+void ZapFR::Engine::SourceRemote::setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,
+                                                     const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs)
+{
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/set-posts-flag-status");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        Poco::JSON::Array idArr;
+        for (const auto& [feedID, postID] : feedsAndPostIDs)
+        {
+            Poco::JSON::Object o;
+            o.set("feedID", feedID);
+            o.set("postID", postID);
+            idArr.add(o);
+        }
+        std::stringstream idSS;
+        Poco::JSON::Stringifier::stringify(idArr, idSS);
+
+        Poco::JSON::Array colorArr;
+        for (const auto& fc : flagColors)
+        {
+            colorArr.add(Flag::nameForFlagColor(fc));
+        }
+        std::stringstream colorSS;
+        Poco::JSON::Stringifier::stringify(colorArr, colorSS);
+
+        std::map<std::string, std::string> params;
+        params["feedsAndPostIDs"] = idSS.str();
+        params["flagColors"] = colorSS.str();
+        params["markFlagged"] = markFlagged ? "true" : "false";
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+    }
+}
+
 /* ************************** LOGS STUFF ************************** */
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::SourceRemote::getLogs(uint64_t perPage, uint64_t page)
 {
@@ -401,7 +438,34 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
 /* ************************** FLAG STUFF ************************** */
 std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceRemote::getUsedFlagColors()
 {
-    return {};
+    std::unordered_set<ZapFR::Engine::FlagColor> flagColors;
+
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/used-flag-colors");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootArr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!rootArr.isNull())
+        {
+            for (size_t i = 0; i < rootArr->size(); ++i)
+            {
+                try
+                {
+                    flagColors.insert(Flag::flagColorForName(rootArr->getElement<std::string>(static_cast<int32_t>(i))));
+                }
+                catch (...)
+                {
+                    // skip unknown flag names
+                }
+            }
+        }
+    }
+    return flagColors;
 }
 
 /* ************************** SCRIPT FOLDER STUFF ************************** */
@@ -454,25 +518,19 @@ void ZapFR::Engine::SourceRemote::fetchStatistics()
         uri.setPath("/statistics");
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-        try
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto statsObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!statsObj.isNull())
         {
-            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
-            auto parser = Poco::JSON::Parser();
-            auto root = parser.parse(json);
-            auto statsObj = root.extract<Poco::JSON::Object::Ptr>();
-            if (!statsObj.isNull())
+            for (const auto& [k, v] : Source::SourceStatisticJSONIdentifierMap)
             {
-                for (const auto& [k, v] : Source::SourceStatisticJSONIdentifierMap)
+                if (statsObj->has(v))
                 {
-                    if (statsObj->has(v))
-                    {
-                        mStatistics[k] = statsObj->getValue<std::string>(v);
-                    }
+                    mStatistics[k] = statsObj->getValue<std::string>(v);
                 }
             }
-        }
-        catch (...)
-        {
         }
     }
 }

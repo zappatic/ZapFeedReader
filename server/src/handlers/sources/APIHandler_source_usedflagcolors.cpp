@@ -16,25 +16,37 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/AgentPostsMarkUnflagged.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Post.h"
+#include "API.h"
+#include "APIHandlers.h"
+#include "APIRequest.h"
+#include "ZapFR/Flag.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentPostsMarkUnflagged::AgentPostsMarkUnflagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
-                                                                const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFlagColors(flagColors), mFinishedCallback(finishedCallback)
-{
-}
+// ::API
+//
+//	Retrieves all the flag colors in use
+//	/used-flag-colors (GET)
+//
+//	Content-Type: application/json
+//	JSON output: Array
+//
+// API::
 
-void ZapFR::Engine::AgentPostsMarkUnflagged::run()
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_usedflagcolors([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    auto source = Source::getSource(mSourceID);
+    Poco::JSON::Array arr;
+
+    auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        source.value()->setPostsFlagStatus(false, mFlagColors, mFeedAndPostIDs);
-        mFinishedCallback();
+        auto flagColors = source.value()->getUsedFlagColors();
+        for (const auto& flagColor : flagColors)
+        {
+            arr.add(ZapFR::Engine::Flag::nameForFlagColor(flagColor));
+        }
     }
 
-    mIsDone = true;
+    Poco::JSON::Stringifier::stringify(arr, response.send());
+
+    return Poco::Net::HTTPResponse::HTTP_OK;
 }

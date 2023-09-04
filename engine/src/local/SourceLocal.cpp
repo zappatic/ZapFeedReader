@@ -216,7 +216,7 @@ void ZapFR::Engine::SourceLocal::setPostsReadStatus(bool markAsRead, const std::
         }
     }
 
-    // mark the posts as read per feed
+    // mark the posts as (un)read per feed
     for (const auto& [feedID, posts] : feedsWithPostsMap)
     {
         auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
@@ -229,6 +229,50 @@ void ZapFR::Engine::SourceLocal::setPostsReadStatus(bool markAsRead, const std::
             else
             {
                 feed.value()->markAsUnread(postID);
+            }
+        }
+    }
+}
+
+void ZapFR::Engine::SourceLocal::setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,
+                                                    const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs)
+{
+    // remap the vector of tuples to feed -> [post, ...] map, so we can handle it one feed at a time
+    std::unordered_map<uint64_t, std::vector<uint64_t>> feedsWithPostsMap;
+    for (const auto& [feedID, postID] : feedsAndPostIDs)
+    {
+        if (feedsWithPostsMap.contains(feedID))
+        {
+            feedsWithPostsMap.at(feedID).emplace_back(postID);
+        }
+        else
+        {
+            std::vector<uint64_t> vec;
+            vec.emplace_back(postID);
+            feedsWithPostsMap[feedID] = vec;
+        }
+    }
+
+    // mark the posts as (un)flagged per feed
+    for (const auto& [feedID, posts] : feedsWithPostsMap)
+    {
+        auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
+        for (const auto& postID : posts)
+        {
+            auto post = feed.value()->getPost(postID);
+            if (post.has_value())
+            {
+                for (const auto& fc : flagColors)
+                {
+                    if (markFlagged)
+                    {
+                        post.value()->markFlagged(fc);
+                    }
+                    else
+                    {
+                        post.value()->markUnflagged(fc);
+                    }
+                }
             }
         }
     }

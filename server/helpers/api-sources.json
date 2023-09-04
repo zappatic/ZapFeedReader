@@ -45,5 +45,46 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "source-setpostsflagstatus": {
+    "section": "Sources",
+    "description": "Sets the flag status of posts in bulk",
+    "method": "POST",
+    "path": "^\\/set-posts-flag-status$",
+    "prettyPath": "/set-posts-flag-status",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "markFlagged",
+        "required": true,
+        "description": "Whether to mark the posts as flagged or unflagged ('true' or 'false')"
+      },
+      {
+        "name": "flagColors",
+        "required": true,
+        "description": "Stringified json array of flag color names to apply"
+      },
+      {
+        "name": "feedsAndPostIDs",
+        "required": true,
+        "description": "Stringified json array: [ {feedID: x, postID: x}, {...}, ...]"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+
+  "source-usedflagcolors": {
+    "section": "Sources",
+    "description": "Retrieves all the flag colors in use",
+    "method": "GET",
+    "path": "^\\/used-flag-colors$",
+    "prettyPath": "/used-flag-colors",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
   }
 }
