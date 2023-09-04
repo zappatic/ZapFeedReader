@@ -15,6 +15,7 @@ target_sources(zapfeedreader-engine PRIVATE
     Feed.cpp
     Post.cpp
     Script.cpp
+    ScriptFolder.cpp
     ScriptLua.cpp
     agents/AgentFeedGet.cpp
     agents/AgentFeedGetLogs.cpp
@@ -67,5 +68,6 @@ target_sources(zapfeedreader-engine PRIVATE
     remote/FeedRemote.cpp
     remote/FolderRemote.cpp
     remote/PostRemote.cpp
+    remote/ScriptFolderRemote.cpp
     lua/LuaProxyPost.cpp
 )

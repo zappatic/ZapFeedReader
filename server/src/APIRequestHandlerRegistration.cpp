@@ -239,6 +239,66 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Adds a script folder)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/scriptfolder$)", R"(/scriptfolder)");
+				entry->addBodyParameter({R"(title)", true, R"(The title of the script folder to add)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_scriptfolder_add);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Retrieves a script folder)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/scriptfolder/([0-9]+)$)", R"(/scriptfolder/<scriptFolderID>)");
+				entry->addURIParameter({R"(scriptFolderID)", R"(The id of the script folder to retrieve)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_scriptfolder_get);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Removes a script folder)");
+				entry->setMethod("DELETE");
+				entry->setPath(R"(^\/scriptfolder/([0-9]+)$)", R"(/scriptfolder/<scriptFolderID>)");
+				entry->addURIParameter({R"(scriptFolderID)", R"(The id of the script folder to delete)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_scriptfolder_remove);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Updates the properties of a script folder)");
+				entry->setMethod("PATCH");
+				entry->setPath(R"(^\/scriptfolder/([0-9]+)$)", R"(/scriptfolder/<scriptFolderID>)");
+				entry->addURIParameter({R"(scriptFolderID)", R"(The id of the script folder to delete)"});
+				entry->addBodyParameter({R"(title)", true, R"(The new title of the script folder)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_scriptfolder_update);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Returns all the script folders within the source)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/scriptfolders$)", R"(/scriptfolders)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Array)");
+				entry->setHandler(ZapFR::Server::APIHandler_scriptfolders_list);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Marks all posts in the source as read)");
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/mark-as-read$)", R"(/mark-as-read)");

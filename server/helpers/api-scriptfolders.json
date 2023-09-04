@@ -1,0 +1,89 @@
+{
+  "scriptfolders-list": {
+    "section": "Scriptfolders",
+    "description": "Returns all the script folders within the source",
+    "method": "GET",
+    "path": "^\\/scriptfolders$",
+    "prettyPath": "/scriptfolders",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
+  },
+  "scriptfolder-get": {
+    "section": "Scriptfolders",
+    "description": "Retrieves a script folder",
+    "method": "GET",
+    "path": "^\\/scriptfolder/([0-9]+)$",
+    "prettyPath": "/scriptfolder/<scriptFolderID>",
+    "uriParameters": [
+      {
+        "name": "scriptFolderID",
+        "description": "The id of the script folder to retrieve"
+      }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "scriptfolder-add": {
+    "section": "Scriptfolders",
+    "description": "Adds a script folder",
+    "method": "POST",
+    "path": "^\\/scriptfolder$",
+    "prettyPath": "/scriptfolder",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "title",
+        "required": true,
+        "description": "The title of the script folder to add"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "scriptfolder-remove": {
+    "section": "Scriptfolders",
+    "description": "Removes a script folder",
+    "method": "DELETE",
+    "path": "^\\/scriptfolder/([0-9]+)$",
+    "prettyPath": "/scriptfolder/<scriptFolderID>",
+    "uriParameters": [
+      {
+        "name": "scriptFolderID",
+        "description": "The id of the script folder to delete"
+      }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "scriptfolder-update": {
+    "section": "Scriptfolders",
+    "description": "Updates the properties of a script folder",
+    "method": "PATCH",
+    "path": "^\\/scriptfolder/([0-9]+)$",
+    "prettyPath": "/scriptfolder/<scriptFolderID>",
+    "uriParameters": [
+      {
+        "name": "scriptFolderID",
+        "description": "The id of the script folder to delete"
+      }
+    ],
+    "parameters": [
+      {
+        "name": "title",
+        "required": true,
+        "description": "The new title of the script folder"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  }
+}

@@ -133,7 +133,7 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std
     static const auto userAgent = fmt::format("ZapFeedReader/{}", ZapFR::Engine::APIVersion);
     request.set("User-Agent", userAgent);
 
-    if (method == Poco::Net::HTTPRequest::HTTP_POST || method == Poco::Net::HTTPRequest::HTTP_PUT)
+    if (method == Poco::Net::HTTPRequest::HTTP_POST || method == Poco::Net::HTTPRequest::HTTP_PATCH)
     {
         Poco::Net::HTMLForm form;
         for (const auto& [k, v] : parameters)

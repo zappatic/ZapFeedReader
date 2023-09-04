@@ -62,7 +62,7 @@ namespace ZapFR
 
             // script folder stuff
             std::vector<std::unique_ptr<ScriptFolder>> getScriptFolders() override;
-            std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id) override;
+            std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id, uint32_t fetchInfo) override;
             void addScriptFolder(const std::string& title) override;
             void removeScriptFolder(uint64_t scriptFolderID) override;
 

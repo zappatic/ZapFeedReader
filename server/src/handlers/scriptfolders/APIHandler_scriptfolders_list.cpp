@@ -16,28 +16,37 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/AgentScriptFolderUpdate.h"
+#include "API.h"
+#include "APIHandlers.h"
+#include "APIRequest.h"
 #include "ZapFR/ScriptFolder.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentScriptFolderUpdate::AgentScriptFolderUpdate(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title,
-                                                                std::function<void(uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mScriptFolderID(scriptFolderID), mTitle(title), mFinishedCallback(finishedCallback)
-{
-}
+// ::API
+//
+//	Returns all the script folders within the source
+//	/scriptfolders (GET)
+//
+//	Content-Type: application/json
+//	JSON output: Array
+//
+// API::
 
-void ZapFR::Engine::AgentScriptFolderUpdate::run()
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolders_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    auto source = Source::getSource(mSourceID);
+    Poco::JSON::Array a;
+
+    auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        auto scriptFolder = source.value()->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
-        if (scriptFolder.has_value())
+        auto scriptFolders = source.value()->getScriptFolders();
+        for (const auto& scriptFolder : scriptFolders)
         {
-            scriptFolder.value()->update(mTitle);
-            mFinishedCallback(mSourceID, mScriptFolderID);
+            a.add(scriptFolder->toJSON());
         }
     }
 
-    mIsDone = true;
+    Poco::JSON::Stringifier::stringify(a, response.send());
+
+    return Poco::Net::HTTPResponse::HTTP_OK;
 }

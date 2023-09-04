@@ -26,6 +26,7 @@
 #include "ZapFR/remote/FeedRemote.h"
 #include "ZapFR/remote/FolderRemote.h"
 #include "ZapFR/remote/PostRemote.h"
+#include "ZapFR/remote/ScriptFolderRemote.h"
 
 ZapFR::Engine::SourceRemote::SourceRemote(uint64_t id) : Source(id)
 {
@@ -471,20 +472,82 @@ std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceRemote::getUse
 /* ************************** SCRIPT FOLDER STUFF ************************** */
 std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceRemote::getScriptFolders()
 {
+    std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> scriptFolders;
+
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/scriptfolders");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto scriptFolderArr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!scriptFolderArr.isNull())
+        {
+            for (size_t i = 0; i < scriptFolderArr->size(); ++i)
+            {
+                auto scriptFolderObj = scriptFolderArr->getObject(static_cast<uint32_t>(i));
+                scriptFolders.emplace_back(std::move(ScriptFolderRemote::fromJSON(this, scriptFolderObj)));
+            }
+        }
+    }
+    return scriptFolders;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceRemote::getScriptFolder(uint64_t id, uint32_t fetchInfo)
+{
+    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
+    {
+        auto uri = remoteURL();
+        if (mRemoteURLIsValid)
+        {
+            uri.setPath(fmt::format("/scriptfolder/{}", id));
+            auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+            auto parser = Poco::JSON::Parser();
+            auto root = parser.parse(json);
+            auto scriptFolderObj = root.extract<Poco::JSON::Object::Ptr>();
+            if (!scriptFolderObj.isNull())
+            {
+                return ScriptFolderRemote::fromJSON(this, scriptFolderObj);
+            }
+        }
+    }
+    else
+    {
+        return std::make_unique<ScriptFolderRemote>(id, this);
+    }
     return {};
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceRemote::getScriptFolder(uint64_t /*id*/)
+void ZapFR::Engine::SourceRemote::addScriptFolder(const std::string& title)
 {
-    return {};
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/scriptfolder");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        std::map<std::string, std::string> params;
+        params["title"] = title;
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+    }
 }
 
-void ZapFR::Engine::SourceRemote::addScriptFolder(const std::string& /*title*/)
+void ZapFR::Engine::SourceRemote::removeScriptFolder(uint64_t scriptFolderID)
 {
-}
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath(fmt::format("/scriptfolder/{}", scriptFolderID));
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-void ZapFR::Engine::SourceRemote::removeScriptFolder(uint64_t /*scriptFolderID*/)
-{
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_DELETE, creds, {});
+    }
 }
 
 /* ************************** SCRIPT STUFF ************************** */

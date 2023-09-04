@@ -104,7 +104,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
         }
         else if (parentType == "scriptfolder")
         {
-            auto scriptFolder = source.value()->getScriptFolder(parentID /*, ZapFR::Engine::Source::FetchInfo::None*/); // TODO: fix scriptfolder
+            auto scriptFolder = source.value()->getScriptFolder(parentID, ZapFR::Engine::Source::FetchInfo::None);
             if (scriptFolder.has_value())
             {
                 auto t = scriptFolder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);

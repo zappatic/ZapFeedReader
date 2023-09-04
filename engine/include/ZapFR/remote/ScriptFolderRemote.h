@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_SCRIPTFOLDERLOCAL_H
-#define ZAPFR_ENGINE_SCRIPTFOLDERLOCAL_H
+#ifndef ZAPFR_ENGINE_SCRIPTFOLDERREMOTE_H
+#define ZAPFR_ENGINE_SCRIPTFOLDERREMOTE_H
 
 #include "../ScriptFolder.h"
 
@@ -25,25 +25,20 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class ScriptFolderLocal : public ScriptFolder
+        class ScriptFolderRemote : public ScriptFolder
         {
           public:
-            explicit ScriptFolderLocal(uint64_t id, Source* parentSource);
-            ~ScriptFolderLocal() = default;
+            explicit ScriptFolderRemote(uint64_t id, Source* parentSource);
+            ~ScriptFolderRemote() = default;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                               FlagColor flagColor) override;
 
             void update(const std::string& title) override;
 
-            static std::vector<std::unique_ptr<ScriptFolder>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,
-                                                                            const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static std::optional<std::unique_ptr<ScriptFolder>> querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
-                                                                            const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static void create(const std::string& title);
-            static void remove(uint64_t scriptFolderID);
+            static std::unique_ptr<ScriptFolder> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_POSTLOCAL_H
+#endif // ZAPFR_ENGINE_SCRIPTFOLDERREMOTE_H

@@ -323,12 +323,19 @@ std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceLocal::getUsed
 /* ************************** SCRIPT FOLDER STUFF ************************** */
 std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceLocal::getScriptFolders()
 {
-    return ScriptFolderLocal::queryMultiple({}, "ORDER BY scriptfolders.id DESC", "", {});
+    return ScriptFolderLocal::queryMultiple(this, {}, "ORDER BY scriptfolders.id DESC", "", {});
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceLocal::getScriptFolder(uint64_t id)
+std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceLocal::getScriptFolder(uint64_t id, uint32_t fetchInfo)
 {
-    return ScriptFolderLocal::querySingle({"scriptfolders.id=?"}, {use(id, "id")});
+    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
+    {
+        return ScriptFolderLocal::querySingle(this, {"scriptfolders.id=?"}, {use(id, "id")});
+    }
+    else
+    {
+        return std::make_unique<ScriptFolderLocal>(id, this);
+    }
 }
 
 void ZapFR::Engine::SourceLocal::addScriptFolder(const std::string& title)

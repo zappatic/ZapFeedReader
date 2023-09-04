@@ -23,7 +23,7 @@
 
 using namespace Poco::Data::Keywords;
 
-ZapFR::Engine::ScriptFolderLocal::ScriptFolderLocal(uint64_t id) : ScriptFolder(id)
+ZapFR::Engine::ScriptFolderLocal::ScriptFolderLocal(uint64_t id, Source* parentSource) : ScriptFolder(id, parentSource)
 {
 }
 
@@ -74,7 +74,7 @@ void ZapFR::Engine::ScriptFolderLocal::update(const std::string& title)
     updateStmt << "UPDATE scriptfolders SET title=? WHERE id=?", useRef(title), use(mID), now;
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptFolderLocal::queryMultiple(const std::vector<std::string>& whereClause,
+std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptFolderLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                                           const std::string& orderClause, const std::string& limitClause,
                                                                                                           const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
 {
@@ -112,7 +112,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptF
     {
         if (selectStmt.execute() > 0)
         {
-            auto sfl = std::make_unique<ScriptFolderLocal>(id);
+            auto sfl = std::make_unique<ScriptFolderLocal>(id, parentSource);
             sfl->setTitle(title);
             scriptFolders.emplace_back(std::move(sfl));
         }
@@ -120,7 +120,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptF
     return scriptFolders;
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptFolderLocal::querySingle(const std::vector<std::string>& whereClause,
+std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptFolderLocal::querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                                           const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
 {
     uint64_t id{0};
@@ -155,7 +155,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::Scrip
     auto rs = Poco::Data::RecordSet(selectStmt);
     if (rs.rowCount() == 1)
     {
-        auto sfl = std::make_unique<ScriptFolderLocal>(id);
+        auto sfl = std::make_unique<ScriptFolderLocal>(id, parentSource);
         sfl->setTitle(title);
         return sfl;
     }

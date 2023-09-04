@@ -27,12 +27,17 @@ namespace ZapFR
     namespace Engine
     {
         class Post;
+        class Source;
 
         class ScriptFolder
         {
           public:
-            explicit ScriptFolder(uint64_t id) : mID(id) {}
+            ScriptFolder(uint64_t id, Source* parentSource);
             virtual ~ScriptFolder() = default;
+            ScriptFolder(const ScriptFolder& e) = delete;
+            ScriptFolder& operator=(const ScriptFolder&) = delete;
+            ScriptFolder(ScriptFolder&&) = delete;
+            ScriptFolder& operator=(ScriptFolder&&) = delete;
 
             uint64_t id() const noexcept { return mID; }
             std::string title() const noexcept { return mTitle; }
@@ -43,8 +48,13 @@ namespace ZapFR
 
             virtual void update(const std::string& title) = 0;
 
+            virtual Poco::JSON::Object toJSON();
+            static constexpr const char* JSONIdentifierScriptFolderID{"id"};
+            static constexpr const char* JSONIdentifierScriptFolderTitle{"title"};
+
           protected:
             uint64_t mID{0};
+            Source* mParentSource{nullptr};
             std::string mTitle{""};
         };
     } // namespace Engine

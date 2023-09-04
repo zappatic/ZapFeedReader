@@ -34,7 +34,7 @@ void ZapFR::Engine::AgentScriptFolderGetPosts::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto scriptFolder = source.value()->getScriptFolder(mScriptFolderID);
+        auto scriptFolder = source.value()->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
         if (scriptFolder.has_value())
         {
             auto [postCount, posts] = scriptFolder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
