@@ -113,14 +113,44 @@ std::vector<uint64_t> ZapFR::Engine::FolderRemote::feedIDsInFoldersAndSubfolders
     return {};
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FolderRemote::getLogs(uint64_t /*perPage*/, uint64_t /*page*/)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::FolderRemote::getLogs(uint64_t perPage, uint64_t page)
 {
-    return {};
-}
+    std::vector<std::unique_ptr<ZapFR::Engine::Log>> logs;
+    uint64_t logCount{0};
 
-uint64_t ZapFR::Engine::FolderRemote::getTotalLogCount()
-{
-    return 0;
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath("/logs");
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        std::map<std::string, std::string> params;
+        params["parentType"] = "folder";
+        params["parentID"] = std::to_string(mID);
+        params["perPage"] = std::to_string(perPage);
+        params["page"] = std::to_string(page);
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!rootObj.isNull())
+        {
+            logCount = rootObj->getValue<uint64_t>("count");
+            auto logArr = rootObj->getArray("logs");
+            if (!logArr.isNull())
+            {
+                for (size_t i = 0; i < logArr->size(); ++i)
+                {
+                    auto logObj = logArr->getObject(static_cast<uint32_t>(i));
+                    logs.emplace_back(std::move(Log::fromJSON(logObj)));
+                }
+            }
+        }
+    }
+
+    return std::make_tuple(logCount, std::move(logs));
 }
 
 std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::FolderRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)

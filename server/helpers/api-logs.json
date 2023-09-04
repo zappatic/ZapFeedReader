@@ -1,10 +1,10 @@
 {
-  "posts-list": {
-    "section": "Posts",
-    "description": "Returns all the posts belonging to a feed, folder or source with various filters applied",
+  "logs-list": {
+    "section": "Logs",
+    "description": "Returns all the logs belonging to a feed, folder or source",
     "method": "GET",
-    "path": "^\\/posts$",
-    "prettyPath": "/posts",
+    "path": "^\\/logs$",
+    "prettyPath": "/logs",
     "uriParameters": [],
     "parameters": [
       {
@@ -26,21 +26,6 @@
         "name": "page",
         "required": true,
         "description": "The page number to retrieve"
-      },
-      {
-        "name": "showOnlyUnread",
-        "required": false,
-        "description": "Whether to only retrieve unread posts - 'true' or 'false' - optional (default: false)"
-      },
-      {
-        "name": "searchFilter",
-        "required": false,
-        "description": "An optional search filter to apply"
-      },
-      {
-        "name": "flagColor",
-        "required": false,
-        "description": "The ID of a flag color to apply as a filter"
       }
     ],
     "requireCredentials": true,

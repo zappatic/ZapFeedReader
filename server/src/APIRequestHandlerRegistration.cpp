@@ -206,11 +206,26 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Logs)", R"(Returns all the logs belonging to a feed, folder or source)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/logs$)", R"(/logs)");
+				entry->addBodyParameter({R"(parentType)", true, R"(The type (source, folder, feed) to retrieve posts for)"});
+				entry->addBodyParameter({R"(parentID)", false, R"(The ID of the parent type (feedID or folderID); n/a in case of 'source')"});
+				entry->addBodyParameter({R"(perPage)", true, R"(The amount of records per page to retrieve)"});
+				entry->addBodyParameter({R"(page)", true, R"(The page number to retrieve)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_logs_list);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Posts)", R"(Returns all the posts belonging to a feed, folder or source with various filters applied)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/posts$)", R"(/posts)");
 				entry->addBodyParameter({R"(parentType)", true, R"(The type (source, folder, feed) to retrieve posts for)"});
-				entry->addBodyParameter({R"(parentID)", false, R"(The ID of the parent type (feedID or folderID); optional in case of 'source')"});
+				entry->addBodyParameter({R"(parentID)", false, R"(The ID of the parent type (feedID or folderID); n/a in case of 'source')"});
 				entry->addBodyParameter({R"(perPage)", true, R"(The amount of records per page to retrieve)"});
 				entry->addBodyParameter({R"(page)", true, R"(The page number to retrieve)"});
 				entry->addBodyParameter({R"(showOnlyUnread)", false, R"(Whether to only retrieve unread posts - 'true' or 'false' - optional (default: false))"});

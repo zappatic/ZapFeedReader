@@ -406,30 +406,23 @@ Poco::File ZapFR::Engine::FeedLocal::iconFile() const
     return Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FeedLocal::getLogs(uint64_t perPage, uint64_t page)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::FeedLocal::getLogs(uint64_t perPage, uint64_t page)
 {
     std::vector<std::string> whereClause;
-    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindingsLogs;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindingsLogCount;
 
     whereClause.emplace_back("logs.feedID=?");
-    bindings.emplace_back(use(mID, "feedID"));
+    bindingsLogs.emplace_back(use(mID, "feedID"));
+    bindingsLogCount.emplace_back(use(mID, "feedID"));
 
     auto offset = perPage * (page - 1);
-    bindings.emplace_back(use(perPage, "perPage"));
-    bindings.emplace_back(use(offset, "offset"));
+    bindingsLogs.emplace_back(use(perPage, "perPage"));
+    bindingsLogs.emplace_back(use(offset, "offset"));
 
-    return Log::queryMultiple(whereClause, "ORDER BY logs.id DESC", "LIMIT ? OFFSET ?", bindings);
-}
-
-uint64_t ZapFR::Engine::FeedLocal::getTotalLogCount()
-{
-    std::vector<std::string> whereClause;
-    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
-
-    whereClause.emplace_back("logs.feedID=?");
-    bindings.emplace_back(use(mID, "feedID"));
-
-    return Log::queryCount(whereClause, bindings);
+    auto logs = Log::queryMultiple(whereClause, "ORDER BY logs.id DESC", "LIMIT ? OFFSET ?", bindingsLogs);
+    auto logCount = Log::queryCount(whereClause, bindingsLogCount);
+    return std::make_tuple(logCount, std::move(logs));
 }
 
 void ZapFR::Engine::FeedLocal::fetchStatistics()

@@ -35,14 +35,14 @@ void ZapFR::Engine::AgentFeedGetLogs::run()
         auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
         if (feed.has_value())
         {
-            auto logs = feed.value()->getLogs(mPerPage, mPage);
+            auto [logCount, logs] = feed.value()->getLogs(mPerPage, mPage);
             std::vector<Log*> logPointers;
             for (const auto& log : logs)
             {
                 logPointers.emplace_back(log.get());
             }
 
-            mFinishedCallback(mSourceID, logPointers, mPage, feed.value()->getTotalLogCount());
+            mFinishedCallback(mSourceID, logPointers, mPage, logCount);
         }
     }
 

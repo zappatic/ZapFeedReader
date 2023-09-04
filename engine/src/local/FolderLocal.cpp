@@ -210,7 +210,7 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders(
     return feedIDs;
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FolderLocal::getLogs(uint64_t perPage, uint64_t page)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::FolderLocal::getLogs(uint64_t perPage, uint64_t page)
 {
     auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
     if (joinedFeedIDs.empty())
@@ -227,23 +227,9 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FolderLocal::get
     bindings.emplace_back(use(perPage, "perPage"));
     bindings.emplace_back(use(offset, "offset"));
 
-    return Log::queryMultiple(whereClause, "ORDER BY logs.id DESC", "LIMIT ? OFFSET ?", bindings);
-}
-
-uint64_t ZapFR::Engine::FolderLocal::getTotalLogCount()
-{
-    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
-    if (joinedFeedIDs.empty())
-    {
-        return 0;
-    }
-
-    std::vector<std::string> whereClause;
-    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
-
-    whereClause.emplace_back(Poco::format("logs.feedID IN (%s)", joinedFeedIDs));
-
-    return Log::queryCount(whereClause, bindings);
+    auto logs = Log::queryMultiple(whereClause, "ORDER BY logs.id DESC", "LIMIT ? OFFSET ?", bindings);
+    auto logCount = Log::queryCount(whereClause, {});
+    return std::make_tuple(logCount, std::move(logs));
 }
 
 Poco::JSON::Object ZapFR::Engine::FolderLocal::toJSON()

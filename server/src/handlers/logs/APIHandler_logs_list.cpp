@@ -19,47 +19,33 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "ZapFR/Flag.h"
+#include "ZapFR/Feed.h"
+#include "ZapFR/Folder.h"
+#include "ZapFR/Log.h"
 #include "ZapFR/Source.h"
-#include "ZapFR/local/FeedLocal.h"
-#include "ZapFR/local/FolderLocal.h"
-#include "ZapFR/local/PostLocal.h"
-#include "ZapFR/local/ScriptFolderLocal.h"
 
 // ::API
 //
-//	Returns all the posts belonging to a feed, folder or source with various filters applied
-//	/posts (GET)
+//	Returns all the logs belonging to a feed, folder or source
+//	/logs (GET)
 //
 //	Parameters:
 //		parentType (REQD) - The type (source, folder, feed) to retrieve posts for - apiRequest->parameter("parentType")
 //		parentID - The ID of the parent type (feedID or folderID); n/a in case of 'source' - apiRequest->parameter("parentID")
 //		perPage (REQD) - The amount of records per page to retrieve - apiRequest->parameter("perPage")
 //		page (REQD) - The page number to retrieve - apiRequest->parameter("page")
-//		showOnlyUnread - Whether to only retrieve unread posts - 'true' or 'false' - optional (default: false) - apiRequest->parameter("showOnlyUnread")
-//		searchFilter - An optional search filter to apply - apiRequest->parameter("searchFilter")
-//		flagColor - The ID of a flag color to apply as a filter - apiRequest->parameter("flagColor")
 //
 //	Content-Type: application/json
 //	JSON output: Object
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_logs_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto parentType = apiRequest->parameter("parentType");
     const auto parentIDStr = apiRequest->parameter("parentID");
     const auto perPageStr = apiRequest->parameter("perPage");
     const auto pageStr = apiRequest->parameter("page");
-    const auto showOnlyUnread = (apiRequest->parameter("showOnlyUnread") == "true");
-    const auto searchFilter = apiRequest->parameter("searchFilter");
-    const auto flagColorStr = apiRequest->parameter("flagColor");
-
-    ZapFR::Engine::FlagColor flagFilter{ZapFR::Engine::FlagColor::Gray};
-    if (!flagColorStr.empty())
-    {
-        flagFilter = ZapFR::Engine::Flag::flagColorForName(flagColorStr);
-    }
 
     uint64_t perPage{1000};
     uint64_t page{1};
@@ -73,43 +59,33 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
     if (source.has_value())
     {
         Poco::JSON::Array arr;
-        uint64_t postCount{0};
+        uint64_t logCount{0};
 
-        std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
+        std::vector<std::unique_ptr<ZapFR::Engine::Log>> logs;
         if (parentType == "feed")
         {
             auto feed = source.value()->getFeed(parentID, ZapFR::Engine::Source::FetchInfo::None);
             if (feed.has_value())
             {
-                auto t = feed.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
-                postCount = std::get<uint64_t>(t);
-                posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
+                auto t = feed.value()->getLogs(perPage, page);
+                logCount = std::get<uint64_t>(t);
+                logs = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Log>>>(t));
             }
         }
         else if (parentType == "source")
         {
-            auto t = source.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
-            postCount = std::get<uint64_t>(t);
-            posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
+            auto t = source.value()->getLogs(perPage, page);
+            logCount = std::get<uint64_t>(t);
+            logs = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Log>>>(t));
         }
         else if (parentType == "folder")
         {
             auto folder = source.value()->getFolder(parentID, ZapFR::Engine::Source::FetchInfo::None);
             if (folder.has_value())
             {
-                auto t = folder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
-                postCount = std::get<uint64_t>(t);
-                posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
-            }
-        }
-        else if (parentType == "scriptfolder")
-        {
-            auto scriptFolder = source.value()->getScriptFolder(parentID /*, ZapFR::Engine::Source::FetchInfo::None*/); // TODO: fix scriptfolder
-            if (scriptFolder.has_value())
-            {
-                auto t = scriptFolder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
-                postCount = std::get<uint64_t>(t);
-                posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
+                auto t = folder.value()->getLogs(perPage, page);
+                logCount = std::get<uint64_t>(t);
+                logs = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Log>>>(t));
             }
         }
         else
@@ -117,12 +93,12 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
             throw std::runtime_error("Invalid parent type requested");
         }
 
-        for (const auto& post : posts)
+        for (const auto& log : logs)
         {
-            arr.add(post->toJSON());
+            arr.add(log->toJSON());
         }
-        o.set("posts", arr);
-        o.set("count", postCount);
+        o.set("logs", arr);
+        o.set("count", logCount);
     }
 
     Poco::JSON::Stringifier::stringify(o, response.send());

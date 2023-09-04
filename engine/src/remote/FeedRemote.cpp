@@ -49,29 +49,22 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         params["searchFilter"] = searchFilter;
         params["flagColor"] = Flag::nameForFlagColor(flagColor);
 
-        try
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!rootObj.isNull())
         {
-            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
-            auto parser = Poco::JSON::Parser();
-            auto root = parser.parse(json);
-            auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
-            if (!rootObj.isNull())
+            postCount = rootObj->getValue<uint64_t>("count");
+            auto postArr = rootObj->getArray("posts");
+            if (!postArr.isNull())
             {
-                postCount = rootObj->getValue<uint64_t>("count");
-                auto postArr = rootObj->getArray("posts");
-                if (!postArr.isNull())
+                for (size_t i = 0; i < postArr->size(); ++i)
                 {
-                    for (size_t i = 0; i < postArr->size(); ++i)
-                    {
-                        auto postObj = postArr->getObject(static_cast<uint32_t>(i));
-                        posts.emplace_back(std::move(PostRemote::fromJSON(postObj)));
-                    }
+                    auto postObj = postArr->getObject(static_cast<uint32_t>(i));
+                    posts.emplace_back(std::move(PostRemote::fromJSON(postObj)));
                 }
             }
-        }
-        catch (...)
-        {
-            return std::make_tuple(postCount, std::move(posts));
         }
     }
 
@@ -122,14 +115,44 @@ std::string ZapFR::Engine::FeedRemote::icon() const
     return "";
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::FeedRemote::getLogs(uint64_t /*perPage*/, uint64_t /*page*/)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::FeedRemote::getLogs(uint64_t perPage, uint64_t page)
 {
-    return {};
-}
+    std::vector<std::unique_ptr<ZapFR::Engine::Log>> logs;
+    uint64_t logCount{0};
 
-uint64_t ZapFR::Engine::FeedRemote::getTotalLogCount()
-{
-    return 0;
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath("/logs");
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        std::map<std::string, std::string> params;
+        params["parentType"] = "feed";
+        params["parentID"] = std::to_string(mID);
+        params["perPage"] = std::to_string(perPage);
+        params["page"] = std::to_string(page);
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!rootObj.isNull())
+        {
+            logCount = rootObj->getValue<uint64_t>("count");
+            auto logArr = rootObj->getArray("logs");
+            if (!logArr.isNull())
+            {
+                for (size_t i = 0; i < logArr->size(); ++i)
+                {
+                    auto logObj = logArr->getObject(static_cast<uint32_t>(i));
+                    logs.emplace_back(std::move(Log::fromJSON(logObj)));
+                }
+            }
+        }
+    }
+
+    return std::make_tuple(logCount, std::move(logs));
 }
 
 void ZapFR::Engine::FeedRemote::updateProperties(const std::string& /*feedURL*/, std::optional<uint64_t> /*refreshIntervalInSeconds*/)

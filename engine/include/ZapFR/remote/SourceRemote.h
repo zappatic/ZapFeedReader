@@ -53,8 +53,7 @@ namespace ZapFR
             void setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) override;
 
             // log stuff
-            std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
-            uint64_t getTotalLogCount() override;
+            std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
 
             // flag stuff
             std::unordered_set<FlagColor> getUsedFlagColors() override;

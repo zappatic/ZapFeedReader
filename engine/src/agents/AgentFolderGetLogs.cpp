@@ -35,14 +35,14 @@ void ZapFR::Engine::AgentFolderGetLogs::run()
         auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
         if (folder.has_value())
         {
-            auto logs = folder.value()->getLogs(mPerPage, mPage);
+            auto [logCount, logs] = folder.value()->getLogs(mPerPage, mPage);
             std::vector<Log*> logPointers;
             for (const auto& log : logs)
             {
                 logPointers.emplace_back(log.get());
             }
 
-            mFinishedCallback(mSourceID, logPointers, mPage, folder.value()->getTotalLogCount());
+            mFinishedCallback(mSourceID, logPointers, mPage, logCount);
         }
     }
 

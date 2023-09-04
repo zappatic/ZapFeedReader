@@ -58,6 +58,15 @@ namespace ZapFR
                                                                    const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static uint64_t queryCount(const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
 
+            virtual Poco::JSON::Object toJSON();
+            static std::unique_ptr<ZapFR::Engine::Log> fromJSON(const Poco::JSON::Object::Ptr o);
+            static constexpr const char* JSONIdentifierLogID{"id"};
+            static constexpr const char* JSONIdentifierLogTimestamp{"timestamp"};
+            static constexpr const char* JSONIdentifierLogLevel{"level"};
+            static constexpr const char* JSONIdentifierLogMessage{"message"};
+            static constexpr const char* JSONIdentifierLogFeedID{"feedID"};
+            static constexpr const char* JSONIdentifierLogFeedTitle{"feedTitle"};
+
           protected:
             uint64_t mID{0};
             std::string mTimestamp{""};

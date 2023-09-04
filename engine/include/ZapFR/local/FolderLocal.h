@@ -35,8 +35,7 @@ namespace ZapFR
                                                                               FlagColor flagColor) override;
             std::unordered_set<uint64_t> markAllAsRead() override;
 
-            std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
-            uint64_t getTotalLogCount() override;
+            std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
 
             void fetchSubfolders();
             void fetchStatistics();

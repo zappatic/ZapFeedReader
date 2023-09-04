@@ -235,7 +235,7 @@ void ZapFR::Engine::SourceLocal::setPostsReadStatus(bool markAsRead, const std::
 }
 
 /* ************************** LOGS STUFF ************************** */
-std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::getLogs(uint64_t perPage, uint64_t page)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::SourceLocal::getLogs(uint64_t perPage, uint64_t page)
 {
     std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
 
@@ -243,12 +243,9 @@ std::vector<std::unique_ptr<ZapFR::Engine::Log>> ZapFR::Engine::SourceLocal::get
     bindings.emplace_back(use(perPage, "perPage"));
     bindings.emplace_back(use(offset, "offset"));
 
-    return Log::queryMultiple({}, "ORDER BY logs.id DESC", "LIMIT ? OFFSET ?", bindings);
-}
-
-uint64_t ZapFR::Engine::SourceLocal::getTotalLogCount()
-{
-    return Log::queryCount({}, {});
+    auto logs = Log::queryMultiple({}, "ORDER BY logs.id DESC", "LIMIT ? OFFSET ?", bindings);
+    auto logCount = Log::queryCount({}, {});
+    return std::make_tuple(logCount, std::move(logs));
 }
 
 /* ************************** FLAG STUFF ************************** */

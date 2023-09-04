@@ -66,8 +66,7 @@ namespace ZapFR
                                                                                       FlagColor flagColor) = 0;
             virtual std::unordered_set<uint64_t> markAllAsRead() = 0;
 
-            virtual std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) = 0;
-            virtual uint64_t getTotalLogCount() = 0;
+            virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;
 
             void setDataFetched(bool b) { mDataFetched = b; }
 

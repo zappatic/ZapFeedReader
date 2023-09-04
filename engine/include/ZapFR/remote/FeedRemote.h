@@ -35,8 +35,7 @@ namespace ZapFR
                                                                               FlagColor flagColor) override;
             std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
 
-            std::vector<std::unique_ptr<Log>> getLogs(uint64_t perPage, uint64_t page) override;
-            uint64_t getTotalLogCount() override;
+            std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
 
             bool refresh(const std::optional<std::string>& feedXML) override;
             void markAllAsRead() override;
