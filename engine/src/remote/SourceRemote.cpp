@@ -96,8 +96,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::g
 
 std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::getFeed(uint64_t feedID, uint32_t fetchInfo)
 {
-    // FetchInfo::Statistics is implied
-    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
+    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data || (fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics ||
+        (fetchInfo & FetchInfo::FeedUnreadCount) == FetchInfo::FeedUnreadCount)
     {
         auto uri = remoteURL();
         if (mRemoteURLIsValid)
@@ -105,7 +105,21 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote:
             uri.setPath(fmt::format("/feed/{}", feedID));
             auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+            std::map<std::string, std::string> params;
+            if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
+            {
+                params["getData"] = "true";
+            }
+            if ((fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
+            {
+                params["getStatistics"] = "true";
+            }
+            if ((fetchInfo & FetchInfo::FeedUnreadCount) == FetchInfo::FeedUnreadCount)
+            {
+                params["getUnreadCount"] = "true";
+            }
+
+            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
             auto parser = Poco::JSON::Parser();
             auto root = parser.parse(json);
             auto feedObj = root.extract<Poco::JSON::Object::Ptr>();

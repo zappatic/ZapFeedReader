@@ -30,6 +30,11 @@
 //	URI parameters:
 //		feedID - The id of the feed to retrieve - apiRequest->pathComponentAt(1)
 //
+//	Parameters:
+//		getData - Whether to fetch the full feed data from the database ('true' or 'false'; default false) - apiRequest->parameter("getData")
+//		getStatistics - Whether to fetch the statistics of the feed ('true' or 'false'; default false) - apiRequest->parameter("getStatistics")
+//		getUnreadCount - Whether to fetch the unread count of the feed ('true' or 'false'; default false) - apiRequest->parameter("getUnreadCount")
+//
 //	Content-Type: application/json
 //	JSON output: Object
 //
@@ -38,6 +43,12 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_get([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto feedIDStr = apiRequest->pathComponentAt(1);
+    const auto getData = (apiRequest->parameter("getData") == "true");
+    const auto getStatistics = (apiRequest->parameter("getStatistics") == "true");
+    const auto getUnreadCount = (apiRequest->parameter("getUnreadCount") == "true");
+
+    // caveat:
+    // getStatistics requires
 
     uint64_t feedID{0};
     Poco::NumberParser::tryParseUnsigned64(feedIDStr, feedID);
@@ -48,7 +59,20 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_get([[maybe_u
         auto source = ZapFR::Engine::Source::getSource(1);
         if (source.has_value())
         {
-            auto feed = source.value()->getFeed(feedID, ZapFR::Engine::Source::FetchInfo::Data | ZapFR::Engine::Source::FetchInfo::Statistics);
+            uint32_t fetchInfo{0};
+            if (getData)
+            {
+                fetchInfo |= ZapFR::Engine::Source::FetchInfo::Data;
+            }
+            if (getStatistics)
+            {
+                fetchInfo |= ZapFR::Engine::Source::FetchInfo::Statistics;
+            }
+            if (getUnreadCount)
+            {
+                fetchInfo |= ZapFR::Engine::Source::FetchInfo::FeedUnreadCount;
+            }
+            auto feed = source.value()->getFeed(feedID, fetchInfo);
             if (feed.has_value())
             {
                 o = feed.value()->toJSON();

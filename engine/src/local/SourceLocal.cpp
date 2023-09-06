@@ -42,15 +42,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
 
 std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID, uint32_t fetchInfo)
 {
-    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
+    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data || (fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics ||
+        (fetchInfo & FetchInfo::FeedUnreadCount) == FetchInfo::FeedUnreadCount)
     {
-        auto feed = FeedLocal::querySingle(this, {"feeds.id=?"}, {use(feedID, "id")});
-        if (feed.has_value() && (fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
-        {
-            auto localFeed = dynamic_cast<FeedLocal*>(feed.value().get());
-            localFeed->fetchStatistics();
-        }
-        return feed;
+        return FeedLocal::querySingle(this, {"feeds.id=?"}, {use(feedID, "id")}, fetchInfo);
     }
     else
     {
@@ -78,7 +73,8 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
         auto iconURL = parsedFeed->iconURL();
 
         feed->update(iconURL, guid, title, subtitle, link, description, language, copyright);
-        feed->refresh(ff.xml());
+        feed->setFeedXML(ff.xml());
+        feed->refresh();
     }
     catch (const Poco::Exception& e)
     {

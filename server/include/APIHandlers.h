@@ -40,6 +40,7 @@ namespace ZapFR
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_get(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_markasread(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_move(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_refresh(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_remove(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_update(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feeds_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);

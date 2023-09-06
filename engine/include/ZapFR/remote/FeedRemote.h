@@ -37,7 +37,7 @@ namespace ZapFR
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
 
-            bool refresh(const std::optional<std::string>& feedXML) override;
+            bool refresh() override;
             void markAllAsRead() override;
 
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;

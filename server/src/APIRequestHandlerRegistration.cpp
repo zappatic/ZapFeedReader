@@ -64,6 +64,9 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/feed/([0-9]+)$)", R"(/feed/<feedID>)");
 				entry->addURIParameter({R"(feedID)", R"(The id of the feed to retrieve)"});
+				entry->addBodyParameter({R"(getData)", false, R"(Whether to fetch the full feed data from the database ('true' or 'false'; default false))"});
+				entry->addBodyParameter({R"(getStatistics)", false, R"(Whether to fetch the statistics of the feed ('true' or 'false'; default false))"});
+				entry->addBodyParameter({R"(getUnreadCount)", false, R"(Whether to fetch the unread count of the feed ('true' or 'false'; default false))"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
@@ -94,6 +97,18 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
 				entry->setHandler(ZapFR::Server::APIHandler_feed_move);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Manually refreshes the feed)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/feed/([0-9]+)/refresh$)", R"(/feed/<feedID>/refresh)");
+				entry->addURIParameter({R"(feedID)", R"(The id of the feed to refresh)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_feed_refresh);
 				msAPIs.emplace_back(std::move(entry));
 			}
 

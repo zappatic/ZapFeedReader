@@ -41,12 +41,13 @@ namespace ZapFR
 
             void fetchData();
             void fetchStatistics();
-            bool refresh(const std::optional<std::string>& feedXML) override;
+            bool refresh() override;
             void markAllAsRead() override;
             void markAsRead(uint64_t postID);
             void markAsUnread(uint64_t postID);
             void refreshIcon();
             void removeIcon();
+            void setFeedXML(const std::string& feedXML) { mFeedXML = feedXML; }
 
             void processItems(FeedParser* parsedFeed);
 
@@ -56,7 +57,7 @@ namespace ZapFR
                                                                     const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings,
                                                                     uint32_t fetchInfo);
             static std::optional<std::unique_ptr<ZapFR::Engine::Feed>> querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
-                                                                                   const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+                                                                                   const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings, uint32_t fetchInfo);
             static uint64_t nextSortOrder(uint64_t folderID);
             static std::unique_ptr<FeedLocal> create(Source* parentSource, const std::string& url, const std::string& title, uint64_t parentFolderID);
             static void move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder);
@@ -69,6 +70,8 @@ namespace ZapFR
                         const std::string& description, const std::string& language, const std::string& copyright);
 
           private:
+            std::optional<std::string> mFeedXML{};
+
             static std::string msIconDir;
             static std::mutex msCreateFeedMutex;
             static Poco::File iconFile(uint64_t feedID);

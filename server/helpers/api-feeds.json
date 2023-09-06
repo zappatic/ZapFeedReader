@@ -26,7 +26,23 @@
     "uriParameters": [
       { "name": "feedID", "description": "The id of the feed to retrieve" }
     ],
-    "parameters": [],
+    "parameters": [
+      {
+        "name": "getData",
+        "required": false,
+        "description": "Whether to fetch the full feed data from the database ('true' or 'false'; default false)"
+      },
+      {
+        "name": "getStatistics",
+        "required": false,
+        "description": "Whether to fetch the statistics of the feed ('true' or 'false'; default false)"
+      },
+      {
+        "name": "getUnreadCount",
+        "required": false,
+        "description": "Whether to fetch the unread count of the feed ('true' or 'false'; default false)"
+      }
+    ],
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
@@ -131,6 +147,23 @@
         "description": "The new refresh interval of the feed in seconds (optional, uses global default if not specified)"
       }
     ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "feed-refresh": {
+    "section": "Feeds",
+    "description": "Manually refreshes the feed",
+    "method": "POST",
+    "path": "^\\/feed/([0-9]+)/refresh$",
+    "prettyPath": "/feed/<feedID>/refresh",
+    "uriParameters": [
+      {
+        "name": "feedID",
+        "description": "The id of the feed to refresh"
+      }
+    ],
+    "parameters": [],
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"

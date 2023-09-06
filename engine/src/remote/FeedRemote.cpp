@@ -95,9 +95,32 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedRemote::g
     return {};
 }
 
-bool ZapFR::Engine::FeedRemote::refresh(const std::optional<std::string>& /*feedXML*/)
+bool ZapFR::Engine::FeedRemote::refresh()
 {
-    return true;
+    auto refreshSuccessful{false};
+
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath(fmt::format("/feed/{}/refresh", mID));
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!rootObj.isNull())
+        {
+            refreshSuccessful = rootObj->getValue<bool>("success");
+            if (!refreshSuccessful)
+            {
+                auto error = rootObj->getValue<std::string>("error");
+                setLastRefreshError(error);
+            }
+        }
+    }
+    return refreshSuccessful;
 }
 
 void ZapFR::Engine::FeedRemote::markAllAsRead()

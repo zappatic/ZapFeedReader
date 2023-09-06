@@ -35,7 +35,7 @@ void ZapFR::Engine::AgentFeedRefresh::run()
         if (feed.has_value())
         {
             std::optional<std::string> error;
-            if (!feed.value()->refresh({}))
+            if (!feed.value()->refresh())
             {
                 error = feed.value()->lastRefreshError();
             }

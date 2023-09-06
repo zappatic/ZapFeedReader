@@ -134,7 +134,7 @@ void ZapFR::Engine::FeedLocal::fetchData()
     }
 }
 
-bool ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML)
+bool ZapFR::Engine::FeedLocal::refresh()
 {
     Log::log(LogLevel::Info, "Refreshing feed", mID);
     fetchData();
@@ -148,9 +148,9 @@ bool ZapFR::Engine::FeedLocal::refresh(const std::optional<std::string>& feedXML
     try
     {
         FeedFetcher ff;
-        if (feedXML.has_value())
+        if (mFeedXML.has_value())
         {
-            auto parsedFeed = ff.parseString(feedXML.value(), mURL);
+            auto parsedFeed = ff.parseString(mFeedXML.value(), mURL);
             processItems(parsedFeed.get());
         }
         else
@@ -590,7 +590,7 @@ void ZapFR::Engine::FeedLocal::resort(uint64_t folder)
 
 void ZapFR::Engine::FeedLocal::remove(Source* parentSource, uint64_t feedID)
 {
-    auto feed = querySingle(parentSource, {"feeds.id=?"}, {use(feedID, "id")});
+    auto feed = querySingle(parentSource, {"feeds.id=?"}, {use(feedID, "id")}, Source::FetchInfo::Data);
     if (feed.has_value())
     {
         auto localFeed = dynamic_cast<FeedLocal*>(feed.value().get());
@@ -742,7 +742,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
 }
 
 std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
-                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings, uint32_t fetchInfo)
 {
     uint64_t id;
     std::string url;
@@ -843,7 +843,14 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
             f->setRefreshInterval(refreshInterval.value());
         }
         f->setSortOrder(sortOrder);
-        f->fetchUnreadCount();
+        if ((fetchInfo & Source::FetchInfo::FeedUnreadCount) == Source::FetchInfo::FeedUnreadCount)
+        {
+            f->fetchUnreadCount();
+        }
+        if ((fetchInfo & Source::FetchInfo::Statistics) == Source::FetchInfo::Statistics)
+        {
+            f->fetchStatistics();
+        }
         f->setDataFetched(true);
         return f;
     }
