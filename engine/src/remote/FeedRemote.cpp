@@ -153,8 +153,25 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
     return std::make_tuple(logCount, std::move(logs));
 }
 
-void ZapFR::Engine::FeedRemote::updateProperties(const std::string& /*feedURL*/, std::optional<uint64_t> /*refreshIntervalInSeconds*/)
+void ZapFR::Engine::FeedRemote::updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds)
 {
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath(fmt::format("/feed/{}", mID));
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        std::map<std::string, std::string> params;
+        params["url"] = feedURL;
+        params["refreshInterval"] = "";
+        if (refreshIntervalInSeconds.has_value())
+        {
+            params["refreshInterval"] = std::to_string(refreshIntervalInSeconds.value());
+        }
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_PATCH, creds, params);
+    }
 }
 
 std::unique_ptr<ZapFR::Engine::Feed> ZapFR::Engine::FeedRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)

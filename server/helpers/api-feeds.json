@@ -106,5 +106,33 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "feed-update": {
+    "section": "Feeds",
+    "description": "Updates the properties of a feed",
+    "method": "PATCH",
+    "path": "^\\/feed/([0-9]+)$",
+    "prettyPath": "/feed/<feedID>",
+    "uriParameters": [
+      {
+        "name": "feedID",
+        "description": "The id of the feed to update"
+      }
+    ],
+    "parameters": [
+      {
+        "name": "url",
+        "required": true,
+        "description": "The new url of the feed"
+      },
+      {
+        "name": "refreshInterval",
+        "required": false,
+        "description": "The new refresh interval of the feed in seconds (optional, uses global default if not specified)"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }

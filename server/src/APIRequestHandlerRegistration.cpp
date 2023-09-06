@@ -110,6 +110,20 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Updates the properties of a feed)");
+				entry->setMethod("PATCH");
+				entry->setPath(R"(^\/feed/([0-9]+)$)", R"(/feed/<feedID>)");
+				entry->addURIParameter({R"(feedID)", R"(The id of the feed to update)"});
+				entry->addBodyParameter({R"(url)", true, R"(The new url of the feed)"});
+				entry->addBodyParameter({R"(refreshInterval)", false, R"(The new refresh interval of the feed in seconds (optional, uses global default if not specified))"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_feed_update);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Returns all the feeds within the source)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/feeds$)", R"(/feeds)");

@@ -24,6 +24,7 @@ target_sources(zapfeedreader-server PRIVATE
 	handlers/feeds/APIHandler_feed_markasread.cpp
 	handlers/feeds/APIHandler_feed_move.cpp
 	handlers/feeds/APIHandler_feed_remove.cpp
+	handlers/feeds/APIHandler_feed_update.cpp
 	handlers/feeds/APIHandler_feeds_list.cpp
 	handlers/folders/APIHandler_folder_add.cpp
 	handlers/folders/APIHandler_folder_get.cpp
