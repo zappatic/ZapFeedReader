@@ -351,12 +351,19 @@ void ZapFR::Engine::SourceLocal::removeScriptFolder(uint64_t scriptFolderID)
 /* ************************** SCRIPT STUFF ************************** */
 std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal::getScripts()
 {
-    return ScriptLocal::queryMultiple({}, "ORDER BY scripts.id DESC", "", {});
+    return ScriptLocal::queryMultiple(this, {}, "ORDER BY scripts.id DESC", "", {});
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal::getScript(uint64_t scriptID)
+std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceLocal::getScript(uint64_t scriptID, uint32_t fetchInfo)
 {
-    return ScriptLocal::querySingle({"scripts.id=?"}, {use(scriptID, "id")});
+    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
+    {
+        return ScriptLocal::querySingle(this, {"scripts.id=?"}, {use(scriptID, "id")});
+    }
+    else
+    {
+        return std::make_unique<ScriptLocal>(scriptID, this);
+    }
 }
 
 void ZapFR::Engine::SourceLocal::removeScript(uint64_t scriptID)

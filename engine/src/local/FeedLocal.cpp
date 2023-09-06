@@ -625,6 +625,7 @@ void ZapFR::Engine::FeedLocal::remove(Source* parentSource, uint64_t feedID)
             Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
             deleteStmt << "DELETE FROM posts WHERE feedID=?", use(feedID), now;
         }
+        // TODO: remove all scripts->runOnFeedIDs
 
         resort(folder);
     }

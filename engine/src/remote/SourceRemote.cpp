@@ -27,6 +27,7 @@
 #include "ZapFR/remote/FolderRemote.h"
 #include "ZapFR/remote/PostRemote.h"
 #include "ZapFR/remote/ScriptFolderRemote.h"
+#include "ZapFR/remote/ScriptRemote.h"
 
 ZapFR::Engine::SourceRemote::SourceRemote(uint64_t id) : Source(id)
 {
@@ -553,21 +554,87 @@ void ZapFR::Engine::SourceRemote::removeScriptFolder(uint64_t scriptFolderID)
 /* ************************** SCRIPT STUFF ************************** */
 std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceRemote::getScripts()
 {
+    std::vector<std::unique_ptr<ZapFR::Engine::Script>> scripts;
+
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/scripts");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto scriptArr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!scriptArr.isNull())
+        {
+            for (size_t i = 0; i < scriptArr->size(); ++i)
+            {
+                auto scriptObj = scriptArr->getObject(static_cast<uint32_t>(i));
+                scripts.emplace_back(std::move(ScriptRemote::fromJSON(this, scriptObj)));
+            }
+        }
+    }
+    return scripts;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceRemote::getScript(uint64_t scriptID, uint32_t fetchInfo)
+{
+    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
+    {
+        auto uri = remoteURL();
+        if (mRemoteURLIsValid)
+        {
+            uri.setPath(fmt::format("/script/{}", scriptID));
+            auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+            auto parser = Poco::JSON::Parser();
+            auto root = parser.parse(json);
+            auto scriptObj = root.extract<Poco::JSON::Object::Ptr>();
+            if (!scriptObj.isNull())
+            {
+                return ScriptRemote::fromJSON(this, scriptObj);
+            }
+        }
+    }
+    else
+    {
+        return std::make_unique<ScriptRemote>(scriptID, this);
+    }
     return {};
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceRemote::getScript(uint64_t /*scriptID*/)
+void ZapFR::Engine::SourceRemote::removeScript(uint64_t scriptID)
 {
-    return {};
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath(fmt::format("/script/{}", scriptID));
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_DELETE, creds, {});
+    }
 }
 
-void ZapFR::Engine::SourceRemote::removeScript(uint64_t /*scriptID*/)
+void ZapFR::Engine::SourceRemote::addScript(Script::Type /*type*/, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
+                                            const std::optional<std::unordered_set<uint64_t>>& feedIDs)
 {
-}
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/script");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-void ZapFR::Engine::SourceRemote::addScript(Script::Type /*type*/, const std::string& /*filename*/, bool /*enabled*/, const std::unordered_set<Script::Event>& /*events*/,
-                                            const std::optional<std::unordered_set<uint64_t>>& /*feedIDs*/)
-{
+        std::map<std::string, std::string> params;
+        params["type"] = Script::msTypeLuaIdentifier; // forced to lua
+        params["filename"] = filename;
+        params["isEnabled"] = enabled ? "true" : "false";
+        params["runOnEvents"] = Script::runOnEventsString(events);
+        params["runOnFeedIDs"] = Script::runOnFeedIDsString(feedIDs);
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+    }
 }
 
 /* ************************** SOURCE STUFF ************************** */

@@ -1,0 +1,123 @@
+{
+  "scripts-list": {
+    "section": "Scripts",
+    "description": "Returns all the scripts within the source",
+    "method": "GET",
+    "path": "^\\/scripts$",
+    "prettyPath": "/scripts",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
+  },
+  "script-get": {
+    "section": "Scripts",
+    "description": "Retrieves a script",
+    "method": "GET",
+    "path": "^\\/script/([0-9]+)$",
+    "prettyPath": "/script/<scriptID>",
+    "uriParameters": [
+      { "name": "scriptID", "description": "The id of the script to retrieve" }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "script-add": {
+    "section": "Scripts",
+    "description": "Adds a script",
+    "method": "POST",
+    "path": "^\\/script$",
+    "prettyPath": "/script",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "type",
+        "required": true,
+        "description": "The type of the script ('lua')"
+      },
+      {
+        "name": "filename",
+        "required": true,
+        "description": "The filename of the script"
+      },
+      {
+        "name": "isEnabled",
+        "required": true,
+        "description": "Whether the script is enabled or not ('true' or 'false')"
+      },
+      {
+        "name": "runOnEvents",
+        "required": false,
+        "description": "A comma separated list of events the script should run on"
+      },
+      {
+        "name": "runOnFeedIDs",
+        "required": false,
+        "description": "A comma separated list of feedIDs the script should run for"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "script-remove": {
+    "section": "Scripts",
+    "description": "Removes a script",
+    "method": "DELETE",
+    "path": "^\\/script/([0-9]+)$",
+    "prettyPath": "/script/<scriptID>",
+    "uriParameters": [
+      { "name": "scriptID", "description": "The id of the script to delete" }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "script-update": {
+    "section": "Scripts",
+    "description": "Updates the properties of a script",
+    "method": "PATCH",
+    "path": "^\\/script/([0-9]+)$",
+    "prettyPath": "/script/<scriptID>",
+    "uriParameters": [
+      {
+        "name": "scriptID",
+        "description": "The id of the script to update"
+      }
+    ],
+    "parameters": [
+      {
+        "name": "type",
+        "required": true,
+        "description": "The type of the script ('lua')"
+      },
+      {
+        "name": "filename",
+        "required": true,
+        "description": "The filename of the script"
+      },
+      {
+        "name": "isEnabled",
+        "required": true,
+        "description": "Whether the script is enabled or not ('true' or 'false')"
+      },
+      {
+        "name": "runOnEvents",
+        "required": false,
+        "description": "A comma separated list of events the script should run on"
+      },
+      {
+        "name": "runOnFeedIDs",
+        "required": false,
+        "description": "A comma separated list of feedIDs the script should run for"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  }
+}

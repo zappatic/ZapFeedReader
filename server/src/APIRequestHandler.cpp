@@ -60,7 +60,7 @@ void ZapFR::Server::APIRequestHandler::handleRequest(Poco::Net::HTTPServerReques
     catch (const Poco::Exception& e)
     {
         httpStatus = Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR;
-        exceptionMessage = e.what();
+        exceptionMessage = e.displayText();
     }
     catch (const std::exception& e)
     {
@@ -78,6 +78,7 @@ void ZapFR::Server::APIRequestHandler::handleRequest(Poco::Net::HTTPServerReques
         response.setContentType("application/json");
         auto jsonErrObj = Poco::JSON::Object();
         jsonErrObj.set("error", exceptionMessage);
+        std::cerr << exceptionMessage << "\n";
         Poco::JSON::Stringifier::stringify(jsonErrObj, response.send());
     }
 }

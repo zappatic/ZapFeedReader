@@ -19,45 +19,37 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "ZapFR/ScriptFolder.h"
 #include "ZapFR/Source.h"
 
 // ::API
 //
-//	Updates the properties of a script folder
-//	/scriptfolder/<scriptFolderID> (PATCH)
+//	Removes a script
+//	/script/<scriptID> (DELETE)
 //
 //	URI parameters:
-//		scriptFolderID - The id of the script folder to update - apiRequest->pathComponentAt(1)
-//
-//	Parameters:
-//		title (REQD) - The new title of the script folder - apiRequest->parameter("title")
+//		scriptID - The id of the script to delete - apiRequest->pathComponentAt(1)
 //
 //	Content-Type: application/json
 //	JSON output: Object
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_update([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_script_remove([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto scriptFolderIDStr = apiRequest->pathComponentAt(1);
-    const auto newTitle = apiRequest->parameter("title");
+    const auto scriptIDStr = apiRequest->pathComponentAt(1);
 
-    uint64_t scriptFolderID{0};
-    Poco::NumberParser::tryParseUnsigned64(scriptFolderIDStr, scriptFolderID);
+    uint64_t scriptID{0};
+    Poco::NumberParser::tryParseUnsigned64(scriptIDStr, scriptID);
 
-    if (scriptFolderID != 0)
+    if (scriptID != 0)
     {
         auto source = ZapFR::Engine::Source::getSource(1);
         if (source.has_value())
         {
-            auto scriptFolder = source.value()->getScriptFolder(scriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
-            if (scriptFolder.has_value())
-            {
-                scriptFolder.value()->update(newTitle);
-            }
+            source.value()->removeScript(scriptID);
         }
     }
+
     Poco::JSON::Object o;
     o.set("success", true);
 

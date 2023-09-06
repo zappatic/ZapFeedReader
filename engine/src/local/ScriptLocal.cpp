@@ -19,12 +19,13 @@
 #include "ZapFR/local/ScriptLocal.h"
 #include "ZapFR/Database.h"
 #include "ZapFR/Helpers.h"
+#include "ZapFR/Source.h"
 
 using namespace Poco::Data::Keywords;
 
 std::string ZapFR::Engine::ScriptLocal::msScriptDir{""};
 
-ZapFR::Engine::ScriptLocal::ScriptLocal(uint64_t id) : Script(id)
+ZapFR::Engine::ScriptLocal::ScriptLocal(uint64_t id, Source* parentSource) : Script(id, parentSource)
 {
 }
 
@@ -154,8 +155,8 @@ void ZapFR::Engine::ScriptLocal::create(Script::Type type, const std::string& fi
         useRef(typeStr), useRef(filename), use(enabled), useRef(joinedEvents), use(joinedFeedIDs), now;
 }
 
-std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
-                                                                                              const std::string& limitClause,
+std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
+                                                                                              const std::string& orderClause, const std::string& limitClause,
                                                                                               const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
 {
     std::vector<std::unique_ptr<Script>> scripts;
@@ -186,7 +187,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::
 
     auto sql = ss.str();
 
-    selectStmt << sql;
+    selectStmt << sql, range(0, 1);
 
     for (const auto& binding : bindings)
     {
@@ -206,14 +207,19 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::
         {
             if (type == Script::msTypeLuaIdentifier) // force lua for now
             {
-                auto s = std::make_unique<ScriptLocal>(id);
+                auto s = std::make_unique<ScriptLocal>(id, parentSource);
                 s->setType(Script::Type::Lua);
                 s->setFilename(filename);
+                s->setExistsOnDisk(s->exists());
                 s->setIsEnabled(isEnabled);
-                s->parseRunOnEvents(runOnEvents);
+                s->setRunOnEvents(Script::parseRunOnEvents(runOnEvents));
                 if (!runOnFeedIDs.isNull())
                 {
-                    s->parseRunOnFeedIDs(runOnFeedIDs.value());
+                    auto feedIDs = Script::parseRunOnFeedIDs(runOnFeedIDs.value());
+                    if (feedIDs.size() > 0)
+                    {
+                        s->setRunOnFeedIDs(feedIDs);
+                    }
                 }
                 scripts.emplace_back(std::move(s));
             }
@@ -222,7 +228,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::
     return scripts;
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::querySingle(const std::vector<std::string>& whereClause,
+std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                               const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
 {
     uint64_t id{0};
@@ -270,14 +276,19 @@ std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal
     {
         if (type == Script::msTypeLuaIdentifier) // force lua for now
         {
-            auto s = std::make_unique<ScriptLocal>(id);
+            auto s = std::make_unique<ScriptLocal>(id, parentSource);
             s->setType(Script::Type::Lua);
             s->setFilename(filename);
+            s->setExistsOnDisk(s->exists());
             s->setIsEnabled(isEnabled);
-            s->parseRunOnEvents(runOnEvents);
+            s->setRunOnEvents(Script::parseRunOnEvents(runOnEvents));
             if (!runOnFeedIDs.isNull())
             {
-                s->parseRunOnFeedIDs(runOnFeedIDs.value());
+                auto feedIDs = Script::parseRunOnFeedIDs(runOnFeedIDs.value());
+                if (feedIDs.size() > 0)
+                {
+                    s->setRunOnFeedIDs(feedIDs);
+                }
             }
             return s;
         }

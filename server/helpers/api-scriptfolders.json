@@ -72,7 +72,7 @@
     "uriParameters": [
       {
         "name": "scriptFolderID",
-        "description": "The id of the script folder to delete"
+        "description": "The id of the script folder to update"
       }
     ],
     "parameters": [

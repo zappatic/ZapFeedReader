@@ -239,6 +239,63 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scripts)", R"(Adds a script)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/script$)", R"(/script)");
+				entry->addBodyParameter({R"(type)", true, R"(The type of the script ('lua'))"});
+				entry->addBodyParameter({R"(filename)", true, R"(The filename of the script)"});
+				entry->addBodyParameter({R"(isEnabled)", true, R"(Whether the script is enabled or not ('true' or 'false'))"});
+				entry->addBodyParameter({R"(runOnEvents)", false, R"(A comma separated list of events the script should run on)"});
+				entry->addBodyParameter({R"(runOnFeedIDs)", false, R"(A comma separated list of feedIDs the script should run for)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_script_add);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scripts)", R"(Retrieves a script)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/script/([0-9]+)$)", R"(/script/<scriptID>)");
+				entry->addURIParameter({R"(scriptID)", R"(The id of the script to retrieve)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_script_get);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scripts)", R"(Removes a script)");
+				entry->setMethod("DELETE");
+				entry->setPath(R"(^\/script/([0-9]+)$)", R"(/script/<scriptID>)");
+				entry->addURIParameter({R"(scriptID)", R"(The id of the script to delete)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_script_remove);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scripts)", R"(Updates the properties of a script)");
+				entry->setMethod("PATCH");
+				entry->setPath(R"(^\/script/([0-9]+)$)", R"(/script/<scriptID>)");
+				entry->addURIParameter({R"(scriptID)", R"(The id of the script to update)"});
+				entry->addBodyParameter({R"(type)", true, R"(The type of the script ('lua'))"});
+				entry->addBodyParameter({R"(filename)", true, R"(The filename of the script)"});
+				entry->addBodyParameter({R"(isEnabled)", true, R"(Whether the script is enabled or not ('true' or 'false'))"});
+				entry->addBodyParameter({R"(runOnEvents)", false, R"(A comma separated list of events the script should run on)"});
+				entry->addBodyParameter({R"(runOnFeedIDs)", false, R"(A comma separated list of feedIDs the script should run for)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_script_update);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Adds a script folder)");
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/scriptfolder$)", R"(/scriptfolder)");
@@ -278,7 +335,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Updates the properties of a script folder)");
 				entry->setMethod("PATCH");
 				entry->setPath(R"(^\/scriptfolder/([0-9]+)$)", R"(/scriptfolder/<scriptFolderID>)");
-				entry->addURIParameter({R"(scriptFolderID)", R"(The id of the script folder to delete)"});
+				entry->addURIParameter({R"(scriptFolderID)", R"(The id of the script folder to update)"});
 				entry->addBodyParameter({R"(title)", true, R"(The new title of the script folder)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
@@ -295,6 +352,17 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Array)");
 				entry->setHandler(ZapFR::Server::APIHandler_scriptfolders_list);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scripts)", R"(Returns all the scripts within the source)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/scripts$)", R"(/scripts)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Array)");
+				entry->setHandler(ZapFR::Server::APIHandler_scripts_list);
 				msAPIs.emplace_back(std::move(entry));
 			}
 

@@ -17,36 +17,43 @@
 */
 
 #include "ZapFR/Script.h"
+#include "ZapFR/Helpers.h"
+#include "ZapFR/Source.h"
 
 std::string ZapFR::Engine::Script::msEventNewPostIdentifier{"newpost"};
 std::string ZapFR::Engine::Script::msEventUpdatePostIdentifier{"updatepost"};
 
 std::string ZapFR::Engine::Script::msTypeLuaIdentifier{"lua"};
 
-void ZapFR::Engine::Script::parseRunOnEvents(const std::string& str)
+ZapFR::Engine::Script::Script(uint64_t id, Source* parentSource) : mID(id), mParentSource(parentSource)
 {
-    mRunOnEvents.clear();
+}
+
+std::unordered_set<ZapFR::Engine::Script::Event> ZapFR::Engine::Script::parseRunOnEvents(const std::string& str)
+{
+    std::unordered_set<Event> events;
     Poco::StringTokenizer tok(str, ",", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
     for (const auto& entry : tok)
     {
         if (entry == msEventNewPostIdentifier)
         {
-            mRunOnEvents.insert(Event::NewPost);
+            events.insert(Event::NewPost);
         }
         else if (entry == msEventUpdatePostIdentifier)
         {
-            mRunOnEvents.insert(Event::UpdatePost);
+            events.insert(Event::UpdatePost);
         }
         else
         {
             // silently ignore unknown values
         }
     }
+    return events;
 }
 
-void ZapFR::Engine::Script::parseRunOnFeedIDs(const std::string& str)
+std::unordered_set<uint64_t> ZapFR::Engine::Script::parseRunOnFeedIDs(const std::string& str)
 {
-    mRunOnFeedIDs = std::unordered_set<uint64_t>();
+    std::unordered_set<uint64_t> feedIDs;
     Poco::StringTokenizer tok(str, ",", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
     for (const auto& entry : tok)
     {
@@ -55,6 +62,72 @@ void ZapFR::Engine::Script::parseRunOnFeedIDs(const std::string& str)
         {
             continue; // silently ignore unparseable feedIDs
         }
-        mRunOnFeedIDs.value().insert(feedID);
+        feedIDs.insert(feedID);
     }
+    return feedIDs;
+}
+
+std::string ZapFR::Engine::Script::runOnEventsString(const std::unordered_set<Event>& runOnEvents)
+{
+    std::vector<std::string> events;
+    events.reserve(runOnEvents.size());
+    for (const auto& event : runOnEvents)
+    {
+        switch (event)
+        {
+            case Event::NewPost:
+            {
+                events.emplace_back(msEventNewPostIdentifier);
+                break;
+            }
+            case Event::UpdatePost:
+            {
+                events.emplace_back(msEventUpdatePostIdentifier);
+                break;
+            }
+        }
+    }
+    return Helpers::joinString(events, ",");
+}
+
+std::string ZapFR::Engine::Script::runOnFeedIDsString(const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs)
+{
+    if (runOnFeedIDs.has_value())
+    {
+        std::vector<uint64_t> feedIDs;
+        feedIDs.reserve(runOnFeedIDs.value().size());
+        feedIDs.insert(feedIDs.end(), runOnFeedIDs.value().begin(), runOnFeedIDs.value().end());
+        return Helpers::joinIDNumbers(feedIDs, ",");
+    }
+    else
+    {
+        return "";
+    }
+}
+
+Poco::JSON::Object ZapFR::Engine::Script::toJSON()
+{
+    Poco::JSON::Object o;
+
+    o.set(JSONIdentifierScriptID, mID);
+    switch (mType)
+    {
+        case Type::Lua:
+        {
+            o.set(JSONIdentifierScriptType, Script::msTypeLuaIdentifier);
+            break;
+        }
+    }
+    o.set(JSONIdentifierScriptFilename, mFilename);
+    o.set(JSONIdentifierScriptIsEnabled, mIsEnabled);
+    o.set(JSONIdentifierScriptRunOnEvents, runOnEventsString(mRunOnEvents));
+
+    if (mRunOnFeedIDs.has_value())
+    {
+        o.set(JSONIdentifierScriptRunOnFeedIDs, runOnFeedIDsString(mRunOnFeedIDs));
+    }
+
+    o.set(JSONIdentifierScriptExistsOnDisk, mExistsOnDisk);
+
+    return o;
 }

@@ -51,11 +51,16 @@ namespace ZapFR
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_index(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_logs_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_posts_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_script_add(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_script_get(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_script_remove(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_script_update(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scriptfolder_add(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scriptfolder_get(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scriptfolder_remove(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scriptfolder_update(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scriptfolders_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scripts_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_markasread(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_setpostsflagstatus(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_setpostsreadstatus(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);

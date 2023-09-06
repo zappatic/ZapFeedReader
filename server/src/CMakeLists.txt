@@ -38,6 +38,11 @@ target_sources(zapfeedreader-server PRIVATE
 	handlers/scriptfolders/APIHandler_scriptfolder_remove.cpp
 	handlers/scriptfolders/APIHandler_scriptfolder_update.cpp
 	handlers/scriptfolders/APIHandler_scriptfolders_list.cpp
+	handlers/scripts/APIHandler_script_add.cpp
+	handlers/scripts/APIHandler_script_get.cpp
+	handlers/scripts/APIHandler_script_remove.cpp
+	handlers/scripts/APIHandler_script_update.cpp
+	handlers/scripts/APIHandler_scripts_list.cpp
 	handlers/sources/APIHandler_source_markasread.cpp
 	handlers/sources/APIHandler_source_setpostsflagstatus.cpp
 	handlers/sources/APIHandler_source_setpostsreadstatus.cpp

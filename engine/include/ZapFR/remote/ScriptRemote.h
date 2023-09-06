@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_SCRIPTLOCAL_H
-#define ZAPFR_ENGINE_SCRIPTLOCAL_H
+#ifndef ZAPFR_ENGINE_SCRIPTREMOTE_H
+#define ZAPFR_ENGINE_SCRIPTREMOTE_H
 
 #include "../Script.h"
 
@@ -25,26 +25,17 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class ScriptLocal : public Script
+        class ScriptRemote : public Script
         {
           public:
-            ScriptLocal(uint64_t id, Source* parentSource);
-            ~ScriptLocal() = default;
+            ScriptRemote(uint64_t id, Source* parentSource);
+            ~ScriptRemote() = default;
 
             std::string scriptContents() const override;
             void update(Type type, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
                         const std::optional<std::unordered_set<uint64_t>>& feedIDs) override;
 
-            static void setScriptDir(const std::string& scriptDir);
-            static std::string msScriptDir;
-
-            static std::vector<std::unique_ptr<Script>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,
-                                                                      const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static std::optional<std::unique_ptr<Script>> querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
-                                                                      const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static void remove(uint64_t scriptID);
-            static void create(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
-                               const std::optional<std::unordered_set<uint64_t>>& feedIDs);
+            static std::unique_ptr<Script> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
 
           protected:
             bool exists() const override;
@@ -52,4 +43,4 @@ namespace ZapFR
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_SCRIPTLOCAL_H
+#endif // ZAPFR_ENGINE_SCRIPTREMOTE_H

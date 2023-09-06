@@ -32,7 +32,7 @@ void ZapFR::Engine::AgentScriptUpdate::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto script = source.value()->getScript(mScriptID);
+        auto script = source.value()->getScript(mScriptID, Source::FetchInfo::None);
         if (script.has_value())
         {
             script.value()->update(mType, mFilename, mEnabled, mEvents, mFeedIDs);
