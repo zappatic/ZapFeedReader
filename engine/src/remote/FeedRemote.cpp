@@ -71,8 +71,27 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(postCount, std::move(posts));
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedRemote::getPost(uint64_t /*postID*/)
+std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedRemote::getPost(uint64_t postID)
 {
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath(fmt::format("/post/{}", postID));
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        std::map<std::string, std::string> params;
+        params["feedID"] = std::to_string(mID);
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!rootObj.isNull())
+        {
+            return PostRemote::fromJSON(rootObj);
+        }
+    }
     return {};
 }
 
@@ -92,27 +111,6 @@ void ZapFR::Engine::FeedRemote::markAllAsRead()
 
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
     }
-}
-
-void ZapFR::Engine::FeedRemote::markAsRead(uint64_t /*postID*/)
-{
-}
-
-void ZapFR::Engine::FeedRemote::markAsUnread(uint64_t /*postID*/)
-{
-}
-
-void ZapFR::Engine::FeedRemote::refreshIcon()
-{
-}
-
-void ZapFR::Engine::FeedRemote::removeIcon()
-{
-}
-
-std::string ZapFR::Engine::FeedRemote::icon() const
-{
-    return "";
 }
 
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::FeedRemote::getLogs(uint64_t perPage, uint64_t page)
@@ -205,6 +203,14 @@ std::unique_ptr<ZapFR::Engine::Feed> ZapFR::Engine::FeedRemote::fromJSON(Source*
             }
         }
         feed->setStatistics(stats);
+    }
+
+    if (o->has(Feed::JSONIdentifierFeedIcon))
+    {
+        std::istringstream base64stream(o->getValue<std::string>(Feed::JSONIdentifierFeedIcon));
+        Poco::Base64Decoder b64decoderstream(base64stream);
+        std::string decoded(std::istreambuf_iterator<char>(b64decoderstream), {});
+        feed->setIconData(decoded);
     }
 
     return feed;

@@ -39,12 +39,6 @@ namespace ZapFR
 
             bool refresh(const std::optional<std::string>& feedXML) override;
             void markAllAsRead() override;
-            void markAsRead(uint64_t postID) override;
-            void markAsUnread(uint64_t postID) override;
-            void refreshIcon() override;
-            void removeIcon() override;
-
-            std::string icon() const override;
 
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
 

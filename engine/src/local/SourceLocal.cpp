@@ -35,9 +35,9 @@ ZapFR::Engine::SourceLocal::SourceLocal(uint64_t id) : Source(id)
 }
 
 /* ************************** FEED STUFF ************************** */
-std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeeds()
+std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeeds(uint32_t fetchInfo)
 {
-    return FeedLocal::queryMultiple(this, {}, "ORDER BY sortOrder ASC", "", {});
+    return FeedLocal::queryMultiple(this, {}, "ORDER BY sortOrder ASC", "", {}, fetchInfo);
 }
 
 std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID, uint32_t fetchInfo)
@@ -220,15 +220,19 @@ void ZapFR::Engine::SourceLocal::setPostsReadStatus(bool markAsRead, const std::
     for (const auto& [feedID, posts] : feedsWithPostsMap)
     {
         auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
-        for (const auto& postID : posts)
+        if (feed.has_value())
         {
-            if (markAsRead)
+            auto localFeed = dynamic_cast<FeedLocal*>(feed.value().get());
+            for (const auto& postID : posts)
             {
-                feed.value()->markAsRead(postID);
-            }
-            else
-            {
-                feed.value()->markAsUnread(postID);
+                if (markAsRead)
+                {
+                    localFeed->markAsRead(postID);
+                }
+                else
+                {
+                    localFeed->markAsUnread(postID);
+                }
             }
         }
     }

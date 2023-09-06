@@ -337,7 +337,7 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
     std::string iconHash;
     if (!iconData.empty())
     {
-        auto i = iconFile();
+        auto i = iconFile(mID);
         auto fos = Poco::FileOutputStream(i.path());
         fos << iconData;
         fos.close();
@@ -359,31 +359,11 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
 
 void ZapFR::Engine::FeedLocal::removeIcon()
 {
-    auto i = iconFile();
+    auto i = iconFile(mID);
     if (i.exists())
     {
         i.remove();
     }
-}
-
-std::string ZapFR::Engine::FeedLocal::icon() const
-{
-    if (msIconDir.empty())
-    {
-        return "";
-    }
-
-    auto i = iconFile();
-    if (i.exists())
-    {
-        auto fis = Poco::FileInputStream(i.path());
-        std::string iconData;
-        Poco::StreamCopier::copyToString(fis, iconData);
-        fis.close();
-        return iconData;
-    }
-
-    return "";
 }
 
 void ZapFR::Engine::FeedLocal::setIconDir(const std::string& iconDir)
@@ -396,14 +376,14 @@ void ZapFR::Engine::FeedLocal::setIconDir(const std::string& iconDir)
     }
 }
 
-Poco::File ZapFR::Engine::FeedLocal::iconFile() const
+Poco::File ZapFR::Engine::FeedLocal::iconFile(uint64_t feedID)
 {
     if (msIconDir.empty())
     {
         return {};
     }
 
-    return Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(mID) + ".icon");
+    return Poco::File(msIconDir + Poco::Path::separator() + "feed" + std::to_string(feedID) + ".icon");
 }
 
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::FeedLocal::getLogs(uint64_t perPage, uint64_t page)
@@ -613,8 +593,9 @@ void ZapFR::Engine::FeedLocal::remove(Source* parentSource, uint64_t feedID)
     auto feed = querySingle(parentSource, {"feeds.id=?"}, {use(feedID, "id")});
     if (feed.has_value())
     {
+        auto localFeed = dynamic_cast<FeedLocal*>(feed.value().get());
         auto folder = feed.value()->folder();
-        feed.value()->removeIcon();
+        localFeed->removeIcon();
 
         {
             Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
@@ -633,7 +614,7 @@ void ZapFR::Engine::FeedLocal::remove(Source* parentSource, uint64_t feedID)
 
 std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                           const std::string& orderClause, const std::string& limitClause,
-                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+                                                                                          const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings, uint32_t fetchInfo)
 {
     std::vector<std::unique_ptr<Feed>> feeds;
 
@@ -739,6 +720,21 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
             f->setSortOrder(sortOrder);
             f->fetchUnreadCount();
             f->setDataFetched(true);
+
+            if ((fetchInfo & Source::FetchInfo::Icon) == Source::FetchInfo::Icon && !msIconDir.empty())
+            {
+                // TODO: maybe also cache the icons here locally
+                auto i = iconFile(id);
+                if (i.exists())
+                {
+                    auto fis = Poco::FileInputStream(i.path());
+                    std::string iconData;
+                    Poco::StreamCopier::copyToString(fis, iconData);
+                    fis.close();
+                    f->setIconData(iconData);
+                }
+            }
+
             feeds.emplace_back(std::move(f));
         }
     }

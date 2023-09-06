@@ -59,7 +59,7 @@ namespace ZapFR
             std::string language() const noexcept { return mLanguage; }
             std::string copyright() const noexcept { return mCopyright; }
             std::string iconURL() const noexcept { return mIconURL; }
-            virtual std::string icon() const { return ""; }
+            std::string iconData() const { return mIconData; }
             std::string iconHash() const { return mIconHash; }
             std::string iconLastFetched() const noexcept { return mIconLastFetched; }
             std::string lastChecked() const noexcept { return mLastChecked; }
@@ -72,6 +72,7 @@ namespace ZapFR
             void setURL(const std::string& url) { mURL = url; }
             void setIconURL(const std::string& iconURL) { mIconURL = iconURL; }
             void setIconHash(const std::string& iconHash) { mIconHash = iconHash; }
+            void setIconData(const std::string& iconData) { mIconData = iconData; }
             void setIconLastFetched(const std::string& iconLastFetched) { mIconLastFetched = iconLastFetched; }
             void setFolder(uint64_t folder) { mFolderID = folder; }
             void setGuid(const std::string& guid) { mGuid = guid; }
@@ -97,10 +98,6 @@ namespace ZapFR
             virtual void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) = 0;
             virtual bool refresh(const std::optional<std::string>& feedXML) = 0;
             virtual void markAllAsRead() = 0;
-            virtual void markAsRead(uint64_t postID) = 0;
-            virtual void markAsUnread(uint64_t postID) = 0;
-            virtual void refreshIcon() = 0;
-            virtual void removeIcon() = 0;
 
             void setDataFetched(bool b) { mDataFetched = b; }
 
@@ -109,6 +106,7 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierFeedURL{"url"};
             static constexpr const char* JSONIdentifierFeedFolder{"folder"};
             static constexpr const char* JSONIdentifierFeedGUID{"guid"};
+            static constexpr const char* JSONIdentifierFeedIcon{"icon"};
             static constexpr const char* JSONIdentifierFeedTitle{"title"};
             static constexpr const char* JSONIdentifierFeedSubtitle{"subtitle"};
             static constexpr const char* JSONIdentifierFeedLink{"link"};
@@ -131,6 +129,7 @@ namespace ZapFR
             std::string mIconURL{""};
             std::string mIconHash{""};
             std::string mIconLastFetched{""};
+            std::string mIconData{""};
             uint64_t mFolderID{0};
             std::string mGuid{""};
             std::string mTitle{""};

@@ -62,7 +62,7 @@ Poco::URI ZapFR::Engine::SourceRemote::remoteURL() const
 }
 
 /* ************************** FEED STUFF ************************** */
-std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::getFeeds()
+std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::getFeeds(uint32_t fetchInfo)
 {
     std::vector<std::unique_ptr<ZapFR::Engine::Feed>> feeds;
 
@@ -72,7 +72,13 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::g
         uri.setPath("/feeds");
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        std::map<std::string, std::string> params;
+        if ((fetchInfo & FetchInfo::Icon) == FetchInfo::Icon)
+        {
+            params["fetchIcons"] = "true";
+        }
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto feedArr = root.extract<Poco::JSON::Array::Ptr>();

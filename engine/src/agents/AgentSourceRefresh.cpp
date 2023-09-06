@@ -31,7 +31,7 @@ void ZapFR::Engine::AgentSourceRefresh::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feeds = source.value()->getFeeds();
+        auto feeds = source.value()->getFeeds(Source::FetchInfo::None);
         for (const auto& feed : feeds)
         {
             // We just create agent threads here instead of refreshing the source manually

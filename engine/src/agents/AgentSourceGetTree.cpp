@@ -42,7 +42,7 @@ void ZapFR::Engine::AgentSourceGetTree::run()
     if (source.has_value())
     {
         std::vector<Feed*> feedPointers{};
-        auto feeds = source.value()->getFeeds();
+        auto feeds = source.value()->getFeeds(Source::FetchInfo::Icon);
         for (const auto& feed : feeds)
         {
             feedPointers.emplace_back(feed.get());

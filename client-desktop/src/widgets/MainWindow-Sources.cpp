@@ -116,7 +116,7 @@ void ZapFR::Client::MainWindow::reloadSources()
 
                     if (!FeedIconCache::isCached(retrievedSource->id(), feed->id()) || !FeedIconCache::isSameHash(retrievedSource->id(), feed->id(), feed->iconHash()))
                     {
-                        auto iconData = feed->icon();
+                        auto iconData = feed->iconData();
                         if (!iconData.empty())
                         {
                             QPixmap icon;

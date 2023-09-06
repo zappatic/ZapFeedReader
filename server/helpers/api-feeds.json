@@ -6,7 +6,13 @@
     "path": "^\\/feeds$",
     "prettyPath": "/feeds",
     "uriParameters": [],
-    "parameters": [],
+    "parameters": [
+      {
+        "name": "fetchIcons",
+        "required": false,
+        "description": "Whether to include the base64 encoded icon or not ('true' or 'false') (optional; default=false)"
+      }
+    ],
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Array"

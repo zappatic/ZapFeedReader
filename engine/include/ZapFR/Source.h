@@ -53,6 +53,7 @@ namespace ZapFR
                 None = 0,
                 Data = 1,
                 Statistics = 2,
+                Icon = 4,
             };
 
             uint64_t id() const noexcept { return mID; }
@@ -69,8 +70,8 @@ namespace ZapFR
 
             void updateTitle(const std::string& newTitle);
 
-            virtual std::vector<std::unique_ptr<Feed>> getFeeds() = 0;
-            virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, uint32_t feedFetchInfo) = 0;
+            virtual std::vector<std::unique_ptr<Feed>> getFeeds(uint32_t fetchInfo) = 0;
+            virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, uint32_t fetchInfo) = 0;
             virtual uint64_t addFeed(const std::string& url, uint64_t folder) = 0;
             virtual void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) = 0;
             virtual void removeFeed(uint64_t feedID) = 0;

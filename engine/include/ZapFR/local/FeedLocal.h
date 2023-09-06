@@ -43,19 +43,18 @@ namespace ZapFR
             void fetchStatistics();
             bool refresh(const std::optional<std::string>& feedXML) override;
             void markAllAsRead() override;
-            void markAsRead(uint64_t postID) override;
-            void markAsUnread(uint64_t postID) override;
-            void refreshIcon() override;
-            void removeIcon() override;
-
-            std::string icon() const override;
+            void markAsRead(uint64_t postID);
+            void markAsUnread(uint64_t postID);
+            void refreshIcon();
+            void removeIcon();
 
             void processItems(FeedParser* parsedFeed);
 
             static void setIconDir(const std::string& iconDir);
 
             static std::vector<std::unique_ptr<Feed>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,
-                                                                    const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+                                                                    const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings,
+                                                                    uint32_t fetchInfo);
             static std::optional<std::unique_ptr<ZapFR::Engine::Feed>> querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                    const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static uint64_t nextSortOrder(uint64_t folderID);
@@ -72,8 +71,8 @@ namespace ZapFR
           private:
             static std::string msIconDir;
             static std::mutex msCreateFeedMutex;
+            static Poco::File iconFile(uint64_t feedID);
 
-            Poco::File iconFile() const;
             std::optional<std::unique_ptr<Post>> getPostByGuid(const std::string& guid);
             void fetchUnreadCount();
             void updateAndLogLastRefreshError(const std::string& error);

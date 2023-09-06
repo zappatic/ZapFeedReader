@@ -27,6 +27,9 @@
 //	Returns all the feeds within the source
 //	/feeds (GET)
 //
+//	Parameters:
+//		fetchIcons - Whether to include the base64 encoded icon or not ('true' or 'false') (optional; default=false) - apiRequest->parameter("fetchIcons")
+//
 //	Content-Type: application/json
 //	JSON output: Array
 //
@@ -34,12 +37,14 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feeds_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
+    auto fetchIcons = (apiRequest->parameter("fetchIcons") == "true");
+
     Poco::JSON::Array a;
 
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        auto feeds = source.value()->getFeeds();
+        auto feeds = source.value()->getFeeds((fetchIcons ? ZapFR::Engine::Source::FetchInfo::Icon : ZapFR::Engine::Source::FetchInfo::Data));
         for (const auto& feed : feeds)
         {
             a.add(feed->toJSON());

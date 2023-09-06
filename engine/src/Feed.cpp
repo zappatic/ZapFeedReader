@@ -63,5 +63,13 @@ Poco::JSON::Object ZapFR::Engine::Feed::toJSON() const
         }
         o.set(JSONIdentifierFeedStatistics, statsObj);
     }
+    if (!mIconData.empty())
+    {
+        std::stringstream b64Stream;
+        Poco::Base64Encoder encoder(b64Stream);
+        encoder << mIconData;
+        encoder.close();
+        o.set(JSONIdentifierFeedIcon, b64Stream.str());
+    }
     return o;
 }

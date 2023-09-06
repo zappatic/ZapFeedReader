@@ -46,5 +46,25 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "post-get": {
+    "section": "Posts",
+    "description": "Retrieves a post from a specific feed",
+    "method": "GET",
+    "path": "^\\/post/([0-9]+)$",
+    "prettyPath": "/post/<postID>",
+    "uriParameters": [
+      { "name": "postID", "description": "The id of the post to retrieve" }
+    ],
+    "parameters": [
+      {
+        "name": "feedID",
+        "required": true,
+        "description": "The ID of the feed the post belongs to"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }
