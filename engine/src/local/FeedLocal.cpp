@@ -149,16 +149,19 @@ bool ZapFR::Engine::FeedLocal::refresh()
     try
     {
         FeedFetcher ff;
-        if (mFeedXML.has_value())
-        {
-            auto parsedFeed = ff.parseString(mFeedXML.value(), mURL);
-            processItems(parsedFeed.get());
-        }
-        else
-        {
-            auto parsedFeed = ff.parseURL(mURL, mID);
-            processItems(parsedFeed.get());
-        }
+        auto parsedFeed = ff.parseURL(mURL, mID);
+        auto guid = parsedFeed->guid();
+        auto title = parsedFeed->title();
+        auto subtitle = parsedFeed->subtitle();
+        auto link = parsedFeed->link();
+        auto description = parsedFeed->description();
+        auto language = parsedFeed->language();
+        auto copyright = parsedFeed->copyright();
+        auto iconURL = parsedFeed->iconURL();
+
+        update(iconURL, guid, title, subtitle, link, description, language, copyright);
+        processItems(parsedFeed.get());
+
         refreshIcon();
         fetchUnreadCount();
     }

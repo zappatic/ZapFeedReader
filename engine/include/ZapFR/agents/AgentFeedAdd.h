@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTFEEDSUBSCRIBE_H
-#define ZAPFR_ENGINE_AGENTFEEDSUBSCRIBE_H
+#ifndef ZAPFR_ENGINE_AGENTFEEDADD_H
+#define ZAPFR_ENGINE_AGENTFEEDADD_H
 
 #include "ZapFR/AgentRunnable.h"
 #include "ZapFR/Global.h"
@@ -26,12 +26,11 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class AgentFeedSubscribe : public AgentRunnable
+        class AgentFeedAdd : public AgentRunnable
         {
           public:
-            explicit AgentFeedSubscribe(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
-                                        std::function<void()> finishedCallback);
-            virtual ~AgentFeedSubscribe() = default;
+            explicit AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback);
+            virtual ~AgentFeedAdd() = default;
 
             void run() override;
 
@@ -39,10 +38,9 @@ namespace ZapFR
             uint64_t mSourceID{0};
             std::string mURL{0};
             uint64_t mFolderID{0};
-            std::vector<std::string> mNewFolderHierarchy{};
             std::function<void()> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTFEEDSUBSCRIBE_H
+#endif // ZAPFR_ENGINE_AGENTFEEDADD_H

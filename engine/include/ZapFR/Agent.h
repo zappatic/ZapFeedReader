@@ -93,8 +93,10 @@ namespace ZapFR
             void queueGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
             void queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback);
-            void queueSubscribeFeed(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
-                                    std::function<void()> finishedCallback);
+            void queueAddFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback);
+            void queueImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID,
+                                 std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedAddedAndRefreshedCallback,
+                                 std::function<void()> finishedCallback);
             void queueSetFeedProperties(uint64_t sourceID, uint64_t feedID, const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds,
                                         std::function<void()> finishedCallback);
 

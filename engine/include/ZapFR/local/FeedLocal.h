@@ -47,7 +47,6 @@ namespace ZapFR
             void markAsUnread(uint64_t postID);
             void refreshIcon();
             void removeIcon();
-            void setFeedXML(const std::string& feedXML) { mFeedXML = feedXML; }
 
             void processItems(FeedParser* parsedFeed);
             void fetchUnreadCount();
@@ -71,8 +70,6 @@ namespace ZapFR
                         const std::string& description, const std::string& language, const std::string& copyright);
 
           private:
-            std::optional<std::string> mFeedXML{};
-
             static std::string msIconDir;
             static std::mutex msCreateFeedMutex;
             static Poco::File iconFile(uint64_t feedID);

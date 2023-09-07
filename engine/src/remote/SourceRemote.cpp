@@ -298,11 +298,6 @@ void ZapFR::Engine::SourceRemote::removeFolder(uint64_t folderID)
     }
 }
 
-uint64_t ZapFR::Engine::SourceRemote::createFolderHierarchy(uint64_t /*parentID*/, const std::vector<std::string>& /*folderHierarchy*/)
-{
-    return 0; // TODO (OPML import)
-}
-
 /* ************************** POST STUFF ************************** */
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::SourceRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                                                                                               const std::string& searchFilter, FlagColor flagColor)
@@ -687,6 +682,36 @@ void ZapFR::Engine::SourceRemote::addScript(Script::Type /*type*/, const std::st
 }
 
 /* ************************** SOURCE STUFF ************************** */
+std::unordered_set<uint64_t> ZapFR::Engine::SourceRemote::importOPML(const std::string& opml, uint64_t parentFolderID)
+{
+    std::unordered_set<uint64_t> feedIDs;
+
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/import-opml");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        std::map<std::string, std::string> params;
+        params["opml"] = opml;
+        params["parentFolderID"] = std::to_string(parentFolderID);
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootArr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!rootArr.isNull())
+        {
+            for (size_t i = 0; i < rootArr->size(); ++i)
+            {
+                feedIDs.insert(rootArr->getElement<uint64_t>(static_cast<int32_t>(i)));
+            }
+        }
+    }
+
+    return feedIDs;
+}
+
 void ZapFR::Engine::SourceRemote::fetchStatistics()
 {
     mStatistics.clear();

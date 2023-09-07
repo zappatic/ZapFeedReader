@@ -54,8 +54,9 @@ void ZapFR::Client::DialogImportOPML::chooseOPMLFile(bool /*checked*/)
         {
             auto opmlFile = QFile(chosenPath);
             opmlFile.open(QIODeviceBase::ReadOnly);
-            auto opmlXML = QTextStream(&opmlFile).readAll().toStdString();
-            mImportedFeeds = ZapFR::Engine::OPMLParser::parse(opmlXML);
+            mOPML = QTextStream(&opmlFile).readAll().toStdString();
+            ZapFR::Engine::OPMLParser::parse(mOPML);
+            // TODO: check if zero feeds found!
         }
         catch (const Poco::Exception& e)
         {
@@ -71,11 +72,11 @@ void ZapFR::Client::DialogImportOPML::chooseOPMLFile(bool /*checked*/)
 void ZapFR::Client::DialogImportOPML::reset(uint64_t selectedSourceID, uint64_t selectedFolderID)
 {
     ui->lineEditChosenOPMLFile->setText("");
-    mImportedFeeds.clear();
+    mOPML.clear();
     setPreselectedSourceAndFolderIDs(selectedSourceID, selectedFolderID);
 }
 
-std::vector<ZapFR::Engine::OPMLEntry> ZapFR::Client::DialogImportOPML::importedFeeds() const noexcept
+std::string ZapFR::Client::DialogImportOPML::OPML() const noexcept
 {
-    return mImportedFeeds;
+    return mOPML;
 }

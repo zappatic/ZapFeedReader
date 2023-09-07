@@ -31,6 +31,10 @@ namespace ZapFR
             explicit SourceRemote(uint64_t id);
             ~SourceRemote() = default;
 
+            // source stuff
+            void fetchStatistics() override;
+            std::unordered_set<uint64_t> importOPML(const std::string& opml, uint64_t parentFolderID) override;
+
             // feed stuff
             std::vector<std::unique_ptr<Feed>> getFeeds(uint32_t fetchInfo) override;
             std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, uint32_t fetchInfo) override;
@@ -44,7 +48,6 @@ namespace ZapFR
             void removeFolder(uint64_t folderID) override;
             void moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) override;
             uint64_t addFolder(const std::string& title, uint64_t parentID) override;
-            uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string>& folderHierarchy) override;
 
             // post stuff
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
@@ -73,9 +76,6 @@ namespace ZapFR
             void removeScript(uint64_t scriptID) override;
             void addScript(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
                            const std::optional<std::unordered_set<uint64_t>>& feedIDs) override;
-
-            // statistics
-            void fetchStatistics() override;
 
             Poco::URI remoteURL() const;
             bool remoteURLIsValid() const noexcept { return mRemoteURLIsValid; }

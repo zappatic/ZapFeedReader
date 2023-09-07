@@ -71,6 +71,8 @@ namespace ZapFR
             void setConfigData(const std::string& configData) { mConfigData = configData; }
 
             void updateTitle(const std::string& newTitle);
+            virtual std::unordered_set<uint64_t> importOPML(const std::string& opml, uint64_t parentFolderID) = 0;
+            virtual void fetchStatistics() = 0;
 
             virtual std::vector<std::unique_ptr<Feed>> getFeeds(uint32_t fetchInfo) = 0;
             virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, uint32_t fetchInfo) = 0;
@@ -83,7 +85,6 @@ namespace ZapFR
             virtual uint64_t addFolder(const std::string& title, uint64_t parentID) = 0;
             virtual void removeFolder(uint64_t folderID) = 0;
             virtual void moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) = 0;
-            virtual uint64_t createFolderHierarchy(uint64_t parentID, const std::vector<std::string>& folderHierarchy) = 0;
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                                       FlagColor flagColor) = 0;
@@ -107,8 +108,6 @@ namespace ZapFR
             virtual void removeScript(uint64_t scriptID) = 0;
             virtual void addScript(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
                                    const std::optional<std::unordered_set<uint64_t>>& feedIDs) = 0;
-
-            virtual void fetchStatistics() = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

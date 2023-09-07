@@ -412,6 +412,19 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Import an OPML file)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/import-opml$)", R"(/import-opml)");
+				entry->addBodyParameter({R"(opml)", true, R"(The OPML XML content to parse and extract feeds from)"});
+				entry->addBodyParameter({R"(parentFolderID)", true, R"(The folder ID under which to import the feeds in the OPML)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Array)");
+				entry->setHandler(ZapFR::Server::APIHandler_source_importopml);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Marks all posts in the source as read)");
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/mark-as-read$)", R"(/mark-as-read)");

@@ -74,7 +74,6 @@
     "contentType": "application/json",
     "jsonOutput": "Object"
   },
-
   "source-usedflagcolors": {
     "section": "Sources",
     "description": "Retrieves all the flag colors in use",
@@ -83,6 +82,29 @@
     "prettyPath": "/used-flag-colors",
     "uriParameters": [],
     "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
+  },
+  "source-importopml": {
+    "section": "Sources",
+    "description": "Import an OPML file",
+    "method": "POST",
+    "path": "^\\/import-opml$",
+    "prettyPath": "/import-opml",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "opml",
+        "required": true,
+        "description": "The OPML XML content to parse and extract feeds from"
+      },
+      {
+        "name": "parentFolderID",
+        "required": true,
+        "description": "The folder ID under which to import the feeds in the OPML"
+      }
+    ],
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Array"

@@ -216,12 +216,15 @@ void ZapFR::Client::MainWindow::importOPML()
                 {
                     if (result == QDialog::DialogCode::Accepted)
                     {
-                        for (const auto& feed : mDialogImportOPML->importedFeeds())
-                        {
-                            ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogImportOPML->selectedSourceID(), feed.url, mDialogImportOPML->selectedFolderID(),
-                                                                                    feed.folderHierarchy,
-                                                                                    [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
-                        }
+                        ZapFR::Engine::Agent::getInstance()->queueImportOPML(
+                            mDialogImportOPML->selectedSourceID(), mDialogImportOPML->OPML(), mDialogImportOPML->selectedFolderID(),
+                            [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
+                            { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID, feedUnreadCount, error); },
+                            [&]()
+                            {
+                                // TODO: this gets called immediately, change to other handler that checks the threadpool for refresh threads
+                                QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection);
+                            });
                     }
                 });
     }

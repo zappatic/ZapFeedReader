@@ -17,6 +17,7 @@ target_sources(zapfeedreader-engine PRIVATE
     Script.cpp
     ScriptFolder.cpp
     ScriptLua.cpp
+    agents/AgentFeedAdd.cpp
     agents/AgentFeedGet.cpp
     agents/AgentFeedGetLogs.cpp
     agents/AgentFeedGetPosts.cpp
@@ -26,7 +27,6 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentFeedRefresh.cpp
     agents/AgentFeedRemove.cpp
     agents/AgentFeedSetProperties.cpp
-    agents/AgentFeedSubscribe.cpp
     agents/AgentFolderAdd.cpp
     agents/AgentFolderGet.cpp
     agents/AgentFolderGetLogs.cpp
@@ -56,6 +56,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/AgentSourceGetPosts.cpp
     agents/AgentSourceGetTree.cpp
     agents/AgentSourceGetUsedFlagColors.cpp
+    agents/AgentSourceImportOPML.cpp
     agents/AgentSourceMarkRead.cpp
     agents/AgentSourceRefresh.cpp
     local/SourceLocal.cpp

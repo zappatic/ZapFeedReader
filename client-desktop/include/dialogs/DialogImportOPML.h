@@ -44,7 +44,7 @@ namespace ZapFR
             DialogImportOPML(DialogImportOPML&&) = delete;
             DialogImportOPML& operator=(DialogImportOPML&&) = delete;
 
-            std::vector<ZapFR::Engine::OPMLEntry> importedFeeds() const noexcept;
+            std::string OPML() const noexcept;
 
             void reset(uint64_t selectedSourceID, uint64_t selectedFolderID);
 
@@ -53,7 +53,7 @@ namespace ZapFR
 
           private:
             Ui::DialogImportOPML* ui;
-            std::vector<ZapFR::Engine::OPMLEntry> mImportedFeeds{};
+            std::string mOPML{""};
         };
     } // namespace Client
 } // namespace ZapFR

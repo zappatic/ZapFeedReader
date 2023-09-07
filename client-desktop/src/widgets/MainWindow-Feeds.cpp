@@ -33,9 +33,9 @@ void ZapFR::Client::MainWindow::addFeed()
                 {
                     if (result == QDialog::DialogCode::Accepted)
                     {
-                        ZapFR::Engine::Agent::getInstance()->queueSubscribeFeed(mDialogAddFeed->selectedSourceID(), mDialogAddFeed->url().toStdString(),
-                                                                                mDialogAddFeed->selectedFolderID(), {},
-                                                                                [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
+                        ZapFR::Engine::Agent::getInstance()->queueAddFeed(mDialogAddFeed->selectedSourceID(), mDialogAddFeed->url().toStdString(),
+                                                                          mDialogAddFeed->selectedFolderID(),
+                                                                          [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
                     }
                 });
     }

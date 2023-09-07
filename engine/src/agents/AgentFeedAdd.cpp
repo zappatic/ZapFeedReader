@@ -16,23 +16,21 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/AgentFeedSubscribe.h"
+#include "ZapFR/agents/AgentFeedAdd.h"
 #include "ZapFR/Feed.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentFeedSubscribe::AgentFeedSubscribe(uint64_t sourceID, const std::string& url, uint64_t folder, const std::vector<std::string>& newFolderHierarchy,
-                                                      std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderID(folder), mNewFolderHierarchy(newFolderHierarchy), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentFeedAdd::AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderID(folder), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFeedSubscribe::run()
+void ZapFR::Engine::AgentFeedAdd::run()
 {
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto subfolderID = source.value()->createFolderHierarchy(mFolderID, mNewFolderHierarchy);
-        source.value()->addFeed(mURL, subfolderID);
+        source.value()->addFeed(mURL, mFolderID);
         mFinishedCallback();
     }
 

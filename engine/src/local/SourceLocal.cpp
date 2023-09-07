@@ -21,6 +21,7 @@
 #include "ZapFR/FeedFetcher.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
+#include "ZapFR/OPMLParser.h"
 #include "ZapFR/ScriptLua.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/FolderLocal.h"
@@ -61,20 +62,7 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
     try
     {
         auto feed = FeedLocal::create(this, url, url, folder);
-        FeedFetcher ff;
-        auto parsedFeed = ff.parseURL(url, feedID);
-        auto guid = parsedFeed->guid();
-        auto title = parsedFeed->title();
-        auto subtitle = parsedFeed->subtitle();
-        auto link = parsedFeed->link();
-        auto description = parsedFeed->description();
-        auto language = parsedFeed->language();
-        auto copyright = parsedFeed->copyright();
-        auto iconURL = parsedFeed->iconURL();
-
-        feed->update(iconURL, guid, title, subtitle, link, description, language, copyright);
-        feed->setFeedXML(ff.xml());
-        feed->refresh();
+        feedID = feed->id();
     }
     catch (const Poco::Exception& e)
     {
@@ -442,4 +430,31 @@ void ZapFR::Engine::SourceLocal::fetchStatistics()
         selectStmt << "SELECT MAX(datePublished) FROM posts", into(newestPost), now;
         mStatistics[Statistic::NewestPost] = newestPost.isNull() ? "" : newestPost.value();
     }
+}
+
+std::unordered_set<uint64_t> ZapFR::Engine::SourceLocal::importOPML(const std::string& opml, uint64_t parentFolderID)
+{
+    std::unordered_set<uint64_t> feedIDs;
+
+    std::vector<OPMLEntry> feedEntries;
+    try
+    {
+        feedEntries = ZapFR::Engine::OPMLParser::parse(opml);
+    }
+    catch (...)
+    {
+        return feedIDs;
+    }
+
+    for (const auto& feedEntry : feedEntries)
+    {
+        auto subfolderID = createFolderHierarchy(parentFolderID, feedEntry.folderHierarchy);
+        auto feedID = addFeed(feedEntry.url, subfolderID);
+        if (feedID != 0)
+        {
+            feedIDs.insert(feedID);
+        }
+    }
+
+    return feedIDs;
 }
