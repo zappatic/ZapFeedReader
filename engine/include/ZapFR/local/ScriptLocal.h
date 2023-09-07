@@ -31,7 +31,7 @@ namespace ZapFR
             ScriptLocal(uint64_t id, Source* parentSource);
             ~ScriptLocal() = default;
 
-            std::string scriptContents() const override;
+            std::string scriptContents() const;
             void update(Type type, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
                         const std::optional<std::unordered_set<uint64_t>>& feedIDs) override;
 
@@ -46,8 +46,7 @@ namespace ZapFR
             static void create(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
                                const std::optional<std::unordered_set<uint64_t>>& feedIDs);
 
-          protected:
-            bool exists() const override;
+            bool exists() const;
         };
     } // namespace Engine
 } // namespace ZapFR

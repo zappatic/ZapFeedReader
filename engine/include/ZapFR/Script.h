@@ -63,7 +63,6 @@ namespace ZapFR
             void setRunOnEvents(std::unordered_set<Event> events) { mRunOnEvents = events; }
             void setRunOnFeedIDs(std::unordered_set<uint64_t> feedIDs) { mRunOnFeedIDs = feedIDs; }
 
-            virtual std::string scriptContents() const = 0;
             virtual void update(Type type, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
                                 const std::optional<std::unordered_set<uint64_t>>& feedIDs) = 0;
 
@@ -94,8 +93,6 @@ namespace ZapFR
             std::unordered_set<Event> mRunOnEvents{};
             std::optional<std::unordered_set<uint64_t>> mRunOnFeedIDs{};
             bool mExistsOnDisk{false};
-
-            virtual bool exists() const = 0;
         };
     } // namespace Engine
 } // namespace ZapFR

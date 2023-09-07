@@ -25,6 +25,7 @@
 #include "ZapFR/Script.h"
 #include "ZapFR/ScriptLua.h"
 #include "ZapFR/local/PostLocal.h"
+#include "ZapFR/local/ScriptLocal.h"
 #include "ZapFR/local/SourceLocal.h"
 
 using namespace Poco::Data::Keywords;
@@ -198,14 +199,15 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
             }
 
             // check if we run this script on NewPost or UpdatePost
+            auto scriptLocal = dynamic_cast<ScriptLocal*>(script.get());
             auto events = script->runOnEvents();
             if (events.contains(Script::Event::NewPost))
             {
-                scriptsRanOnNewPost.emplace_back(script->scriptContents());
+                scriptsRanOnNewPost.emplace_back(scriptLocal->scriptContents());
             }
             if (events.contains(Script::Event::UpdatePost))
             {
-                scriptsRanOnUpdatePost.emplace_back(script->scriptContents());
+                scriptsRanOnUpdatePost.emplace_back(scriptLocal->scriptContents());
             }
         }
     }

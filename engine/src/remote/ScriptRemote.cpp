@@ -24,16 +24,6 @@ ZapFR::Engine::ScriptRemote::ScriptRemote(uint64_t id, Source* parentSource) : S
 {
 }
 
-std::string ZapFR::Engine::ScriptRemote::scriptContents() const
-{
-    return ""; // TODO: this function shouldn't be in the base Script class
-}
-
-bool ZapFR::Engine::ScriptRemote::exists() const
-{
-    return true; // TODO: this function shouldn't be in the base Script class, also look at existsondisk
-}
-
 void ZapFR::Engine::ScriptRemote::update(Type /*type*/, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
                                          const std::optional<std::unordered_set<uint64_t>>& feedIDs)
 {
