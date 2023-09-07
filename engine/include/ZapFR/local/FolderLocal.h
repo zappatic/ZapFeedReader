@@ -40,8 +40,9 @@ namespace ZapFR
             void fetchSubfolders();
             void fetchStatistics();
 
-            std::vector<uint64_t> folderAndSubfolderIDs() const override;
-            std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const override;
+            std::vector<uint64_t> folderAndSubfolderIDs() const;
+            std::vector<uint64_t> feedIDsInFoldersAndSubfolders() override;
+            void fetchFeedIDsInFoldersAndSubfolders();
 
             static std::vector<std::unique_ptr<Folder>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,
                                                                       const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
@@ -58,6 +59,8 @@ namespace ZapFR
             void setExportSubfoldersInJSON(bool b) { mExportSubfoldersInJSON = b; }
 
           private:
+            mutable bool mFeedIDsFetched{false};
+
             static std::mutex msCreateFolderMutex;
             static std::mutex msCreateFolderHierarchyMutex;
 

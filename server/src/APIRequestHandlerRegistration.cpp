@@ -168,6 +168,8 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/folder/([0-9]+)$)", R"(/folder/<folderID>)");
 				entry->addURIParameter({R"(folderID)", R"(The id of the folder to retrieve)"});
+				entry->addBodyParameter({R"(getStatistics)", false, R"(Whether to fetch the statistics of the folder ('true' or 'false'; default false))"});
+				entry->addBodyParameter({R"(getFeedIDs)", false, R"(Whether to fetch the feed IDs of the folder ('true' or 'false'; default false))"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
@@ -176,7 +178,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
-				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(FeFolderseds)", R"(Marks all posts in the folder as read, returns the affected feedIDs)");
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Marks all posts in the folder as read, returns the affected feedIDs)");
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/folder/([0-9]+)/mark-as-read$)", R"(/folder/<folderID>/mark-as-read)");
 				entry->addURIParameter({R"(folderID)", R"(The id of the folder to mark as read)"});

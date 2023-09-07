@@ -54,10 +54,12 @@ namespace ZapFR
             std::string title() const noexcept { return mTitle; }
             uint64_t sortOrder() const noexcept { return mSortOrder; }
             std::unordered_map<Statistic, std::string> statistics() { return mStatistics; }
+            virtual std::vector<uint64_t> feedIDsInFoldersAndSubfolders() { return mFeedIDs; }
 
             void setTitle(const std::string& title) { mTitle = title; }
             void setSortOrder(uint64_t sortOrder) { mSortOrder = sortOrder; }
             void setStatistics(const std::unordered_map<Statistic, std::string>& stats) { mStatistics = stats; }
+            void setFeedIDsInFoldersAndSubfolders(const std::vector<uint64_t>& feedIDs) { mFeedIDs = feedIDs; }
 
             const std::vector<std::unique_ptr<Folder>>& subfolders() { return mSubfolders; }
             void appendSubfolder(std::unique_ptr<Folder> subfolder);
@@ -70,9 +72,6 @@ namespace ZapFR
 
             void setDataFetched(bool b) { mDataFetched = b; }
 
-            virtual std::vector<uint64_t> folderAndSubfolderIDs() const = 0;
-            virtual std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const = 0;
-
             virtual Poco::JSON::Object toJSON();
             static constexpr const char* JSONIdentifierFolderID{"id"};
             static constexpr const char* JSONIdentifierFolderTitle{"title"};
@@ -80,6 +79,7 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierFolderSortOrder{"sortOrder"};
             static constexpr const char* JSONIdentifierFolderSubfolders{"subfolders"};
             static constexpr const char* JSONIdentifierFolderStatistics{"statistics"};
+            static constexpr const char* JSONIdentifierFolderFeedIDs{"feedIDs"};
             static const std::unordered_map<std::string, Statistic> JSONIdentifierFolderStatisticMap;
             static const std::unordered_map<Statistic, std::string> FolderStatisticJSONIdentifierMap;
 
@@ -91,6 +91,7 @@ namespace ZapFR
             uint64_t mSortOrder{0};
             std::vector<std::unique_ptr<Folder>> mSubfolders{};
             std::unordered_map<Statistic, std::string> mStatistics{};
+            std::vector<uint64_t> mFeedIDs{};
 
             bool mDataFetched{false};
             bool mSubfoldersFetched{false};

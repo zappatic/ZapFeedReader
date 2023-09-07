@@ -37,9 +37,6 @@ namespace ZapFR
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
 
-            std::vector<uint64_t> folderAndSubfolderIDs() const override;
-            std::vector<uint64_t> feedIDsInFoldersAndSubfolders() const override;
-
             static std::unique_ptr<Folder> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
         };
     } // namespace Engine

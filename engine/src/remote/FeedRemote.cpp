@@ -118,6 +118,7 @@ bool ZapFR::Engine::FeedRemote::refresh()
                 auto error = rootObj->getValue<std::string>("error");
                 setLastRefreshError(error);
             }
+            setUnreadCount(rootObj->getValue<uint64_t>("unreadCount"));
         }
     }
     return refreshSuccessful;

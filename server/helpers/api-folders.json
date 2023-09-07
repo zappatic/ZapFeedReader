@@ -26,7 +26,18 @@
     "uriParameters": [
       { "name": "folderID", "description": "The id of the folder to retrieve" }
     ],
-    "parameters": [],
+    "parameters": [
+      {
+        "name": "getStatistics",
+        "required": false,
+        "description": "Whether to fetch the statistics of the folder ('true' or 'false'; default false)"
+      },
+      {
+        "name": "getFeedIDs",
+        "required": false,
+        "description": "Whether to fetch the feed IDs of the folder ('true' or 'false'; default false)"
+      }
+    ],
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
@@ -95,7 +106,7 @@
     "jsonOutput": "Object"
   },
   "folder-markasread": {
-    "section": "FeFolderseds",
+    "section": "Folders",
     "description": "Marks all posts in the folder as read, returns the affected feedIDs",
     "method": "POST",
     "path": "^\\/folder/([0-9]+)/mark-as-read$",

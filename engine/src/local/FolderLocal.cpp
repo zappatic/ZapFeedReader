@@ -185,12 +185,23 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::folderAndSubfolderIDs() const
     return folderIDs;
 }
 
-std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders() const
+std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders()
 {
+    if (!mFeedIDsFetched)
+    {
+        fetchFeedIDsInFoldersAndSubfolders();
+    }
+    return mFeedIDs;
+}
+
+void ZapFR::Engine::FolderLocal::fetchFeedIDsInFoldersAndSubfolders()
+{
+    mFeedIDs.clear();
+
     auto folderIDs = folderAndSubfolderIDs();
     if (folderIDs.size() == 0)
     {
-        return {};
+        return;
     }
 
     auto joinedFolderIDs = Helpers::joinIDNumbers(folderIDs, ",");
@@ -204,10 +215,9 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders(
     {
         if (selectFeedsStmt.execute() > 0)
         {
-            feedIDs.emplace_back(feedID);
+            mFeedIDs.emplace_back(feedID);
         }
     }
-    return feedIDs;
 }
 
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::FolderLocal::getLogs(uint64_t perPage, uint64_t page)
@@ -277,10 +287,11 @@ void ZapFR::Engine::FolderLocal::remove(Source* parentSource, uint64_t folderID)
     auto f = querySingle(parentSource, {"folders.id=?"}, {useRef(folderID, "folderID")});
     if (f.has_value())
     {
+        auto fLocal = dynamic_cast<FolderLocal*>(f.value().get());
         auto folderParent = f.value()->parentID();
 
         auto feedIDs = f.value()->feedIDsInFoldersAndSubfolders();
-        auto folderIDs = f.value()->folderAndSubfolderIDs();
+        auto folderIDs = fLocal->folderAndSubfolderIDs();
 
         // remove the icons from the cache
         for (const auto& feedID : feedIDs)

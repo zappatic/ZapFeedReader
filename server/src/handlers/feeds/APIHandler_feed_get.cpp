@@ -47,9 +47,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_get([[maybe_u
     const auto getStatistics = (apiRequest->parameter("getStatistics") == "true");
     const auto getUnreadCount = (apiRequest->parameter("getUnreadCount") == "true");
 
-    // caveat:
-    // getStatistics requires
-
     uint64_t feedID{0};
     Poco::NumberParser::tryParseUnsigned64(feedIDStr, feedID);
 

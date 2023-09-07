@@ -50,6 +50,7 @@ namespace ZapFR
             void setFeedXML(const std::string& feedXML) { mFeedXML = feedXML; }
 
             void processItems(FeedParser* parsedFeed);
+            void fetchUnreadCount();
 
             static void setIconDir(const std::string& iconDir);
 
@@ -77,7 +78,6 @@ namespace ZapFR
             static Poco::File iconFile(uint64_t feedID);
 
             std::optional<std::unique_ptr<Post>> getPostByGuid(const std::string& guid);
-            void fetchUnreadCount();
             void updateAndLogLastRefreshError(const std::string& error);
         };
     } // namespace Engine

@@ -54,5 +54,13 @@ Poco::JSON::Object ZapFR::Engine::Folder::toJSON()
         }
         o.set(Folder::JSONIdentifierFolderStatistics, statsObj);
     }
+
+    Poco::JSON::Array feedIDArr;
+    for (const auto& feedID : mFeedIDs)
+    {
+        feedIDArr.add(feedID);
+    }
+    o.set(Folder::JSONIdentifierFolderFeedIDs, feedIDArr);
+
     return o;
 }

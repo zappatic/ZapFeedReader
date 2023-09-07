@@ -217,29 +217,31 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote:
     return folders;
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote::getFolder(uint64_t folderID, uint32_t /*folderFetchInfo*/)
+std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote::getFolder(uint64_t folderID, uint32_t fetchInfo)
 {
-    // FolderFetchInfo::Statistics is implied
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
     {
         uri.setPath(fmt::format("/folder/{}", folderID));
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-        try
+        std::map<std::string, std::string> params;
+        if ((fetchInfo & Source::FetchInfo::FolderFeedIDs) == Source::FetchInfo::FolderFeedIDs)
         {
-            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
-            auto parser = Poco::JSON::Parser();
-            auto root = parser.parse(json);
-            auto folderObj = root.extract<Poco::JSON::Object::Ptr>();
-            if (!folderObj.isNull())
-            {
-                return FolderRemote::fromJSON(this, folderObj);
-            }
+            params["getFeedIDs"] = "true";
         }
-        catch (...)
+        if ((fetchInfo & Source::FetchInfo::Statistics) == Source::FetchInfo::Statistics)
         {
-            return {};
+            params["getStatistics"] = "true";
+        }
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto folderObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!folderObj.isNull())
+        {
+            return FolderRemote::fromJSON(this, folderObj);
         }
     }
     return {};

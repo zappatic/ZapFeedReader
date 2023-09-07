@@ -114,7 +114,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::
     return FolderLocal::queryMultiple(this, whereClause, "ORDER BY folders.sortOrder ASC", "", bindings);
 }
 
-std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolder(uint64_t folderID, uint32_t folderFetchInfo)
+std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolder(uint64_t folderID, uint32_t fetchInfo)
 {
     std::vector<std::string> whereClause;
     std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
@@ -123,10 +123,14 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal
     bindings.emplace_back(useRef(folderID, "folderID"));
 
     auto folder = FolderLocal::querySingle(this, whereClause, bindings);
-    if ((folderFetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
+    auto localFolder = dynamic_cast<FolderLocal*>(folder.value().get());
+    if ((fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
     {
-        auto localFolder = dynamic_cast<FolderLocal*>(folder.value().get());
         localFolder->fetchStatistics();
+    }
+    if ((fetchInfo & FetchInfo::FolderFeedIDs) == FetchInfo::FolderFeedIDs)
+    {
+        localFolder->fetchFeedIDsInFoldersAndSubfolders();
     }
     return folder;
 }

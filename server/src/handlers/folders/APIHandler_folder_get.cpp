@@ -30,6 +30,10 @@
 //	URI parameters:
 //		folderID - The id of the folder to retrieve - apiRequest->pathComponentAt(1)
 //
+//	Parameters:
+//		getStatistics - Whether to fetch the statistics of the folder ('true' or 'false'; default false) - apiRequest->parameter("getStatistics")
+//		getFeedIDs - Whether to fetch the feed IDs of the folder ('true' or 'false'; default false) - apiRequest->parameter("getFeedIDs")
+//
 //	Content-Type: application/json
 //	JSON output: Object
 //
@@ -38,6 +42,8 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_get([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto folderIDStr = apiRequest->pathComponentAt(1);
+    const auto getStatistics = (apiRequest->parameter("getStatistics") == "true");
+    const auto getFeedIDs = (apiRequest->parameter("getFeedIDs") == "true");
 
     uint64_t folderID{0};
     Poco::NumberParser::tryParseUnsigned64(folderIDStr, folderID);
@@ -48,7 +54,17 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_get([[maybe
         auto source = ZapFR::Engine::Source::getSource(1);
         if (source.has_value())
         {
-            auto folder = source.value()->getFolder(folderID, ZapFR::Engine::Source::FetchInfo::Statistics);
+            uint32_t fetchInfo{0};
+            if (getStatistics)
+            {
+                fetchInfo |= ZapFR::Engine::Source::FetchInfo::Statistics;
+            }
+            if (getFeedIDs)
+            {
+                fetchInfo |= ZapFR::Engine::Source::FetchInfo::FolderFeedIDs;
+            }
+
+            auto folder = source.value()->getFolder(folderID, fetchInfo);
             if (folder.has_value())
             {
                 o = folder.value()->toJSON();

@@ -55,6 +55,7 @@ namespace ZapFR
                 Statistics = 2,
                 Icon = 4,
                 FeedUnreadCount = 8,
+                FolderFeedIDs = 16,
             };
 
             uint64_t id() const noexcept { return mID; }

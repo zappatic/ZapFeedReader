@@ -19,8 +19,8 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "ZapFR/Feed.h"
 #include "ZapFR/Source.h"
+#include "ZapFR/local/FeedLocal.h"
 
 // ::API
 //
@@ -57,6 +57,9 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_refresh([[may
                 {
                     o.set("error", feed.value()->lastRefreshError());
                 }
+                auto localFeed = dynamic_cast<ZapFR::Engine::FeedLocal*>(feed.value().get());
+                localFeed->fetchUnreadCount();
+                o.set("unreadCount", localFeed->unreadCount());
             }
         }
     }
