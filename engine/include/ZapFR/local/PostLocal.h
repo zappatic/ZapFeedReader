@@ -31,14 +31,14 @@ namespace ZapFR
             explicit PostLocal(uint64_t id);
             ~PostLocal() = default;
 
-            void markFlagged(FlagColor flagColor) override;
-            void markUnflagged(FlagColor flagColor) override;
+            void markFlagged(FlagColor flagColor);
+            void markUnflagged(FlagColor flagColor);
 
-            void markAsRead() override;
-            void markAsUnread() override;
+            void markAsRead();
+            void markAsUnread();
 
-            void assignToScriptFolder(uint64_t scriptFolderID) override;
-            void unassignFromScriptFolder(uint64_t scriptFolderID) override;
+            void assignToScriptFolder(uint64_t scriptFolderID);
+            void unassignFromScriptFolder(uint64_t scriptFolderID);
 
             void update(const std::string& title, const std::string& link, const std::string& description, const std::string& author, const std::string& commentsURL,
                         const std::string& enclosureURL, const std::string& enclosureLength, const std::string& enclosureMimeType, const std::string& guid,

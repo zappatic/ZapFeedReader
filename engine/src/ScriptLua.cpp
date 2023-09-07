@@ -17,7 +17,9 @@
 */
 
 #include "ZapFR/ScriptLua.h"
-#include "ZapFR/Post.h"
+#include "ZapFR/local/FeedLocal.h"
+#include "ZapFR/local/PostLocal.h"
+#include "ZapFR/local/SourceLocal.h"
 #include "ZapFR/lua/LuaProxyPost.h"
 
 extern "C"
@@ -37,15 +39,15 @@ ZapFR::Engine::ScriptLua* ZapFR::Engine::ScriptLua::getInstance()
     return &instance;
 }
 
-void ZapFR::Engine::ScriptLua::runPostScript(const std::string& script, Post* post)
+void ZapFR::Engine::ScriptLua::runPostScript(const std::string& script, SourceLocal* source, FeedLocal* feed, PostLocal* post)
 {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
 
-    lua_pushinteger(L, msScriptEngineVersion);
+    lua_pushinteger(L, ZapFR::Engine::APIVersion);
     lua_setglobal(L, "ZAPFR_VERSION");
 
-    LuaProxyPost::convertPostToTable(L, post);
+    LuaProxyPost::convertPostToTable(L, source, feed, post);
     lua_setglobal(L, "CurrentPost");
 
     auto loadResult = luaL_loadstring(L, script.c_str());

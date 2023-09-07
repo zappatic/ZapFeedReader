@@ -18,14 +18,22 @@
 
 #include "ZapFR/lua/LuaProxyPost.h"
 #include "ZapFR/Flag.h"
-#include "ZapFR/Post.h"
+#include "ZapFR/local/FeedLocal.h"
+#include "ZapFR/local/PostLocal.h"
+#include "ZapFR/local/SourceLocal.h"
 
-void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Post* post)
+void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, SourceLocal* source, FeedLocal* feed, PostLocal* post)
 {
-    lua_createtable(L, 0, 8);
+    lua_createtable(L, 0, 10);
+
+    lua_pushlightuserdata(L, static_cast<void*>(source));
+    lua_setfield(L, -2, "_source_ptr");
+
+    lua_pushlightuserdata(L, static_cast<void*>(feed));
+    lua_setfield(L, -2, "_feed_ptr");
 
     lua_pushlightuserdata(L, static_cast<void*>(post));
-    lua_setfield(L, -2, "_ptr");
+    lua_setfield(L, -2, "_post_ptr");
 
     lua_pushstring(L, post->title().c_str());
     lua_setfield(L, -2, "title");
@@ -53,7 +61,7 @@ int ZapFR::Engine::LuaProxyPost::markAsRead(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
 
-    auto post = lookupPostPointer(L);
+    auto [source, feed, post] = lookupPostPointer(L);
     if (post != nullptr)
     {
         post->markAsRead();
@@ -66,7 +74,7 @@ int ZapFR::Engine::LuaProxyPost::markAsUnread(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
 
-    auto post = lookupPostPointer(L);
+    auto [source, feed, post] = lookupPostPointer(L);
     if (post != nullptr)
     {
         post->markAsUnread();
@@ -80,7 +88,7 @@ int ZapFR::Engine::LuaProxyPost::flag(lua_State* L)
     luaL_checktype(L, 1, LUA_TTABLE);
     luaL_checktype(L, 2, LUA_TSTRING);
 
-    auto post = lookupPostPointer(L);
+    auto [source, feed, post] = lookupPostPointer(L);
     if (post != nullptr)
     {
         FlagColor flagColor;
@@ -104,7 +112,7 @@ int ZapFR::Engine::LuaProxyPost::unflag(lua_State* L)
     luaL_checktype(L, 1, LUA_TTABLE);
     luaL_checktype(L, 2, LUA_TSTRING);
 
-    auto post = lookupPostPointer(L);
+    auto [source, feed, post] = lookupPostPointer(L);
     if (post != nullptr)
     {
         FlagColor flagColor;
@@ -128,7 +136,7 @@ int ZapFR::Engine::LuaProxyPost::assignToScriptFolder(lua_State* L)
     luaL_checktype(L, 1, LUA_TTABLE);
     luaL_checktype(L, 2, LUA_TNUMBER);
 
-    auto post = lookupPostPointer(L);
+    auto [source, feed, post] = lookupPostPointer(L);
     if (post != nullptr)
     {
         int success;
@@ -147,7 +155,7 @@ int ZapFR::Engine::LuaProxyPost::unassignFromScriptFolder(lua_State* L)
     luaL_checktype(L, 1, LUA_TTABLE);
     luaL_checktype(L, 2, LUA_TNUMBER);
 
-    auto post = lookupPostPointer(L);
+    auto [source, feed, post] = lookupPostPointer(L);
     if (post != nullptr)
     {
         int success;
@@ -161,9 +169,11 @@ int ZapFR::Engine::LuaProxyPost::unassignFromScriptFolder(lua_State* L)
     return 0;
 }
 
-ZapFR::Engine::Post* ZapFR::Engine::LuaProxyPost::lookupPostPointer(lua_State* L)
+std::tuple<ZapFR::Engine::SourceLocal*, ZapFR::Engine::FeedLocal*, ZapFR::Engine::PostLocal*> ZapFR::Engine::LuaProxyPost::lookupPostPointer(lua_State* L)
 {
-    Post* post{nullptr};
+    SourceLocal* source{nullptr};
+    FeedLocal* feed{nullptr};
+    PostLocal* post{nullptr};
 
     lua_pushvalue(L, 1);
     lua_pushnil(L);
@@ -171,13 +181,21 @@ ZapFR::Engine::Post* ZapFR::Engine::LuaProxyPost::lookupPostPointer(lua_State* L
     {
         lua_pushvalue(L, -2); // make a copy of the key
         auto key = std::string(lua_tostring(L, -1));
-        if (key == "_ptr")
+        if (key == "_source_ptr")
         {
-            post = static_cast<Post*>(lua_touserdata(L, -2));
+            source = static_cast<SourceLocal*>(lua_touserdata(L, -2));
+        }
+        else if (key == "_feed_ptr")
+        {
+            feed = static_cast<FeedLocal*>(lua_touserdata(L, -2));
+        }
+        else if (key == "_post_ptr")
+        {
+            post = static_cast<PostLocal*>(lua_touserdata(L, -2));
         }
 
         lua_pop(L, 2); // pop the table value and the cloned key
     }
     lua_pop(L, 1);
-    return post;
+    return std::make_tuple(source, feed, post);
 }

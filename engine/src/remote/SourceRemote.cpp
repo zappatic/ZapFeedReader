@@ -421,6 +421,33 @@ void ZapFR::Engine::SourceRemote::setPostsFlagStatus(bool markFlagged, const std
     }
 }
 
+void ZapFR::Engine::SourceRemote::assignPostsToScriptFolder(uint64_t scriptFolderID, bool assign, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs)
+{
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath(fmt::format("/scriptfolder/{}/assign-posts", scriptFolderID));
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        Poco::JSON::Array idArr;
+        for (const auto& [feedID, postID] : feedsAndPostIDs)
+        {
+            Poco::JSON::Object o;
+            o.set("feedID", feedID);
+            o.set("postID", postID);
+            idArr.add(o);
+        }
+        std::stringstream idSS;
+        Poco::JSON::Stringifier::stringify(idArr, idSS);
+
+        std::map<std::string, std::string> params;
+        params["feedsAndPostIDs"] = idSS.str();
+        params["assign"] = assign ? "true" : "false";
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+    }
+}
+
 /* ************************** LOGS STUFF ************************** */
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::SourceRemote::getLogs(uint64_t perPage, uint64_t page)
 {

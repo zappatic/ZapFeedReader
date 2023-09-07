@@ -33,35 +33,7 @@ void ZapFR::Engine::AgentScriptFolderAssignPosts::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        // remap the vector of tuples to feed -> [post, ...] map, so we can handle it one feed at a time
-        std::unordered_map<uint64_t, std::vector<uint64_t>> feedsWithPostsMap;
-        for (const auto& [feedID, postID] : mFeedAndPostIDs)
-        {
-            if (feedsWithPostsMap.contains(feedID))
-            {
-                feedsWithPostsMap.at(feedID).emplace_back(postID);
-            }
-            else
-            {
-                std::vector<uint64_t> vec;
-                vec.emplace_back(postID);
-                feedsWithPostsMap[feedID] = vec;
-            }
-        }
-
-        // assign the posts to the script folder per feed
-        for (const auto& [feedID, posts] : feedsWithPostsMap)
-        {
-            auto feed = source.value()->getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
-            for (const auto& postID : posts)
-            {
-                auto post = feed.value()->getPost(postID);
-                if (post.has_value())
-                {
-                    post.value()->assignToScriptFolder(mScriptFolderID);
-                }
-            }
-        }
+        source.value()->assignPostsToScriptFolder(mScriptFolderID, true, mFeedAndPostIDs);
         mFinishedCallback(mSourceID, mScriptFolderID);
     }
 

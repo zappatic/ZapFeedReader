@@ -32,12 +32,14 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class Post;
+        class SourceLocal;
+        class FeedLocal;
+        class PostLocal;
 
         class LuaProxyPost
         {
           public:
-            static void convertPostToTable(lua_State* L, Post* post);
+            static void convertPostToTable(lua_State* L, SourceLocal* source, FeedLocal* feed, PostLocal* post);
 
           private:
             static int markAsRead(lua_State* L);
@@ -47,7 +49,7 @@ namespace ZapFR
             static int assignToScriptFolder(lua_State* L);
             static int unassignFromScriptFolder(lua_State* L);
 
-            static Post* lookupPostPointer(lua_State* L);
+            static std::tuple<ZapFR::Engine::SourceLocal*, ZapFR::Engine::FeedLocal*, ZapFR::Engine::PostLocal*> lookupPostPointer(lua_State* L);
         };
     } // namespace Engine
 } // namespace ZapFR

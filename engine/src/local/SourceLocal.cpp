@@ -200,24 +200,7 @@ void ZapFR::Engine::SourceLocal::markAllAsRead()
 
 void ZapFR::Engine::SourceLocal::setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs)
 {
-    // remap the vector of tuples to feed -> [post, ...] map, so we can handle it one feed at a time
-    std::unordered_map<uint64_t, std::vector<uint64_t>> feedsWithPostsMap;
-    for (const auto& [feedID, postID] : feedsAndPostIDs)
-    {
-        if (feedsWithPostsMap.contains(feedID))
-        {
-            feedsWithPostsMap.at(feedID).emplace_back(postID);
-        }
-        else
-        {
-            std::vector<uint64_t> vec;
-            vec.emplace_back(postID);
-            feedsWithPostsMap[feedID] = vec;
-        }
-    }
-
-    // mark the posts as (un)read per feed
-    for (const auto& [feedID, posts] : feedsWithPostsMap)
+    for (const auto& [feedID, posts] : remapFeedPostTuplesToMap(feedsAndPostIDs))
     {
         auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
         if (feed.has_value())
@@ -241,7 +224,64 @@ void ZapFR::Engine::SourceLocal::setPostsReadStatus(bool markAsRead, const std::
 void ZapFR::Engine::SourceLocal::setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,
                                                     const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs)
 {
-    // remap the vector of tuples to feed -> [post, ...] map, so we can handle it one feed at a time
+    for (const auto& [feedID, posts] : remapFeedPostTuplesToMap(feedsAndPostIDs))
+    {
+        auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
+        for (const auto& postID : posts)
+        {
+            auto post = feed.value()->getPost(postID);
+            if (post.has_value())
+            {
+                for (const auto& fc : flagColors)
+                {
+                    auto localPost = dynamic_cast<PostLocal*>(post.value().get());
+                    if (markFlagged)
+                    {
+                        localPost->markFlagged(fc);
+                    }
+                    else
+                    {
+                        localPost->markUnflagged(fc);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void ZapFR::Engine::SourceLocal::assignPostsToScriptFolder(uint64_t scriptFolderID, bool assign, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs)
+{
+    auto scriptFolder = getScriptFolder(scriptFolderID, Source::FetchInfo::Data); // fetch data to ensure script folder exists
+    if (!scriptFolder.has_value())
+    {
+        return;
+    }
+
+    for (const auto& [feedID, posts] : remapFeedPostTuplesToMap(feedsAndPostIDs))
+    {
+        auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
+        for (const auto& postID : posts)
+        {
+            auto post = feed.value()->getPost(postID);
+            if (post.has_value())
+            {
+                auto localPost = dynamic_cast<PostLocal*>(post.value().get());
+                if (assign)
+                {
+                    localPost->assignToScriptFolder(scriptFolderID);
+                }
+                else
+                {
+                    localPost->unassignFromScriptFolder(scriptFolderID);
+                }
+            }
+        }
+    }
+}
+
+std::unordered_map<uint64_t, std::vector<uint64_t>>
+ZapFR::Engine::SourceLocal::remapFeedPostTuplesToMap(const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) const
+{
     std::unordered_map<uint64_t, std::vector<uint64_t>> feedsWithPostsMap;
     for (const auto& [feedID, postID] : feedsAndPostIDs)
     {
@@ -256,30 +296,7 @@ void ZapFR::Engine::SourceLocal::setPostsFlagStatus(bool markFlagged, const std:
             feedsWithPostsMap[feedID] = vec;
         }
     }
-
-    // mark the posts as (un)flagged per feed
-    for (const auto& [feedID, posts] : feedsWithPostsMap)
-    {
-        auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
-        for (const auto& postID : posts)
-        {
-            auto post = feed.value()->getPost(postID);
-            if (post.has_value())
-            {
-                for (const auto& fc : flagColors)
-                {
-                    if (markFlagged)
-                    {
-                        post.value()->markFlagged(fc);
-                    }
-                    else
-                    {
-                        post.value()->markUnflagged(fc);
-                    }
-                }
-            }
-        }
-    }
+    return feedsWithPostsMap;
 }
 
 /* ************************** LOGS STUFF ************************** */

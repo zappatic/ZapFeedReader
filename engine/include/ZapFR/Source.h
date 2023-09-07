@@ -91,6 +91,7 @@ namespace ZapFR
             virtual void setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) = 0;
             virtual void setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,
                                             const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) = 0;
+            virtual void assignPostsToScriptFolder(uint64_t scriptFolderID, bool assign, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) = 0;
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;
 

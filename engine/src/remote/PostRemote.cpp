@@ -23,36 +23,6 @@ ZapFR::Engine::PostRemote::PostRemote(uint64_t id) : Post(id)
 {
 }
 
-void ZapFR::Engine::PostRemote::markFlagged(FlagColor /*flagColor*/)
-{
-    // TODO: this should be handled through the parent source, delete this function later
-}
-
-void ZapFR::Engine::PostRemote::markUnflagged(FlagColor /*flagColor*/)
-{
-    // TODO: this should be handled through the parent source, delete this function later
-}
-
-void ZapFR::Engine::PostRemote::markAsRead()
-{
-    // TODO: this should be handled through the parent source, delete this function later
-}
-
-void ZapFR::Engine::PostRemote::markAsUnread()
-{
-    // TODO: this should be handled through the parent source, delete this function later
-}
-
-void ZapFR::Engine::PostRemote::assignToScriptFolder(uint64_t /*scriptFolderID*/)
-{
-    // TODO: this needs to be moved into PostLocal (for running scripts)
-}
-
-void ZapFR::Engine::PostRemote::unassignFromScriptFolder(uint64_t /*scriptFolderID*/)
-{
-    // TODO: this needs to be moved into PostLocal (for running scriptss)
-}
-
 std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostRemote::fromJSON(const Poco::JSON::Object::Ptr o)
 {
     auto postID = o->getValue<uint64_t>(Post::JSONIdentifierPostID);

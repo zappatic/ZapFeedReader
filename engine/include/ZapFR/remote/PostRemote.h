@@ -31,15 +31,6 @@ namespace ZapFR
             explicit PostRemote(uint64_t id);
             ~PostRemote() = default;
 
-            void markFlagged(FlagColor flagColor) override;
-            void markUnflagged(FlagColor flagColor) override;
-
-            void markAsRead() override;
-            void markAsUnread() override;
-
-            void assignToScriptFolder(uint64_t scriptFolderID) override;
-            void unassignFromScriptFolder(uint64_t scriptFolderID) override;
-
             static std::unique_ptr<Post> fromJSON(const Poco::JSON::Object::Ptr o);
         };
     } // namespace Engine

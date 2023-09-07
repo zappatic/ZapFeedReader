@@ -69,15 +69,6 @@ namespace ZapFR
             void setSourceTitle(const std::string& sourceTitle) { mSourceTitle = sourceTitle; }
             void setFlagColors(const std::unordered_set<FlagColor>& flagColors) { mFlagColors = flagColors; }
 
-            virtual void markFlagged(FlagColor flagColor) = 0;
-            virtual void markUnflagged(FlagColor flagColor) = 0;
-
-            virtual void markAsRead() = 0;
-            virtual void markAsUnread() = 0;
-
-            virtual void assignToScriptFolder(uint64_t scriptFolderID) = 0;
-            virtual void unassignFromScriptFolder(uint64_t scriptFolderID) = 0;
-
             virtual Poco::JSON::Object toJSON();
             static constexpr const char* JSONIdentifierPostID{"id"};
             static constexpr const char* JSONIdentifierPostIsRead{"isRead"};

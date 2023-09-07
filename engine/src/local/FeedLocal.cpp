@@ -247,7 +247,8 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
                     {
                         for (const auto& script : scriptsRanOnUpdatePost)
                         {
-                            ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, updatedPost.value().get());
+                            ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, dynamic_cast<SourceLocal*>(mParentSource), this,
+                                                                                   dynamic_cast<PostLocal*>(updatedPost.value().get()));
                         }
                     }
                 }
@@ -262,7 +263,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
             {
                 for (const auto& script : scriptsRanOnNewPost)
                 {
-                    ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, post.get());
+                    ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, dynamic_cast<SourceLocal*>(mParentSource), this, dynamic_cast<PostLocal*>(post.get()));
                 }
             }
         }
