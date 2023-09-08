@@ -52,7 +52,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_importopml(
         auto feedIDs = source.value()->importOPML(opml, parentFolderID);
         for (const auto& feedID : feedIDs)
         {
-            std::cout << "feedID: " << feedID << "\n";
             if (feedID != 0)
             {
                 arr.add(feedID);

@@ -11,6 +11,11 @@
         "name": "parentFolderID",
         "required": false,
         "description": "The ID of the folder for which to retrieve the subfolders; optional, defaults to root(0)"
+      },
+      {
+        "name": "getSubfolders",
+        "required": false,
+        "description": "Whether to recursively retrieve all of the subfolders ('true' or 'false'; default false)"
       }
     ],
     "requireCredentials": true,

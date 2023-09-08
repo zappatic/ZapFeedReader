@@ -45,6 +45,13 @@ Poco::JSON::Object ZapFR::Engine::Folder::toJSON()
     o.set(Folder::JSONIdentifierFolderParent, mParentFolderID);
     o.set(Folder::JSONIdentifierFolderSortOrder, mSortOrder);
 
+    Poco::JSON::Array subfolders;
+    for (const auto& subfolder : mSubfolders)
+    {
+        subfolders.add(subfolder->toJSON());
+    }
+    o.set(Folder::JSONIdentifierFolderSubfolders, subfolders);
+
     if (mStatistics.size() > 0)
     {
         Poco::JSON::Object statsObj;

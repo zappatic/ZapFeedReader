@@ -220,6 +220,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/folders$)", R"(/folders)");
 				entry->addBodyParameter({R"(parentFolderID)", false, R"(The ID of the folder for which to retrieve the subfolders; optional, defaults to root(0))"});
+				entry->addBodyParameter({R"(getSubfolders)", false, R"(Whether to recursively retrieve all of the subfolders ('true' or 'false'; default false))"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Array)");

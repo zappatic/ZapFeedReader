@@ -242,23 +242,6 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
     return std::make_tuple(logCount, std::move(logs));
 }
 
-Poco::JSON::Object ZapFR::Engine::FolderLocal::toJSON()
-{
-    auto o = Folder::toJSON();
-    if (mExportSubfoldersInJSON)
-    {
-        this->fetchSubfolders();
-        Poco::JSON::Array subfolders;
-        for (const auto& subfolder : mSubfolders)
-        {
-            dynamic_cast<FolderLocal*>(subfolder.get())->setExportSubfoldersInJSON(true);
-            subfolders.add(subfolder->toJSON());
-        }
-        o.set(Folder::JSONIdentifierFolderSubfolders, subfolders);
-    }
-    return o;
-}
-
 uint64_t ZapFR::Engine::FolderLocal::nextSortOrder(uint64_t folderID)
 {
     uint64_t sortOrder{0};
@@ -373,6 +356,7 @@ uint64_t ZapFR::Engine::FolderLocal::createFolderHierarchy(Source* parentSource,
         else
         {
             pID = parent->id();
+            dynamic_cast<FolderLocal*>(parent)->fetchSubfolders();
             for (const auto& subfolder : parent->subfolders())
             {
                 if (subfolder->title() == folderTitle)

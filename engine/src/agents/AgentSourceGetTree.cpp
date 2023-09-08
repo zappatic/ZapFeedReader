@@ -29,15 +29,6 @@ ZapFR::Engine::AgentSourceGetTree::AgentSourceGetTree(uint64_t sourceID,
 
 void ZapFR::Engine::AgentSourceGetTree::run()
 {
-    std::function<void(Folder*)> loadFolder;
-    loadFolder = [&](Folder* folder)
-    {
-        for (const auto& subfolder : folder->subfolders())
-        {
-            loadFolder(subfolder.get());
-        }
-    };
-
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
@@ -49,11 +40,9 @@ void ZapFR::Engine::AgentSourceGetTree::run()
         }
 
         std::vector<Folder*> folderPointers{};
-        auto folders = source.value()->getFolders(0);
-        // ensure all subfolders are fetched within this thread
+        auto folders = source.value()->getFolders(0, Source::FetchInfo::Subfolders);
         for (const auto& folder : folders)
         {
-            loadFolder(folder.get());
             folderPointers.emplace_back(folder.get());
         }
 

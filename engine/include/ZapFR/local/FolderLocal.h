@@ -55,16 +55,11 @@ namespace ZapFR
             static uint64_t createFolderHierarchy(Source* parentSource, uint64_t parentID, const std::vector<std::string> folderHierarchy);
             static void move(Source* parentSource, uint64_t folderID, uint64_t newParent, uint64_t newSortOrder);
 
-            Poco::JSON::Object toJSON() override;
-            void setExportSubfoldersInJSON(bool b) { mExportSubfoldersInJSON = b; }
-
           private:
             mutable bool mFeedIDsFetched{false};
 
             static std::mutex msCreateFolderMutex;
             static std::mutex msCreateFolderHierarchyMutex;
-
-            bool mExportSubfoldersInJSON{false};
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -29,6 +29,7 @@
 //
 //	Parameters:
 //		parentFolderID - The ID of the folder for which to retrieve the subfolders; optional, defaults to root(0) - apiRequest->parameter("parentFolderID")
+//		getSubfolders - Whether to recursively retrieve all of the subfolders ('true' or 'false'; default false) - apiRequest->parameter("getSubfolders")
 //
 //	Content-Type: application/json
 //	JSON output: Array
@@ -38,6 +39,7 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folders_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto parentFolderIDStr = apiRequest->parameter("parentFolderID");
+    const auto getSubfolders = apiRequest->parameter("getSubfolders") == "true";
 
     uint64_t parentFolderID{0};
     Poco::NumberParser::tryParseUnsigned64(parentFolderIDStr, parentFolderID);
@@ -47,10 +49,15 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folders_list([[may
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        auto folders = source.value()->getFolders(parentFolderID);
+        uint32_t fetchInfo{0};
+        if (getSubfolders)
+        {
+            fetchInfo |= ZapFR::Engine::Source::FetchInfo::Subfolders;
+        }
+
+        auto folders = source.value()->getFolders(parentFolderID, fetchInfo);
         for (const auto& folder : folders)
         {
-            dynamic_cast<ZapFR::Engine::FolderLocal*>(folder.get())->setExportSubfoldersInJSON(true);
             arr.add(folder->toJSON());
         }
     }

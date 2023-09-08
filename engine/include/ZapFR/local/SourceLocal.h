@@ -43,8 +43,8 @@ namespace ZapFR
             void removeFeed(uint64_t feedID) override;
 
             // folder stuff
-            std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent) override;
-            std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID, uint32_t folderFetchInfo) override;
+            std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent, uint32_t fetchInfo) override;
+            std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID, uint32_t fetchInfo) override;
             void removeFolder(uint64_t folderID) override;
             void moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) override;
             uint64_t addFolder(const std::string& title, uint64_t parentID) override;

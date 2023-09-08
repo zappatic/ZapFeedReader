@@ -188,7 +188,7 @@ void ZapFR::Engine::SourceRemote::removeFeed(uint64_t feedID)
 }
 
 /* ************************** FOLDER STUFF ************************** */
-std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote::getFolders(uint64_t parent)
+std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote::getFolders(uint64_t parent, uint32_t fetchInfo)
 {
     std::vector<std::unique_ptr<ZapFR::Engine::Folder>> folders;
 
@@ -200,6 +200,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote:
 
         std::map<std::string, std::string> params;
         params["parentFolderID"] = std::to_string(parent);
+        if ((fetchInfo & FetchInfo::Subfolders) == FetchInfo::Subfolders)
+        {
+            params["getSubfolders"] = "true";
+        }
 
         auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();

@@ -91,7 +91,7 @@ void ZapFR::Engine::SourceLocal::removeFeed(uint64_t feedID)
 }
 
 /* ************************** FOLDER STUFF ************************** */
-std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolders(uint64_t parent)
+std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolders(uint64_t parent, uint32_t fetchInfo)
 {
     std::vector<std::string> whereClause;
     std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
@@ -99,7 +99,27 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::
     whereClause.emplace_back("parent=?");
     bindings.emplace_back(useRef(parent, "parent"));
 
-    return FolderLocal::queryMultiple(this, whereClause, "ORDER BY folders.sortOrder ASC", "", bindings);
+    std::function<void(Folder*)> populateSubfolders;
+    populateSubfolders = [&](Folder* folder)
+    {
+        auto localFolder = dynamic_cast<FolderLocal*>(folder);
+        localFolder->fetchSubfolders();
+
+        for (const auto& subfolder : localFolder->subfolders())
+        {
+            populateSubfolders(subfolder.get());
+        }
+    };
+
+    auto folders = FolderLocal::queryMultiple(this, whereClause, "ORDER BY folders.sortOrder ASC", "", bindings);
+    if ((fetchInfo & FetchInfo::Subfolders) == FetchInfo::Subfolders)
+    {
+        for (const auto& folder : folders)
+        {
+            populateSubfolders(folder.get());
+        }
+    }
+    return folders;
 }
 
 std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal::getFolder(uint64_t folderID, uint32_t fetchInfo)
