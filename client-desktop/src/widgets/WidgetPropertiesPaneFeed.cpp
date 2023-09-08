@@ -153,5 +153,5 @@ void ZapFR::Client::WidgetPropertiesPaneFeed::save()
         }
     }
 
-    ZapFR::Engine::Agent::getInstance()->queueSetFeedProperties(mSourceID, mFeedID, newURL, newRefreshInterval, [&]() {});
+    ZapFR::Engine::Agent::getInstance()->queueUpdateFeed(mSourceID, mFeedID, newURL, newRefreshInterval, [&]() {});
 }

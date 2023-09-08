@@ -68,7 +68,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_update([[mayb
                     }
                 }
 
-                feed.value()->updateProperties(url, ri);
+                feed.value()->update(url, ri);
             }
         }
     }
