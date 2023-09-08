@@ -158,11 +158,15 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
             }
 
             // if the feed is currently selected, then refresh the posts so the new unread posts are shown
-            auto currentIndex = ui->treeViewSources->currentIndex();
-            if (currentIndex.isValid() && mItemModelSources->itemFromIndex(mProxyModelSources->mapToSource(currentIndex)) == feedItem)
+            // only do that when we're in the posts pane
+            if (ui->stackedWidgetRight->currentIndex() == StackedPanePosts)
             {
-                mCurrentPostPage = 1;
-                reloadPosts();
+                auto currentIndex = ui->treeViewSources->currentIndex();
+                if (currentIndex.isValid() && mItemModelSources->itemFromIndex(mProxyModelSources->mapToSource(currentIndex)) == feedItem)
+                {
+                    mCurrentPostPage = 1;
+                    reloadPosts();
+                }
             }
         }
     }
