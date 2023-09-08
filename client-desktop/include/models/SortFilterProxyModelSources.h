@@ -44,6 +44,7 @@ namespace ZapFR
 
           protected:
             bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+            bool lessThan(const QModelIndex& sourceLeft, const QModelIndex& sourceRight) const override;
 
           private:
             SourceTreeDisplayMode mSourceTreeDisplayMode{SourceTreeDisplayMode::ShowAll};

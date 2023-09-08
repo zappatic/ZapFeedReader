@@ -20,7 +20,6 @@
 
 ZapFR::Client::SortFilterProxyModelSources::SortFilterProxyModelSources(QObject* parent) : QSortFilterProxyModel(parent)
 {
-    setSortRole(SourceTreeEntrySortOrderRole);
 }
 
 bool ZapFR::Client::SortFilterProxyModelSources::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
@@ -50,4 +49,22 @@ void ZapFR::Client::SortFilterProxyModelSources::setDisplayMode(SourceTreeDispla
 ZapFR::Client::SortFilterProxyModelSources::SourceTreeDisplayMode ZapFR::Client::SortFilterProxyModelSources::displayMode() const noexcept
 {
     return mSourceTreeDisplayMode;
+}
+
+bool ZapFR::Client::SortFilterProxyModelSources::lessThan(const QModelIndex& left, const QModelIndex& right) const
+{
+    auto leftType = left.data(SourceTreeEntryTypeRole).toULongLong();
+    auto rightType = right.data(SourceTreeEntryTypeRole).toULongLong();
+
+    // make sure folders and feeds are sorted separately within a folder, and folders go at the top
+    if (leftType == SOURCETREE_ENTRY_TYPE_FOLDER && rightType == SOURCETREE_ENTRY_TYPE_FEED)
+    {
+        return true;
+    }
+    else if (leftType == SOURCETREE_ENTRY_TYPE_FEED && rightType == SOURCETREE_ENTRY_TYPE_FOLDER)
+    {
+        return false;
+    }
+
+    return left.data(SourceTreeEntrySortOrderRole).toULongLong() < right.data(SourceTreeEntrySortOrderRole).toULongLong();
 }
