@@ -17,7 +17,7 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceGet.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentSourceGet::AgentSourceGet(uint64_t sourceID, std::function<void(Source*)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)

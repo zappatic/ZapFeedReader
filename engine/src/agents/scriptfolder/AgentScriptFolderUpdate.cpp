@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderUpdate.h"
-#include "ZapFR/ScriptFolder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/ScriptFolder.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptFolderUpdate::AgentScriptFolderUpdate(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title,
                                                                 std::function<void(uint64_t, uint64_t)> finishedCallback)

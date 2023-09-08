@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderAdd.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Post.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderAdd::AgentFolderAdd(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mParentFolderID(parentFolderID), mTitle(title), mFinishedCallback(finishedCallback)

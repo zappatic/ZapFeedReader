@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedAdd.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedAdd::AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderID(folder), mFinishedCallback(finishedCallback)

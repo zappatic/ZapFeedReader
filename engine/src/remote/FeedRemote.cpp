@@ -19,7 +19,7 @@
 #include "ZapFR/remote/FeedRemote.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
-#include "ZapFR/Post.h"
+#include "ZapFR/base/Post.h"
 #include "ZapFR/remote/PostRemote.h"
 #include "ZapFR/remote/SourceRemote.h"
 

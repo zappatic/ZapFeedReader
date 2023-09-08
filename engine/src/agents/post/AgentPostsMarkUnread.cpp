@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/post/AgentPostsMarkUnread.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentPostsMarkUnread::AgentPostsMarkUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
                                                           std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&)> finishedCallback)

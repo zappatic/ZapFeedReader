@@ -17,7 +17,7 @@
 */
 
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderAdd.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptFolderAdd::AgentScriptFolderAdd(uint64_t sourceID, const std::string& title, std::function<void(uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mTitle(title), mFinishedCallback(finishedCallback)

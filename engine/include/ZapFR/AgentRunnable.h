@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_AGENTRUNNABLE_H
 #define ZAPFR_ENGINE_AGENTRUNNABLE_H
 
-#include "Global.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

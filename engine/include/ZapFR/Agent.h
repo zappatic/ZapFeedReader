@@ -20,9 +20,9 @@
 #define ZAPFR_ENGINE_AGENT_H
 
 #include "AgentRunnable.h"
-#include "Flag.h"
-#include "Global.h"
-#include "Script.h"
+#include "ZapFR/Flag.h"
+#include "ZapFR/Global.h"
+#include "ZapFR/base/Script.h"
 
 namespace ZapFR
 {

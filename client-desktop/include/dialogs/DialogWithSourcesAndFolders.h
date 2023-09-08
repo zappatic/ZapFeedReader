@@ -20,7 +20,7 @@
 #define ZAPFR_CLIENT_DIALOGWITHSOURCESANDFOLDERS_H
 
 #include "../ClientGlobal.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 namespace ZapFR
 {

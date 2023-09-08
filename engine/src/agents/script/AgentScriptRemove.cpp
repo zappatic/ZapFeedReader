@@ -17,7 +17,7 @@
 */
 
 #include "ZapFR/agents/script/AgentScriptRemove.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptRemove::AgentScriptRemove(uint64_t sourceID, uint64_t scriptID, std::function<void(uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mScriptID(scriptID), mFinishedCallback(finishedCallback)

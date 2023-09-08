@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderUpdate.h"
-#include "ZapFR/Folder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Folder.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderUpdate::AgentFolderUpdate(uint64_t sourceID, uint64_t folderID, const std::string& newTitle,
                                                     std::function<void(uint64_t, uint64_t, const std::string&)> finishedCallback)

@@ -20,7 +20,7 @@
 #include "APIHandlers.h"
 #include "APIRequest.h"
 #include "ZapFR/Flag.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/FolderLocal.h"
 #include "ZapFR/local/PostLocal.h"

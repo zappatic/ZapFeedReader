@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_FOLDERLOCAL_H
 #define ZAPFR_ENGINE_FOLDERLOCAL_H
 
-#include "../Folder.h"
+#include "ZapFR/base/Folder.h"
 
 namespace ZapFR
 {

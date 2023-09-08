@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/script/AgentScriptsGet.h"
-#include "ZapFR/Script.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Script.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptsGet::AgentScriptsGet(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)

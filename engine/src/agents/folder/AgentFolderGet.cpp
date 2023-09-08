@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderGet.h"
-#include "ZapFR/Folder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Folder.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderGet::AgentFolderGet(uint64_t sourceID, uint64_t folderID, std::function<void(Folder*)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)

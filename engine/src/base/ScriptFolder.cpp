@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/ScriptFolder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/ScriptFolder.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::ScriptFolder::ScriptFolder(uint64_t id, Source* parentSource) : mID(id), mParentSource(parentSource)
 {

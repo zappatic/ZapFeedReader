@@ -10,12 +10,6 @@ target_sources(zapfeedreader-engine PRIVATE
     FeedParserATOM10.cpp
     FavIconParser.cpp
     Flag.cpp
-    Source.cpp
-    Folder.cpp
-    Feed.cpp
-    Post.cpp
-    Script.cpp
-    ScriptFolder.cpp
     ScriptLua.cpp
     agents/AgentMonitorFeedRefreshCompletion.cpp
     agents/feed/AgentFeedAdd.cpp
@@ -61,6 +55,12 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/source/AgentSourceImportOPML.cpp
     agents/source/AgentSourceMarkRead.cpp
     agents/source/AgentSourceRefresh.cpp
+    base/Source.cpp
+    base/Folder.cpp
+    base/Feed.cpp
+    base/Post.cpp
+    base/Script.cpp
+    base/ScriptFolder.cpp
     local/SourceLocal.cpp
     local/FolderLocal.cpp
     local/FeedLocal.cpp

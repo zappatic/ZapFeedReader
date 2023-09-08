@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceGetUsedFlagColors.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Folder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Folder.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentSourceGetUsedFlagColors::AgentSourceGetUsedFlagColors(uint64_t sourceID,
                                                                           std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> finishedCallback)

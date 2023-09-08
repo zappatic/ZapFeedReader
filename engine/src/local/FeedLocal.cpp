@@ -22,7 +22,7 @@
 #include "ZapFR/FeedFetcher.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
-#include "ZapFR/Script.h"
+#include "ZapFR/base/Script.h"
 #include "ZapFR/ScriptLua.h"
 #include "ZapFR/local/PostLocal.h"
 #include "ZapFR/local/ScriptLocal.h"

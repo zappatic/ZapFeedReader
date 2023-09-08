@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceMarkRead.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentSourceMarkRead::AgentSourceMarkRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)

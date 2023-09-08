@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_POSTLOCAL_H
 #define ZAPFR_ENGINE_POSTLOCAL_H
 
-#include "../Post.h"
+#include "ZapFR/base/Post.h"
 
 namespace ZapFR
 {

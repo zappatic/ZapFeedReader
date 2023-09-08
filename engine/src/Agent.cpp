@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/Agent.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Post.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/Source.h"
 #include "ZapFR/agents/AgentMonitorFeedRefreshCompletion.h"
 #include "ZapFR/agents/feed/AgentFeedAdd.h"
 #include "ZapFR/agents/feed/AgentFeedGet.h"

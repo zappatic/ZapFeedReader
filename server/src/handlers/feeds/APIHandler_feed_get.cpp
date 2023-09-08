@@ -19,7 +19,7 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 #include "ZapFR/local/FeedLocal.h"
 
 // ::API

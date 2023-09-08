@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_FEEDLOCAL_H
 #define ZAPFR_ENGINE_FEEDLOCAL_H
 
-#include "../Feed.h"
+#include "ZapFR/base/Feed.h"
 
 namespace ZapFR
 {

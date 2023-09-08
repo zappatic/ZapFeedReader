@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/Post.h"
+#include "ZapFR/base/Post.h"
 #include "ZapFR/Helpers.h"
 
 ZapFR::Engine::Post::Post(uint64_t id) : mID(id)

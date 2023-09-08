@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderGetPosts.h"
-#include "ZapFR/Folder.h"
-#include "ZapFR/Post.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Folder.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderGetPosts::AgentFolderGetPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                                         const std::string& searchFilter, FlagColor flagColor,

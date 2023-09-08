@@ -18,7 +18,7 @@
 
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/Post.h"
+#include "ZapFR/base/Post.h"
 #include "widgets/LineEditSearch.h"
 #include "widgets/MainWindow.h"
 #include "widgets/WebEnginePagePost.h"

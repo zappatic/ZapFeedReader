@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderGetPosts.h"
-#include "ZapFR/Post.h"
-#include "ZapFR/ScriptFolder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/ScriptFolder.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptFolderGetPosts::AgentScriptFolderGetPosts(
     uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor,

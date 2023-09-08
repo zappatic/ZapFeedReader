@@ -19,8 +19,8 @@
 #ifndef ZAPFR_ENGINE_FOLDER_H
 #define ZAPFR_ENGINE_FOLDER_H
 
-#include "Flag.h"
-#include "Global.h"
+#include "ZapFR/Flag.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

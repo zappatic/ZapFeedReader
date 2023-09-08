@@ -17,7 +17,7 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderRemove.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderRemove::AgentFolderRemove(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFolderID(folder), mFinishedCallback(finishedCallback)

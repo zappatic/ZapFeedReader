@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_SCRIPTLOCAL_H
 #define ZAPFR_ENGINE_SCRIPTLOCAL_H
 
-#include "../Script.h"
+#include "ZapFR/base/Script.h"
 
 namespace ZapFR
 {

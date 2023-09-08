@@ -17,7 +17,7 @@
 */
 
 #include "ZapFR/agents/script/AgentScriptAdd.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptAdd::AgentScriptAdd(uint64_t sourceID, Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
                                               const std::optional<std::unordered_set<uint64_t>>& feedIDs, std::function<void(uint64_t)> finishedCallback)

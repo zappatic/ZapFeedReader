@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_SCRIPTFOLDERREMOTE_H
 #define ZAPFR_ENGINE_SCRIPTFOLDERREMOTE_H
 
-#include "../ScriptFolder.h"
+#include "ZapFR/base/ScriptFolder.h"
 
 namespace ZapFR
 {

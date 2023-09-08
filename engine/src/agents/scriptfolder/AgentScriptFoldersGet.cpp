@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/scriptfolder/AgentScriptFoldersGet.h"
-#include "ZapFR/ScriptFolder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/ScriptFolder.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptFoldersGet::AgentScriptFoldersGet(uint64_t sourceID, std::function<void(uint64_t, const std::vector<ScriptFolder*>&)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)

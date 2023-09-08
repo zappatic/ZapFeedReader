@@ -17,12 +17,12 @@
 */
 
 #include "ZapFR/remote/SourceRemote.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Folder.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Folder.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
-#include "ZapFR/Post.h"
-#include "ZapFR/ScriptFolder.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/ScriptFolder.h"
 #include "ZapFR/remote/FeedRemote.h"
 #include "ZapFR/remote/FolderRemote.h"
 #include "ZapFR/remote/PostRemote.h"

@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 #include "ZapFR/Database.h"
 #include "ZapFR/local/SourceLocal.h"
 #include "ZapFR/remote/SourceRemote.h"

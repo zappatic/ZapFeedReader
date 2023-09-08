@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedGetUnreadCount.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedGetUnreadCount::AgentFeedGetUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)

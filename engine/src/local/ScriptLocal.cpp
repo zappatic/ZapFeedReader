@@ -19,7 +19,7 @@
 #include "ZapFR/local/ScriptLocal.h"
 #include "ZapFR/Database.h"
 #include "ZapFR/Helpers.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 using namespace Poco::Data::Keywords;
 

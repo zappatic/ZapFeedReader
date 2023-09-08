@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedGetPosts.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Post.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedGetPosts::AgentFeedGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                     FlagColor flagColor,

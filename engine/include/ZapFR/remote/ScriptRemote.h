@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_SCRIPTREMOTE_H
 #define ZAPFR_ENGINE_SCRIPTREMOTE_H
 
-#include "../Script.h"
+#include "ZapFR/base/Script.h"
 
 namespace ZapFR
 {

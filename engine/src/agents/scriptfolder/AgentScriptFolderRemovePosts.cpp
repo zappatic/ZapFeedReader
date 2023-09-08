@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderRemovePosts.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Post.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptFolderRemovePosts::AgentScriptFolderRemovePosts(uint64_t sourceID, uint64_t scriptFolderID,
                                                                           const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,

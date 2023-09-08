@@ -20,7 +20,7 @@
 #include "FeedIconCache.h"
 #include "Utilities.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/Feed.h"
+#include "ZapFR/base/Feed.h"
 #include "ui_WidgetPropertiesPaneFeed.h"
 
 ZapFR::Client::WidgetPropertiesPaneFeed::WidgetPropertiesPaneFeed(QWidget* parent) : QWidget(parent), ui(new Ui::WidgetPropertiesPaneFeed)

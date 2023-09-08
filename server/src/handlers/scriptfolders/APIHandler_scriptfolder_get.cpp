@@ -19,8 +19,8 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "ZapFR/ScriptFolder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/ScriptFolder.h"
+#include "ZapFR/base/Source.h"
 
 // ::API
 //

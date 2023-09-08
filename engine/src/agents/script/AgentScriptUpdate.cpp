@@ -17,7 +17,7 @@
 */
 
 #include "ZapFR/agents/script/AgentScriptUpdate.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptUpdate::AgentScriptUpdate(uint64_t sourceID, uint64_t scriptID, Script::Type type, const std::string& filename, bool enabled,
                                                     const std::unordered_set<Script::Event>& events, const std::optional<std::unordered_set<uint64_t>>& feedIDs,

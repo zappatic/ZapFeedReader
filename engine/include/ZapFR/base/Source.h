@@ -19,8 +19,8 @@
 #ifndef ZAPFR_ENGINE_SOURCE_H
 #define ZAPFR_ENGINE_SOURCE_H
 
-#include "Flag.h"
-#include "Global.h"
+#include "ZapFR/Flag.h"
+#include "ZapFR/Global.h"
 #include "Script.h"
 
 namespace ZapFR

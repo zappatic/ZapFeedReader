@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedUpdate.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedUpdate::AgentFeedUpdate(uint64_t sourceID, uint64_t feedID, const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds,
                                                 std::function<void()> finishedCallback)

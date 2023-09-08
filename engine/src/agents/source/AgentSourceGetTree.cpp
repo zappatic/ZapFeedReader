@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceGetTree.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Folder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Folder.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentSourceGetTree::AgentSourceGetTree(uint64_t sourceID,
                                                       std::function<void(Source*, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback)

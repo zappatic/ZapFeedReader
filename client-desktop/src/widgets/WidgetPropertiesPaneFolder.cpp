@@ -19,7 +19,7 @@
 #include "widgets/WidgetPropertiesPaneFolder.h"
 #include "Utilities.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/Folder.h"
+#include "ZapFR/base/Folder.h"
 #include "ui_WidgetPropertiesPaneFolder.h"
 
 ZapFR::Client::WidgetPropertiesPaneFolder::WidgetPropertiesPaneFolder(QWidget* parent) : QWidget(parent), ui(new Ui::WidgetPropertiesPaneFolder)

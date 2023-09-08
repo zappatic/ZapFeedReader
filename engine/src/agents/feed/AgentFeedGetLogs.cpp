@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedGetLogs.h"
-#include "ZapFR/Feed.h"
+#include "ZapFR/base/Feed.h"
 #include "ZapFR/Log.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedGetLogs::AgentFeedGetLogs(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
                                                   std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)

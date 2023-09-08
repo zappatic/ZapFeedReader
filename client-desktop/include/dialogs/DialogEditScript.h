@@ -20,7 +20,7 @@
 #define ZAPFR_CLIENT_DIALOGEDITSCRIPT_H
 
 #include "../ClientGlobal.h"
-#include "ZapFR/Script.h"
+#include "ZapFR/base/Script.h"
 
 namespace Ui
 {

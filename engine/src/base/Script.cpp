@@ -16,9 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/Script.h"
+#include "ZapFR/base/Script.h"
 #include "ZapFR/Helpers.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 std::string ZapFR::Engine::Script::msEventNewPostIdentifier{"newpost"};
 std::string ZapFR::Engine::Script::msEventUpdatePostIdentifier{"updatepost"};

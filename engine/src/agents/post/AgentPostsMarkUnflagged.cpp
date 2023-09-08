@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/post/AgentPostsMarkUnflagged.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Post.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentPostsMarkUnflagged::AgentPostsMarkUnflagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
                                                                 const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback)

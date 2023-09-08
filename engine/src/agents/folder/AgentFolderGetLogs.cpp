@@ -17,9 +17,9 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderGetLogs.h"
-#include "ZapFR/Folder.h"
+#include "ZapFR/base/Folder.h"
 #include "ZapFR/Log.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderGetLogs::AgentFolderGetLogs(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
                                                       std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)

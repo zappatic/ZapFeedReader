@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_LOG_H
 #define ZAPFR_ENGINE_LOG_H
 
-#include "Global.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

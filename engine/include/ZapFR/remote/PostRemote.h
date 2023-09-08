@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_POSTREMOTE_H
 #define ZAPFR_ENGINE_POSTREMOTE_H
 
-#include "../Post.h"
+#include "ZapFR/base/Post.h"
 
 namespace ZapFR
 {

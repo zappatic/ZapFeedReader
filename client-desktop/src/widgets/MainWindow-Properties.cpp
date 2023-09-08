@@ -18,9 +18,9 @@
 
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Folder.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Folder.h"
+#include "ZapFR/base/Source.h"
 #include "models/StandardItemModelSources.h"
 #include "widgets/MainWindow.h"
 #include "widgets/WidgetPropertiesPaneFeed.h"

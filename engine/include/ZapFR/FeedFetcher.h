@@ -20,7 +20,7 @@
 #define ZAPFR_ENGINE_FEEDFETCHER_H
 
 #include "Database.h"
-#include "Global.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

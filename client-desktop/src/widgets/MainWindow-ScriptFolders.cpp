@@ -18,7 +18,7 @@
 
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/ScriptFolder.h"
+#include "ZapFR/base/ScriptFolder.h"
 #include "dialogs/DialogEditScriptFolder.h"
 #include "widgets/MainWindow.h"
 

@@ -19,8 +19,8 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
-#include "ZapFR/Feed.h"
-#include "ZapFR/Source.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Source.h"
 
 // ::API
 //
@@ -68,7 +68,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_update([[mayb
                     }
                 }
 
-                feed.value()->update(url, ri);
+                feed.value()->updateProperties(url, ri);
             }
         }
     }
