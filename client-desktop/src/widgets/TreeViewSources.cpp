@@ -26,3 +26,15 @@ void ZapFR::Client::TreeViewSources::currentChanged(const QModelIndex& current, 
 {
     emit currentSourceChanged(current);
 }
+
+void ZapFR::Client::TreeViewSources::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
+    {
+        emit deletePressed();
+    }
+    else
+    {
+        QTreeView::keyPressEvent(event);
+    }
+}

@@ -160,3 +160,19 @@ uint64_t ZapFR::Engine::Source::nextSortOrder()
     selectStmt << "SELECT MAX(sortOrder) FROM sources", into(sortOrder), now;
     return sortOrder + 10;
 }
+
+void ZapFR::Engine::Source::removeSource(uint64_t id)
+{
+    // double check we're not removing a local source
+    auto source = getSource(id);
+    if (source.has_value())
+    {
+        if (source.value()->type() == ZapFR::Engine::IdentifierLocalServer)
+        {
+            return;
+        }
+
+        Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+        deleteStmt << "DELETE FROM sources WHERE id=?", use(id), now;
+    }
+}

@@ -36,9 +36,11 @@ namespace ZapFR
 
           signals:
             void selectedScriptFolderChanged(const QModelIndex&);
+            void deletePressed();
 
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
+            void keyPressEvent(QKeyEvent* event) override;
         };
     } // namespace Client
 } // namespace ZapFR

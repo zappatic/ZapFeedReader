@@ -391,6 +391,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Refresh_feeds->setIcon(configureIcon(":/refreshFeed.svg"));
     ui->action_Mark_as_read->setIcon(configureIcon(":/markAsRead.svg"));
     ui->action_Add_feed->setIcon(configureIcon(":/addFeed.svg"));
+    ui->action_Add_source->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
     ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
     ui->action_View_scripts->setIcon(configureIcon(":/script.svg"));
@@ -402,6 +403,9 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Remove_script_folder->setIcon(configureIcon(":/remove.svg"));
     ui->action_Add_script_folder->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_View_properties->setIcon(configureIcon(":/properties.svg"));
+    ui->action_Remove_feed->setIcon(configureIcon(":/remove.svg"));
+    ui->action_Remove_folder->setIcon(configureIcon(":/remove.svg"));
+    ui->action_Remove_source->setIcon(configureIcon(":/remove.svg"));
     ui->pushButtonPostPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
     ui->pushButtonPostFirstPage->setIcon(configureIcon(":/firstPage.svg"));
     ui->pushButtonPostNextPage->setIcon(configureIcon(":/nextPage.svg"));

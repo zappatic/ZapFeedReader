@@ -114,6 +114,7 @@ namespace ZapFR
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);
             static std::unique_ptr<ZapFR::Engine::Source> createSourceInstance(uint64_t id, const std::string& type);
             static std::optional<std::unique_ptr<Source>> create(const std::string& type, const std::string& title, const std::string& configData);
+            static void removeSource(uint64_t id);
             static uint64_t nextSortOrder();
 
             static const std::unordered_map<std::string, Statistic> JSONIdentifierSourceStatisticMap;

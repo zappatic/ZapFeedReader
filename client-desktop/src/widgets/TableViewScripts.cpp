@@ -21,3 +21,15 @@
 ZapFR::Client::TableViewScripts::TableViewScripts(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
 }
+
+void ZapFR::Client::TableViewScripts::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
+    {
+        emit deletePressed();
+    }
+    else
+    {
+        TableViewPaletteCorrected::keyPressEvent(event);
+    }
+}

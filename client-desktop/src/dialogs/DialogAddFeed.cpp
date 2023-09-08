@@ -35,8 +35,6 @@ ZapFR::Client::DialogAddFeed::DialogAddFeed(QWidget* parent) : DialogWithSources
     }
 }
 
-// TODO: check chosen feed url before 'accept'ing
-
 ZapFR::Client::DialogAddFeed::~DialogAddFeed()
 {
     delete ui;

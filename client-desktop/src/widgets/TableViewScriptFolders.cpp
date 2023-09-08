@@ -33,3 +33,15 @@ void ZapFR::Client::TableViewScriptFolders::selectionChanged(const QItemSelectio
         }
     }
 }
+
+void ZapFR::Client::TableViewScriptFolders::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
+    {
+        emit deletePressed();
+    }
+    else
+    {
+        TableViewPaletteCorrected::keyPressEvent(event);
+    }
+}

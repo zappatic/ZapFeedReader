@@ -36,9 +36,11 @@ namespace ZapFR
 
           signals:
             void currentSourceChanged(const QModelIndex&);
+            void deletePressed();
 
           protected:
             void currentChanged(const QModelIndex& current, const QModelIndex& previous) override;
+            void keyPressEvent(QKeyEvent* event) override;
         };
     } // namespace Client
 } // namespace ZapFR

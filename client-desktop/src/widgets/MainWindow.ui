@@ -893,6 +893,7 @@
      <string notr="true">Hamburger</string>
     </property>
     <addaction name="action_Add_source"/>
+    <addaction name="action_Remove_source"/>
     <addaction name="separator"/>
     <addaction name="action_Import_OPML"/>
     <addaction name="action_Export_OPML"/>
@@ -1096,6 +1097,14 @@
    </property>
    <property name="toolTip">
     <string>View properties</string>
+   </property>
+  </action>
+  <action name="action_Remove_source">
+   <property name="text">
+    <string>Remove source</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove source</string>
    </property>
   </action>
  </widget>

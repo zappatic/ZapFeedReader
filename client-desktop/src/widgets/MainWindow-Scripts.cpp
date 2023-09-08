@@ -17,10 +17,10 @@
 */
 
 #include "./ui_MainWindow.h"
-#include "widgets/MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Script.h"
 #include "dialogs/DialogEditScript.h"
+#include "widgets/MainWindow.h"
 
 void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
 {
@@ -285,6 +285,7 @@ void ZapFR::Client::MainWindow::connectScriptStuff()
                 reloadScripts();
             });
 
+    connect(ui->tableViewScripts, &TableViewScripts::deletePressed, [&]() { removeScript(); });
     connect(ui->tableViewScripts, &QTableView::doubleClicked, this, &MainWindow::editScript);
     connect(ui->action_Edit_script, &QAction::triggered, this, &MainWindow::editScript);
     connect(ui->action_Remove_script, &QAction::triggered, this, &MainWindow::removeScript);

@@ -33,6 +33,12 @@ namespace ZapFR
           public:
             TableViewScripts(QWidget* parent = nullptr);
             ~TableViewScripts() = default;
+
+          signals:
+            void deletePressed();
+
+          protected:
+            void keyPressEvent(QKeyEvent* event) override;
         };
     } // namespace Client
 } // namespace ZapFR

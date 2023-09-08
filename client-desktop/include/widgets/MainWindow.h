@@ -81,6 +81,7 @@ namespace ZapFR
             void removePostSelectionFromScriptFolder();
             void removeFolder();
             void removeFeed();
+            void removeSource();
             void refreshFeeds();
             void reloadPosts();
             void reloadLogs();

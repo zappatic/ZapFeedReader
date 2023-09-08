@@ -133,22 +133,24 @@ ZapFR::Client::DialogEditScriptFolder* ZapFR::Client::MainWindow::editScriptFold
                     auto sourceID = mDialogEditScriptFolder->sourceID();
                     auto scriptFolderID = mDialogEditScriptFolder->id();
                     auto title = mDialogEditScriptFolder->title().toStdString();
-
-                    switch (mDialogEditScriptFolder->displayMode())
+                    if (!title.empty())
                     {
-                        case DialogEditScriptFolder::DisplayMode::Add:
+                        switch (mDialogEditScriptFolder->displayMode())
                         {
-                            ZapFR::Engine::Agent::getInstance()->queueAddScriptFolder(
-                                sourceID, title, [&](uint64_t addedSourceID) { QMetaObject::invokeMethod(this, "scriptFolderAdded", Qt::AutoConnection, addedSourceID); });
-                            break;
-                        }
-                        case DialogEditScriptFolder::DisplayMode::Edit:
-                        {
-                            ZapFR::Engine::Agent::getInstance()->queueUpdateScriptFolder(
-                                sourceID, scriptFolderID, title,
-                                [&](uint64_t updatedSourceID, uint64_t updatedScriptFolderID)
-                                { QMetaObject::invokeMethod(this, "scriptFolderUpdated", Qt::AutoConnection, updatedSourceID, updatedScriptFolderID); });
-                            break;
+                            case DialogEditScriptFolder::DisplayMode::Add:
+                            {
+                                ZapFR::Engine::Agent::getInstance()->queueAddScriptFolder(
+                                    sourceID, title, [&](uint64_t addedSourceID) { QMetaObject::invokeMethod(this, "scriptFolderAdded", Qt::AutoConnection, addedSourceID); });
+                                break;
+                            }
+                            case DialogEditScriptFolder::DisplayMode::Edit:
+                            {
+                                ZapFR::Engine::Agent::getInstance()->queueUpdateScriptFolder(
+                                    sourceID, scriptFolderID, title,
+                                    [&](uint64_t updatedSourceID, uint64_t updatedScriptFolderID)
+                                    { QMetaObject::invokeMethod(this, "scriptFolderUpdated", Qt::AutoConnection, updatedSourceID, updatedScriptFolderID); });
+                                break;
+                            }
                         }
                     }
                 });
@@ -175,6 +177,8 @@ void ZapFR::Client::MainWindow::scriptFolderRemoved(uint64_t /*sourceID*/, uint6
 
 void ZapFR::Client::MainWindow::connectScriptFolderStuff()
 {
+    connect(ui->tableViewScriptFolders, &TableViewScriptFolders::deletePressed, [&]() { removeScriptFolder(); });
+
     connect(ui->tableViewScriptFolders, &TableViewScriptFolders::selectedScriptFolderChanged,
             [&](const QModelIndex& index)
             {

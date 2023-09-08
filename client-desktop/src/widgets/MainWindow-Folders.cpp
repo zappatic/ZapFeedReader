@@ -31,9 +31,14 @@ void ZapFR::Client::MainWindow::addFolder()
                 {
                     if (result == QDialog::DialogCode::Accepted)
                     {
-                        ZapFR::Engine::Agent::getInstance()->queueAddFolder(mDialogAddFolder->selectedSourceID(), mDialogAddFolder->selectedFolderID(),
-                                                                            mDialogAddFolder->title().toStdString(),
-                                                                            [&]() { QMetaObject::invokeMethod(this, "folderAdded", Qt::AutoConnection); });
+                        auto sourceID = mDialogAddFolder->selectedSourceID();
+                        auto folderID = mDialogAddFolder->selectedFolderID();
+                        auto title = mDialogAddFolder->title().toStdString();
+                        if (!title.empty())
+                        {
+                            ZapFR::Engine::Agent::getInstance()->queueAddFolder(sourceID, folderID, title,
+                                                                                [&]() { QMetaObject::invokeMethod(this, "folderAdded", Qt::AutoConnection); });
+                        }
                     }
                 });
     }

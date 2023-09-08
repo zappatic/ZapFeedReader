@@ -423,21 +423,63 @@ void ZapFR::Client::MainWindow::addSource()
                     {
                         auto sourceType = mDialogAddSource->sourceType().toStdString();
                         auto sourceTitle = mDialogAddSource->serverName().toStdString();
-                        auto configData = QJsonObject();
-                        configData["host"] = mDialogAddSource->hostName();
-                        configData["port"] = mDialogAddSource->port();
-                        configData["login"] = mDialogAddSource->login();
-                        configData["password"] = mDialogAddSource->password();
-                        configData["useHTTPS"] = mDialogAddSource->useHTTPS();
-                        auto configDataStr = QJsonDocument(configData).toJson(QJsonDocument::Compact).toStdString();
-                        ZapFR::Engine::Source::create(sourceType, sourceTitle, configDataStr);
-                        reloadSources();
+                        if (sourceTitle.empty())
+                        {
+                            sourceTitle = tr("Unnamed server").toStdString();
+                        }
+                        auto hostName = mDialogAddSource->hostName();
+                        if (!hostName.isEmpty())
+                        {
+                            auto configData = QJsonObject();
+                            configData["host"] = hostName;
+                            configData["port"] = mDialogAddSource->port();
+                            configData["login"] = mDialogAddSource->login();
+                            configData["password"] = mDialogAddSource->password();
+                            configData["useHTTPS"] = mDialogAddSource->useHTTPS();
+                            auto configDataStr = QJsonDocument(configData).toJson(QJsonDocument::Compact).toStdString();
+                            ZapFR::Engine::Source::create(sourceType, sourceTitle, configDataStr);
+                            reloadSources();
+                        }
                     }
                 });
     }
 
     mDialogAddSource->reset();
     mDialogAddSource->open();
+}
+
+void ZapFR::Client::MainWindow::removeSource()
+{
+    auto index = ui->treeViewSources->currentIndex();
+    if (index.isValid())
+    {
+        auto sourceType = index.data(SourceTreeEntrySourceTypeRole).toString().toStdString();
+        if (sourceType == ZapFR::Engine::IdentifierLocalServer)
+        {
+            QMessageBox::information(this, tr("Can't remove local source"), tr("You cannot remove the local source"));
+            return;
+        }
+
+        QMessageBox messageBox;
+        messageBox.setWindowTitle(tr("Remove source"));
+        messageBox.setText(tr("Remove source?"));
+        messageBox.setInformativeText(tr("Are you sure you want to remove this remote source?"));
+        messageBox.setIcon(QMessageBox::Warning);
+        auto yesButton = messageBox.addButton(QMessageBox::StandardButton::Yes);
+        yesButton->setText(tr("Remove"));
+        messageBox.addButton(QMessageBox::StandardButton::Cancel);
+        auto messageBoxLayout = qobject_cast<QGridLayout*>(messageBox.layout());
+        messageBoxLayout->addItem(new QSpacerItem(500, 0, QSizePolicy::Minimum, QSizePolicy::Expanding), messageBoxLayout->rowCount(), 0, 1, messageBoxLayout->columnCount());
+        messageBox.exec();
+        if (messageBox.buttonRole(messageBox.clickedButton()) == QMessageBox::YesRole)
+        {
+            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+
+            // deleting a source does not need to go over an agent, as it's only possible to delete remote sources that are stored in the local database
+            ZapFR::Engine::Source::removeSource(sourceID);
+            reloadSources();
+        }
+    }
 }
 
 void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
@@ -478,6 +520,35 @@ QStandardItem* ZapFR::Client::MainWindow::findSourceStandardItem(uint64_t source
 void ZapFR::Client::MainWindow::connectSourceStuff()
 {
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
+    connect(ui->action_Remove_source, &QAction::triggered, this, &MainWindow::removeSource);
+
+    connect(ui->treeViewSources, &TreeViewSources::deletePressed,
+            [&]()
+            {
+                auto currentIndex = ui->treeViewSources->currentIndex();
+                if (currentIndex.isValid())
+                {
+                    auto type = currentIndex.data(SourceTreeEntryTypeRole).toULongLong();
+                    switch (type)
+                    {
+                        case SOURCETREE_ENTRY_TYPE_FOLDER:
+                        {
+                            removeFolder();
+                            break;
+                        }
+                        case SOURCETREE_ENTRY_TYPE_FEED:
+                        {
+                            removeFeed();
+                            break;
+                        }
+                        case SOURCETREE_ENTRY_TYPE_SOURCE:
+                        {
+                            removeSource();
+                            break;
+                        }
+                    }
+                }
+            });
 
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested,
             [&](const QPoint& p)
@@ -556,6 +627,8 @@ void ZapFR::Client::MainWindow::createSourceContextMenus()
     mSourceContextMenuSource->addSeparator();
     mSourceContextMenuSource->addAction(ui->action_Add_feed);
     mSourceContextMenuSource->addAction(ui->action_Add_folder);
+    mSourceContextMenuSource->addSeparator();
+    mSourceContextMenuSource->addAction(ui->action_Remove_source);
     mSourceContextMenuSource->addSeparator();
     mSourceContextMenuSource->addAction(ui->action_View_logs);
     mSourceContextMenuSource->addAction(ui->action_View_properties);
