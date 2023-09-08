@@ -21,11 +21,6 @@
 #include "ZapFR/local/SourceLocal.h"
 #include "ZapFR/remote/SourceRemote.h"
 
-const std::unordered_map<std::string, ZapFR::Engine::Source::Statistic> ZapFR::Engine::Source::JSONIdentifierSourceStatisticMap{
-    {"feedCount", Statistic::FeedCount},   {"postCount", Statistic::PostCount},   {"flaggedPostCount", Statistic::FlaggedPostCount},
-    {"oldestPost", Statistic::OldestPost}, {"newestPost", Statistic::NewestPost},
-};
-
 const std::unordered_map<ZapFR::Engine::Source::Statistic, std::string> ZapFR::Engine::Source::SourceStatisticJSONIdentifierMap{
     {Statistic::FeedCount, "feedCount"},   {Statistic::PostCount, "postCount"},   {Statistic::FlaggedPostCount, "flaggedPostCount"},
     {Statistic::OldestPost, "oldestPost"}, {Statistic::NewestPost, "newestPost"},

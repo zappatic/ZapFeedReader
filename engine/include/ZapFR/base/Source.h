@@ -19,9 +19,9 @@
 #ifndef ZAPFR_ENGINE_SOURCE_H
 #define ZAPFR_ENGINE_SOURCE_H
 
+#include "Script.h"
 #include "ZapFR/Flag.h"
 #include "ZapFR/Global.h"
-#include "Script.h"
 
 namespace ZapFR
 {
@@ -117,7 +117,6 @@ namespace ZapFR
             static void removeSource(uint64_t id);
             static uint64_t nextSortOrder();
 
-            static const std::unordered_map<std::string, Statistic> JSONIdentifierSourceStatisticMap;
             static const std::unordered_map<Statistic, std::string> SourceStatisticJSONIdentifierMap;
 
           protected:
