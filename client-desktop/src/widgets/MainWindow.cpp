@@ -667,8 +667,31 @@ void ZapFR::Client::MainWindow::configureConnects()
                         if (mProxyModelSources != nullptr)
                         {
                             preserveSourceTreeExpansionSelectionState();
+                            uint64_t currentParentSource{0};
+                            auto index = ui->treeViewSources->currentIndex();
+                            if (index.isValid())
+                            {
+                                currentParentSource = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                            }
+
                             mProxyModelSources->setDisplayMode(SortFilterProxyModelSources::SourceTreeDisplayMode::ShowSourcesOnly);
                             mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources")));
+
+                            // auto select the source for the item that was currently selected, so the selection isn't empty after
+                            // only showing sources
+                            if (currentParentSource != 0)
+                            {
+                                auto rootItem = mItemModelSources->invisibleRootItem();
+                                for (int32_t i = 0; i < rootItem->rowCount(); ++i)
+                                {
+                                    auto child = rootItem->child(i);
+                                    if (child->data(SourceTreeEntryParentSourceIDRole).toULongLong() == currentParentSource)
+                                    {
+                                        ui->treeViewSources->setCurrentIndex(mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(child)));
+                                        break;
+                                    }
+                                }
+                            }
                         }
                         break;
                     }
