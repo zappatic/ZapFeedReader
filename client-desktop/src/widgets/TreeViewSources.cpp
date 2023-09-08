@@ -38,3 +38,19 @@ void ZapFR::Client::TreeViewSources::keyPressEvent(QKeyEvent* event)
         QTreeView::keyPressEvent(event);
     }
 }
+
+void ZapFR::Client::TreeViewSources::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    auto index = currentIndex();
+    if (index.isValid())
+    {
+        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+        if (type == SOURCETREE_ENTRY_TYPE_FOLDER)
+        {
+            emit folderDoubleClicked();
+            return;
+        }
+    }
+
+    TreeViewPaletteCorrected::mouseDoubleClickEvent(event);
+}

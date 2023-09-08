@@ -50,6 +50,7 @@ set(PROJECT_SOURCES
         src/dialogs/DialogWithSourcesAndFolders.cpp
         src/dialogs/DialogAddFeed.cpp
         src/dialogs/DialogAddFolder.cpp
+        src/dialogs/DialogEditFolder.cpp
         src/dialogs/DialogAddSource.cpp
         src/dialogs/DialogImportOPML.cpp
         src/dialogs/DialogJumpToPage.cpp
@@ -85,6 +86,7 @@ set(PROJECT_SOURCES
         include/dialogs/DialogWithSourcesAndFolders.h
         include/dialogs/DialogAddFeed.h
         include/dialogs/DialogAddFolder.h
+        include/dialogs/DialogEditFolder.h
         include/dialogs/DialogAddSource.h
         include/dialogs/DialogImportOPML.h
         include/dialogs/DialogJumpToPage.h
@@ -99,6 +101,7 @@ set(PROJECT_SOURCES
         src/widgets/WidgetPropertiesPaneSource.ui
         src/dialogs/DialogAddFeed.ui
         src/dialogs/DialogAddFolder.ui
+        src/dialogs/DialogEditFolder.ui
         src/dialogs/DialogAddSource.ui
         src/dialogs/DialogImportOPML.ui
         src/dialogs/DialogJumpToPage.ui

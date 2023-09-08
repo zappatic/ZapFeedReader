@@ -38,6 +38,7 @@
 #include "ZapFR/agents/AgentFolderMove.h"
 #include "ZapFR/agents/AgentFolderRefresh.h"
 #include "ZapFR/agents/AgentFolderRemove.h"
+#include "ZapFR/agents/AgentFolderUpdate.h"
 #include "ZapFR/agents/AgentMonitorFeedRefreshCompletion.h"
 #include "ZapFR/agents/AgentPostGet.h"
 #include "ZapFR/agents/AgentPostsMarkFlagged.h"
@@ -212,6 +213,12 @@ void ZapFR::Engine::Agent::queueMoveFolder(uint64_t sourceID, uint64_t folderID,
 void ZapFR::Engine::Agent::queueRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentFolderRemove>(sourceID, folder, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueUpdateFolder(uint64_t sourceID, uint64_t folder, const std::string& newTitle,
+                                             std::function<void(uint64_t, uint64_t, const std::string&)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentFolderUpdate>(sourceID, folder, newTitle, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,

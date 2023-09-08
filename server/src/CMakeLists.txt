@@ -32,6 +32,7 @@ target_sources(zapfeedreader-server PRIVATE
 	handlers/folders/APIHandler_folder_markasread.cpp
 	handlers/folders/APIHandler_folder_move.cpp
 	handlers/folders/APIHandler_folder_remove.cpp
+	handlers/folders/APIHandler_folder_update.cpp
 	handlers/folders/APIHandler_folders_list.cpp
 	handlers/logs/APIHandler_logs_list.cpp
 	handlers/posts/APIHandler_post_get.cpp

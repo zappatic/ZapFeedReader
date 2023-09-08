@@ -126,5 +126,28 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Array"
+  },
+  "folder-update": {
+    "section": "Folders",
+    "description": "Updates the properties of a folder",
+    "method": "PATCH",
+    "path": "^\\/folder/([0-9]+)$",
+    "prettyPath": "/folder/<folderID>",
+    "uriParameters": [
+      {
+        "name": "folderID",
+        "description": "The id of the folder to update"
+      }
+    ],
+    "parameters": [
+      {
+        "name": "newTitle",
+        "required": true,
+        "description": "The new title of the folder"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }

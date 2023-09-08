@@ -428,6 +428,12 @@ void ZapFR::Engine::FolderLocal::move(Source* parentSource, uint64_t folderID, u
     }
 }
 
+void ZapFR::Engine::FolderLocal::update(const std::string& newTitle)
+{
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE folders SET title=? WHERE id=?", useRef(newTitle), use(mID), now;
+}
+
 std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::FolderLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                               const std::string& orderClause, const std::string& limitClause,
                                                                                               const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)

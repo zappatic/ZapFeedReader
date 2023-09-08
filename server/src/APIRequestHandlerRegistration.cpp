@@ -216,6 +216,19 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Updates the properties of a folder)");
+				entry->setMethod("PATCH");
+				entry->setPath(R"(^\/folder/([0-9]+)$)", R"(/folder/<folderID>)");
+				entry->addURIParameter({R"(folderID)", R"(The id of the folder to update)"});
+				entry->addBodyParameter({R"(newTitle)", true, R"(The new title of the folder)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_folder_update);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Returns all the folders within the source)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/folders$)", R"(/folders)");

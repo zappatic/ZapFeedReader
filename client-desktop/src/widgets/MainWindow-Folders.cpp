@@ -19,6 +19,8 @@
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "dialogs/DialogAddFolder.h"
+#include "dialogs/DialogEditFolder.h"
+#include "models/StandardItemModelSources.h"
 #include "widgets/MainWindow.h"
 
 void ZapFR::Client::MainWindow::addFolder()
@@ -46,6 +48,46 @@ void ZapFR::Client::MainWindow::addFolder()
     auto [sourceID, folderID] = getCurrentlySelectedSourceAndFolderID();
     mDialogAddFolder->reset(sourceID, folderID);
     mDialogAddFolder->open();
+}
+
+void ZapFR::Client::MainWindow::editFolder()
+{
+    if (mDialogEditFolder == nullptr)
+    {
+        mDialogEditFolder = std::make_unique<DialogEditFolder>(this);
+        connect(mDialogEditFolder.get(), &QDialog::finished,
+                [&](int result)
+                {
+                    if (result == QDialog::DialogCode::Accepted)
+                    {
+                        auto sourceID = mDialogEditFolder->sourceID();
+                        auto folderID = mDialogEditFolder->id();
+                        auto title = mDialogEditFolder->title().toStdString();
+                        if (!title.empty())
+                        {
+                            ZapFR::Engine::Agent::getInstance()->queueUpdateFolder(
+                                sourceID, folderID, title,
+                                [&](uint64_t affectedSourceID, uint64_t affectedFolderID, const std::string& updatedTite)
+                                { QMetaObject::invokeMethod(this, "folderUpdated", Qt::AutoConnection, affectedSourceID, affectedFolderID, updatedTite); });
+                        }
+                    }
+                });
+    }
+
+    auto currentIndex = ui->treeViewSources->currentIndex();
+    if (currentIndex.isValid())
+    {
+        auto type = currentIndex.data(SourceTreeEntryTypeRole);
+        if (type == SOURCETREE_ENTRY_TYPE_FOLDER)
+        {
+            auto sourceID = currentIndex.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto folderID = currentIndex.data(SourceTreeEntryIDRole).toULongLong();
+            auto title = currentIndex.data(Qt::DisplayRole).toString();
+
+            mDialogEditFolder->reset(sourceID, folderID, title);
+            mDialogEditFolder->open();
+        }
+    }
 }
 
 void ZapFR::Client::MainWindow::removeFolder()
@@ -83,6 +125,43 @@ void ZapFR::Client::MainWindow::folderAdded()
     reloadSources();
 }
 
+void ZapFR::Client::MainWindow::folderUpdated(uint64_t sourceID, uint64_t folderID, const std::string& newTitle)
+{
+    std::function<void(QStandardItem*)> updateFolderTitle;
+    updateFolderTitle = [&](QStandardItem* item)
+    {
+        for (int32_t i = 0; i < item->rowCount(); ++i)
+        {
+            auto child = item->child(i);
+            auto childSourceID = child->data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            if (childSourceID != sourceID)
+            {
+                continue;
+            }
+
+            auto childType = child->data(SourceTreeEntryTypeRole).toULongLong();
+            if (childType == SOURCETREE_ENTRY_TYPE_FOLDER)
+            {
+                auto childFolderID = child->data(SourceTreeEntryIDRole).toULongLong();
+                if (childFolderID == folderID)
+                {
+                    child->setData(QString::fromUtf8(newTitle), Qt::DisplayRole);
+                    return;
+                }
+                else
+                {
+                    updateFolderTitle(child);
+                }
+            }
+            else if (childType == SOURCETREE_ENTRY_TYPE_SOURCE)
+            {
+                updateFolderTitle(child);
+            }
+        }
+    };
+    updateFolderTitle(mItemModelSources->invisibleRootItem());
+}
+
 void ZapFR::Client::MainWindow::folderRemoved()
 {
     reloadSources();
@@ -100,6 +179,8 @@ void ZapFR::Client::MainWindow::connectFolderStuff()
 {
     connect(ui->action_Add_folder, &QAction::triggered, this, &MainWindow::addFolder);
     connect(ui->action_Remove_folder, &QAction::triggered, this, &MainWindow::removeFolder);
+    connect(ui->action_Edit_folder, &QAction::triggered, this, &MainWindow::editFolder);
+    connect(ui->treeViewSources, &TreeViewSources::folderDoubleClicked, this, &MainWindow::editFolder);
 }
 
 void ZapFR::Client::MainWindow::createFolderContextMenus()
@@ -110,6 +191,7 @@ void ZapFR::Client::MainWindow::createFolderContextMenus()
     mSourceContextMenuFolder->addSeparator();
     mSourceContextMenuFolder->addAction(ui->action_Add_feed);
     mSourceContextMenuFolder->addAction(ui->action_Add_folder);
+    mSourceContextMenuFolder->addAction(ui->action_Edit_folder);
     mSourceContextMenuFolder->addAction(ui->action_Remove_folder);
     mSourceContextMenuFolder->addSeparator();
     mSourceContextMenuFolder->addAction(ui->action_View_logs);

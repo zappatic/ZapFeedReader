@@ -88,6 +88,9 @@
            <property name="headerHidden">
             <bool>false</bool>
            </property>
+           <property name="expandsOnDoubleClick">
+            <bool>false</bool>
+           </property>
           </widget>
           <widget class="ZapFR::Client::TableViewScriptFolders" name="tableViewScriptFolders">
            <property name="contextMenuPolicy">
@@ -1105,6 +1108,14 @@
    </property>
    <property name="toolTip">
     <string>Remove source</string>
+   </property>
+  </action>
+  <action name="action_Edit_folder">
+   <property name="text">
+    <string>Edit folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit folder</string>
    </property>
   </action>
  </widget>

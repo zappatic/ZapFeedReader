@@ -70,6 +70,8 @@ namespace ZapFR
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;
 
+            virtual void update(const std::string& newTitle) = 0;
+
             void setDataFetched(bool b) { mDataFetched = b; }
 
             virtual Poco::JSON::Object toJSON();

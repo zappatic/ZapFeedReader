@@ -34,6 +34,7 @@
 #include "dialogs/DialogAddFeed.h"
 #include "dialogs/DialogAddFolder.h"
 #include "dialogs/DialogAddSource.h"
+#include "dialogs/DialogEditFolder.h"
 #include "dialogs/DialogEditScript.h"
 #include "dialogs/DialogEditScriptFolder.h"
 #include "dialogs/DialogImportOPML.h"
@@ -393,6 +394,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Add_feed->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_Add_source->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
+    ui->action_Edit_folder->setIcon(configureIcon(":/edit.svg"));
     ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
     ui->action_View_scripts->setIcon(configureIcon(":/script.svg"));
     ui->action_Back_to_posts->setIcon(configureIcon(":/back.svg"));
