@@ -75,6 +75,7 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierPostFeedID{"feedID"};
             static constexpr const char* JSONIdentifierPostFeedTitle{"feedTitle"};
             static constexpr const char* JSONIdentifierPostTitle{"title"};
+            static constexpr const char* JSONIdentifierPostLink{"link"};
             static constexpr const char* JSONIdentifierPostDescription{"description"};
             static constexpr const char* JSONIdentifierPostAuthor{"author"};
             static constexpr const char* JSONIdentifierPostCommentsURL{"commentsURL"};
