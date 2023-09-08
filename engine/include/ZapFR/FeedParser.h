@@ -65,10 +65,12 @@ namespace ZapFR
             };
 
             virtual std::vector<Item> items() const = 0;
+            virtual void postProcessItem([[maybe_unused]] Item& item) const {};
 
           protected:
             Poco::XML::Document* mXMLDoc{nullptr};
             std::string mURL{""};
+            Poco::URI mURI{};
 
             std::string fetchNodeValue(const std::string& nodeName) const;
             std::string fetchNodeValue(Poco::XML::Node* parent, const std::string& nodeName) const;

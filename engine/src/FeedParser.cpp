@@ -20,6 +20,7 @@
 
 ZapFR::Engine::FeedParser::FeedParser(Poco::XML::Document* xmlDoc, const std::string& url) : mXMLDoc(xmlDoc), mURL(url)
 {
+    mURI = Poco::URI(url);
 }
 
 std::string ZapFR::Engine::FeedParser::url() const noexcept

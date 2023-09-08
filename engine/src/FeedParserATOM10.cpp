@@ -166,11 +166,28 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
             //     item.sourceURL = sourceEl->hasAttribute("url") ? sourceEl->getAttribute("url") : "";
             //     item.sourceTitle = sourceNode->innerText();
             // }
-
+            postProcessItem(item);
             items.emplace_back(item);
         }
     }
     entryList->release();
 
     return items;
+}
+
+void ZapFR::Engine::FeedParserATOM10::postProcessItem(Item& item) const
+{
+    auto host = mURI.getHost();
+    if (host.ends_with("reddit.com"))
+    {
+        if (item.link.empty() && !item.guid.empty())
+        {
+            static std::string toBeReplacedInGuid{"t3_"};
+            static std::string emptyString{""};
+            auto uri = Poco::URI(mURI);
+            auto postID = Poco::replace(item.guid, toBeReplacedInGuid, emptyString);
+            uri.setPathEtc(postID);
+            item.link = uri.toString();
+        }
+    }
 }
