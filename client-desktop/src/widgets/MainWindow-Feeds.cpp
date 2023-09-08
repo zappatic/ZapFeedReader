@@ -144,10 +144,12 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
             if (error.has_value())
             {
                 feedItem->setData(QString::fromUtf8(error.value()), SourceTreeEntryFeedErrorRole);
+                feedItem->setData(QString::fromUtf8(error.value()), Qt::ToolTipRole);
             }
             else
             {
                 feedItem->setData(QVariant(), SourceTreeEntryFeedErrorRole);
+                feedItem->setData("", Qt::ToolTipRole);
             }
 
             // if the feed is currently selected, then refresh the posts so the new unread posts are shown
