@@ -34,6 +34,7 @@ namespace ZapFR
             virtual ~AgentPostsMarkRead() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::PostsMarkRead; }
 
           private:
             uint64_t mSourceID{0};

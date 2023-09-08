@@ -37,6 +37,7 @@ namespace ZapFR
             virtual ~AgentFeedGetPosts() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FeedGetPosts; }
 
           private:
             uint64_t mSourceID{0};

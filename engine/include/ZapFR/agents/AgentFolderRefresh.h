@@ -34,6 +34,7 @@ namespace ZapFR
             virtual ~AgentFolderRefresh() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FolderRefresh; }
 
           private:
             uint64_t mSourceID{0};

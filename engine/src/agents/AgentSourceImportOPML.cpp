@@ -22,11 +22,10 @@
 #include "ZapFR/Folder.h"
 #include "ZapFR/Source.h"
 
-ZapFR::Engine::AgentSourceImportOPML::AgentSourceImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID,
-                                                            std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedAddedAndRefreshedCallback,
-                                                            std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mOPML(opml), mParentFolderID(parentFolderID), mFeedAddedAndRefreshedCallback(feedAddedAndRefreshedCallback),
-      mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentSourceImportOPML::AgentSourceImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID, std::function<void()> opmlParsedCallback,
+                                                            std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedRefreshedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mOPML(opml), mParentFolderID(parentFolderID), mOPMLParsedCallback(opmlParsedCallback),
+      mFeedRefreshedCallback(feedRefreshedCallback)
 {
 }
 
@@ -36,13 +35,13 @@ void ZapFR::Engine::AgentSourceImportOPML::run()
     if (source.has_value())
     {
         auto feedIDs = source.value()->importOPML(mOPML, mParentFolderID);
+        mOPMLParsedCallback();
         for (const auto& feedID : feedIDs)
         {
             // We just create agent threads here so the refreshing can be done concurrently
             // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
-            Agent::getInstance()->queueRefreshFeed(mSourceID, feedID, mFeedAddedAndRefreshedCallback);
+            Agent::getInstance()->queueRefreshFeed(mSourceID, feedID, mFeedRefreshedCallback);
         }
-        mFinishedCallback();
     }
     mIsDone = true;
 }

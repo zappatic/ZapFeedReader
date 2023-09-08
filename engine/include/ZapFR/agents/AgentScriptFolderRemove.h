@@ -33,6 +33,7 @@ namespace ZapFR
             virtual ~AgentScriptFolderRemove() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::ScriptFolderRemove; }
 
           private:
             uint64_t mSourceID{0};

@@ -33,6 +33,7 @@ namespace ZapFR
             virtual ~AgentFolderAdd() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FolderAdd; }
 
           private:
             uint64_t mSourceID{0};

@@ -35,6 +35,7 @@ namespace ZapFR
             virtual ~AgentPostsMarkUnflagged() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::PostsMarkUnflagged; }
 
           private:
             uint64_t mSourceID{0};

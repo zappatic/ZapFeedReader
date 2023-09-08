@@ -33,6 +33,7 @@ namespace ZapFR
             virtual ~AgentFeedRemove() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FeedRemove; }
 
           private:
             uint64_t mSourceID{0};

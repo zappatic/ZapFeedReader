@@ -35,6 +35,7 @@ namespace ZapFR
             virtual ~AgentPostGet() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::PostGet; }
 
           private:
             uint64_t mSourceID{0};

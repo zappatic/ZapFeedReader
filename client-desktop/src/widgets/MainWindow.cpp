@@ -218,13 +218,16 @@ void ZapFR::Client::MainWindow::importOPML()
                     {
                         ZapFR::Engine::Agent::getInstance()->queueImportOPML(
                             mDialogImportOPML->selectedSourceID(), mDialogImportOPML->OPML(), mDialogImportOPML->selectedFolderID(),
+                            [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); },
                             [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
-                            { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID, feedUnreadCount, error); },
-                            [&]()
-                            {
-                                // TODO: this gets called immediately, change to other handler that checks the threadpool for refresh threads
-                                QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection);
-                            });
+                            { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID, feedUnreadCount, error); });
+
+                        // give it a bit of time to parse the OPML file, then start checking whether the refreshing has completed
+                        QTimer::singleShot(2500,
+                                           [&]() {
+                                               ZapFR::Engine::Agent::getInstance()->queueMonitorFeedRefreshCompletion(
+                                                   [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
+                                           });
                     }
                 });
     }

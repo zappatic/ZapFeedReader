@@ -31,11 +31,61 @@ namespace ZapFR
             AgentRunnable() = default;
             virtual ~AgentRunnable() = default;
 
+            enum class Type
+            {
+                FeedAdd,
+                FeedGet,
+                FeedGetLogs,
+                FeedGetPosts,
+                FeedGetUnreadCount,
+                FeedMarkRead,
+                FeedMove,
+                FeedRefresh,
+                FeedRemove,
+                FeedSetProperties,
+                FolderAdd,
+                FolderGet,
+                FolderGetLogs,
+                FolderGetPosts,
+                FolderMarkRead,
+                FolderMove,
+                FolderRefresh,
+                FolderRemove,
+                MonitorFeedRefreshCompletion,
+                PostGet,
+                PostsMarkFlagged,
+                PostsMarkRead,
+                PostsMarkUnflagged,
+                PostsMarkUnread,
+                ScriptFolderAdd,
+                ScriptFolderAssignPosts,
+                ScriptFolderGetPosts,
+                ScriptFolderRemove,
+                ScriptFolderRemovePosts,
+                ScriptFoldersGet,
+                ScriptFolderUpdate,
+                ScriptAdd,
+                ScriptRemove,
+                ScriptsGet,
+                ScriptUpdate,
+                SourceGet,
+                SourceGetLogs,
+                SourceGetPosts,
+                SourceGetTree,
+                SourceGetUsedFlagColors,
+                SourceImportOPML,
+                SourceMarkRead,
+                SourceRefresh,
+            };
+
+            virtual Type type() const noexcept = 0;
             void run() override{};
             bool isDone() const noexcept { return mIsDone; }
+            void setShouldAbort(bool b) { mShouldAbort = b; }
 
           protected:
             bool mIsDone{false};
+            bool mShouldAbort{false};
         };
     } // namespace Engine
 } // namespace ZapFR

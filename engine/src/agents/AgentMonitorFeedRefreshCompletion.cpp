@@ -16,30 +16,30 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTSOURCEMARKREAD_H
-#define ZAPFR_ENGINE_AGENTSOURCEMARKREAD_H
+#include "ZapFR/agents/AgentMonitorFeedRefreshCompletion.h"
+#include "ZapFR/Agent.h"
+#include "ZapFR/Source.h"
 
-#include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
+using namespace std::chrono_literals;
 
-namespace ZapFR
+ZapFR::Engine::AgentMonitorFeedRefreshCompletion::AgentMonitorFeedRefreshCompletion(Agent* agentManager, std::function<void()> finishedCallback)
+    : AgentRunnable(), mAgentManager(agentManager), mFinishedCallback(finishedCallback)
 {
-    namespace Engine
+}
+
+void ZapFR::Engine::AgentMonitorFeedRefreshCompletion::run()
+{
+    while (true && !mShouldAbort)
     {
-        class AgentSourceMarkRead : public AgentRunnable
+        auto refreshThreadCount = mAgentManager->totalCountOfType(Type::FeedRefresh);
+        if (refreshThreadCount == 0)
         {
-          public:
-            explicit AgentSourceMarkRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
-            virtual ~AgentSourceMarkRead() = default;
+            break;
+        }
+        std::this_thread::sleep_for(1s);
+    }
 
-            void run() override;
-            Type type() const noexcept override { return Type::SourceMarkRead; }
+    mFinishedCallback();
 
-          private:
-            uint64_t mSourceID{0};
-            std::function<void(uint64_t)> mFinishedCallback{};
-        };
-    } // namespace Engine
-} // namespace ZapFR
-
-#endif // ZAPFR_ENGINE_AGENTSOURCEMARKREAD_H
+    mIsDone = true;
+}

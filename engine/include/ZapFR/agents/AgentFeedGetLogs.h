@@ -36,6 +36,7 @@ namespace ZapFR
             virtual ~AgentFeedGetLogs() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FeedGetLogs; }
 
           private:
             uint64_t mSourceID{0};

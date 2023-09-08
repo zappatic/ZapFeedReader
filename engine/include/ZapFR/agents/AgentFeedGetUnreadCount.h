@@ -33,6 +33,7 @@ namespace ZapFR
             virtual ~AgentFeedGetUnreadCount() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FeedGetUnreadCount; }
 
           private:
             uint64_t mSourceID{0};

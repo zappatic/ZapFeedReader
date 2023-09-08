@@ -36,6 +36,7 @@ namespace ZapFR
             virtual ~AgentSourceGetUsedFlagColors() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::SourceGetUsedFlagColors; }
 
           private:
             uint64_t mSourceID{0};

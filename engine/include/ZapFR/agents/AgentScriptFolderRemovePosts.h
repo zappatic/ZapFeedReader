@@ -34,6 +34,7 @@ namespace ZapFR
             virtual ~AgentScriptFolderRemovePosts() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::ScriptFolderRemovePosts; }
 
           private:
             uint64_t mSourceID{0};

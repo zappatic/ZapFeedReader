@@ -38,6 +38,7 @@
 #include "ZapFR/agents/AgentFolderMove.h"
 #include "ZapFR/agents/AgentFolderRefresh.h"
 #include "ZapFR/agents/AgentFolderRemove.h"
+#include "ZapFR/agents/AgentMonitorFeedRefreshCompletion.h"
 #include "ZapFR/agents/AgentPostGet.h"
 #include "ZapFR/agents/AgentPostsMarkFlagged.h"
 #include "ZapFR/agents/AgentPostsMarkRead.h"
@@ -81,6 +82,14 @@ ZapFR::Engine::Agent* ZapFR::Engine::Agent::getInstance()
 
 void ZapFR::Engine::Agent::joinAll() const
 {
+    {
+        std::lock_guard<std::mutex> lock(msMutex);
+        for (const auto& runningAgent : mRunningAgents)
+        {
+            runningAgent->setShouldAbort(true);
+        }
+    }
+
     mThreadPool->joinAll();
 }
 
@@ -118,6 +127,30 @@ void ZapFR::Engine::Agent::enqueue(std::unique_ptr<AgentRunnable> agent)
     }
 }
 
+uint64_t ZapFR::Engine::Agent::totalCountOfType(AgentRunnable::Type t) const
+{
+    uint64_t amount{0};
+
+    std::lock_guard<std::mutex> lock(msMutex);
+    for (const auto& runningAgent : mRunningAgents)
+    {
+        if (runningAgent->type() == t && !runningAgent->isDone())
+        {
+            amount++;
+        }
+    }
+
+    for (const auto& queuedAgent : mQueue)
+    {
+        if (queuedAgent->type() == t && !queuedAgent->isDone())
+        {
+            amount++;
+        }
+    }
+
+    return amount;
+}
+
 void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID,
                                             std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback)
 {
@@ -140,11 +173,10 @@ void ZapFR::Engine::Agent::queueAddFeed(uint64_t sourceID, const std::string& ur
     enqueue(std::make_unique<AgentFeedAdd>(sourceID, url, folder, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID,
-                                           std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedAddedAndRefreshedCallback,
-                                           std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID, std::function<void()> opmlParsedCallback,
+                                           std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedRefreshedCallback)
 {
-    enqueue(std::make_unique<AgentSourceImportOPML>(sourceID, opml, parentFolderID, feedAddedAndRefreshedCallback, finishedCallback));
+    enqueue(std::make_unique<AgentSourceImportOPML>(sourceID, opml, parentFolderID, opmlParsedCallback, feedRefreshedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed*)> finishedCallback)
@@ -349,4 +381,12 @@ void ZapFR::Engine::Agent::queueSetFeedProperties(uint64_t sourceID, uint64_t fe
                                                   std::function<void()> finishedCallback)
 {
     enqueue(std::make_unique<AgentFeedSetProperties>(sourceID, feedID, feedURL, refreshIntervalInSeconds, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMonitorFeedRefreshCompletion(std::function<void()> finishedCallback)
+{
+    // even though this might end up in the queue (if there's a load of refresh agents before it, filling up the threadpool),
+    // that doesn't really matter, as the feed-refreshing would have to finish first anyway, and the monitor thread wouldn't
+    // have been able to complete before that.
+    enqueue(std::make_unique<AgentMonitorFeedRefreshCompletion>(this, finishedCallback));
 }

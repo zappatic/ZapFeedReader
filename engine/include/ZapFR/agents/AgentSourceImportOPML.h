@@ -33,19 +33,19 @@ namespace ZapFR
         class AgentSourceImportOPML : public AgentRunnable
         {
           public:
-            explicit AgentSourceImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID,
-                                           std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedAddedAndRefreshedCallback,
-                                           std::function<void()> finishedCallback);
+            explicit AgentSourceImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID, std::function<void()> opmlParsedCallback,
+                                           std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedRefreshedCallback);
             virtual ~AgentSourceImportOPML() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::SourceImportOPML; }
 
           private:
             uint64_t mSourceID{0};
             std::string mOPML{""};
             uint64_t mParentFolderID{0};
-            std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> mFeedAddedAndRefreshedCallback{};
-            std::function<void()> mFinishedCallback{};
+            std::function<void()> mOPMLParsedCallback{};
+            std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> mFeedRefreshedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

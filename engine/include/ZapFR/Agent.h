@@ -94,9 +94,8 @@ namespace ZapFR
             void queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback);
             void queueAddFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback);
-            void queueImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID,
-                                 std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedAddedAndRefreshedCallback,
-                                 std::function<void()> finishedCallback);
+            void queueImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID, std::function<void()> opmlParsedCallback,
+                                 std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedRefreshedCallback);
             void queueSetFeedProperties(uint64_t sourceID, uint64_t feedID, const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds,
                                         std::function<void()> finishedCallback);
 
@@ -128,6 +127,10 @@ namespace ZapFR
             void queueRemoveScript(uint64_t sourceID, uint64_t scriptID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueAddScript(uint64_t sourceID, Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
                                 const std::optional<std::unordered_set<uint64_t>>& feedIDs, std::function<void(uint64_t)> finishedCallback);
+
+            // querying the threadpool/queue
+            void queueMonitorFeedRefreshCompletion(std::function<void()> finishedCallback);
+            uint64_t totalCountOfType(AgentRunnable::Type t) const;
 
           private:
             explicit Agent();

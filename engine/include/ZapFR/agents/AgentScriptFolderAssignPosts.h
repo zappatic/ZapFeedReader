@@ -34,6 +34,7 @@ namespace ZapFR
             virtual ~AgentScriptFolderAssignPosts() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::ScriptFolderAssignPosts; }
 
           private:
             uint64_t mSourceID{0};

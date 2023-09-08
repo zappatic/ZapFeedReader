@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTFOLDERGET_H
-#define ZAPFR_ENGINE_AGENTFOLDERGET_H
+#ifndef ZAPFR_ENGINE_AGENTMONITORFEEDREFRESHCOMPLETION_H
+#define ZAPFR_ENGINE_AGENTMONITORFEEDREFRESHCOMPLETION_H
 
 #include "ZapFR/AgentRunnable.h"
 #include "ZapFR/Global.h"
@@ -26,23 +26,26 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class Folder;
+        class Agent;
 
-        class AgentFolderGet : public AgentRunnable
+        class AgentMonitorFeedRefreshCompletion : public AgentRunnable
         {
           public:
-            explicit AgentFolderGet(uint64_t sourceID, uint64_t folderID, std::function<void(Folder*)> finishedCallback);
-            virtual ~AgentFolderGet() = default;
+            explicit AgentMonitorFeedRefreshCompletion(Agent* agentManager, std::function<void()> finishedCallback);
+            virtual ~AgentMonitorFeedRefreshCompletion() = default;
+            AgentMonitorFeedRefreshCompletion(const AgentMonitorFeedRefreshCompletion& e) = delete;
+            AgentMonitorFeedRefreshCompletion& operator=(const AgentMonitorFeedRefreshCompletion&) = delete;
+            AgentMonitorFeedRefreshCompletion(AgentMonitorFeedRefreshCompletion&&) = delete;
+            AgentMonitorFeedRefreshCompletion& operator=(AgentMonitorFeedRefreshCompletion&&) = delete;
 
             void run() override;
-            Type type() const noexcept override { return Type::FolderGet; }
+            Type type() const noexcept override { return Type::MonitorFeedRefreshCompletion; }
 
           private:
-            uint64_t mSourceID{0};
-            uint64_t mFolderID{0};
-            std::function<void(Folder*)> mFinishedCallback{};
+            Agent* mAgentManager{nullptr};
+            std::function<void()> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTFOLDERGET_H
+#endif // ZAPFR_ENGINE_AGENTFOLDERREMOVE_H

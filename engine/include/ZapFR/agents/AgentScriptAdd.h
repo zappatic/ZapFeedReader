@@ -35,6 +35,7 @@ namespace ZapFR
             virtual ~AgentScriptAdd() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::ScriptAdd; }
 
           private:
             uint64_t mSourceID{0};

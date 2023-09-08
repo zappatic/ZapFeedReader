@@ -37,6 +37,7 @@ namespace ZapFR
             virtual ~AgentFolderGetPosts() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FolderGetPosts; }
 
           private:
             uint64_t mSourceID{0};

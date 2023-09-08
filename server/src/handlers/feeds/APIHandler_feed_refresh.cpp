@@ -55,7 +55,15 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_refresh([[may
                 refreshSuccessful = feed.value()->refresh();
                 if (!refreshSuccessful)
                 {
-                    o.set("error", feed.value()->lastRefreshError());
+                    auto lre = feed.value()->lastRefreshError();
+                    if (lre.has_value())
+                    {
+                        o.set("error", lre.value());
+                    }
+                    else
+                    {
+                        o.set("error", "Unknown error");
+                    }
                 }
                 auto localFeed = dynamic_cast<ZapFR::Engine::FeedLocal*>(feed.value().get());
                 localFeed->fetchUnreadCount();

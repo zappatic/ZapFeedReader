@@ -34,6 +34,7 @@ namespace ZapFR
             virtual ~AgentFeedSetProperties() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FeedSetProperties; }
 
           private:
             uint64_t mSourceID{0};

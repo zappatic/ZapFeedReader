@@ -37,6 +37,7 @@ namespace ZapFR
             virtual ~AgentSourceGetTree() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::SourceGetTree; }
 
           private:
             uint64_t mSourceID{0};

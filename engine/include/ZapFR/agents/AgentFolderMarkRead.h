@@ -33,6 +33,7 @@ namespace ZapFR
             virtual ~AgentFolderMarkRead() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FolderMarkRead; }
 
           private:
             uint64_t mSourceID{0};

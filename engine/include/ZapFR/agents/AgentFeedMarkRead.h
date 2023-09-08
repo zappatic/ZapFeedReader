@@ -33,6 +33,7 @@ namespace ZapFR
             virtual ~AgentFeedMarkRead() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FeedMarkRead; }
 
           private:
             uint64_t mSourceID{0};

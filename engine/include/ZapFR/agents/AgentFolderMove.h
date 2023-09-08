@@ -33,6 +33,7 @@ namespace ZapFR
             virtual ~AgentFolderMove() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FolderMove; }
 
           private:
             uint64_t mSourceID{0};

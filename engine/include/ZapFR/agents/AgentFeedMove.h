@@ -33,6 +33,7 @@ namespace ZapFR
             virtual ~AgentFeedMove() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::FeedMove; }
 
           private:
             uint64_t mSourceID{0};

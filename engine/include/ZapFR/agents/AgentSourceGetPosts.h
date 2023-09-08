@@ -37,6 +37,7 @@ namespace ZapFR
             virtual ~AgentSourceGetPosts() = default;
 
             void run() override;
+            Type type() const noexcept override { return Type::SourceGetPosts; }
 
           private:
             uint64_t mSourceID{0};
