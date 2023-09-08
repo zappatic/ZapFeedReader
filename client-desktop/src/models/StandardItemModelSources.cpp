@@ -76,6 +76,7 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
     auto parentSourceID = parent.data(SourceTreeEntryParentSourceIDRole).toULongLong();
     if (parentSourceID != childSourceID)
     {
+        QMessageBox::warning(mMainWindow, tr("Can't drop here"), tr("Feeds and folders can't be dragged and dropped across sources."));
         return false;
     }
 
