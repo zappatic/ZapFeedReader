@@ -126,7 +126,6 @@ void ZapFR::Engine::FeedLocal::fetchData()
                       " WHERE id=?",
             use(mID), into(mURL), into(mFolderID), into(mGuid), into(mTitle), into(mSubtitle), into(mLink), into(mDescription), into(mLanguage), into(mCopyright),
             into(mLastChecked), into(lastRefreshError), into(mSortOrder), now;
-
         mDataFetched = true;
         if (!lastRefreshError.isNull())
         {
@@ -222,7 +221,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         if (existingPost.has_value()) // UPDATE in case it does
         {
             dynamic_cast<PostLocal*>(existingPost.value().get())
-                ->update(item.title, item.link, item.description, item.author, item.commentsURL, item.guid, item.datePublished);
+                ->update(item.title, item.link, item.description, item.author, item.commentsURL, item.guid, item.datePublished, item.enclosures);
 
             if (scriptsRanOnUpdatePost.size() > 0)
             {
@@ -253,7 +252,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         }
         else // INSERT in case it doesn't
         {
-            auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.description, item.author, item.commentsURL, item.guid, item.datePublished);
+            auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.description, item.author, item.commentsURL, item.guid, item.datePublished, item.enclosures);
 
             if (scriptsRanOnNewPost.size() > 0)
             {
@@ -599,6 +598,11 @@ void ZapFR::Engine::FeedLocal::remove(Source* parentSource, uint64_t feedID)
         {
             Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
             deleteStmt << "DELETE FROM feeds WHERE id=?", use(feedID), now;
+        }
+
+        {
+            Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+            deleteStmt << "DELETE FROM post_enclosures WHERE postID IN (SELECT id FROM posts WHERE feedID=?)", use(feedID), now;
         }
 
         {

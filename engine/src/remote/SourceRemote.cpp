@@ -17,10 +17,10 @@
 */
 
 #include "ZapFR/remote/SourceRemote.h"
-#include "ZapFR/base/Feed.h"
-#include "ZapFR/base/Folder.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/ScriptFolder.h"
 #include "ZapFR/remote/FeedRemote.h"
@@ -506,7 +506,7 @@ std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceRemote::getUse
             {
                 try
                 {
-                    flagColors.insert(Flag::flagColorForName(rootArr->getElement<std::string>(static_cast<int32_t>(i))));
+                    flagColors.insert(Flag::flagColorForName(rootArr->getElement<std::string>(static_cast<uint32_t>(i))));
                 }
                 catch (...)
                 {
@@ -708,7 +708,7 @@ std::unordered_set<uint64_t> ZapFR::Engine::SourceRemote::importOPML(const std::
         {
             for (size_t i = 0; i < rootArr->size(); ++i)
             {
-                feedIDs.insert(rootArr->getElement<uint64_t>(static_cast<int32_t>(i)));
+                feedIDs.insert(rootArr->getElement<uint64_t>(static_cast<uint32_t>(i)));
             }
         }
     }

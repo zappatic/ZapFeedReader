@@ -164,6 +164,18 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
             }
             p->setFlagColors(flags);
 
+            // query enclosures
+            Enclosure e;
+            Poco::Data::Statement selectEnclosuresStmt(*(Database::getInstance()->session()));
+            selectEnclosuresStmt << "SELECT url,size,mimetype FROM post_enclosures WHERE postID=?", use(id), into(e.url), into(e.size), into(e.mimeType), range(0, 1);
+            while (!selectEnclosuresStmt.done())
+            {
+                if (selectEnclosuresStmt.execute() > 0)
+                {
+                    p->addEnclosure(e);
+                }
+            }
+
             posts.emplace_back(std::move(p));
         }
     }
@@ -259,6 +271,18 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
         }
         p->setFlagColors(flags);
 
+        // query enclosures
+        Enclosure e;
+        Poco::Data::Statement selectEnclosuresStmt(*(Database::getInstance()->session()));
+        selectEnclosuresStmt << "SELECT url,size,mimetype FROM post_enclosures WHERE postID=?", use(id), into(e.url), into(e.size), into(e.mimeType), range(0, 1);
+        while (!selectEnclosuresStmt.done())
+        {
+            if (selectEnclosuresStmt.execute() > 0)
+            {
+                p->addEnclosure(e);
+            }
+        }
+
         return p;
     }
 
@@ -317,7 +341,7 @@ void ZapFR::Engine::PostLocal::updateIsRead(bool isRead, const std::vector<std::
 }
 
 void ZapFR::Engine::PostLocal::update(const std::string& title, const std::string& link, const std::string& description, const std::string& author,
-                                      const std::string& commentsURL, const std::string& guid, const std::string& datePublished)
+                                      const std::string& commentsURL, const std::string& guid, const std::string& datePublished, const std::vector<Enclosure>& enclosures)
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET"
@@ -331,11 +355,13 @@ void ZapFR::Engine::PostLocal::update(const std::string& title, const std::strin
                   " WHERE id=?",
         useRef(title), useRef(link), useRef(description), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), use(mID);
     updateStmt.execute();
+
+    replaceEnclosures(mID, enclosures);
 }
 
 std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link,
                                                                       const std::string& description, const std::string& author, const std::string& commentsURL,
-                                                                      const std::string& guid, const std::string& datePublished)
+                                                                      const std::string& guid, const std::string& datePublished, const std::vector<Enclosure>& enclosures)
 {
     Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
     insertStmt << "INSERT INTO posts ("
@@ -357,6 +383,8 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
         Poco::Data::Statement selectInsertRowIDStmt(*(Database::getInstance()->session()));
         selectInsertRowIDStmt << "SELECT last_insert_rowid()", into(postID), now;
     }
+
+    replaceEnclosures(postID, enclosures);
 
     auto p = std::make_unique<PostLocal>(postID);
     p->setFeedID(feedID);
@@ -384,5 +412,23 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
     }
     p->setFlagColors(flags);
 
+    for (const auto& e : enclosures)
+    {
+        p->addEnclosure(e);
+    }
+
     return p;
+}
+
+void ZapFR::Engine::PostLocal::replaceEnclosures(uint64_t postID, const std::vector<Enclosure>& enclosures)
+{
+    Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << "DELETE FROM post_enclosures WHERE postID=?", use(postID), now;
+
+    for (const auto& e : enclosures)
+    {
+        Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+        auto size = e.size; // otherwise poco complains with use(e.size) :/
+        insertStmt << "INSERT INTO post_enclosures (postID, url, size, mimetype) VALUES (?, ?, ?, ?)", use(postID), useRef(e.url), use(size), useRef(e.mimeType), now;
+    }
 }

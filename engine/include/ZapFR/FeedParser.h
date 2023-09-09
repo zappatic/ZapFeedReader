@@ -20,6 +20,7 @@
 #define ZAPFR_ENGINE_FEEDPARSER_H
 
 #include "ZapFR/Global.h"
+#include "ZapFR/base/Post.h"
 
 namespace ZapFR
 {
@@ -52,10 +53,10 @@ namespace ZapFR
                 std::string link{""};
                 std::string description{""};
                 std::string author{""};
-                std::string category{""};
                 std::string commentsURL{""};
                 std::string guid{""};
                 std::string datePublished{""};
+                std::vector<Post::Enclosure> enclosures{};
             };
 
             virtual std::vector<Item> items() const = 0;

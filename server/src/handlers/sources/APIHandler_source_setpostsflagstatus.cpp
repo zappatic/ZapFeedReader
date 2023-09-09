@@ -58,7 +58,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_setpostsfla
 
                 for (size_t i = 0; i < rootArr->size(); ++i)
                 {
-                    auto obj = rootArr->getObject(static_cast<int32_t>(i));
+                    auto obj = rootArr->getObject(static_cast<uint32_t>(i));
                     if (obj->has("feedID") && obj->has("postID"))
                     {
                         auto feedID = obj->getValue<uint64_t>("feedID");
@@ -80,7 +80,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_setpostsfla
                 {
                     try
                     {
-                        auto colorName = rootArr->getElement<std::string>(static_cast<int32_t>(i));
+                        auto colorName = rootArr->getElement<std::string>(static_cast<uint32_t>(i));
                         flagColors.insert(ZapFR::Engine::Flag::flagColorForName(colorName));
                     }
                     catch (...)

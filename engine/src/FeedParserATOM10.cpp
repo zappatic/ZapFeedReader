@@ -107,9 +107,34 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
                     auto linkEl = dynamic_cast<Poco::XML::Element*>(linkNode);
                     if (linkEl->hasAttribute("href"))
                     {
-                        if (linkEl->hasAttribute("rel") && linkEl->getAttribute("rel") != "alternate")
+                        if (linkEl->hasAttribute("rel"))
                         {
-                            continue;
+                            auto rel = linkEl->getAttribute("rel");
+                            if (rel == "enclosure")
+                            {
+                                Post::Enclosure e;
+                                if (linkEl->hasAttribute("href"))
+                                {
+                                    e.url = linkEl->getAttribute("href");
+                                }
+                                if (linkEl->hasAttribute("type"))
+                                {
+                                    e.mimeType = linkEl->getAttribute("type");
+                                }
+                                if (linkEl->hasAttribute("length"))
+                                {
+                                    auto lengthStr = linkEl->getAttribute("length");
+                                    Poco::NumberParser::tryParseUnsigned64(lengthStr, e.size);
+                                }
+                                if (!e.url.empty())
+                                {
+                                    item.enclosures.emplace_back(e);
+                                }
+                            }
+                            else if (rel != "alternate")
+                            {
+                                continue;
+                            }
                         }
                         item.link = linkEl->getAttribute("href");
                         break;
@@ -117,6 +142,41 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
                 }
             }
             linkNodes->release();
+
+            // some feeds also put <enclosure> elements within items (diverges from spec, but allow anyway)
+            // try url/href, length and type as attributes
+            auto enclosureNodes = entryEl->getElementsByTagName("enclosure");
+            for (size_t j = 0; j < enclosureNodes->length(); ++j)
+            {
+                auto enclosureNode = enclosureNodes->item(j);
+                if (enclosureNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
+                {
+                    auto enclosureEl = dynamic_cast<Poco::XML::Element*>(enclosureNode);
+                    Post::Enclosure e;
+                    if (enclosureEl->hasAttribute("href"))
+                    {
+                        e.url = enclosureEl->getAttribute("href");
+                    }
+                    if (e.url.empty() && enclosureEl->hasAttribute("url"))
+                    {
+                        e.url = enclosureEl->getAttribute("url");
+                    }
+                    if (enclosureEl->hasAttribute("type"))
+                    {
+                        e.mimeType = enclosureEl->getAttribute("type");
+                    }
+                    if (enclosureEl->hasAttribute("length"))
+                    {
+                        auto lengthStr = enclosureEl->getAttribute("length");
+                        Poco::NumberParser::tryParseUnsigned64(lengthStr, e.size);
+                    }
+                    if (!e.url.empty())
+                    {
+                        item.enclosures.emplace_back(e);
+                    }
+                }
+            }
+            enclosureNodes->release();
 
             item.description = fetchNodeValue(entryNode, "summary");
 

@@ -77,27 +77,24 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
         item.description = fetchNodeValue(itemNode, "description");
         item.author = fetchNodeValue(itemNode, "author");
 
-        std::stringstream categories;
-        auto catList = dynamic_cast<Poco::XML::Element*>(itemNode)->getElementsByTagName("category");
-        for (size_t j = 0; j < catList->length(); ++j)
+        auto enclosureNodes = dynamic_cast<Poco::XML::Element*>(itemNode)->getElementsByTagName("enclosure");
+        for (size_t j = 0; j < enclosureNodes->length(); ++j)
         {
-            auto catNode = catList->item(j);
-            categories << catNode->innerText() << ", ";
+            auto enclosureNode = enclosureNodes->item(j);
+            auto enclosureEl = dynamic_cast<Poco::XML::Element*>(enclosureNode);
+            Post::Enclosure e;
+            e.url = enclosureEl->hasAttribute("url") ? enclosureEl->getAttribute("url") : "";
+            e.mimeType = enclosureEl->hasAttribute("type") ? enclosureEl->getAttribute("type") : "";
+            if (enclosureEl->hasAttribute("length"))
+            {
+                auto sizeStr = enclosureEl->getAttribute("length");
+                Poco::NumberParser::tryParseUnsigned64(sizeStr, e.size);
+            }
+            item.enclosures.emplace_back(e);
         }
-        item.category = categories.str();
-        Poco::trimInPlace(item.category);
-        catList->release();
+        enclosureNodes->release();
 
         item.commentsURL = fetchNodeValue(itemNode, "comments");
-
-        // auto enclosureNode = fetchNode(itemNode, "enclosure");
-        // if (enclosureNode != nullptr)
-        // {
-        //     auto enclosureEl = dynamic_cast<Poco::XML::Element*>(enclosureNode);
-        //     item.enclosureURL = enclosureEl->hasAttribute("url") ? enclosureEl->getAttribute("url") : "";
-        //     item.enclosureLength = enclosureEl->hasAttribute("length") ? enclosureEl->getAttribute("length") : "";
-        //     item.enclosureMimeType = enclosureEl->hasAttribute("type") ? enclosureEl->getAttribute("type") : "";
-        // }
 
         auto guidNode = fetchNode(itemNode, "guid");
         if (guidNode != nullptr)
@@ -106,8 +103,12 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
         }
         else
         {
-            // create a guid out of either title or description (all are optional, but either title or description must be present)
-            auto guidSrc = item.title;
+            // create a guid out of the link if present, or either title or description (all are optional, but either title or description must be present)
+            auto guidSrc = item.link;
+            if (guidSrc.empty())
+            {
+                guidSrc = item.title;
+            }
             if (guidSrc.empty())
             {
                 guidSrc = item.description;

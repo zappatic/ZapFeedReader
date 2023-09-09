@@ -44,5 +44,16 @@ Poco::JSON::Object ZapFR::Engine::Post::toJSON()
         flagColors.emplace_back(Flag::nameForFlagColor(flagColor));
     }
     o.set(Post::JSONIdentifierPostFlagColors, Helpers::joinString(flagColors, ","));
+
+    Poco::JSON::Array enclosuresArr;
+    for (const auto& e : mEnclosures)
+    {
+        Poco::JSON::Object enclosureObj;
+        enclosureObj.set(JSONIdentifierPostEnclosureURL, e.url);
+        enclosureObj.set(JSONIdentifierPostEnclosureMimeType, e.mimeType);
+        enclosureObj.set(JSONIdentifierPostEnclosureSize, e.size);
+        enclosuresArr.add(enclosureObj);
+    }
+    o.set(Post::JSONIdentifierPostEnclosures, enclosuresArr);
     return o;
 }

@@ -49,5 +49,16 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostRemote::fromJSON(const P
     }
     post->setFlagColors(flagColors);
 
+    auto enclosuresArr = o->getArray(Post::JSONIdentifierPostEnclosures);
+    for (size_t i = 0; i < enclosuresArr->size(); ++i)
+    {
+        auto enclosureObj = enclosuresArr->getObject(static_cast<uint32_t>(i));
+        Enclosure e;
+        e.url = enclosureObj->getValue<std::string>(Post::JSONIdentifierPostEnclosureURL);
+        e.mimeType = enclosureObj->getValue<std::string>(Post::JSONIdentifierPostEnclosureMimeType);
+        e.size = enclosureObj->getValue<uint64_t>(Post::JSONIdentifierPostEnclosureSize);
+        post->addEnclosure(e);
+    }
+
     return post;
 }

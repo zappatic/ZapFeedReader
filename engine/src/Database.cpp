@@ -124,6 +124,18 @@ void ZapFR::Engine::Database::installDBSchemaV1()
             now;
     }
 
+    // POST_ENCLOSURESS TABLE
+    {
+        (*mSession) << "CREATE TABLE IF NOT EXISTS post_enclosures ("
+                       " id INTEGER PRIMARY KEY"
+                       ",postID INTEGER NOT NULL"
+                       ",url TEXT NOT NULL"
+                       ",size INTEGER NOT NULL DEFAULT 0"
+                       ",mimetype TEXT"
+                       ")",
+            now;
+    }
+
     // SOURCES TABLE
     {
         (*mSession) << "CREATE TABLE IF NOT EXISTS sources ("

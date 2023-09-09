@@ -96,7 +96,7 @@ std::unordered_set<uint64_t> ZapFR::Engine::FolderRemote::markAllAsRead()
         {
             for (size_t i = 0; i < rootArr->size(); ++i)
             {
-                affectedFeedIDs.insert(rootArr->getElement<uint64_t>(static_cast<int32_t>(i)));
+                affectedFeedIDs.insert(rootArr->getElement<uint64_t>(static_cast<uint32_t>(i)));
             }
         }
     }
@@ -193,7 +193,7 @@ std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::FolderRemote::fromJSON(Sou
             auto subfolders = folderObj->getArray(Folder::JSONIdentifierFolderSubfolders);
             for (size_t i = 0; i < subfolders->size(); ++i)
             {
-                auto subfolderObj = subfolders->getObject(static_cast<int32_t>(i));
+                auto subfolderObj = subfolders->getObject(static_cast<uint32_t>(i));
                 folder->appendSubfolder(constructFolder(subfolderObj));
             }
         }
@@ -202,7 +202,7 @@ std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::FolderRemote::fromJSON(Sou
         auto feedIDArr = folderObj->getArray(Folder::JSONIdentifierFolderFeedIDs);
         for (size_t i = 0; i < feedIDArr->size(); ++i)
         {
-            auto feedID = feedIDArr->getElement<uint64_t>(static_cast<int32_t>(i));
+            auto feedID = feedIDArr->getElement<uint64_t>(static_cast<uint32_t>(i));
             feedIDs.emplace_back(feedID);
         }
         folder->setFeedIDsInFoldersAndSubfolders(feedIDs);

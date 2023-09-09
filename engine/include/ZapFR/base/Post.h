@@ -32,6 +32,13 @@ namespace ZapFR
             explicit Post(uint64_t id);
             virtual ~Post() = default;
 
+            struct Enclosure
+            {
+                std::string url{""};
+                std::string mimeType{""};
+                uint64_t size{0};
+            };
+
             uint64_t id() const noexcept { return mID; }
             uint64_t feedID() const noexcept { return mFeedID; }
             std::string feedTitle() const noexcept { return mFeedTitle; }
@@ -44,6 +51,7 @@ namespace ZapFR
             std::string guid() const noexcept { return mGuid; }
             std::string datePublished() const noexcept { return mDatePublished; }
             std::unordered_set<FlagColor> flagColors() { return mFlagColors; }
+            std::vector<Enclosure> enclosures() { return mEnclosures; }
 
             void setIsRead(bool b) { mIsRead = b; }
             void setFeedID(uint64_t feedID) { mFeedID = feedID; }
@@ -56,6 +64,7 @@ namespace ZapFR
             void setGuid(const std::string& guid) { mGuid = guid; }
             void setDatePublished(const std::string& datePublished) { mDatePublished = datePublished; }
             void setFlagColors(const std::unordered_set<FlagColor>& flagColors) { mFlagColors = flagColors; }
+            void addEnclosure(const Enclosure& enclosure) { mEnclosures.emplace_back(enclosure); }
 
             virtual Poco::JSON::Object toJSON();
             static constexpr const char* JSONIdentifierPostID{"id"};
@@ -70,6 +79,10 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierPostGuid{"guid"};
             static constexpr const char* JSONIdentifierPostDatePublished{"datePublished"};
             static constexpr const char* JSONIdentifierPostFlagColors{"flagColors"};
+            static constexpr const char* JSONIdentifierPostEnclosures{"enclosures"};
+            static constexpr const char* JSONIdentifierPostEnclosureURL{"url"};
+            static constexpr const char* JSONIdentifierPostEnclosureMimeType{"mimeType"};
+            static constexpr const char* JSONIdentifierPostEnclosureSize{"size"};
 
           protected:
             uint64_t mID{0};
@@ -84,6 +97,7 @@ namespace ZapFR
             std::string mGuid{""};
             std::string mDatePublished{""};
             std::unordered_set<FlagColor> mFlagColors{};
+            std::vector<Enclosure> mEnclosures{};
         };
     } // namespace Engine
 } // namespace ZapFR

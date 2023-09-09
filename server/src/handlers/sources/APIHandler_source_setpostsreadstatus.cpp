@@ -52,7 +52,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_setpostsrea
 
             for (size_t i = 0; i < rootArr->size(); ++i)
             {
-                auto obj = rootArr->getObject(static_cast<int32_t>(i));
+                auto obj = rootArr->getObject(static_cast<uint32_t>(i));
                 if (obj->has("feedID") && obj->has("postID"))
                 {
                     auto feedID = obj->getValue<uint64_t>("feedID");
