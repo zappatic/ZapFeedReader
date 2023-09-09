@@ -41,8 +41,7 @@ namespace ZapFR
             void unassignFromScriptFolder(uint64_t scriptFolderID);
 
             void update(const std::string& title, const std::string& link, const std::string& description, const std::string& author, const std::string& commentsURL,
-                        const std::string& enclosureURL, const std::string& enclosureLength, const std::string& enclosureMimeType, const std::string& guid,
-                        bool guidIsPermalink, const std::string& datePublished, const std::string& sourceURL, const std::string& sourceTitle);
+                        const std::string& guid, const std::string& datePublished);
 
             static std::vector<std::unique_ptr<Post>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
                                                                     const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
@@ -53,9 +52,8 @@ namespace ZapFR
             static void updateIsRead(bool isRead, const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
 
             static std::unique_ptr<Post> create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link,
-                                                const std::string& description, const std::string& author, const std::string& commentsURL, const std::string& enclosureURL,
-                                                const std::string& enclosureLength, const std::string& enclosureMimeType, const std::string& guid, bool guidIsPermalink,
-                                                const std::string& datePublished, const std::string& sourceURL, const std::string& sourceTitle);
+                                                const std::string& description, const std::string& author, const std::string& commentsURL, const std::string& guid,
+                                                const std::string& datePublished);
 
           private:
             static std::mutex msCreatePostMutex;

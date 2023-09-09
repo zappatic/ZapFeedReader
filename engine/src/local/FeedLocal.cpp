@@ -222,8 +222,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         if (existingPost.has_value()) // UPDATE in case it does
         {
             dynamic_cast<PostLocal*>(existingPost.value().get())
-                ->update(item.title, item.link, item.description, item.author, item.commentsURL, item.enclosureURL, item.enclosureLength, item.enclosureMimeType, item.guid,
-                         item.guidIsPermalink, item.datePublished, item.sourceURL, item.sourceTitle);
+                ->update(item.title, item.link, item.description, item.author, item.commentsURL, item.guid, item.datePublished);
 
             if (scriptsRanOnUpdatePost.size() > 0)
             {
@@ -235,12 +234,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
                 if (!isDifferent && (existingPost.value()->description() != item.description)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->author() != item.author)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->commentsURL() != item.commentsURL)) { isDifferent = true; }
-                if (!isDifferent && (existingPost.value()->enclosureURL() != item.enclosureURL)) { isDifferent = true; }
-                if (!isDifferent && (existingPost.value()->enclosureLength() != item.enclosureLength)) { isDifferent = true; }
-                if (!isDifferent && (existingPost.value()->enclosureMimeType() != item.enclosureMimeType)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->datePublished() != item.datePublished)) { isDifferent = true; }
-                if (!isDifferent && (existingPost.value()->sourceURL() != item.sourceURL)) { isDifferent = true; }
-                if (!isDifferent && (existingPost.value()->sourceTitle() != item.sourceTitle)) { isDifferent = true; }
                 // clang-format on
 
                 if (isDifferent)
@@ -259,8 +253,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         }
         else // INSERT in case it doesn't
         {
-            auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.description, item.author, item.commentsURL, item.enclosureURL, item.enclosureLength,
-                                          item.enclosureMimeType, item.guid, item.guidIsPermalink, item.datePublished, item.sourceURL, item.sourceTitle);
+            auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.description, item.author, item.commentsURL, item.guid, item.datePublished);
 
             if (scriptsRanOnNewPost.size() > 0)
             {

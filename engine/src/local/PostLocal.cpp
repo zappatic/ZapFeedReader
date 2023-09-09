@@ -86,14 +86,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     std::string description{""};
     std::string author{""};
     std::string commentsURL{""};
-    std::string enclosureURL{""};
-    std::string enclosureLength{""};
-    std::string enclosureMimeType{""};
     std::string guid{""};
-    bool guidIsPermalink{false};
     std::string datePublished{""};
-    std::string sourceURL{""};
-    std::string sourceTitle{""};
     std::string feedTitle{""};
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
@@ -107,14 +101,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
           ",posts.description"
           ",posts.author"
           ",posts.commentsURL"
-          ",posts.enclosureURL"
-          ",posts.enclosureLength"
-          ",posts.enclosureMimeType"
           ",posts.guid"
-          ",posts.guidIsPermalink"
           ",posts.datePublished"
-          ",posts.sourceURL"
-          ",posts.sourceTitle"
           ",feeds.title"
           " FROM posts"
           " LEFT JOIN feeds ON feeds.id = posts.feedID";
@@ -142,14 +130,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     selectStmt.addExtract(into(description));
     selectStmt.addExtract(into(author));
     selectStmt.addExtract(into(commentsURL));
-    selectStmt.addExtract(into(enclosureURL));
-    selectStmt.addExtract(into(enclosureLength));
-    selectStmt.addExtract(into(enclosureMimeType));
     selectStmt.addExtract(into(guid));
-    selectStmt.addExtract(into(guidIsPermalink));
     selectStmt.addExtract(into(datePublished));
-    selectStmt.addExtract(into(sourceURL));
-    selectStmt.addExtract(into(sourceTitle));
     selectStmt.addExtract(into(feedTitle));
 
     while (!selectStmt.done())
@@ -165,14 +147,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
             p->setDescription(description);
             p->setAuthor(author);
             p->setCommentsURL(commentsURL);
-            p->setEnclosureURL(enclosureURL);
-            p->setEnclosureLength(enclosureLength);
-            p->setEnclosureMimeType(enclosureMimeType);
             p->setGuid(guid);
-            p->setGuidIsPermalink(guidIsPermalink);
             p->setDatePublished(datePublished);
-            p->setSourceURL(sourceURL);
-            p->setSourceTitle(sourceTitle);
 
             // query flags
             std::unordered_set<FlagColor> flags;
@@ -205,14 +181,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     std::string description{""};
     std::string author{""};
     std::string commentsURL{""};
-    std::string enclosureURL{""};
-    std::string enclosureLength{""};
-    std::string enclosureMimeType{""};
     std::string guid{""};
-    bool guidIsPermalink{false};
     std::string datePublished{""};
-    std::string sourceURL{""};
-    std::string sourceTitle{""};
     std::string feedTitle{""};
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
@@ -226,14 +196,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
           ",posts.description"
           ",posts.author"
           ",posts.commentsURL"
-          ",posts.enclosureURL"
-          ",posts.enclosureLength"
-          ",posts.enclosureMimeType"
           ",posts.guid"
-          ",posts.guidIsPermalink"
           ",posts.datePublished"
-          ",posts.sourceURL"
-          ",posts.sourceTitle"
           ",feeds.title"
           " FROM posts"
           " LEFT JOIN feeds ON feeds.id = posts.feedID";
@@ -260,14 +224,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     selectStmt.addExtract(into(description));
     selectStmt.addExtract(into(author));
     selectStmt.addExtract(into(commentsURL));
-    selectStmt.addExtract(into(enclosureURL));
-    selectStmt.addExtract(into(enclosureLength));
-    selectStmt.addExtract(into(enclosureMimeType));
     selectStmt.addExtract(into(guid));
-    selectStmt.addExtract(into(guidIsPermalink));
     selectStmt.addExtract(into(datePublished));
-    selectStmt.addExtract(into(sourceURL));
-    selectStmt.addExtract(into(sourceTitle));
     selectStmt.addExtract(into(feedTitle));
 
     selectStmt.execute();
@@ -284,14 +242,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
         p->setDescription(description);
         p->setAuthor(author);
         p->setCommentsURL(commentsURL);
-        p->setEnclosureURL(enclosureURL);
-        p->setEnclosureLength(enclosureLength);
-        p->setEnclosureMimeType(enclosureMimeType);
         p->setGuid(guid);
-        p->setGuidIsPermalink(guidIsPermalink);
         p->setDatePublished(datePublished);
-        p->setSourceURL(sourceURL);
-        p->setSourceTitle(sourceTitle);
 
         // query flags
         std::unordered_set<FlagColor> flags;
@@ -365,9 +317,7 @@ void ZapFR::Engine::PostLocal::updateIsRead(bool isRead, const std::vector<std::
 }
 
 void ZapFR::Engine::PostLocal::update(const std::string& title, const std::string& link, const std::string& description, const std::string& author,
-                                      const std::string& commentsURL, const std::string& enclosureURL, const std::string& enclosureLength,
-                                      const std::string& enclosureMimeType, const std::string& guid, bool guidIsPermalink, const std::string& datePublished,
-                                      const std::string& sourceURL, const std::string& sourceTitle)
+                                      const std::string& commentsURL, const std::string& guid, const std::string& datePublished)
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET"
@@ -376,25 +326,16 @@ void ZapFR::Engine::PostLocal::update(const std::string& title, const std::strin
                   ",description=?"
                   ",author=?"
                   ",commentsURL=?"
-                  ",enclosureURL=?"
-                  ",enclosureLength=?"
-                  ",enclosureMimeType=?"
                   ",guid=?"
-                  ",guidIsPermalink=?"
                   ",datePublished=?"
-                  ",sourceURL=?"
-                  ",sourceTitle=?"
                   " WHERE id=?",
-        useRef(title), useRef(link), useRef(description), useRef(author), useRef(commentsURL), useRef(enclosureURL), useRef(enclosureLength), useRef(enclosureMimeType),
-        useRef(guid), use(guidIsPermalink), useRef(datePublished), useRef(sourceURL), useRef(sourceTitle), use(mID);
+        useRef(title), useRef(link), useRef(description), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), use(mID);
     updateStmt.execute();
 }
 
 std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link,
                                                                       const std::string& description, const std::string& author, const std::string& commentsURL,
-                                                                      const std::string& enclosureURL, const std::string& enclosureLength,
-                                                                      const std::string& enclosureMimeType, const std::string& guid, bool guidIsPermalink,
-                                                                      const std::string& datePublished, const std::string& sourceURL, const std::string& sourceTitle)
+                                                                      const std::string& guid, const std::string& datePublished)
 {
     Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
     insertStmt << "INSERT INTO posts ("
@@ -404,17 +345,10 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
                   ",description"
                   ",author"
                   ",commentsURL"
-                  ",enclosureURL"
-                  ",enclosureLength"
-                  ",enclosureMimeType"
                   ",guid"
-                  ",guidIsPermalink"
                   ",datePublished"
-                  ",sourceURL"
-                  ",sourceTitle"
-                  ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        use(feedID), useRef(title), useRef(link), useRef(description), useRef(author), useRef(commentsURL), useRef(enclosureURL), useRef(enclosureLength),
-        useRef(enclosureMimeType), useRef(guid), use(guidIsPermalink), useRef(datePublished), useRef(sourceURL), useRef(sourceTitle);
+                  ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        use(feedID), useRef(title), useRef(link), useRef(description), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished);
 
     uint64_t postID{0};
     {
@@ -433,14 +367,8 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
     p->setDescription(description);
     p->setAuthor(author);
     p->setCommentsURL(commentsURL);
-    p->setEnclosureURL(enclosureURL);
-    p->setEnclosureLength(enclosureLength);
-    p->setEnclosureMimeType(enclosureMimeType);
     p->setGuid(guid);
-    p->setGuidIsPermalink(guidIsPermalink);
     p->setDatePublished(datePublished);
-    p->setSourceURL(sourceURL);
-    p->setSourceTitle(sourceTitle);
 
     // query flags
     std::unordered_set<FlagColor> flags;

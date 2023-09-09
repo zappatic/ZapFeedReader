@@ -382,6 +382,9 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
 
                                                               auto postTitle = QString::fromUtf8(post->title());
                                                               auto postLink = QString::fromUtf8(post->link());
+                                                              auto postAuthor = QString::fromUtf8(post->author());
+                                                              auto postCommentsURL = QString::fromUtf8(post->commentsURL());
+                                                              auto postPublishedOn = Utilities::prettyDate(QString::fromUtf8(post->datePublished()));
 
                                                               html << "<!DOCTYPE html>\n"
                                                                    << "<html>\n"
@@ -400,6 +403,24 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
                                                               {
                                                                   html << R"(<a class="zapfr_title" href=")" << postLink << R"(">)" << postTitle << "</a>\n";
                                                               }
+
+                                                              html << R"(<div class="zapfr_below_title">)";
+
+                                                              html << "<div>" << tr("Published") << ": " << postPublishedOn << "</div>";
+                                                              if (!postAuthor.isEmpty())
+                                                              {
+                                                                  html << R"(<div><span class="zapfr_below_title_separator">|</span>)" << tr("Author") << ": " << postAuthor
+                                                                       << "</div>";
+                                                              }
+                                                              if (!postCommentsURL.isEmpty() && postCommentsURL.startsWith("http"))
+                                                              {
+                                                                  html << R"(<div><span class="zapfr_below_title_separator">|</span><a href=")" << postCommentsURL << R"(">)"
+                                                                       << tr("View comments") << "</a></div>";
+                                                              }
+
+                                                              html << "</div>\n";
+
+                                                              html << R"(<hr class="zapfr_divider" />)";
 
                                                               html << QString::fromUtf8(post->description()) << "\n"
                                                                    << " </body>\n"
@@ -458,7 +479,10 @@ QString ZapFR::Client::MainWindow::postStyles() const
     return QString(R"(body { font-family: "%1", sans-serif; background-color: %2; color: %3; })"
                    "\n"
                    "a { color: %4; }\n"
-                   ".zapfr_title { color: %3; font-size: 36px; font-weight: bold; text-decoration: none; display: block; margin: 25px 0; user-select:none; }\n")
+                   ".zapfr_title { color: %3; font-size: 36px; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0; user-select:none; }\n"
+                   ".zapfr_below_title { font-size: 13px; display: flex; gap: 10px; }\n"
+                   ".zapfr_below_title_separator { display: inline-block; margin-right: 10px; }\n"
+                   ".zapfr_divider { margin-bottom: 30px; height: 1px; border: none; color: %3; background-color: %3; }\n")
         .arg(font.family())
         .arg(backgroundColor)
         .arg(textColor)

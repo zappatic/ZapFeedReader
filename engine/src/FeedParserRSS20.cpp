@@ -90,24 +90,19 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
 
         item.commentsURL = fetchNodeValue(itemNode, "comments");
 
-        auto enclosureNode = fetchNode(itemNode, "enclosure");
-        if (enclosureNode != nullptr)
-        {
-            auto enclosureEl = dynamic_cast<Poco::XML::Element*>(enclosureNode);
-            item.enclosureURL = enclosureEl->hasAttribute("url") ? enclosureEl->getAttribute("url") : "";
-            item.enclosureLength = enclosureEl->hasAttribute("length") ? enclosureEl->getAttribute("length") : "";
-            item.enclosureMimeType = enclosureEl->hasAttribute("type") ? enclosureEl->getAttribute("type") : "";
-        }
+        // auto enclosureNode = fetchNode(itemNode, "enclosure");
+        // if (enclosureNode != nullptr)
+        // {
+        //     auto enclosureEl = dynamic_cast<Poco::XML::Element*>(enclosureNode);
+        //     item.enclosureURL = enclosureEl->hasAttribute("url") ? enclosureEl->getAttribute("url") : "";
+        //     item.enclosureLength = enclosureEl->hasAttribute("length") ? enclosureEl->getAttribute("length") : "";
+        //     item.enclosureMimeType = enclosureEl->hasAttribute("type") ? enclosureEl->getAttribute("type") : "";
+        // }
 
         auto guidNode = fetchNode(itemNode, "guid");
         if (guidNode != nullptr)
         {
-            auto guidEl = dynamic_cast<Poco::XML::Element*>(guidNode);
             item.guid = guidNode->innerText();
-            if (guidEl->hasAttribute("isPermaLink"))
-            {
-                item.guidIsPermalink = guidEl->getAttribute("isPermaLink") == "true";
-            }
         }
         else
         {
@@ -127,7 +122,6 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
             ds << guidSrc;
             ds.close();
             item.guid = Poco::DigestEngine::digestToHex(md5.digest());
-            item.guidIsPermalink = false;
         }
 
         item.datePublished = fetchNodeValue(itemNode, "pubDate");
@@ -135,14 +129,6 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
         auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::RFC1123_FORMAT, item.datePublished, tzDiff);
         parsedDate.makeUTC(tzDiff);
         item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
-
-        auto sourceNode = fetchNode(itemNode, "source");
-        if (sourceNode != nullptr)
-        {
-            auto sourceEl = dynamic_cast<Poco::XML::Element*>(sourceNode);
-            item.sourceURL = sourceEl->hasAttribute("url") ? sourceEl->getAttribute("url") : "";
-            item.sourceTitle = sourceNode->innerText();
-        }
 
         items.emplace_back(item);
     }

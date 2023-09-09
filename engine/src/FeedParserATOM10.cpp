@@ -105,8 +105,12 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
                 if (linkNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
                 {
                     auto linkEl = dynamic_cast<Poco::XML::Element*>(linkNode);
-                    if (linkEl->hasAttribute("rel") && linkEl->getAttribute("rel") == "alternate" && linkEl->hasAttribute("href"))
+                    if (linkEl->hasAttribute("href"))
                     {
+                        if (linkEl->hasAttribute("rel") && linkEl->getAttribute("rel") != "alternate")
+                        {
+                            continue;
+                        }
                         item.link = linkEl->getAttribute("href");
                         break;
                     }
@@ -115,43 +119,41 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
             linkNodes->release();
 
             item.description = fetchNodeValue(entryNode, "summary");
-            // todo: content
-            // item.author = fetchNodeValue(entryNode, "author");
 
-            // std::stringstream categories;
-            // auto catList = dynamic_cast<Poco::XML::Element*>(entryNode)->getElementsByTagName("category");
-            // for (size_t j = 0; j < catList->length(); ++j)
-            // {
-            //     auto catNode = catList->item(j);
-            //     categories << catNode->innerText() << ", ";
-            // }
-            // item.category = categories.str();
-            // Poco::trimInPlace(item.category);
-            // catList->release();
+            auto contentNode = fetchNode(entryNode, "content");
+            if (contentNode != nullptr)
+            {
+                auto contentEl = dynamic_cast<Poco::XML::Element*>(contentNode);
+                if (!contentEl->hasAttribute("src"))
+                {
+                    std::string contentType = "text";
+                    if (contentEl->hasAttribute("type"))
+                    {
+                        contentType = contentEl->getAttribute("type");
+                    }
 
-            // item.commentsURL = fetchNodeValue(entryNode, "comments");
+                    if (contentType == "text")
+                    {
+                        item.description = fmt::format("<pre>{}</pre>", contentEl->innerText());
+                    }
+                    else
+                    {
+                        item.description = contentEl->innerText();
+                    }
+                }
+            }
 
-            // auto enclosureNode = fetchNode(entryNode, "enclosure");
-            // if (enclosureNode != nullptr)
-            // {
-            //     auto enclosureEl = dynamic_cast<Poco::XML::Element*>(enclosureNode);
-            //     item.enclosureURL = enclosureEl->hasAttribute("url") ? enclosureEl->getAttribute("url") : "";
-            //     item.enclosureLength = enclosureEl->hasAttribute("length") ? enclosureEl->getAttribute("length") : "";
-            //     item.enclosureMimeType = enclosureEl->hasAttribute("type") ? enclosureEl->getAttribute("type") : "";
-            // }
+            auto authorNode = fetchNode(entryNode, "author");
+            if (authorNode != nullptr)
+            {
+                auto authorNameNode = fetchNode(authorNode, "name");
+                if (authorNameNode != nullptr)
+                {
+                    item.author = authorNameNode->innerText();
+                }
+            }
 
             item.guid = fetchNodeValue(entryNode, "id");
-            item.guidIsPermalink = true;
-            // auto guidNode = fetchNode(entryNode, "guid");
-            // if (guidNode != nullptr)
-            // {
-            //     auto guidEl = dynamic_cast<Poco::XML::Element*>(guidNode);
-            //     item.guid = guidNode->innerText();
-            //     if (guidEl->hasAttribute("isPermaLink"))
-            //     {
-            //         item.guidIsPermalink = guidEl->getAttribute("isPermaLink") == "true";
-            //     }
-            // }
 
             item.datePublished = fetchNodeValue(entryNode, "updated");
             int tzDiff;
@@ -159,35 +161,10 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
             parsedDate.makeUTC(tzDiff);
             item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
 
-            // auto sourceNode = fetchNode(entryNode, "source");
-            // if (sourceNode != nullptr)
-            // {
-            //     auto sourceEl = dynamic_cast<Poco::XML::Element*>(sourceNode);
-            //     item.sourceURL = sourceEl->hasAttribute("url") ? sourceEl->getAttribute("url") : "";
-            //     item.sourceTitle = sourceNode->innerText();
-            // }
-            postProcessItem(item);
             items.emplace_back(item);
         }
     }
     entryList->release();
 
     return items;
-}
-
-void ZapFR::Engine::FeedParserATOM10::postProcessItem(Item& item) const
-{
-    auto host = mURI.getHost();
-    if (host.ends_with("reddit.com"))
-    {
-        if (item.link.empty() && !item.guid.empty())
-        {
-            static std::string toBeReplacedInGuid{"t3_"};
-            static std::string emptyString{""};
-            auto uri = Poco::URI(mURI);
-            auto postID = Poco::replace(item.guid, toBeReplacedInGuid, emptyString);
-            uri.setPathEtc(postID);
-            item.link = uri.toString();
-        }
-    }
 }

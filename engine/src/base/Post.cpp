@@ -35,14 +35,8 @@ Poco::JSON::Object ZapFR::Engine::Post::toJSON()
     o.set(JSONIdentifierPostDescription, mDescription);
     o.set(JSONIdentifierPostAuthor, mAuthor);
     o.set(JSONIdentifierPostCommentsURL, mCommentsURL);
-    o.set(JSONIdentifierPostEnclosureURL, mEnclosureURL);
-    o.set(JSONIdentifierPostEnclosureLength, mEnclosureLength);
-    o.set(JSONIdentifierPostEnclosureMimetype, mEnclosureMimeType);
     o.set(JSONIdentifierPostGuid, mGuid);
-    o.set(JSONIdentifierPostGuidIsPermalink, mGuidIsPermalink);
     o.set(JSONIdentifierPostDatePublished, mDatePublished);
-    o.set(JSONIdentifierPostSourceURL, mSourceURL);
-    o.set(JSONIdentifierPostSourceTitle, mSourceTitle);
 
     std::vector<std::string> flagColors;
     for (const auto& flagColor : mFlagColors)

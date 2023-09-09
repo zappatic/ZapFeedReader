@@ -41,7 +41,6 @@ namespace ZapFR
             std::string iconURL() const override;
 
             std::vector<Item> items() const override;
-            void postProcessItem(Item& item) const override;
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/Database.h"
-#include "ZapFR/base/Feed.h"
 #include "ZapFR/Global.h"
+#include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
 using namespace Poco::Data::Keywords;
@@ -118,14 +118,8 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ",description TEXT"
                        ",author TEXT"
                        ",commentsURL TEXT"
-                       ",enclosureURL TEXT"
-                       ",enclosureLength TEXT"
-                       ",enclosureMimeType TEXT"
                        ",guid TEXT"
-                       ",guidIsPermalink BOOLEAN"
                        ",datePublished INTEGER"
-                       ",sourceURL TEXT"
-                       ",sourceTitle TEXT"
                        ")",
             now;
     }

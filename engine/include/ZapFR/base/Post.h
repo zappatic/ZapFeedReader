@@ -41,14 +41,8 @@ namespace ZapFR
             std::string description() const noexcept { return mDescription; }
             std::string author() const noexcept { return mAuthor; }
             std::string commentsURL() const noexcept { return mCommentsURL; }
-            std::string enclosureURL() const noexcept { return mEnclosureURL; }
-            std::string enclosureLength() const noexcept { return mEnclosureLength; }
-            std::string enclosureMimeType() const noexcept { return mEnclosureMimeType; }
             std::string guid() const noexcept { return mGuid; }
-            bool guidIsPermalink() const noexcept { return mGuidIsPermalink; }
             std::string datePublished() const noexcept { return mDatePublished; }
-            std::string sourceURL() const noexcept { return mSourceURL; }
-            std::string sourceTitle() const noexcept { return mSourceTitle; }
             std::unordered_set<FlagColor> flagColors() { return mFlagColors; }
 
             void setIsRead(bool b) { mIsRead = b; }
@@ -59,14 +53,8 @@ namespace ZapFR
             void setDescription(const std::string& description) { mDescription = description; }
             void setAuthor(const std::string& author) { mAuthor = author; }
             void setCommentsURL(const std::string& commentsURL) { mCommentsURL = commentsURL; }
-            void setEnclosureURL(const std::string& enclosureURL) { mEnclosureURL = enclosureURL; }
-            void setEnclosureLength(const std::string& enclosureLength) { mEnclosureLength = enclosureLength; }
-            void setEnclosureMimeType(const std::string& enclosureMimeType) { mEnclosureMimeType = enclosureMimeType; }
             void setGuid(const std::string& guid) { mGuid = guid; }
-            void setGuidIsPermalink(bool b) { mGuidIsPermalink = b; }
             void setDatePublished(const std::string& datePublished) { mDatePublished = datePublished; }
-            void setSourceURL(const std::string& sourceURL) { mSourceURL = sourceURL; }
-            void setSourceTitle(const std::string& sourceTitle) { mSourceTitle = sourceTitle; }
             void setFlagColors(const std::unordered_set<FlagColor>& flagColors) { mFlagColors = flagColors; }
 
             virtual Poco::JSON::Object toJSON();
@@ -79,14 +67,8 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierPostDescription{"description"};
             static constexpr const char* JSONIdentifierPostAuthor{"author"};
             static constexpr const char* JSONIdentifierPostCommentsURL{"commentsURL"};
-            static constexpr const char* JSONIdentifierPostEnclosureURL{"enclosureURL"};
-            static constexpr const char* JSONIdentifierPostEnclosureLength{"enclosureLength"};
-            static constexpr const char* JSONIdentifierPostEnclosureMimetype{"enclosureMimetype"};
             static constexpr const char* JSONIdentifierPostGuid{"guid"};
-            static constexpr const char* JSONIdentifierPostGuidIsPermalink{"guidIsPermalink"};
             static constexpr const char* JSONIdentifierPostDatePublished{"datePublished"};
-            static constexpr const char* JSONIdentifierPostSourceURL{"sourceURL"};
-            static constexpr const char* JSONIdentifierPostSourceTitle{"sourceTitle"};
             static constexpr const char* JSONIdentifierPostFlagColors{"flagColors"};
 
           protected:
@@ -99,14 +81,8 @@ namespace ZapFR
             std::string mDescription{""};
             std::string mAuthor{""};
             std::string mCommentsURL{""};
-            std::string mEnclosureURL{""};
-            std::string mEnclosureLength{""};
-            std::string mEnclosureMimeType{""};
             std::string mGuid{""};
-            bool mGuidIsPermalink{false};
             std::string mDatePublished{""};
-            std::string mSourceURL{""};
-            std::string mSourceTitle{""};
             std::unordered_set<FlagColor> mFlagColors{};
         };
     } // namespace Engine

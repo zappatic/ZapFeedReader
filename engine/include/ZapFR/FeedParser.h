@@ -54,18 +54,11 @@ namespace ZapFR
                 std::string author{""};
                 std::string category{""};
                 std::string commentsURL{""};
-                std::string enclosureURL{""};
-                std::string enclosureLength{""};
-                std::string enclosureMimeType{""};
                 std::string guid{""};
-                bool guidIsPermalink{true};
                 std::string datePublished{""};
-                std::string sourceURL{""};
-                std::string sourceTitle{""};
             };
 
             virtual std::vector<Item> items() const = 0;
-            virtual void postProcessItem([[maybe_unused]] Item& item) const {};
 
           protected:
             Poco::XML::Document* mXMLDoc{nullptr};

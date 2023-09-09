@@ -36,14 +36,8 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostRemote::fromJSON(const P
     post->setDescription(o->getValue<std::string>(Post::JSONIdentifierPostDescription));
     post->setAuthor(o->getValue<std::string>(Post::JSONIdentifierPostAuthor));
     post->setCommentsURL(o->getValue<std::string>(Post::JSONIdentifierPostCommentsURL));
-    post->setEnclosureURL(o->getValue<std::string>(Post::JSONIdentifierPostEnclosureURL));
-    post->setEnclosureLength(o->getValue<std::string>(Post::JSONIdentifierPostEnclosureLength));
-    post->setEnclosureMimeType(o->getValue<std::string>(Post::JSONIdentifierPostEnclosureMimetype));
     post->setGuid(o->getValue<std::string>(Post::JSONIdentifierPostGuid));
-    post->setGuidIsPermalink(o->getValue<bool>(Post::JSONIdentifierPostGuidIsPermalink));
     post->setDatePublished(o->getValue<std::string>(Post::JSONIdentifierPostDatePublished));
-    post->setSourceURL(o->getValue<std::string>(Post::JSONIdentifierPostSourceURL));
-    post->setSourceTitle(o->getValue<std::string>(Post::JSONIdentifierPostSourceTitle));
 
     std::unordered_set<FlagColor> flagColors;
     std::vector<std::string> flagColorNames;
