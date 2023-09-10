@@ -110,6 +110,7 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
                                                                       props["sourceID"] = QVariant::fromValue<uint64_t>(retrievedSourceID);
                                                                       props["feedID"] = QVariant::fromValue<uint64_t>(feed->id());
                                                                       props["title"] = QString::fromUtf8(feed->title());
+                                                                      props["subtitle"] = QString::fromUtf8(feed->subtitle());
                                                                       props["url"] = QString::fromUtf8(feed->url());
                                                                       props["link"] = QString::fromUtf8(feed->link());
                                                                       props["description"] = QString::fromUtf8(feed->description());

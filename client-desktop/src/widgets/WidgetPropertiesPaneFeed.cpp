@@ -52,6 +52,17 @@ void ZapFR::Client::WidgetPropertiesPaneFeed::reset(const QMap<QString, QVariant
         ui->labelIcon->setFixedHeight(ui->labelCaption->height());
     }
     ui->labelCaption->setText(props["title"].toString());
+    auto subtitle = props["subtitle"].toString();
+    if (subtitle.isEmpty())
+    {
+        ui->labelSubtitle->setVisible(false);
+        ui->labelSubtitle->setText("");
+    }
+    else
+    {
+        ui->labelSubtitle->setVisible(true);
+        ui->labelSubtitle->setText(subtitle);
+    }
     ui->lineEditURL->setText(props["url"].toString());
 
     auto link = props["link"].toString();
