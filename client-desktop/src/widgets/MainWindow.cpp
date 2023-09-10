@@ -423,7 +423,7 @@ void ZapFR::Client::MainWindow::configureIcons()
 
 void ZapFR::Client::MainWindow::updateToolbar()
 {
-    // hide all actions
+    // hide all actions from toolbar (and applicable ones from hamburger menu)
     for (const auto& action : ui->toolBar->actions())
     {
         if (!action->property(gsHamburgerMenuButton).isValid())
@@ -431,6 +431,10 @@ void ZapFR::Client::MainWindow::updateToolbar()
             action->setVisible(false);
         }
     }
+    ui->action_Add_source->setVisible(false);
+    ui->action_Remove_source->setVisible(false);
+    ui->action_Import_OPML->setVisible(false);
+    ui->action_Export_OPML->setVisible(false);
 
     switch (ui->stackedWidgetContentPanes->currentIndex())
     {
@@ -475,6 +479,10 @@ void ZapFR::Client::MainWindow::updateToolbar()
             ui->action_Mark_as_read->setVisible(true);
             ui->action_View_logs->setVisible(true);
             ui->action_View_scripts->setVisible(true);
+            ui->action_Add_source->setVisible(true);
+            ui->action_Remove_source->setVisible(true);
+            ui->action_Import_OPML->setVisible(true);
+            ui->action_Export_OPML->setVisible(true);
 
             ui->action_Add_feed->setEnabled(anythingSelected);
             ui->action_Add_folder->setEnabled(anythingSelected);
