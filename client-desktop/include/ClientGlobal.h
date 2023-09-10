@@ -71,6 +71,7 @@
 #include <QTreeView>
 #include <QWebEngineContextMenuRequest>
 #include <QWebEnginePage>
+#include <QWebEngineSettings>
 #include <QWebEngineView>
 
 namespace ZapFR

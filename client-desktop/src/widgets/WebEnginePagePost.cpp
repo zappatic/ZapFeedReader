@@ -20,6 +20,13 @@
 
 ZapFR::Client::WebEnginePagePost::WebEnginePagePost(QObject* parent) : QWebEnginePage(parent)
 {
+    auto s = settings();
+    s->setAttribute(QWebEngineSettings::JavascriptEnabled, true); // needed for embedded YouTube videos
+    s->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows, false);
+    s->setAttribute(QWebEngineSettings::LocalStorageEnabled, false);
+    s->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, false);
+    s->setAttribute(QWebEngineSettings::AutoLoadIconsForPage, false);
+    s->setAttribute(QWebEngineSettings::NavigateOnDropEnabled, false);
 }
 
 bool ZapFR::Client::WebEnginePagePost::acceptNavigationRequest(const QUrl& url, QWebEnginePage::NavigationType type, bool /*isMainFrame*/)
@@ -34,6 +41,10 @@ bool ZapFR::Client::WebEnginePagePost::acceptNavigationRequest(const QUrl& url, 
         {
             QDesktopServices::openUrl(url);
             return false;
+        }
+        case QWebEnginePage::NavigationTypeOther:
+        {
+            return true; // needed for embedded YouTube videos
         }
         default:
         {

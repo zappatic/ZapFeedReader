@@ -74,8 +74,18 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
         Item item;
         item.title = fetchNodeValue(itemNode, "title");
         item.link = fetchNodeValue(itemNode, "link");
-        item.description = fetchNodeValueInnerXML(itemNode, "description");
         item.author = fetchNodeValue(itemNode, "author");
+        item.description = fetchNodeValueInnerXML(itemNode, "description");
+
+        // see if there's a content:encoded with more information present, if so, replace the body of the text with that
+        Poco::XML::Element::NSMap nsMap;
+        nsMap.declarePrefix("content", "http://purl.org/rss/1.0/modules/content/");
+
+        auto contentEncodedNode = itemNode->getNodeByPathNS("content:encoded", nsMap);
+        if (contentEncodedNode != nullptr)
+        {
+            item.description = contentEncodedNode->innerText();
+        }
 
         auto enclosureNodes = dynamic_cast<Poco::XML::Element*>(itemNode)->getElementsByTagName("enclosure");
         for (size_t j = 0; j < enclosureNodes->length(); ++j)

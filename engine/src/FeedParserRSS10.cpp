@@ -80,10 +80,21 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS10::ite
     {
         auto itemNode = itemList->item(i);
 
+        Poco::XML::Element::NSMap nsMap;
+        nsMap.declarePrefix("dc", "http://purl.org/dc/elements/1.1/");
+        nsMap.declarePrefix("content", "http://purl.org/rss/1.0/modules/content/");
+
         Item item;
         item.title = fetchNodeValue(itemNode, "title");
         item.link = fetchNodeValue(itemNode, "link");
         item.description = fetchNodeValueInnerXML(itemNode, "description");
+
+        // see if there's a content:encoded with more information present, if so, replace the body of the text with that
+        auto contentEncodedNode = itemNode->getNodeByPathNS("content:encoded", nsMap);
+        if (contentEncodedNode != nullptr)
+        {
+            item.description = contentEncodedNode->innerText();
+        }
 
         // create a guid out of the link if present, or either title or description (all are optional, but either title or description must be present)
         auto guidSrc = item.link;
@@ -105,9 +116,6 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS10::ite
         ds << guidSrc;
         ds.close();
         item.guid = Poco::DigestEngine::digestToHex(md5.digest());
-
-        Poco::XML::Element::NSMap nsMap;
-        nsMap.declarePrefix("dc", "http://purl.org/dc/elements/1.1/");
 
         auto creatorNode = itemNode->getNodeByPathNS("dc:creator", nsMap);
         if (creatorNode != nullptr)
