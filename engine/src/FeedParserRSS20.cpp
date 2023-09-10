@@ -125,6 +125,11 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
             item.guid = Poco::DigestEngine::digestToHex(md5.digest());
         }
 
+        if (item.link.empty() && item.guid.starts_with("http"))
+        {
+            item.link = item.guid;
+        }
+
         item.datePublished = fetchNodeValue(itemNode, "pubDate");
         int tzDiff;
         auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::RFC1123_FORMAT, item.datePublished, tzDiff);
