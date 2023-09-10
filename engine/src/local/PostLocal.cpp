@@ -83,7 +83,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     bool isRead{false};
     std::string title{""};
     std::string link{""};
-    std::string description{""};
+    std::string content{""};
     std::string author{""};
     std::string commentsURL{""};
     std::string guid{""};
@@ -99,7 +99,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
           ",posts.isRead"
           ",posts.title"
           ",posts.link"
-          ",posts.description"
+          ",posts.content"
           ",posts.author"
           ",posts.commentsURL"
           ",posts.guid"
@@ -129,7 +129,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     selectStmt.addExtract(into(isRead));
     selectStmt.addExtract(into(title));
     selectStmt.addExtract(into(link));
-    selectStmt.addExtract(into(description));
+    selectStmt.addExtract(into(content));
     selectStmt.addExtract(into(author));
     selectStmt.addExtract(into(commentsURL));
     selectStmt.addExtract(into(guid));
@@ -148,7 +148,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
             p->setFeedLink(feedLink);
             p->setTitle(title);
             p->setLink(link);
-            p->setDescription(description);
+            p->setContent(content);
             p->setAuthor(author);
             p->setCommentsURL(commentsURL);
             p->setGuid(guid);
@@ -194,7 +194,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     bool isRead{false};
     std::string title{""};
     std::string link{""};
-    std::string description{""};
+    std::string content{""};
     std::string author{""};
     std::string commentsURL{""};
     std::string guid{""};
@@ -210,7 +210,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
           ",posts.isRead"
           ",posts.title"
           ",posts.link"
-          ",posts.description"
+          ",posts.content"
           ",posts.author"
           ",posts.commentsURL"
           ",posts.guid"
@@ -239,7 +239,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     selectStmt.addExtract(into(isRead));
     selectStmt.addExtract(into(title));
     selectStmt.addExtract(into(link));
-    selectStmt.addExtract(into(description));
+    selectStmt.addExtract(into(content));
     selectStmt.addExtract(into(author));
     selectStmt.addExtract(into(commentsURL));
     selectStmt.addExtract(into(guid));
@@ -259,7 +259,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
         p->setIsRead(isRead);
         p->setTitle(title);
         p->setLink(link);
-        p->setDescription(description);
+        p->setContent(content);
         p->setAuthor(author);
         p->setCommentsURL(commentsURL);
         p->setGuid(guid);
@@ -348,27 +348,27 @@ void ZapFR::Engine::PostLocal::updateIsRead(bool isRead, const std::vector<std::
     updateStmt.execute();
 }
 
-void ZapFR::Engine::PostLocal::update(const std::string& title, const std::string& link, const std::string& description, const std::string& author,
-                                      const std::string& commentsURL, const std::string& guid, const std::string& datePublished, const std::vector<Enclosure>& enclosures)
+void ZapFR::Engine::PostLocal::update(const std::string& title, const std::string& link, const std::string& content, const std::string& author, const std::string& commentsURL,
+                                      const std::string& guid, const std::string& datePublished, const std::vector<Enclosure>& enclosures)
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET"
                   " title=?"
                   ",link=?"
-                  ",description=?"
+                  ",content=?"
                   ",author=?"
                   ",commentsURL=?"
                   ",guid=?"
                   ",datePublished=?"
                   " WHERE id=?",
-        useRef(title), useRef(link), useRef(description), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), use(mID);
+        useRef(title), useRef(link), useRef(content), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), use(mID);
     updateStmt.execute();
 
     replaceEnclosures(mID, enclosures);
 }
 
 std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link,
-                                                                      const std::string& description, const std::string& author, const std::string& commentsURL,
+                                                                      const std::string& content, const std::string& author, const std::string& commentsURL,
                                                                       const std::string& guid, const std::string& datePublished, const std::vector<Enclosure>& enclosures)
 {
     Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
@@ -376,13 +376,13 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
                   " feedID"
                   ",title"
                   ",link"
-                  ",description"
+                  ",content"
                   ",author"
                   ",commentsURL"
                   ",guid"
                   ",datePublished"
                   ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        use(feedID), useRef(title), useRef(link), useRef(description), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished);
+        use(feedID), useRef(title), useRef(link), useRef(content), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished);
 
     uint64_t postID{0};
     {
@@ -400,7 +400,7 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
     p->setIsRead(false);
     p->setTitle(title);
     p->setLink(link);
-    p->setDescription(description);
+    p->setContent(content);
     p->setAuthor(author);
     p->setCommentsURL(commentsURL);
     p->setGuid(guid);

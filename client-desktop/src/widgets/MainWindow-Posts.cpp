@@ -401,7 +401,7 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
                                                               replacers["POST.TITLE"] = QString::fromUtf8(post->title());
                                                               replacers["POST.LINK"] = QString::fromUtf8(post->link());
                                                               replacers["POST.AUTHOR"] = QString::fromUtf8(post->author());
-                                                              replacers["POST.CONTENT"] = QString::fromUtf8(post->description());
+                                                              replacers["POST.CONTENT"] = QString::fromUtf8(post->content());
                                                               replacers["POST.DATE_PUBLISHED"] = Utilities::prettyDate(QString::fromUtf8(post->datePublished()));
                                                               replacers["POST.COMMENTS_URL"] = QString::fromUtf8(post->commentsURL());
                                                               replacers["I18N.PUBLISHED"] = tr("Published");

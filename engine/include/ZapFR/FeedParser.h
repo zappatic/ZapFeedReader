@@ -51,7 +51,7 @@ namespace ZapFR
             {
                 std::string title{""};
                 std::string link{""};
-                std::string description{""};
+                std::string content{""};
                 std::string author{""};
                 std::string commentsURL{""};
                 std::string guid{""};

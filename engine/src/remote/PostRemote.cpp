@@ -34,7 +34,7 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostRemote::fromJSON(const P
     post->setFeedLink(o->getValue<std::string>(Post::JSONIdentifierPostFeedLink));
     post->setTitle(o->getValue<std::string>(Post::JSONIdentifierPostTitle));
     post->setLink(o->getValue<std::string>(Post::JSONIdentifierPostLink));
-    post->setDescription(o->getValue<std::string>(Post::JSONIdentifierPostDescription));
+    post->setContent(o->getValue<std::string>(Post::JSONIdentifierPostContent));
     post->setAuthor(o->getValue<std::string>(Post::JSONIdentifierPostAuthor));
     post->setCommentsURL(o->getValue<std::string>(Post::JSONIdentifierPostCommentsURL));
     post->setGuid(o->getValue<std::string>(Post::JSONIdentifierPostGuid));

@@ -87,13 +87,13 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS10::ite
         Item item;
         item.title = fetchNodeValue(itemNode, "title");
         item.link = fetchNodeValue(itemNode, "link");
-        item.description = fetchNodeValueInnerXML(itemNode, "description");
+        item.content = fetchNodeValueInnerXML(itemNode, "description");
 
         // see if there's a content:encoded with more information present, if so, replace the body of the text with that
         auto contentEncodedNode = itemNode->getNodeByPathNS("content:encoded", nsMap);
         if (contentEncodedNode != nullptr)
         {
-            item.description = contentEncodedNode->innerText();
+            item.content = contentEncodedNode->innerText();
         }
 
         // create a guid out of the link if present, or either title or description (all are optional, but either title or description must be present)
@@ -104,7 +104,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS10::ite
         }
         if (guidSrc.empty())
         {
-            guidSrc = item.description;
+            guidSrc = item.content;
         }
         if (guidSrc.empty()) // shouldn't happen, but just in case, use a random uuid
         {

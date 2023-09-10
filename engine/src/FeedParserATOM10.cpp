@@ -178,7 +178,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
             }
             enclosureNodes->release();
 
-            item.description = fetchNodeValueInnerXML(entryNode, "summary");
+            item.content = fetchNodeValueInnerXML(entryNode, "summary");
 
             auto contentNode = fetchNode(entryNode, "content");
             if (contentNode != nullptr)
@@ -194,11 +194,11 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
 
                     if (contentType == "text")
                     {
-                        item.description = fmt::format("<pre>{}</pre>", contentEl->innerText());
+                        item.content = fmt::format("<pre>{}</pre>", contentEl->innerText());
                     }
                     else
                     {
-                        item.description = fetchNodeValueInnerXML(entryNode, "content");
+                        item.content = fetchNodeValueInnerXML(entryNode, "content");
                     }
                 }
             }

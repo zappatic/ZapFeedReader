@@ -115,7 +115,7 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ",isRead BOOLEAN DEFAULT FALSE"
                        ",title TEXT"
                        ",link TEXT"
-                       ",description TEXT"
+                       ",content TEXT"
                        ",author TEXT"
                        ",commentsURL TEXT"
                        ",guid TEXT"

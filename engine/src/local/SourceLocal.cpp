@@ -179,7 +179,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     }
     if (!searchFilter.empty())
     {
-        whereClause.emplace_back("(posts.title LIKE ? OR posts.description LIKE ?)");
+        whereClause.emplace_back("(posts.title LIKE ? OR posts.content LIKE ?)");
         bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));

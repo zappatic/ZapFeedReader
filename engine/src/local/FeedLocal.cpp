@@ -56,7 +56,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     }
     if (!searchFilter.empty())
     {
-        whereClause.emplace_back("(posts.title LIKE ? OR posts.description LIKE ?)");
+        whereClause.emplace_back("(posts.title LIKE ? OR posts.content LIKE ?)");
         bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
@@ -218,7 +218,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         if (existingPost.has_value()) // UPDATE in case it does
         {
             dynamic_cast<PostLocal*>(existingPost.value().get())
-                ->update(item.title, item.link, item.description, item.author, item.commentsURL, item.guid, item.datePublished, item.enclosures);
+                ->update(item.title, item.link, item.content, item.author, item.commentsURL, item.guid, item.datePublished, item.enclosures);
 
             if (scriptsRanOnUpdatePost.size() > 0)
             {
@@ -227,7 +227,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
                 // clang-format off
                 if (!isDifferent && (existingPost.value()->title() != item.title)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->link() != item.link)) { isDifferent = true; }
-                if (!isDifferent && (existingPost.value()->description() != item.description)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->content() != item.content)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->author() != item.author)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->commentsURL() != item.commentsURL)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->datePublished() != item.datePublished)) { isDifferent = true; }
@@ -249,7 +249,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         }
         else // INSERT in case it doesn't
         {
-            auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.description, item.author, item.commentsURL, item.guid, item.datePublished, item.enclosures);
+            auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.content, item.author, item.commentsURL, item.guid, item.datePublished, item.enclosures);
 
             if (scriptsRanOnNewPost.size() > 0)
             {

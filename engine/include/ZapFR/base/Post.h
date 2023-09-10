@@ -46,7 +46,7 @@ namespace ZapFR
             bool isRead() const noexcept { return mIsRead; }
             std::string title() const noexcept { return mTitle; }
             std::string link() const noexcept { return mLink; }
-            std::string description() const noexcept { return mDescription; }
+            std::string content() const noexcept { return mContent; }
             std::string author() const noexcept { return mAuthor; }
             std::string commentsURL() const noexcept { return mCommentsURL; }
             std::string guid() const noexcept { return mGuid; }
@@ -60,7 +60,7 @@ namespace ZapFR
             void setFeedLink(const std::string& link) { mFeedLink = link; }
             void setTitle(const std::string& title) { mTitle = title; }
             void setLink(const std::string& link) { mLink = link; }
-            void setDescription(const std::string& description) { mDescription = description; }
+            void setContent(const std::string& content) { mContent = content; }
             void setAuthor(const std::string& author) { mAuthor = author; }
             void setCommentsURL(const std::string& commentsURL) { mCommentsURL = commentsURL; }
             void setGuid(const std::string& guid) { mGuid = guid; }
@@ -76,7 +76,7 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierPostFeedLink{"feedLink"};
             static constexpr const char* JSONIdentifierPostTitle{"title"};
             static constexpr const char* JSONIdentifierPostLink{"link"};
-            static constexpr const char* JSONIdentifierPostDescription{"description"};
+            static constexpr const char* JSONIdentifierPostContent{"content"};
             static constexpr const char* JSONIdentifierPostAuthor{"author"};
             static constexpr const char* JSONIdentifierPostCommentsURL{"commentsURL"};
             static constexpr const char* JSONIdentifierPostGuid{"guid"};
@@ -95,7 +95,7 @@ namespace ZapFR
             std::string mFeedLink{""};
             std::string mTitle{""};
             std::string mLink{""};
-            std::string mDescription{""};
+            std::string mContent{""};
             std::string mAuthor{""};
             std::string mCommentsURL{""};
             std::string mGuid{""};

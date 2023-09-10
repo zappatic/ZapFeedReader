@@ -75,7 +75,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
         item.title = fetchNodeValue(itemNode, "title");
         item.link = fetchNodeValue(itemNode, "link");
         item.author = fetchNodeValue(itemNode, "author");
-        item.description = fetchNodeValueInnerXML(itemNode, "description");
+        item.content = fetchNodeValueInnerXML(itemNode, "description");
 
         // see if there's a content:encoded with more information present, if so, replace the body of the text with that
         Poco::XML::Element::NSMap nsMap;
@@ -84,7 +84,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
         auto contentEncodedNode = itemNode->getNodeByPathNS("content:encoded", nsMap);
         if (contentEncodedNode != nullptr)
         {
-            item.description = contentEncodedNode->innerText();
+            item.content = contentEncodedNode->innerText();
         }
 
         auto enclosureNodes = dynamic_cast<Poco::XML::Element*>(itemNode)->getElementsByTagName("enclosure");
@@ -121,7 +121,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
             }
             if (guidSrc.empty())
             {
-                guidSrc = item.description;
+                guidSrc = item.content;
             }
             if (guidSrc.empty()) // shouldn't happen, but just in case, use a random uuid
             {

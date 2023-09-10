@@ -40,7 +40,7 @@ namespace ZapFR
             void assignToScriptFolder(uint64_t scriptFolderID);
             void unassignFromScriptFolder(uint64_t scriptFolderID);
 
-            void update(const std::string& title, const std::string& link, const std::string& description, const std::string& author, const std::string& commentsURL,
+            void update(const std::string& title, const std::string& link, const std::string& content, const std::string& author, const std::string& commentsURL,
                         const std::string& guid, const std::string& datePublished, const std::vector<Enclosure>& enclosures);
 
             static std::vector<std::unique_ptr<Post>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
@@ -51,9 +51,9 @@ namespace ZapFR
 
             static void updateIsRead(bool isRead, const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
 
-            static std::unique_ptr<Post> create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link,
-                                                const std::string& description, const std::string& author, const std::string& commentsURL, const std::string& guid,
-                                                const std::string& datePublished, const std::vector<Enclosure>& enclosures);
+            static std::unique_ptr<Post> create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link, const std::string& content,
+                                                const std::string& author, const std::string& commentsURL, const std::string& guid, const std::string& datePublished,
+                                                const std::vector<Enclosure>& enclosures);
 
           private:
             static std::mutex msCreatePostMutex;
