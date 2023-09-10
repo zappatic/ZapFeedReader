@@ -85,7 +85,7 @@ namespace ZapFR
             void setLastChecked(const std::string& lastChecked) { mLastChecked = lastChecked; }
             void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
             void setUnreadCount(uint64_t unreadCount) noexcept { mUnreadCount = unreadCount; }
-            void setLastRefreshError(const std::string& e) { mLastRefreshError = e; }
+            void setLastRefreshError(const std::optional<std::string>& e) { mLastRefreshError = e; }
             void setRefreshInterval(std::optional<uint64_t> ri) { mRefreshInterval = ri; }
             void setStatistics(const std::unordered_map<Statistic, std::string>& stats) { mStatistics = stats; }
 

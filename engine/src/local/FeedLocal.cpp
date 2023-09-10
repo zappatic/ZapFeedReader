@@ -143,6 +143,7 @@ void ZapFR::Engine::FeedLocal::refresh()
         auto nowISO = Poco::DateTimeFormatter::format(Poco::DateTime(), Poco::DateTimeFormat::ISO8601_FORMAT);
         Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
         updateStmt << "UPDATE feeds SET lastRefreshError=NULL, lastChecked=? WHERE id=?", useRef(nowISO), use(mID), now;
+        setLastRefreshError({});
     }
 
     try

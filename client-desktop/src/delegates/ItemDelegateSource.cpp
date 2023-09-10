@@ -76,7 +76,7 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
     {
         QPixmap icon;
         auto feedError = index.data(SourceTreeEntryFeedErrorRole);
-        if (!feedError.isNull() && feedError.isValid())
+        if (!feedError.isNull() && feedError.isValid() && !feedError.toString().isEmpty())
         {
             icon = QPixmap(":/feedError.svg");
             brushText = QBrush(Qt::darkRed);

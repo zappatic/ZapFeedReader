@@ -6,6 +6,7 @@ target_sources(zapfeedreader-engine PRIVATE
     OPMLParser.cpp
     FeedFetcher.cpp
     FeedParser.cpp
+    FeedParserRSS10.cpp
     FeedParserRSS20.cpp
     FeedParserATOM10.cpp
     FavIconParser.cpp
