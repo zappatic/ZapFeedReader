@@ -19,6 +19,7 @@
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/Script.h"
+#include "delegates/ItemDelegateScript.h"
 #include "dialogs/DialogEditScript.h"
 #include "widgets/MainWindow.h"
 
@@ -127,7 +128,7 @@ void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
 
 void ZapFR::Client::MainWindow::populateScripts(const QList<QList<QStandardItem*>>& scripts)
 {
-    ui->stackedWidgetRight->setCurrentIndex(StackedPaneScripts);
+    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPaneScripts);
 
     mItemModelScripts = std::make_unique<QStandardItemModel>(this);
     ui->tableViewScripts->setModel(mItemModelScripts.get());
@@ -302,4 +303,9 @@ void ZapFR::Client::MainWindow::createScriptContextMenus()
     mScriptContextMenu->addAction(ui->action_Edit_script);
     mScriptContextMenu->addSeparator();
     mScriptContextMenu->addAction(ui->action_Remove_script);
+}
+
+void ZapFR::Client::MainWindow::initializeUIScripts()
+{
+    ui->tableViewScripts->setItemDelegate(new ItemDelegateScript(ui->tableViewScripts));
 }

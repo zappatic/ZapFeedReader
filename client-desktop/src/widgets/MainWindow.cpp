@@ -22,15 +22,11 @@
 #include "ZapFR/Agent.h"
 #include "ZapFR/Database.h"
 #include "ZapFR/Flag.h"
-#include "ZapFR/base/Folder.h"
 #include "ZapFR/Log.h"
+#include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Post.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/ScriptLocal.h"
-#include "delegates/ItemDelegateLog.h"
-#include "delegates/ItemDelegatePost.h"
-#include "delegates/ItemDelegateScript.h"
-#include "delegates/ItemDelegateSource.h"
 #include "dialogs/DialogAddFeed.h"
 #include "dialogs/DialogAddFolder.h"
 #include "dialogs/DialogAddSource.h"
@@ -58,15 +54,14 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
     ZapFR::Engine::Database::getInstance()->initialize(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader.db").toStdString(),
                                                        ZapFR::Engine::ApplicationType::Client);
-    mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
 
     ui->setupUi(this);
     initializeUI();
     configureConnects();
     createContextMenus();
     configureIcons();
-    restoreSettings();
     reloadSources();
+    restoreSettings();
     reloadCurrentPost();
     updateActivePostFilter();
 }
@@ -78,14 +73,10 @@ ZapFR::Client::MainWindow::~MainWindow()
 
 void ZapFR::Client::MainWindow::initializeUI()
 {
-    ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
-    ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
-    ui->tableViewLogs->setItemDelegate(new ItemDelegateLog(ui->tableViewLogs));
-    ui->tableViewScripts->setItemDelegate(new ItemDelegateScript(ui->tableViewScripts));
-    ui->webViewPost->setPage(mPostWebEnginePage.get());
-
-    // prevent the left splitter from resizing while the window resizes
-    ui->splitterLeft->setStretchFactor(1, 100);
+    initializeUISources();
+    initializeUIPosts();
+    initializeUILogs();
+    initializeUIScripts();
 
     // add a spacer in the toolbar to separate the left from the right buttons
     auto spacerWidget = new QWidget();
@@ -114,8 +105,7 @@ void ZapFR::Client::MainWindow::initializeUI()
 
     ui->menubar->setVisible(false);
 
-    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
-    ui->stackedWidgetPost->setCurrentIndex(StackedPanePost);
+    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPanePosts);
 }
 
 void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
@@ -129,9 +119,9 @@ void ZapFR::Client::MainWindow::saveSettings() const
     QJsonObject root;
     root.insert(SETTING_MAINWINDOW_STATE, QString::fromUtf8(saveState().toBase64()));
     root.insert(SETTING_MAINWINDOW_GEOMETRY, QString::fromUtf8(saveGeometry().toBase64()));
-    root.insert(SETTING_SPLITTERLEFT_STATE, QString::fromUtf8(ui->splitterLeft->saveState().toBase64()));
-    root.insert(SETTING_SPLITTERLEFTINNER_STATE, QString::fromUtf8(ui->splitterLeftInner->saveState().toBase64()));
-    root.insert(SETTING_SPLITTERRIGHT_STATE, QString::fromUtf8(ui->splitterRight->saveState().toBase64()));
+    root.insert(SETTING_SPLITTERSOURCESANDCONTENTPANES_STATE, QString::fromUtf8(ui->splitterSourcesAndContentPanes->saveState().toBase64()));
+    root.insert(SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE, QString::fromUtf8(ui->splitterSourcesAndScriptFolders->saveState().toBase64()));
+    root.insert(SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE, QString::fromUtf8(ui->splitterPostsTableAndPostView->saveState().toBase64()));
     switch (mProxyModelSources->displayMode())
     {
         case SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll:
@@ -177,17 +167,19 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 {
                     restoreGeometry(QByteArray::fromBase64(root.value(SETTING_MAINWINDOW_GEOMETRY).toVariant().toByteArray()));
                 }
-                if (root.contains(SETTING_SPLITTERLEFT_STATE))
+                if (root.contains(SETTING_SPLITTERSOURCESANDCONTENTPANES_STATE))
                 {
-                    ui->splitterLeft->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERLEFT_STATE).toVariant().toByteArray()));
+                    ui->splitterSourcesAndContentPanes->restoreState(
+                        QByteArray::fromBase64(root.value(SETTING_SPLITTERSOURCESANDCONTENTPANES_STATE).toVariant().toByteArray()));
                 }
-                if (root.contains(SETTING_SPLITTERLEFTINNER_STATE))
+                if (root.contains(SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE))
                 {
-                    ui->splitterLeftInner->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERLEFTINNER_STATE).toVariant().toByteArray()));
+                    ui->splitterSourcesAndScriptFolders->restoreState(
+                        QByteArray::fromBase64(root.value(SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE).toVariant().toByteArray()));
                 }
-                if (root.contains(SETTING_SPLITTERRIGHT_STATE))
+                if (root.contains(SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE))
                 {
-                    ui->splitterRight->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERRIGHT_STATE).toVariant().toByteArray()));
+                    ui->splitterPostsTableAndPostView->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE).toVariant().toByteArray()));
                 }
                 if (root.contains(SETTING_SOURCETREEVIEW_EXPANSION))
                 {
@@ -440,7 +432,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
         }
     }
 
-    switch (ui->stackedWidgetRight->currentIndex())
+    switch (ui->stackedWidgetContentPanes->currentIndex())
     {
         case StackedPanePosts:
         {
@@ -623,11 +615,11 @@ void ZapFR::Client::MainWindow::configureConnects()
                 ui->menu_Hamburger->popup(p);
             });
 
-    connect(ui->stackedWidgetRight, &QStackedWidget::currentChanged,
+    connect(ui->stackedWidgetContentPanes, &QStackedWidget::currentChanged,
             [&]()
             {
                 updateToolbar();
-                switch (ui->stackedWidgetRight->currentIndex())
+                switch (ui->stackedWidgetContentPanes->currentIndex())
                 {
                     case StackedPanePosts:
                     {

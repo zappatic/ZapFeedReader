@@ -19,6 +19,7 @@
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Log.h"
+#include "delegates/ItemDelegateLog.h"
 #include "widgets/MainWindow.h"
 
 void ZapFR::Client::MainWindow::reloadLogs()
@@ -113,10 +114,9 @@ void ZapFR::Client::MainWindow::reloadLogs()
 
 void ZapFR::Client::MainWindow::populateLogs(const QList<QList<QStandardItem*>>& logs, uint64_t pageNumber, uint64_t totalLogCount)
 {
-    ui->stackedWidgetRight->setCurrentIndex(StackedPaneLogs);
+    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPaneLogs);
 
-    mItemModelLogs = std::make_unique<QStandardItemModel>(this);
-    ui->tableViewLogs->setModel(mItemModelLogs.get());
+    mItemModelLogs->clear();
     mItemModelLogs->setHorizontalHeaderItem(LogsColumnLogLevel, new QStandardItem(tr("Level")));
     mItemModelLogs->setHorizontalHeaderItem(LogsColumnTimestamp, new QStandardItem(tr("Timestamp")));
     mItemModelLogs->setHorizontalHeaderItem(LogsColumnFeed, new QStandardItem(tr("Feed")));
@@ -188,4 +188,12 @@ void ZapFR::Client::MainWindow::connectLogsStuff()
                                          reloadLogs();
                                      });
             });
+}
+
+void ZapFR::Client::MainWindow::initializeUILogs()
+{
+    ui->tableViewLogs->setItemDelegate(new ItemDelegateLog(ui->tableViewLogs));
+
+    mItemModelLogs = std::make_unique<QStandardItemModel>(this);
+    ui->tableViewLogs->setModel(mItemModelLogs.get());
 }

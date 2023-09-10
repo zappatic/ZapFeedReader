@@ -21,6 +21,7 @@
 
 #include "ClientGlobal.h"
 #include "ZapFR/Flag.h"
+#include "ZapFR/base/Post.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -130,6 +131,7 @@ namespace ZapFR
             void postsMarkedUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs);
             void postsAssignedToScriptFolder(uint64_t sourceID, uint64_t scriptFolderID);
             void postsRemovedFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID);
+            void postReadyToBeShown(const QString& html, const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures);
 
             void scriptUpdated(uint64_t sourceID, uint64_t scriptID);
             void scriptRemoved(uint64_t sourceID, uint64_t scriptID);
@@ -138,8 +140,6 @@ namespace ZapFR
             void scriptFolderAdded(uint64_t sourceID);
             void scriptFolderUpdated(uint64_t sourceID, uint64_t scriptFolderID);
             void scriptFolderRemoved(uint64_t sourceID, uint64_t scriptFolderID);
-
-            void setPostHTML(const QString& html) const;
 
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
@@ -156,6 +156,7 @@ namespace ZapFR
             std::unique_ptr<StandardItemModelSources> mItemModelSources{nullptr};
             std::unique_ptr<SortFilterProxyModelSources> mProxyModelSources{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
+            std::unique_ptr<QStandardItemModel> mItemModelPostEnclosures{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelLogs{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelScriptFolders{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelScripts{nullptr};
@@ -225,9 +226,14 @@ namespace ZapFR
             void createScriptContextMenus();
             void createScriptFolderContextMenus();
 
+            void initializeUI();
+            void initializeUISources();
+            void initializeUIPosts();
+            void initializeUILogs();
+            void initializeUIScripts();
+
             void saveSettings() const;
             void restoreSettings();
-            void initializeUI();
             QJsonArray expandedSourceTreeItems() const;
             void preserveSourceTreeExpansionSelectionState();
             void restoreSourceTreeExpansionSelectionState(QStandardItem* sourceItem);
@@ -242,6 +248,7 @@ namespace ZapFR
             void reloadPropertiesPane();
 
             QString postStyles() const;
+            void setPostHTML(const QString& html) const;
             void setBlankPostPage() const;
             void configureIcons();
             void updateToolbar();

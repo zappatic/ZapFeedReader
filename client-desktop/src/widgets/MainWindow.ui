@@ -37,7 +37,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QSplitter" name="splitterLeft">
+     <widget class="QSplitter" name="splitterSourcesAndContentPanes">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -53,7 +53,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QSplitter" name="splitterLeftInner">
+         <widget class="QSplitter" name="splitterSourcesAndScriptFolders">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -216,7 +216,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QStackedWidget" name="stackedWidgetRight">
+      <widget class="QStackedWidget" name="stackedWidgetContentPanes">
        <property name="currentIndex">
         <number>0</number>
        </property>
@@ -235,7 +235,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QSplitter" name="splitterRight">
+          <widget class="QSplitter" name="splitterPostsTableAndPostView">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -557,7 +557,47 @@
                <number>0</number>
               </property>
               <item>
-               <widget class="ZapFR::Client::WebEngineViewPost" name="webViewPost" native="true"/>
+               <widget class="QSplitter" name="splitterPostAndEnclosures">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="handleWidth">
+                 <number>8</number>
+                </property>
+                <widget class="ZapFR::Client::WebEngineViewPost" name="webViewPost" native="true"/>
+                <widget class="ZapFR::Client::TableViewPostEnclosures" name="tableViewPostEnclosures">
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::CustomContextMenu</enum>
+                 </property>
+                 <property name="editTriggers">
+                  <set>QAbstractItemView::NoEditTriggers</set>
+                 </property>
+                 <property name="showDropIndicator" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::SingleSelection</enum>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
+                 <property name="gridStyle">
+                  <enum>Qt::DotLine</enum>
+                 </property>
+                 <attribute name="horizontalHeaderHighlightSections">
+                  <bool>false</bool>
+                 </attribute>
+                 <attribute name="verticalHeaderVisible">
+                  <bool>false</bool>
+                 </attribute>
+                 <attribute name="verticalHeaderHighlightSections">
+                  <bool>false</bool>
+                 </attribute>
+                </widget>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -1180,6 +1220,11 @@
    <extends>QWidget</extends>
    <header>widgets/WidgetPropertiesPaneSource.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::TableViewPostEnclosures</class>
+   <extends>QTableView</extends>
+   <header>widgets/TableViewPostEnclosures.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

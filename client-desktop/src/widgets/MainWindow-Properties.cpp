@@ -144,21 +144,21 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
 
 void ZapFR::Client::MainWindow::feedPropertiesReceived(const QMap<QString, QVariant>& props)
 {
-    ui->stackedWidgetRight->setCurrentIndex(StackedPaneProperties);
+    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPaneProperties);
     ui->stackedWidgetProperties->setCurrentIndex(StackedPanePropertiesFeed);
     ui->widgetPropertiesPaneFeed->reset(props);
 }
 
 void ZapFR::Client::MainWindow::folderPropertiesReceived(const QMap<QString, QVariant>& props)
 {
-    ui->stackedWidgetRight->setCurrentIndex(StackedPaneProperties);
+    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPaneProperties);
     ui->stackedWidgetProperties->setCurrentIndex(StackedPanePropertiesFolder);
     ui->widgetPropertiesPaneFolder->reset(props);
 }
 
 void ZapFR::Client::MainWindow::sourcePropertiesReceived(const QMap<QString, QVariant>& props)
 {
-    ui->stackedWidgetRight->setCurrentIndex(StackedPaneProperties);
+    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPaneProperties);
     ui->stackedWidgetProperties->setCurrentIndex(StackedPanePropertiesSource);
     ui->widgetPropertiesPaneSource->reset(props);
 }

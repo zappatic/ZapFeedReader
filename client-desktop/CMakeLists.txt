@@ -30,6 +30,7 @@ set(PROJECT_SOURCES
         src/widgets/WebEngineViewPost.cpp
         src/widgets/TableViewPaletteCorrected.cpp
         src/widgets/TableViewPosts.cpp
+        src/widgets/TableViewPostEnclosures.cpp
         src/widgets/TableViewLogs.cpp
         src/widgets/TableViewScriptFolders.cpp
         src/widgets/TableViewScripts.cpp
@@ -66,6 +67,7 @@ set(PROJECT_SOURCES
         include/widgets/WebEngineViewPost.h
         include/widgets/TableViewPaletteCorrected.h
         include/widgets/TableViewPosts.h
+        include/widgets/TableViewPostEnclosures.h
         include/widgets/TableViewLogs.h
         include/widgets/TableViewScriptFolders.h
         include/widgets/TableViewScripts.h

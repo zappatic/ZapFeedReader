@@ -22,6 +22,7 @@
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
+#include "delegates/ItemDelegateSource.h"
 #include "dialogs/DialogAddSource.h"
 #include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
@@ -31,12 +32,7 @@ void ZapFR::Client::MainWindow::reloadSources()
 {
     preserveSourceTreeExpansionSelectionState();
 
-    // recreate the model
-    mItemModelSources = std::make_unique<StandardItemModelSources>(this, this);
-    mProxyModelSources = std::make_unique<SortFilterProxyModelSources>(this);
-    mProxyModelSources->setSourceModel(mItemModelSources.get());
-    ui->treeViewSources->setModel(mProxyModelSources.get());
-    ui->treeViewSources->sortByColumn(0, Qt::AscendingOrder);
+    mItemModelSources->clear();
     mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
 
     // get the trees of all the sources
@@ -553,7 +549,7 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
     connect(ui->treeViewSources, &TreeViewSources::customContextMenuRequested,
             [&](const QPoint& p)
             {
-                if (ui->stackedWidgetRight->currentIndex() == StackedPanePosts)
+                if (ui->stackedWidgetContentPanes->currentIndex() == StackedPanePosts)
                 {
                     auto index = ui->treeViewSources->indexAt(p);
                     if (index.isValid())
@@ -586,7 +582,7 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
             {
                 if (index.isValid())
                 {
-                    switch (ui->stackedWidgetRight->currentIndex())
+                    switch (ui->stackedWidgetContentPanes->currentIndex())
                     {
                         case StackedPanePosts:
                         {
@@ -632,4 +628,18 @@ void ZapFR::Client::MainWindow::createSourceContextMenus()
     mSourceContextMenuSource->addSeparator();
     mSourceContextMenuSource->addAction(ui->action_View_logs);
     mSourceContextMenuSource->addAction(ui->action_View_properties);
+}
+
+void ZapFR::Client::MainWindow::initializeUISources()
+{
+    ui->treeViewSources->setItemDelegate(new ItemDelegateSource(ui->treeViewSources));
+
+    // prevent the left splitter from resizing while the window resizes
+    ui->splitterSourcesAndContentPanes->setStretchFactor(1, 100);
+
+    mItemModelSources = std::make_unique<StandardItemModelSources>(this, this);
+    mProxyModelSources = std::make_unique<SortFilterProxyModelSources>(this);
+    mProxyModelSources->setSourceModel(mItemModelSources.get());
+    ui->treeViewSources->setModel(mProxyModelSources.get());
+    ui->treeViewSources->sortByColumn(0, Qt::AscendingOrder);
 }

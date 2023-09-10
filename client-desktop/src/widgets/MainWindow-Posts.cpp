@@ -19,6 +19,7 @@
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/Post.h"
+#include "delegates/ItemDelegatePost.h"
 #include "widgets/LineEditSearch.h"
 #include "widgets/MainWindow.h"
 #include "widgets/WebEnginePagePost.h"
@@ -125,7 +126,7 @@ void ZapFR::Client::MainWindow::reloadPosts()
 
 void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>& posts, uint64_t pageNumber, uint64_t totalPostCount)
 {
-    ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts);
+    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPanePosts);
 
     int32_t columnWidthUnread = 50;
     int32_t columnWidthFlag = 40;
@@ -372,6 +373,20 @@ void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndex
 
 void ZapFR::Client::MainWindow::reloadCurrentPost()
 {
+    if (mItemModelPostEnclosures != nullptr)
+    {
+        mItemModelPostEnclosures->clear();
+        mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnIcon, new QStandardItem(""));
+        mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnURL, new QStandardItem(tr("URL")));
+        mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnMimetype, new QStandardItem(tr("Type")));
+        mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnFilesize, new QStandardItem(tr("Size")));
+        ui->tableViewPostEnclosures->horizontalHeader()->setMinimumSectionSize(25);
+        ui->tableViewPostEnclosures->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+        ui->tableViewPostEnclosures->horizontalHeader()->setSectionResizeMode(PostEnclosuresColumnURL, QHeaderView::Stretch);
+        ui->tableViewPostEnclosures->horizontalHeader()->resizeSection(PostEnclosuresColumnMimetype, 250);
+        ui->tableViewPostEnclosures->horizontalHeader()->resizeSection(PostEnclosuresColumnIcon, 25);
+    }
+
     if (mCurrentPostSourceID > 0 && mCurrentPostFeedID > 0 && mCurrentPostID > 0)
     {
         ZapFR::Engine::Agent::getInstance()->queueGetPost(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
@@ -426,7 +441,7 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
                                                                    << " </body>\n"
                                                                    << "</html>";
 
-                                                              QMetaObject::invokeMethod(this, "setPostHTML", Qt::AutoConnection, htmlStr);
+                                                              QMetaObject::invokeMethod(this, "postReadyToBeShown", Qt::AutoConnection, htmlStr, post->enclosures());
                                                           });
     }
     else
@@ -434,6 +449,59 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
         setBlankPostPage();
         ui->widgetPostCaption->setCaption(tr("No post selected"));
         ui->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
+    }
+}
+
+void ZapFR::Client::MainWindow::postReadyToBeShown(const QString& html, const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures)
+{
+    setPostHTML(html);
+    QMimeDatabase mimeDB;
+
+    if (mItemModelPostEnclosures != nullptr)
+    {
+        for (const auto& e : enclosures)
+        {
+            auto mimeType = mimeDB.mimeTypeForName(QString::fromUtf8(e.mimeType));
+            auto url = QString::fromUtf8(e.url);
+
+            auto icon = mimeType.iconName();
+            if (icon.isEmpty())
+            {
+                icon = mimeType.genericIconName();
+            }
+
+            auto iconItem = new QStandardItem("");
+            iconItem->setData(QIcon::fromTheme(icon), Qt::DecorationRole);
+            iconItem->setData(url, PostEnclosureLinkRole);
+
+            auto urlItem = new QStandardItem(url);
+            urlItem->setData(url, Qt::ToolTipRole);
+            urlItem->setData(url, PostEnclosureLinkRole);
+
+            auto mimeTypeItem = new QStandardItem(mimeType.name());
+            mimeTypeItem->setData(url, PostEnclosureLinkRole);
+
+            auto sizeItem = new QStandardItem(locale().formattedDataSize(e.size));
+            sizeItem->setData(url, PostEnclosureLinkRole);
+
+            QList<QStandardItem*> rowData;
+            rowData << iconItem << urlItem << mimeTypeItem << sizeItem;
+
+            mItemModelPostEnclosures->appendRow(rowData);
+        }
+    }
+
+    // hide/show the enclosures table at an appropriate size
+    if (enclosures.empty())
+    {
+        ui->splitterPostAndEnclosures->setSizes({10000, 0});
+    }
+    else
+    {
+        int32_t heightEnclosuresTable = ui->tableViewPostEnclosures->horizontalHeader()->height() +
+                                        (static_cast<int32_t>(enclosures.size()) * ui->tableViewPostEnclosures->verticalHeader()->defaultSectionSize());
+        auto heightPostWebview = ui->splitterPostAndEnclosures->size().height() - heightEnclosuresTable;
+        ui->splitterPostAndEnclosures->setSizes({heightPostWebview, heightEnclosuresTable});
     }
 }
 
@@ -615,7 +683,7 @@ void ZapFR::Client::MainWindow::connectPostStuff()
 
     connect(ui->action_Mark_selection_as_read, &QAction::triggered, this, &MainWindow::markPostSelectionAsRead);
 
-    connect(ui->action_Back_to_posts, &QAction::triggered, [&]() { ui->stackedWidgetRight->setCurrentIndex(StackedPanePosts); });
+    connect(ui->action_Back_to_posts, &QAction::triggered, [&]() { ui->stackedWidgetContentPanes->setCurrentIndex(StackedPanePosts); });
 
     connect(ui->tableViewPosts, &TableViewPosts::selectedPostsChanged, this, &MainWindow::postsTableViewSelectionChanged);
 
@@ -876,4 +944,17 @@ void ZapFR::Client::MainWindow::createPostContextMenus()
 
     auto removeFromScriptFolderMenu = mPostContextMenu->addMenu(tr("Remove from script folder"));
     removeFromScriptFolderMenu->setProperty(gsRemoveFromScriptFolderMenuProperty, true);
+}
+
+void ZapFR::Client::MainWindow::initializeUIPosts()
+{
+    mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
+    ui->webViewPost->setPage(mPostWebEnginePage.get());
+
+    ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
+
+    ui->stackedWidgetPost->setCurrentIndex(StackedPanePost);
+
+    mItemModelPostEnclosures = std::make_unique<QStandardItemModel>(this);
+    ui->tableViewPostEnclosures->setModel(mItemModelPostEnclosures.get());
 }

@@ -46,6 +46,8 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QMimeDatabase>
+#include <QMimeType>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -77,9 +79,9 @@ namespace ZapFR
     {
         static const QString SETTING_MAINWINDOW_STATE = "mainwindow.state";
         static const QString SETTING_MAINWINDOW_GEOMETRY = "mainwindow.geometry";
-        static const QString SETTING_SPLITTERLEFT_STATE = "splitterleft.state";
-        static const QString SETTING_SPLITTERLEFTINNER_STATE = "splitterleftinner.state";
-        static const QString SETTING_SPLITTERRIGHT_STATE = "splitterright.state";
+        static const QString SETTING_SPLITTERSOURCESANDCONTENTPANES_STATE = "splittersourcesandcontentpanes.state";
+        static const QString SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE = "splittersourcesandscriptfolders.state";
+        static const QString SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE = "splitterpoststableandpostview.state";
         static const QString SETTING_SOURCETREEVIEW_EXPANSION = "sourcetreeview.expansion";
 
         static constexpr uint32_t SOURCETREE_ENTRY_TYPE_SOURCE = 0;
@@ -111,12 +113,19 @@ namespace ZapFR
         static constexpr uint32_t PostColumnTitle = 3;
         static constexpr uint32_t PostColumnDate = 4;
 
+        static constexpr uint32_t PostEnclosureLinkRole{Qt::ItemDataRole::UserRole + 1};
+
+        static constexpr uint32_t PostEnclosuresColumnIcon = 0;
+        static constexpr uint32_t PostEnclosuresColumnURL = 1;
+        static constexpr uint32_t PostEnclosuresColumnMimetype = 2;
+        static constexpr uint32_t PostEnclosuresColumnFilesize = 3;
+
         static constexpr uint32_t LogIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t LogFeedIDRole{Qt::ItemDataRole::UserRole + 2};
         static constexpr uint32_t LogLevelRole{Qt::ItemDataRole::UserRole + 3};
         static constexpr uint32_t LogParentSourceIDRole{Qt::ItemDataRole::UserRole + 4};
 
-        // ui->stackedWidgetRight's panes
+        // ui->stackedWidgetContentPanes's panes
         static constexpr uint32_t StackedPanePosts = 0;
         static constexpr uint32_t StackedPaneLogs = 1;
         static constexpr uint32_t StackedPaneScripts = 2;

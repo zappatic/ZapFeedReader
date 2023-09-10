@@ -25,7 +25,7 @@
 ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(parent), ui(new Ui::DialogEditScript)
 {
     ui->setupUi(this);
-    mFeedsModel = std::make_unique<QStandardItemModel>();
+    mFeedsModel = std::make_unique<QStandardItemModel>(this);
     ui->treeViewRunOnFeedIDs->setModel(mFeedsModel.get());
     ui->treeViewRunOnFeedIDs->setItemDelegate(new ItemDelegateEditScriptDialogSource(ui->treeViewRunOnFeedIDs));
 
