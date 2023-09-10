@@ -95,10 +95,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedRemote::g
     return {};
 }
 
-bool ZapFR::Engine::FeedRemote::refresh()
+void ZapFR::Engine::FeedRemote::refresh()
 {
-    auto refreshSuccessful{false};
-
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
     auto uri = remoteSource->remoteURL();
     if (remoteSource->remoteURLIsValid())
@@ -112,16 +110,9 @@ bool ZapFR::Engine::FeedRemote::refresh()
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
         if (!rootObj.isNull())
         {
-            refreshSuccessful = rootObj->getValue<bool>("success");
-            if (!refreshSuccessful)
-            {
-                auto error = rootObj->getValue<std::string>("error");
-                setLastRefreshError(error);
-            }
-            setUnreadCount(rootObj->getValue<uint64_t>("unreadCount"));
+            fromJSON(rootObj);
         }
     }
-    return refreshSuccessful;
 }
 
 void ZapFR::Engine::FeedRemote::markAllAsRead()
@@ -198,37 +189,35 @@ void ZapFR::Engine::FeedRemote::updateProperties(const std::string& feedURL, std
     }
 }
 
-std::unique_ptr<ZapFR::Engine::Feed> ZapFR::Engine::FeedRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)
+void ZapFR::Engine::FeedRemote::fromJSON(const Poco::JSON::Object::Ptr o)
 {
-    auto feedID = o->getValue<uint64_t>(Feed::JSONIdentifierFeedID);
-
-    auto feed = std::make_unique<FeedRemote>(feedID, parentSource);
-    feed->setURL(o->getValue<std::string>(Feed::JSONIdentifierFeedURL));
-    feed->setFolder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedFolder));
-    feed->setGuid(o->getValue<std::string>(Feed::JSONIdentifierFeedGUID));
-    feed->setTitle(o->getValue<std::string>(Feed::JSONIdentifierFeedTitle));
-    feed->setSubtitle(o->getValue<std::string>(Feed::JSONIdentifierFeedSubtitle));
-    feed->setLink(o->getValue<std::string>(Feed::JSONIdentifierFeedLink));
-    feed->setDescription(o->getValue<std::string>(Feed::JSONIdentifierFeedDescription));
-    feed->setLanguage(o->getValue<std::string>(Feed::JSONIdentifierFeedLanguage));
-    feed->setCopyright(o->getValue<std::string>(Feed::JSONIdentifierFeedCopyright));
+    setURL(o->getValue<std::string>(Feed::JSONIdentifierFeedURL));
+    setFolder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedFolder));
+    setGuid(o->getValue<std::string>(Feed::JSONIdentifierFeedGUID));
+    setTitle(o->getValue<std::string>(Feed::JSONIdentifierFeedTitle));
+    setSubtitle(o->getValue<std::string>(Feed::JSONIdentifierFeedSubtitle));
+    setLink(o->getValue<std::string>(Feed::JSONIdentifierFeedLink));
+    setDescription(o->getValue<std::string>(Feed::JSONIdentifierFeedDescription));
+    setLanguage(o->getValue<std::string>(Feed::JSONIdentifierFeedLanguage));
+    setCopyright(o->getValue<std::string>(Feed::JSONIdentifierFeedCopyright));
+    setIconHash(o->getValue<std::string>(Feed::JSONIdentifierFeedIconHash));
 
     auto lre = o->getValue<std::string>(Feed::JSONIdentifierFeedLastRefreshError);
     if (!lre.empty())
     {
-        feed->setLastRefreshError(lre);
+        setLastRefreshError(lre);
     }
 
     auto ri = o->getValue<uint64_t>(Feed::JSONIdentifierFeedRefreshInterval);
     if (ri > 0)
     {
-        feed->setRefreshInterval(ri);
+        setRefreshInterval(ri);
     }
 
-    feed->setSortOrder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedSortOrder));
-    feed->setLastChecked(o->getValue<std::string>(Feed::JSONIdentifierFeedLastChecked));
-    feed->setUnreadCount(o->getValue<uint64_t>(Feed::JSONIdentifierFeedUnreadCount));
-    feed->setDataFetched(true);
+    setSortOrder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedSortOrder));
+    setLastChecked(o->getValue<std::string>(Feed::JSONIdentifierFeedLastChecked));
+    setUnreadCount(o->getValue<uint64_t>(Feed::JSONIdentifierFeedUnreadCount));
+    setDataFetched(true);
 
     if (o->has(Feed::JSONIdentifierFeedStatistics))
     {
@@ -243,7 +232,7 @@ std::unique_ptr<ZapFR::Engine::Feed> ZapFR::Engine::FeedRemote::fromJSON(Source*
                 stats[Feed::JSONIdentifierFeedStatisticMap.at(key)] = statsObj->getValue<std::string>(key);
             }
         }
-        feed->setStatistics(stats);
+        setStatistics(stats);
     }
 
     if (o->has(Feed::JSONIdentifierFeedIcon))
@@ -251,8 +240,16 @@ std::unique_ptr<ZapFR::Engine::Feed> ZapFR::Engine::FeedRemote::fromJSON(Source*
         std::istringstream base64stream(o->getValue<std::string>(Feed::JSONIdentifierFeedIcon));
         Poco::Base64Decoder b64decoderstream(base64stream);
         std::string decoded(std::istreambuf_iterator<char>(b64decoderstream), {});
-        feed->setIconData(decoded);
+        setIconData(decoded);
     }
+}
+
+std::unique_ptr<ZapFR::Engine::Feed> ZapFR::Engine::FeedRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)
+{
+    auto feedID = o->getValue<uint64_t>(Feed::JSONIdentifierFeedID);
+
+    auto feed = std::make_unique<FeedRemote>(feedID, parentSource);
+    feed->fromJSON(o);
 
     return feed;
 }

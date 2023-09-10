@@ -20,7 +20,7 @@
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFeedAdd::AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentFeedAdd::AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mURL(url), mFolderID(folder), mFinishedCallback(finishedCallback)
 {
 }
@@ -30,8 +30,8 @@ void ZapFR::Engine::AgentFeedAdd::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->addFeed(mURL, mFolderID);
-        mFinishedCallback();
+        auto feedID = source.value()->addFeed(mURL, mFolderID);
+        mFinishedCallback(mSourceID, feedID);
     }
 
     mIsDone = true;

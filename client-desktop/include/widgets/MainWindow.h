@@ -111,8 +111,9 @@ namespace ZapFR
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
             void sourcePropertiesReceived(const QMap<QString, QVariant>& props);
 
-            void feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::optional<std::string>& error);
-            void feedAdded();
+            void feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::string& error, const std::string& feedTitle,
+                               const std::string& iconHash, const std::string& icon);
+            void feedAdded(uint64_t sourceID, uint64_t feedID);
             void feedRemoved();
             void feedMoved();
             void feedMarkedRead(uint64_t sourceID, uint64_t feedID);

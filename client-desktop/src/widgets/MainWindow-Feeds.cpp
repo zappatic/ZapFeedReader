@@ -17,7 +17,9 @@
 */
 
 #include "./ui_MainWindow.h"
+#include "FeedIconCache.h"
 #include "ZapFR/Agent.h"
+#include "ZapFR/base/Feed.h"
 #include "dialogs/DialogAddFeed.h"
 #include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
@@ -38,8 +40,10 @@ void ZapFR::Client::MainWindow::addFeed()
                         auto folderID = mDialogAddFeed->selectedFolderID();
                         if (!url.empty())
                         {
-                            ZapFR::Engine::Agent::getInstance()->queueAddFeed(sourceID, url, folderID,
-                                                                              [&]() { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection); });
+                            ZapFR::Engine::Agent::getInstance()->queueAddFeed(
+                                sourceID, url, folderID,
+                                [&](uint64_t affectedSourceID, uint64_t newFeedID)
+                                { QMetaObject::invokeMethod(this, "feedAdded", Qt::AutoConnection, affectedSourceID, newFeedID); });
                         }
                     }
                 });
@@ -87,26 +91,54 @@ void ZapFR::Client::MainWindow::refreshFeeds()
             case SOURCETREE_ENTRY_TYPE_FEED:
             {
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
-                    sourceID, feedID,
-                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
-                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID, feedUnreadCount, error); });
+                ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(sourceID, feedID,
+                                                                      [&](uint64_t affectedSourceID, ZapFR::Engine::Feed* refreshedFeed)
+                                                                      {
+                                                                          auto id = refreshedFeed->id();
+                                                                          auto unreadCount = refreshedFeed->unreadCount();
+                                                                          auto error = refreshedFeed->lastRefreshError();
+                                                                          auto title = refreshedFeed->title();
+                                                                          auto iconHash = refreshedFeed->iconHash();
+                                                                          auto iconData = refreshedFeed->iconData();
+                                                                          QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, id,
+                                                                                                    unreadCount, error.has_value() ? error.value() : "", title, iconHash,
+                                                                                                    iconData);
+                                                                      });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
             {
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueRefreshFolder(
-                    sourceID, folderID,
-                    [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
-                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID, feedUnreadCount, error); });
+                ZapFR::Engine::Agent::getInstance()->queueRefreshFolder(sourceID, folderID,
+                                                                        [&](uint64_t affectedSourceID, ZapFR::Engine::Feed* refreshedFeed)
+                                                                        {
+                                                                            auto id = refreshedFeed->id();
+                                                                            auto unreadCount = refreshedFeed->unreadCount();
+                                                                            auto error = refreshedFeed->lastRefreshError();
+                                                                            auto title = refreshedFeed->title();
+                                                                            auto iconHash = refreshedFeed->iconHash();
+                                                                            auto iconData = refreshedFeed->iconData();
+                                                                            QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, id,
+                                                                                                      unreadCount, error.has_value() ? error.value() : "", title, iconHash,
+                                                                                                      iconData);
+                                                                        });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_SOURCE:
             {
-                ZapFR::Engine::Agent::getInstance()->queueRefreshSource(
-                    sourceID, [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
-                    { QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, affectedFeedID, feedUnreadCount, error); });
+                ZapFR::Engine::Agent::getInstance()->queueRefreshSource(sourceID,
+                                                                        [&](uint64_t affectedSourceID, ZapFR::Engine::Feed* refreshedFeed)
+                                                                        {
+                                                                            auto id = refreshedFeed->id();
+                                                                            auto unreadCount = refreshedFeed->unreadCount();
+                                                                            auto error = refreshedFeed->lastRefreshError();
+                                                                            auto title = refreshedFeed->title();
+                                                                            auto iconHash = refreshedFeed->iconHash();
+                                                                            auto iconData = refreshedFeed->iconData();
+                                                                            QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, id,
+                                                                                                      unreadCount, error.has_value() ? error.value() : "", title, iconHash,
+                                                                                                      iconData);
+                                                                        });
 
                 break;
             }
@@ -114,9 +146,21 @@ void ZapFR::Client::MainWindow::refreshFeeds()
     }
 }
 
-void ZapFR::Client::MainWindow::feedAdded()
+void ZapFR::Client::MainWindow::feedAdded(uint64_t sourceID, uint64_t feedID)
 {
     reloadSources();
+    ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(sourceID, feedID,
+                                                          [&](uint64_t affectedSourceID, ZapFR::Engine::Feed* refreshedFeed)
+                                                          {
+                                                              auto id = refreshedFeed->id();
+                                                              auto unreadCount = refreshedFeed->unreadCount();
+                                                              auto error = refreshedFeed->lastRefreshError();
+                                                              auto title = refreshedFeed->title();
+                                                              auto iconHash = refreshedFeed->iconHash();
+                                                              auto iconData = refreshedFeed->iconData();
+                                                              QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, affectedSourceID, id, unreadCount,
+                                                                                        error.has_value() ? error.value() : "", title, iconHash, iconData);
+                                                          });
 }
 
 void ZapFR::Client::MainWindow::feedRemoved()
@@ -137,7 +181,8 @@ void ZapFR::Client::MainWindow::feedMarkedRead(uint64_t sourceID, uint64_t feedI
     reloadPosts();
 }
 
-void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::optional<std::string>& error)
+void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::string& error, const std::string& feedTitle,
+                                              const std::string& iconHash, const std::string& iconData)
 {
     auto sourceItem = findSourceStandardItem(sourceID);
     if (sourceItem != nullptr)
@@ -145,11 +190,22 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
         auto feedItems = findFeedStandardItems(sourceItem, {{feedID}});
         for (const auto& feedItem : feedItems)
         {
-            feedItem->setData(QVariant::fromValue<uint64_t>(feedUnreadCount), SourceTreeEntryUnreadCount);
-            if (error.has_value())
+            if (!iconData.empty() && (!FeedIconCache::isCached(sourceID, feedID) || !FeedIconCache::isSameHash(sourceID, feedID, iconHash)))
             {
-                feedItem->setData(QString::fromUtf8(error.value()), SourceTreeEntryFeedErrorRole);
-                feedItem->setData(QString::fromUtf8(error.value()), Qt::ToolTipRole);
+                QPixmap icon;
+                icon.loadFromData(QByteArray(iconData.c_str(), static_cast<int64_t>(iconData.length())));
+                if (!icon.isNull())
+                {
+                    FeedIconCache::cache(sourceID, feedID, iconHash, icon);
+                }
+            }
+
+            feedItem->setData(QString::fromUtf8(feedTitle), Qt::DisplayRole);
+            feedItem->setData(QVariant::fromValue<uint64_t>(feedUnreadCount), SourceTreeEntryUnreadCount);
+            if (!error.empty())
+            {
+                feedItem->setData(QString::fromUtf8(error), SourceTreeEntryFeedErrorRole);
+                feedItem->setData(QString::fromUtf8(error), Qt::ToolTipRole);
             }
             else
             {

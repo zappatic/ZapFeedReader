@@ -20,8 +20,7 @@
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFeedRefresh::AgentFeedRefresh(uint64_t sourceID, uint64_t feedID,
-                                                  std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback)
+ZapFR::Engine::AgentFeedRefresh::AgentFeedRefresh(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, ZapFR::Engine::Feed*)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
@@ -34,13 +33,8 @@ void ZapFR::Engine::AgentFeedRefresh::run()
         auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
         if (feed.has_value())
         {
-            std::optional<std::string> error;
-            if (!feed.value()->refresh())
-            {
-                error = feed.value()->lastRefreshError();
-            }
-            auto unreadCount = feed.value()->unreadCount();
-            mFinishedCallback(mSourceID, mFeedID, unreadCount, error);
+            feed.value()->refresh();
+            mFinishedCallback(mSourceID, feed.value().get());
         }
     }
 

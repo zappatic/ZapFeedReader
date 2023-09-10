@@ -92,10 +92,10 @@ namespace ZapFR
             void queueMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
             void queueGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
             void queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
-            void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback);
-            void queueAddFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback);
+            void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed* refreshedFeed)> finishedCallback);
+            void queueAddFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID, std::function<void()> opmlParsedCallback,
-                                 std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedRefreshedCallback);
+                                 std::function<void(uint64_t, Feed*)> feedRefreshedCallback);
             void queueUpdateFeed(uint64_t sourceID, uint64_t feedID, const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds,
                                  std::function<void()> finishedCallback);
 
@@ -106,12 +106,11 @@ namespace ZapFR
             void queueRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
             void queueUpdateFolder(uint64_t sourceID, uint64_t folder, const std::string& newTitle,
                                    std::function<void(uint64_t, uint64_t, const std::string&)> finishedCallback);
-            void queueRefreshFolder(uint64_t sourceID, uint64_t folderID,
-                                    std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback);
+            void queueRefreshFolder(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, Feed*)> finishedCallback);
 
             // source manipulation
             void queueMarkSourceRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
-            void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback);
+            void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t, Feed*)> finishedCallback);
 
             // script folders
             void queueGetScriptFolders(uint64_t sourceID, std::function<void(uint64_t, const std::vector<ScriptFolder*>&)> finishedCallback);

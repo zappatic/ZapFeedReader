@@ -21,7 +21,7 @@
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentSourceRefresh::AgentSourceRefresh(uint64_t sourceID, std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback)
+ZapFR::Engine::AgentSourceRefresh::AgentSourceRefresh(uint64_t sourceID, std::function<void(uint64_t, Feed*)> finishedCallback)
     : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
 {
 }

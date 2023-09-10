@@ -52,22 +52,8 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_refresh([[may
             auto feed = source.value()->getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
             if (feed.has_value())
             {
-                refreshSuccessful = feed.value()->refresh();
-                if (!refreshSuccessful)
-                {
-                    auto lre = feed.value()->lastRefreshError();
-                    if (lre.has_value())
-                    {
-                        o.set("error", lre.value());
-                    }
-                    else
-                    {
-                        o.set("error", "Unknown error");
-                    }
-                }
-                auto localFeed = dynamic_cast<ZapFR::Engine::FeedLocal*>(feed.value().get());
-                localFeed->fetchUnreadCount();
-                o.set("unreadCount", localFeed->unreadCount());
+                feed.value()->refresh();
+                o = feed.value()->toJSON();
             }
         }
     }

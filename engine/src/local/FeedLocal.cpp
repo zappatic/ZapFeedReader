@@ -134,7 +134,7 @@ void ZapFR::Engine::FeedLocal::fetchData()
     }
 }
 
-bool ZapFR::Engine::FeedLocal::refresh()
+void ZapFR::Engine::FeedLocal::refresh()
 {
     Log::log(LogLevel::Info, "Refreshing feed", mID);
     fetchData();
@@ -167,19 +167,15 @@ bool ZapFR::Engine::FeedLocal::refresh()
     catch (const Poco::Exception& e)
     {
         updateAndLogLastRefreshError(e.displayText());
-        return false;
     }
     catch (const std::runtime_error& e)
     {
         updateAndLogLastRefreshError(e.what());
-        return false;
     }
     catch (...)
     {
         updateAndLogLastRefreshError("Unknown exception");
-        return false;
     }
-    return true;
 }
 
 void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
@@ -317,14 +313,13 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
         iconURLToQuery = mIconURL;
     }
 
-    std::string iconData;
     if (!iconURLToQuery.empty())
     {
         try
         {
             Poco::Net::HTTPCredentials creds; // TODO
             auto uri = Poco::URI(iconURLToQuery);
-            iconData = Helpers::performHTTPRequest(uri, "GET", creds, {}, mID);
+            mIconData = Helpers::performHTTPRequest(uri, "GET", creds, {}, mID);
         }
         catch (...) // we ignore errors here because a missing favicon shouldn't put the feed in error state
         {
@@ -332,25 +327,24 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
         }
     }
 
-    std::string iconHash;
-    if (!iconData.empty())
+    if (!mIconData.empty())
     {
         auto i = iconFile(mID);
         auto fos = Poco::FileOutputStream(i.path());
-        fos << iconData;
+        fos << mIconData;
         fos.close();
 
         Poco::MD5Engine md5;
         Poco::DigestOutputStream ds(md5);
-        ds << iconData;
+        ds << mIconData;
         ds.close();
-        iconHash = Poco::DigestEngine::digestToHex(md5.digest());
+        mIconHash = Poco::DigestEngine::digestToHex(md5.digest());
     }
 
     // update icon last fetched time and md5 hash
     {
         Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-        updateStmt << "UPDATE feeds SET iconLastFetched=datetime('now'), iconHash=? WHERE id=?", useRef(iconHash), use(mID), now;
+        updateStmt << "UPDATE feeds SET iconLastFetched=datetime('now'), iconHash=? WHERE id=?", useRef(mIconHash), use(mID), now;
         updateStmt.execute();
     }
 }

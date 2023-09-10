@@ -119,13 +119,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                             icon.loadFromData(QByteArray(iconData.c_str(), static_cast<int64_t>(iconData.length())));
                             if (!icon.isNull())
                             {
-                                Poco::MD5Engine md5;
-                                Poco::DigestOutputStream ds(md5);
-                                ds << iconData;
-                                ds.close();
-                                auto iconHash = Poco::DigestEngine::digestToHex(md5.digest());
-
-                                FeedIconCache::cache(retrievedSource->id(), feed->id(), iconHash, icon);
+                                FeedIconCache::cache(retrievedSource->id(), feed->id(), feed->iconHash(), icon);
                             }
                         }
                     }

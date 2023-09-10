@@ -54,6 +54,7 @@ Poco::JSON::Object ZapFR::Engine::Feed::toJSON() const
     o.set(JSONIdentifierFeedLastChecked, mLastChecked);
     o.set(JSONIdentifierFeedSortOrder, mSortOrder);
     o.set(JSONIdentifierFeedUnreadCount, mUnreadCount);
+    o.set(JSONIdentifierFeedIconHash, mIconHash);
     if (mStatistics.size() > 0)
     {
         Poco::JSON::Object statsObj;

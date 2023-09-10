@@ -96,7 +96,7 @@ namespace ZapFR
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;
 
             virtual void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) = 0;
-            virtual bool refresh() = 0;
+            virtual void refresh() = 0;
             virtual void markAllAsRead() = 0;
 
             void setDataFetched(bool b) { mDataFetched = b; }
@@ -107,6 +107,7 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierFeedFolder{"folder"};
             static constexpr const char* JSONIdentifierFeedGUID{"guid"};
             static constexpr const char* JSONIdentifierFeedIcon{"icon"};
+            static constexpr const char* JSONIdentifierFeedIconHash{"iconHash"};
             static constexpr const char* JSONIdentifierFeedTitle{"title"};
             static constexpr const char* JSONIdentifierFeedSubtitle{"subtitle"};
             static constexpr const char* JSONIdentifierFeedLink{"link"};

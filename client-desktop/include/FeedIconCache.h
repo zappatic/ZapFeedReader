@@ -25,7 +25,6 @@ namespace ZapFR
 {
     namespace Client
     {
-        // TODO: check whether we need the sourceID too to ensure uniqueness of cache
         class FeedIconCache
         {
           public:

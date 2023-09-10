@@ -26,11 +26,12 @@ namespace ZapFR
 {
     namespace Engine
     {
+        class Feed;
+
         class AgentFolderRefresh : public AgentRunnable
         {
           public:
-            explicit AgentFolderRefresh(uint64_t sourceID, uint64_t folderID,
-                                        std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback);
+            explicit AgentFolderRefresh(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, Feed*)> finishedCallback);
             virtual ~AgentFolderRefresh() = default;
 
             void run() override;
@@ -39,7 +40,7 @@ namespace ZapFR
           private:
             uint64_t mSourceID{0};
             uint64_t mFolderID{0};
-            std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> mFinishedCallback{};
+            std::function<void(uint64_t, Feed*)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

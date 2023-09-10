@@ -37,10 +37,11 @@ namespace ZapFR
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
 
-            bool refresh() override;
+            void refresh() override;
             void markAllAsRead() override;
 
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
+            void fromJSON(const Poco::JSON::Object::Ptr o);
 
             static std::unique_ptr<Feed> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
         };

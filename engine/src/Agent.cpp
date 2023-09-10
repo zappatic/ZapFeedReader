@@ -17,9 +17,6 @@
 */
 
 #include "ZapFR/Agent.h"
-#include "ZapFR/base/Feed.h"
-#include "ZapFR/base/Post.h"
-#include "ZapFR/base/Source.h"
 #include "ZapFR/agents/AgentMonitorFeedRefreshCompletion.h"
 #include "ZapFR/agents/feed/AgentFeedAdd.h"
 #include "ZapFR/agents/feed/AgentFeedGet.h"
@@ -64,6 +61,9 @@
 #include "ZapFR/agents/source/AgentSourceImportOPML.h"
 #include "ZapFR/agents/source/AgentSourceMarkRead.h"
 #include "ZapFR/agents/source/AgentSourceRefresh.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/Source.h"
 
 std::mutex ZapFR::Engine::Agent::msMutex{};
 
@@ -152,30 +152,28 @@ uint64_t ZapFR::Engine::Agent::totalCountOfType(AgentRunnable::Type t) const
     return amount;
 }
 
-void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID,
-                                            std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback)
+void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed*)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFeedRefresh>(sourceID, feedID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueRefreshFolder(uint64_t sourceID, uint64_t folderID,
-                                              std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback)
+void ZapFR::Engine::Agent::queueRefreshFolder(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, Feed*)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFolderRefresh>(sourceID, folderID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> finishedCallback)
+void ZapFR::Engine::Agent::queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t, Feed*)> finishedCallback)
 {
     enqueue(std::make_unique<AgentSourceRefresh>(sourceID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueAddFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueAddFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFeedAdd>(sourceID, url, folder, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID, std::function<void()> opmlParsedCallback,
-                                           std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedRefreshedCallback)
+                                           std::function<void(uint64_t, Feed*)> feedRefreshedCallback)
 {
     enqueue(std::make_unique<AgentSourceImportOPML>(sourceID, opml, parentFolderID, opmlParsedCallback, feedRefreshedCallback));
 }

@@ -23,7 +23,7 @@
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentSourceImportOPML::AgentSourceImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID, std::function<void()> opmlParsedCallback,
-                                                            std::function<void(uint64_t, uint64_t, uint64_t, const std::optional<std::string>&)> feedRefreshedCallback)
+                                                            std::function<void(uint64_t, Feed*)> feedRefreshedCallback)
     : AgentRunnable(), mSourceID(sourceID), mOPML(opml), mParentFolderID(parentFolderID), mOPMLParsedCallback(opmlParsedCallback),
       mFeedRefreshedCallback(feedRefreshedCallback)
 {

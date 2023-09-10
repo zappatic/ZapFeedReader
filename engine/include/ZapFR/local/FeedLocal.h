@@ -41,7 +41,7 @@ namespace ZapFR
 
             void fetchData();
             void fetchStatistics();
-            bool refresh() override;
+            void refresh() override;
             void markAllAsRead() override;
             void markAsRead(uint64_t postID);
             void markAsUnread(uint64_t postID);
