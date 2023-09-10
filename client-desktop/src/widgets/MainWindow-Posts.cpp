@@ -392,56 +392,37 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
         ZapFR::Engine::Agent::getInstance()->queueGetPost(mCurrentPostSourceID, mCurrentPostFeedID, mCurrentPostID,
                                                           [&](std::unique_ptr<ZapFR::Engine::Post> post)
                                                           {
-                                                              QString htmlStr;
-                                                              QTextStream html(&htmlStr, QIODeviceBase::ReadWrite);
+                                                              Poco::URI uri(post->feedLink());
+                                                              uri.setPath("");
 
-                                                              auto postTitle = QString::fromUtf8(post->title());
-                                                              auto postLink = QString::fromUtf8(post->link());
-                                                              auto postAuthor = QString::fromUtf8(post->author());
-                                                              auto postCommentsURL = QString::fromUtf8(post->commentsURL());
-                                                              auto postPublishedOn = Utilities::prettyDate(QString::fromUtf8(post->datePublished()));
+                                                              std::unordered_map<std::string, QString> replacers;
+                                                              replacers["BASE"] = QString::fromUtf8(uri.toString());
+                                                              replacers["STYLES"] = postStyles();
+                                                              replacers["POST.TITLE"] = QString::fromUtf8(post->title());
+                                                              replacers["POST.LINK"] = QString::fromUtf8(post->link());
+                                                              replacers["POST.AUTHOR"] = QString::fromUtf8(post->author());
+                                                              replacers["POST.CONTENT"] = QString::fromUtf8(post->description());
+                                                              replacers["POST.DATE_PUBLISHED"] = Utilities::prettyDate(QString::fromUtf8(post->datePublished()));
+                                                              replacers["POST.COMMENTS_URL"] = QString::fromUtf8(post->commentsURL());
+                                                              replacers["I18N.PUBLISHED"] = tr("Published");
+                                                              replacers["I18N.AUTHOR"] = tr("Author");
+                                                              replacers["I18N.VIEWCOMMENTS"] = tr("View comments");
 
-                                                              html << "<!DOCTYPE html>\n"
-                                                                   << "<html>\n"
-                                                                   << " <head>\n"
-                                                                   << "     <style type='text/css'>\n"
-                                                                   << postStyles() << "\n"
-                                                                   << "     </style>\n"
-                                                                   << " </head>\n"
-                                                                   << " <body>\n";
-
-                                                              if (postLink.isEmpty())
+                                                              auto postHTML = postHTMLTemplate();
+                                                              for (const auto& [key, value] : replacers)
                                                               {
-                                                                  html << R"(<h1 class="zapfr_title">)" << postTitle << "</h1>\n";
-                                                              }
-                                                              else
-                                                              {
-                                                                  html << R"(<a class="zapfr_title" href=")" << postLink << R"(">)" << postTitle << "</a>\n";
-                                                              }
+                                                                  // handle {if}{else}{/if}
+                                                                  auto pattern = QString::fromUtf8(fmt::format(R"(\[if {}\](.*?)\[else\](.*?)\[/if\])", key));
+                                                                  postHTML.replace(QRegularExpression(pattern), value.isEmpty() ? R"(\2)" : R"(\1)");
 
-                                                              html << R"(<div class="zapfr_below_title">)";
+                                                                  // handle [if][/if]
+                                                                  pattern = QString::fromUtf8(fmt::format(R"(\[if {}\](.*?)\[/if\])", key));
+                                                                  postHTML.replace(QRegularExpression(pattern), value.isEmpty() ? "" : R"(\1)");
 
-                                                              html << "<div>" << tr("Published") << ": " << postPublishedOn << "</div>";
-                                                              if (!postAuthor.isEmpty())
-                                                              {
-                                                                  html << R"(<div><span class="zapfr_below_title_separator">|</span>)" << tr("Author") << ": " << postAuthor
-                                                                       << "</div>";
-                                                              }
-                                                              if (!postCommentsURL.isEmpty() && postCommentsURL.startsWith("http"))
-                                                              {
-                                                                  html << R"(<div><span class="zapfr_below_title_separator">|</span><a href=")" << postCommentsURL << R"(">)"
-                                                                       << tr("View comments") << "</a></div>";
+                                                                  postHTML.replace(QString::fromUtf8(fmt::format("[{}]", key)), value);
                                                               }
 
-                                                              html << "</div>\n";
-
-                                                              html << R"(<hr class="zapfr_divider" />)";
-
-                                                              html << QString::fromUtf8(post->description()) << "\n"
-                                                                   << " </body>\n"
-                                                                   << "</html>";
-
-                                                              QMetaObject::invokeMethod(this, "postReadyToBeShown", Qt::AutoConnection, htmlStr, post->enclosures());
+                                                              QMetaObject::invokeMethod(this, "postReadyToBeShown", Qt::AutoConnection, postHTML, post->enclosures());
                                                           });
     }
     else
@@ -513,48 +494,92 @@ void ZapFR::Client::MainWindow::setPostHTML(const QString& html) const
 
 QString ZapFR::Client::MainWindow::postStyles() const
 {
-    auto font = ui->treeViewSources->font();
-    auto palette = QPalette(ui->treeViewSources->palette());
+    static QString cache{""};
 
-    QString overrideFilename;
-    QString backgroundColor;
-    QString textColor;
-    QColor highlightColor = palette.color(QPalette::Active, QPalette::Highlight);
-
-    auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
-    if (currentColorScheme == Qt::ColorScheme::Dark)
+    if (!mPostStylesCacheValid)
     {
-        overrideFilename = "posttheme.dark.css";
-        backgroundColor = "#2a2a2a";
-        textColor = "#fff";
-    }
-    else
-    {
-        overrideFilename = "posttheme.light.css";
-        backgroundColor = "#fff";
-        textColor = "#000";
+        auto font = ui->treeViewSources->font();
+        auto palette = QPalette(ui->treeViewSources->palette());
+
+        QString overrideFilename;
+        QString backgroundColor;
+        QString textColor;
+        QColor highlightColor = palette.color(QPalette::Active, QPalette::Highlight);
+
+        auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
+        if (currentColorScheme == Qt::ColorScheme::Dark)
+        {
+            overrideFilename = "posttheme.dark.css";
+            backgroundColor = "#2a2a2a";
+            textColor = "#fff";
+        }
+        else
+        {
+            overrideFilename = "posttheme.light.css";
+            backgroundColor = "#fff";
+            textColor = "#000";
+        }
+
+        auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + overrideFilename));
+        if (override.exists())
+        {
+            override.open(QIODeviceBase::ReadOnly);
+            auto styles = QString::fromUtf8(override.readAll());
+            override.close();
+            return styles;
+        }
+
+        cache = QString(R"(body { font-family: "%1", sans-serif; background-color: %2; color: %3; })"
+                        "\n"
+                        "a { color: %4; }\n"
+                        ".zapfr_title { color: %3; font-size: 36px; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0; user-select:none; }\n"
+                        ".zapfr_infoheader { font-size: 13px; display: flex; gap: 10px; }\n"
+                        ".zapfr_infoheader_separator { display: inline-block; margin-right: 10px; }\n"
+                        ".zapfr_divider { margin-bottom: 30px; height: 1px; border: none; color: %3; background-color: %3; }\n")
+                    .arg(font.family())
+                    .arg(backgroundColor)
+                    .arg(textColor)
+                    .arg(highlightColor.name());
+        mPostStylesCacheValid = true;
     }
 
-    auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + overrideFilename));
-    if (override.exists())
-    {
-        override.open(QIODeviceBase::ReadOnly);
-        auto styles = QString::fromUtf8(override.readAll());
-        override.close();
-        return styles;
-    }
+    return cache;
+}
 
-    return QString(R"(body { font-family: "%1", sans-serif; background-color: %2; color: %3; })"
-                   "\n"
-                   "a { color: %4; }\n"
-                   ".zapfr_title { color: %3; font-size: 36px; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0; user-select:none; }\n"
-                   ".zapfr_below_title { font-size: 13px; display: flex; gap: 10px; }\n"
-                   ".zapfr_below_title_separator { display: inline-block; margin-right: 10px; }\n"
-                   ".zapfr_divider { margin-bottom: 30px; height: 1px; border: none; color: %3; background-color: %3; }\n")
-        .arg(font.family())
-        .arg(backgroundColor)
-        .arg(textColor)
-        .arg(highlightColor.name());
+QString ZapFR::Client::MainWindow::postHTMLTemplate() const
+{
+    static std::optional<QString> cache{};
+    if (!cache.has_value())
+    {
+        auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + "post.html"));
+        if (override.exists())
+        {
+            override.open(QIODeviceBase::ReadOnly);
+            cache = QString::fromUtf8(override.readAll());
+            override.close();
+        }
+        else
+        {
+            cache = R"(<!DOCTYPE html>
+<html>
+    <head>
+        <base href="[BASE]">
+        <style type="text/css">[STYLES]</style>
+    </head>
+    <body>
+        [if POST.LINK]<a class="zapfr_title" href="[POST.LINK]">[POST.TITLE]</a>[else]<h1 class="zapfr_title">[POST.TITLE]</h1>[/if]
+        <div class="zapfr_infoheader">
+            <div>[I18N.PUBLISHED]: [POST.DATE_PUBLISHED]</div>
+            [if POST.AUTHOR]<div><span class="zapfr_infoheader_separator">|</span>[I18N.AUTHOR]: [POST.AUTHOR]</div>[/if]
+            [if POST.COMMENTS_URL]<div><span class="zapfr_infoheader_separator">|</span><a href="[POST.COMMENTS_URL]">[I18N.VIEWCOMMENTS]</a></div>[/if]
+        </div>
+        <hr class="zapfr_divider">
+        [POST.CONTENT]
+    </body>
+</html>)";
+        }
+    }
+    return cache.value();
 }
 
 void ZapFR::Client::MainWindow::setBlankPostPage() const

@@ -30,6 +30,7 @@ Poco::JSON::Object ZapFR::Engine::Post::toJSON()
     o.set(JSONIdentifierPostIsRead, mIsRead);
     o.set(JSONIdentifierPostFeedID, mFeedID);
     o.set(JSONIdentifierPostFeedTitle, mFeedTitle);
+    o.set(JSONIdentifierPostFeedLink, mFeedLink);
     o.set(JSONIdentifierPostTitle, mTitle);
     o.set(JSONIdentifierPostLink, mLink);
     o.set(JSONIdentifierPostDescription, mDescription);

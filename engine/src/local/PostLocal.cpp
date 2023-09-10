@@ -89,6 +89,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     std::string guid{""};
     std::string datePublished{""};
     std::string feedTitle{""};
+    std::string feedLink{""};
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
 
@@ -104,6 +105,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
           ",posts.guid"
           ",posts.datePublished"
           ",feeds.title"
+          ",feeds.link"
           " FROM posts"
           " LEFT JOIN feeds ON feeds.id = posts.feedID";
     if (!whereClause.empty())
@@ -133,6 +135,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     selectStmt.addExtract(into(guid));
     selectStmt.addExtract(into(datePublished));
     selectStmt.addExtract(into(feedTitle));
+    selectStmt.addExtract(into(feedLink));
 
     while (!selectStmt.done())
     {
@@ -142,6 +145,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
             p->setIsRead(isRead);
             p->setFeedID(feedID);
             p->setFeedTitle(feedTitle);
+            p->setFeedLink(feedLink);
             p->setTitle(title);
             p->setLink(link);
             p->setDescription(description);
@@ -196,6 +200,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     std::string guid{""};
     std::string datePublished{""};
     std::string feedTitle{""};
+    std::string feedLink{""};
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
 
@@ -211,6 +216,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
           ",posts.guid"
           ",posts.datePublished"
           ",feeds.title"
+          ",feeds.link"
           " FROM posts"
           " LEFT JOIN feeds ON feeds.id = posts.feedID";
     if (!whereClause.empty())
@@ -239,6 +245,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     selectStmt.addExtract(into(guid));
     selectStmt.addExtract(into(datePublished));
     selectStmt.addExtract(into(feedTitle));
+    selectStmt.addExtract(into(feedLink));
 
     selectStmt.execute();
 
@@ -248,6 +255,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
         auto p = std::make_unique<PostLocal>(id);
         p->setFeedID(feedID);
         p->setFeedTitle(feedTitle);
+        p->setFeedLink(feedLink);
         p->setIsRead(isRead);
         p->setTitle(title);
         p->setLink(link);

@@ -706,6 +706,7 @@ void ZapFR::Client::MainWindow::configureConnects()
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged,
             [&](Qt::ColorScheme /*scheme*/)
             {
+                mPostStylesCacheValid = false;
                 reloadCurrentPost();
                 configureIcons();
             });

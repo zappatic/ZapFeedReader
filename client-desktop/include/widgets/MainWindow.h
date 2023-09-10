@@ -187,6 +187,7 @@ namespace ZapFR
             uint64_t mCurrentPostCount{0};
             uint64_t mCurrentPostPageCount{1};
             bool mShowOnlyUnreadPosts{false};
+            mutable bool mPostStylesCacheValid{false};
             ZapFR::Engine::FlagColor mFlagFilter{ZapFR::Engine::FlagColor::Gray};
 
             std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
@@ -248,6 +249,7 @@ namespace ZapFR
             void reloadPropertiesPane();
 
             QString postStyles() const;
+            QString postHTMLTemplate() const;
             void setPostHTML(const QString& html) const;
             void setBlankPostPage() const;
             void configureIcons();

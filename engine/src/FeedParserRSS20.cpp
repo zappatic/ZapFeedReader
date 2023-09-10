@@ -74,7 +74,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
         Item item;
         item.title = fetchNodeValue(itemNode, "title");
         item.link = fetchNodeValue(itemNode, "link");
-        item.description = fetchNodeValue(itemNode, "description");
+        item.description = fetchNodeValueInnerXML(itemNode, "description");
         item.author = fetchNodeValue(itemNode, "author");
 
         auto enclosureNodes = dynamic_cast<Poco::XML::Element*>(itemNode)->getElementsByTagName("enclosure");

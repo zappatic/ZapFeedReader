@@ -48,6 +48,36 @@ std::string ZapFR::Engine::FeedParser::fetchNodeValue(Poco::XML::Node* parent, c
     return "";
 }
 
+std::string ZapFR::Engine::FeedParser::fetchNodeValueInnerXML(Poco::XML::Node* parent, const std::string& nodeName) const
+{
+    auto node = parent->getNodeByPath(nodeName);
+    if (node != nullptr)
+    {
+        std::stringstream ss;
+        auto writer = Poco::XML::DOMWriter();
+        writer.setOptions(Poco::XML::XMLWriter::CANONICAL_XML);
+
+        auto nodeChildren = node->childNodes();
+        for (size_t i = 0; i < nodeChildren->length(); ++i)
+        {
+            auto child = nodeChildren->item(i);
+            auto childType = child->nodeType();
+            if (childType == Poco::XML::Node::ELEMENT_NODE)
+            {
+                writer.writeNode(ss, child);
+            }
+            else if (childType == Poco::XML::Node::CDATA_SECTION_NODE || childType == Poco::XML::Node::TEXT_NODE)
+            {
+                ss << child->innerText();
+            }
+        }
+        nodeChildren->release();
+
+        return ss.str();
+    }
+    return "";
+}
+
 Poco::XML::Node* ZapFR::Engine::FeedParser::fetchNode(Poco::XML::Node* parent, const std::string& nodeName) const
 {
     return parent->getNodeByPath(nodeName);

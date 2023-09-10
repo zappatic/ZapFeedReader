@@ -22,6 +22,7 @@
 #include <Poco/Base64Decoder.h>
 #include <Poco/Base64Encoder.h>
 #include <Poco/DOM/DOMParser.h>
+#include <Poco/DOM/DOMWriter.h>
 #include <Poco/DOM/Document.h>
 #include <Poco/DOM/NamedNodeMap.h>
 #include <Poco/DOM/NodeList.h>
@@ -59,6 +60,7 @@
 #include <Poco/UUIDGenerator.h>
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/SystemConfiguration.h>
+#include <Poco/XML/XMLWriter.h>
 
 #include <functional>
 #include <memory>

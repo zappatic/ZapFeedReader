@@ -42,6 +42,7 @@ namespace ZapFR
             uint64_t id() const noexcept { return mID; }
             uint64_t feedID() const noexcept { return mFeedID; }
             std::string feedTitle() const noexcept { return mFeedTitle; }
+            std::string feedLink() const noexcept { return mFeedLink; }
             bool isRead() const noexcept { return mIsRead; }
             std::string title() const noexcept { return mTitle; }
             std::string link() const noexcept { return mLink; }
@@ -56,6 +57,7 @@ namespace ZapFR
             void setIsRead(bool b) { mIsRead = b; }
             void setFeedID(uint64_t feedID) { mFeedID = feedID; }
             void setFeedTitle(const std::string& title) { mFeedTitle = title; }
+            void setFeedLink(const std::string& link) { mFeedLink = link; }
             void setTitle(const std::string& title) { mTitle = title; }
             void setLink(const std::string& link) { mLink = link; }
             void setDescription(const std::string& description) { mDescription = description; }
@@ -71,6 +73,7 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierPostIsRead{"isRead"};
             static constexpr const char* JSONIdentifierPostFeedID{"feedID"};
             static constexpr const char* JSONIdentifierPostFeedTitle{"feedTitle"};
+            static constexpr const char* JSONIdentifierPostFeedLink{"feedLink"};
             static constexpr const char* JSONIdentifierPostTitle{"title"};
             static constexpr const char* JSONIdentifierPostLink{"link"};
             static constexpr const char* JSONIdentifierPostDescription{"description"};
@@ -89,6 +92,7 @@ namespace ZapFR
             bool mIsRead{false};
             uint64_t mFeedID{0};
             std::string mFeedTitle{""};
+            std::string mFeedLink{""};
             std::string mTitle{""};
             std::string mLink{""};
             std::string mDescription{""};
