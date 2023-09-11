@@ -84,6 +84,7 @@ namespace ZapFR
         static const QString SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE = "splittersourcesandscriptfolders.state";
         static const QString SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE = "splitterpoststableandpostview.state";
         static const QString SETTING_SOURCETREEVIEW_EXPANSION = "sourcetreeview.expansion";
+        static const QString SETTING_UI_THEME = "ui.theme";
 
         static constexpr uint32_t SOURCETREE_ENTRY_TYPE_SOURCE = 0;
         static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FEED = 1;

@@ -941,6 +941,7 @@
     <addaction name="action_Import_OPML"/>
     <addaction name="action_Export_OPML"/>
     <addaction name="separator"/>
+    <addaction name="action_Show_preferences"/>
     <addaction name="action_Exit"/>
    </widget>
    <addaction name="menu_Hamburger"/>
@@ -1156,6 +1157,14 @@
    </property>
    <property name="toolTip">
     <string>Edit folder</string>
+   </property>
+  </action>
+  <action name="action_Show_preferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+   <property name="toolTip">
+    <string>Preferences</string>
    </property>
   </action>
  </widget>

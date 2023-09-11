@@ -57,6 +57,7 @@ set(PROJECT_SOURCES
         src/dialogs/DialogJumpToPage.cpp
         src/dialogs/DialogEditScript.cpp
         src/dialogs/DialogEditScriptFolder.cpp
+        src/dialogs/DialogPreferences.cpp
         src/models/StandardItemModelSources.cpp
         src/models/SortFilterProxyModelSources.cpp
         include/ClientGlobal.h
@@ -94,6 +95,7 @@ set(PROJECT_SOURCES
         include/dialogs/DialogJumpToPage.h
         include/dialogs/DialogEditScript.h
         include/dialogs/DialogEditScriptFolder.h
+        include/dialogs/DialogPreferences.h
         include/models/StandardItemModelSources.h
         include/models/SortFilterProxyModelSources.h
         src/widgets/MainWindow.ui
@@ -109,6 +111,7 @@ set(PROJECT_SOURCES
         src/dialogs/DialogJumpToPage.ui
         src/dialogs/DialogEditScript.ui
         src/dialogs/DialogEditScriptFolder.ui
+        src/dialogs/DialogPreferences.ui
         resources/resources.qrc
         ${TS_FILES}
 )

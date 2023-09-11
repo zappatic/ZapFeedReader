@@ -35,6 +35,7 @@
 #include "dialogs/DialogEditScriptFolder.h"
 #include "dialogs/DialogImportOPML.h"
 #include "dialogs/DialogJumpToPage.h"
+#include "dialogs/DialogPreferences.h"
 #include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
 #include "widgets/LineEditSearch.h"
@@ -46,6 +47,12 @@ namespace
     auto gsPostPaneToolbarSpacerLeft{"postPaneToolbarSpacerLeft"};
     auto gsPostPaneLineEditSearch{"postPaneLineEditSearch"};
     auto gsHamburgerMenuButton{"hamburgerMenuButton"};
+
+    // clang-format off
+    // generated with MainWindow::dumpPalette()
+    static const std::string gsThemeDarkValues{R"({"0":{"0":"#ffffff","1":"#2a2a2a","10":"#2a2a2a","11":"#1e1e1e","12":"#e95420","13":"#ffffff","14":"#308cc6","15":"#ff00ff","16":"#272727","18":"#ffffdc","19":"#f7f7f7","2":"#343434","20":"#9b9b9b","3":"#e9e7e3","4":"#222222","5":"#a0a0a4","6":"#ffffff","7":"#ffffff","8":"#ffffff","9":"#2a2a2a"},"1":{"0":"#7f7f7f","1":"#d4d0c8","10":"#d4d0c8","11":"#000000","12":"#e95420","13":"#ffffff","14":"#308cc6","15":"#ff00ff","16":"#272727","18":"#ffffdc","19":"#f7f7f7","2":"#ffffff","20":"#9b9b9b","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#7f7f7f","7":"#ffffff","8":"#ffffff","9":"#d4d0c8"},"2":{"0":"#ffffff","1":"#d4d0c8","10":"#2a2a2a","11":"#000000","12":"#308cc6","13":"#343434","14":"#308cc6","15":"#ff00ff","16":"#272727","18":"#ffffdc","19":"#f7f7f7","2":"#ffffff","20":"#9b9b9b","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#ffffff","7":"#ffffff","8":"#7f7f7f","9":"#2a2a2a"}})"};
+    static const std::string gsThemeLightValues{R"({"0":{"0":"#636363","1":"#fcfcfc","10":"#fcfcfc","11":"#b1b1b1","12":"#e95420","13":"#ffffff","14":"#0000ff","15":"#ff00ff","16":"#ececec","18":"#ffffdc","19":"#3d3d3d","2":"#ffffff","20":"#646464","3":"#e9e7e3","4":"#cacaca","5":"#a0a0a4","6":"#000000","7":"#ffffff","8":"#000000","9":"#fcfcfc"},"1":{"0":"#313131","1":"#d4d0c8","10":"#d4d0c8","11":"#000000","12":"#e95420","13":"#000000","14":"#0000ff","15":"#ff00ff","16":"#ececec","18":"#ffffdc","19":"#3d3d3d","2":"#ffffff","20":"#646464","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#313131","7":"#ffffff","8":"#000000","9":"#d4d0c8"},"2":{"0":"#636363","1":"#d4d0c8","10":"#fcfcfc","11":"#000000","12":"#308cc6","13":"#fafafa","14":"#0000ff","15":"#ff00ff","16":"#ececec","18":"#ffffdc","19":"#3d3d3d","2":"#ffffff","20":"#646464","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#000000","7":"#ffffff","8":"#313131","9":"#fcfcfc"}})"};
+    // clang-format on
 } // namespace
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -139,6 +146,10 @@ void ZapFR::Client::MainWindow::saveSettings() const
             break;
         }
     }
+    if (mPreferenceTheme != Theme::UseSystem)
+    {
+        root.insert(SETTING_UI_THEME, mPreferenceTheme == Theme::Light ? "light" : "dark");
+    }
 
     auto sf = QFile(settingsFile());
     sf.open(QIODeviceBase::WriteOnly);
@@ -191,12 +202,42 @@ void ZapFR::Client::MainWindow::restoreSettings()
                     mReloadSourcesExpansionSelectionState->insert("selectedID", 0);
                     mReloadSourcesExpansionSelectionState->insert("selectedType", 0);
                 }
+                if (root.contains(SETTING_UI_THEME))
+                {
+                    auto value = root.value(SETTING_UI_THEME);
+                    mPreferenceTheme = (value == "light" ? Theme::Light : Theme::Dark);
+                    applyColorScheme(Qt::ColorScheme::Unknown); // parameter doesn't matter
+                }
             }
         }
     }
     catch (...)
     {
     }
+}
+
+void ZapFR::Client::MainWindow::dumpPalette()
+{
+    std::array<QPalette::ColorGroup, 3> colorGroups{QPalette::Disabled, QPalette::Active, QPalette::Inactive};
+    std::array<QPalette::ColorRole, 20> colorRoles{
+        QPalette::Window, QPalette::WindowText, QPalette::Base,       QPalette::AlternateBase,   QPalette::ToolTipBase, QPalette::ToolTipText, QPalette::PlaceholderText,
+        QPalette::Text,   QPalette::Button,     QPalette::ButtonText, QPalette::BrightText,      QPalette::Light,       QPalette::Midlight,    QPalette::Dark,
+        QPalette::Mid,    QPalette::Shadow,     QPalette::Highlight,  QPalette::HighlightedText, QPalette::Link,        QPalette::LinkVisited,
+    };
+
+    auto palette = QGuiApplication::palette();
+    Poco::JSON::Object o;
+    for (const auto& colorGroup : colorGroups)
+    {
+        Poco::JSON::Object p;
+        for (const auto& colorRole : colorRoles)
+        {
+            p.set(std::to_string(static_cast<std::underlying_type_t<QPalette::ColorRole>>(colorRole)), palette.color(colorGroup, colorRole).name().toStdString());
+        }
+        o.set(std::to_string(static_cast<std::underlying_type_t<QPalette::ColorGroup>>(colorGroup)), p);
+    }
+    Poco::JSON::Stringifier::stringify(o, std::cout);
+    std::cout << std::endl;
 }
 
 void ZapFR::Client::MainWindow::importOPML()
@@ -359,6 +400,17 @@ void ZapFR::Client::MainWindow::configureIcons()
     auto color = QString("#000");
     auto colorDisabled = QString("#aaa");
     auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
+
+    // our value overrides the system, if it's explicitly light or dark
+    if (mPreferenceTheme == Theme::Light)
+    {
+        currentColorScheme = Qt::ColorScheme::Light;
+    }
+    else if (mPreferenceTheme == Theme::Dark)
+    {
+        currentColorScheme = Qt::ColorScheme::Dark;
+    }
+
     if (currentColorScheme == Qt::ColorScheme::Dark)
     {
         color = "#fff";
@@ -428,6 +480,86 @@ void ZapFR::Client::MainWindow::configureIcons()
                                             .arg(palette.color(QPalette::Active, QPalette::Dark).name()));
 
     mLineEditSearch->setSearchIconColor(currentColorScheme == Qt::ColorScheme::Dark ? "#eee" : "#333");
+}
+
+void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
+{
+    static std::optional<std::unique_ptr<QPalette>> cacheLightTheme{};
+    static std::optional<std::unique_ptr<QPalette>> cacheDarkTheme{};
+
+    auto parseThemeValues = [](const std::string& themeValues) -> std::unique_ptr<QPalette>
+    {
+        Poco::JSON::Parser parser;
+        auto root = parser.parse(themeValues);
+        auto colorGroupsObj = root.extract<Poco::JSON::Object::Ptr>();
+
+        auto palette = std::make_unique<QPalette>();
+        for (const auto& colorGroupStr : colorGroupsObj->getNames())
+        {
+            auto colorGroup = static_cast<QPalette::ColorGroup>(Poco::NumberParser::parseUnsigned(colorGroupStr));
+
+            auto colorRolesObj = colorGroupsObj->getObject(colorGroupStr);
+            for (const auto& colorRoleStr : colorRolesObj->getNames())
+            {
+                auto colorRole = static_cast<QPalette::ColorRole>(Poco::NumberParser::parseUnsigned(colorRoleStr));
+                auto colorValue = QColor(colorRolesObj->getValue<std::string>(colorRoleStr).c_str());
+
+                palette->setColor(colorGroup, colorRole, colorValue);
+            }
+        }
+        return palette;
+    };
+
+    std::optional<QPalette*> paletteToEnforce{};
+    if (mPreferenceTheme == Theme::Light)
+    {
+        if (!cacheLightTheme.has_value())
+        {
+            cacheLightTheme = parseThemeValues(gsThemeLightValues);
+        }
+        paletteToEnforce = cacheLightTheme.value().get();
+    }
+    else if (mPreferenceTheme == Theme::Dark)
+    {
+        if (!cacheDarkTheme.has_value())
+        {
+            cacheDarkTheme = parseThemeValues(gsThemeDarkValues);
+        }
+        paletteToEnforce = cacheDarkTheme.value().get();
+    }
+    else if (mPreferenceTheme == Theme::UseSystem)
+    {
+        switch (QGuiApplication::styleHints()->colorScheme())
+        {
+            case Qt::ColorScheme::Dark:
+            {
+                if (!cacheDarkTheme.has_value())
+                {
+                    cacheDarkTheme = parseThemeValues(gsThemeDarkValues);
+                }
+                paletteToEnforce = cacheDarkTheme.value().get();
+                break;
+            }
+            default:
+            {
+                if (!cacheLightTheme.has_value())
+                {
+                    cacheLightTheme = parseThemeValues(gsThemeLightValues);
+                }
+                paletteToEnforce = cacheLightTheme.value().get();
+                break;
+            }
+        }
+    }
+
+    if (paletteToEnforce.has_value())
+    {
+        QGuiApplication::setPalette(*(paletteToEnforce.value()));
+    }
+
+    mPostStylesCacheValid = false;
+    reloadCurrentPost();
+    configureIcons();
 }
 
 void ZapFR::Client::MainWindow::updateToolbar()
@@ -608,6 +740,25 @@ void ZapFR::Client::MainWindow::showJumpToPageDialog(uint64_t currentPage, uint6
     mDialogJumpToPage->open();
 }
 
+void ZapFR::Client::MainWindow::showPreferences()
+{
+    if (mDialogPreferences == nullptr)
+    {
+        mDialogPreferences = std::make_unique<DialogPreferences>(this);
+        connect(mDialogPreferences.get(), &QDialog::finished,
+                [&](int result)
+                {
+                    if (result == QDialog::DialogCode::Accepted)
+                    {
+                        mPreferenceTheme = mDialogPreferences->chosenTheme();
+                        applyColorScheme(Qt::ColorScheme::Unknown); // parameter doesn't matter
+                    }
+                });
+    }
+    mDialogPreferences->reset();
+    mDialogPreferences->open();
+}
+
 void ZapFR::Client::MainWindow::createContextMenus()
 {
     createSourceContextMenus();
@@ -623,6 +774,9 @@ void ZapFR::Client::MainWindow::configureConnects()
     connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
     connect(ui->action_Export_OPML, &QAction::triggered, this, &MainWindow::exportOPML);
     connect(ui->action_Exit, &QAction::triggered, [&]() { QGuiApplication::quit(); });
+    connect(ui->action_Show_preferences, &QAction::triggered, this, &MainWindow::showPreferences);
+
+    connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::applyColorScheme);
 
     connect(mHamburgerMenuButton, &QPushButton::clicked,
             [&]()
@@ -718,14 +872,6 @@ void ZapFR::Client::MainWindow::configureConnects()
                         break;
                     }
                 }
-            });
-
-    connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged,
-            [&](Qt::ColorScheme /*scheme*/)
-            {
-                mPostStylesCacheValid = false;
-                reloadCurrentPost();
-                configureIcons();
             });
 
     connectSourceStuff();

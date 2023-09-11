@@ -51,7 +51,15 @@ namespace ZapFR
         class DialogJumpToPage;
         class DialogEditScript;
         class DialogEditScriptFolder;
+        class DialogPreferences;
         class LineEditSearch;
+
+        enum class Theme
+        {
+            Light,
+            Dark,
+            UseSystem
+        };
 
         class MainWindow : public QMainWindow
         {
@@ -66,6 +74,7 @@ namespace ZapFR
             MainWindow& operator=(MainWindow&&) = delete;
 
             StandardItemModelSources* sourcesItemModel() const noexcept { return mItemModelSources.get(); }
+            Theme currentPreferenceTheme() const noexcept { return mPreferenceTheme; }
 
           private slots:
             // actions
@@ -102,6 +111,9 @@ namespace ZapFR
             void addScriptFolder();
             void editScriptFolder();
             void removeScriptFolder();
+
+            void showPreferences();
+            void applyColorScheme(Qt::ColorScheme scheme);
 
             // events
             void postsTableViewSelectionChanged(const QModelIndexList& selected);
@@ -172,6 +184,7 @@ namespace ZapFR
             std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
             std::unique_ptr<DialogEditScript> mDialogEditScript{nullptr};
             std::unique_ptr<DialogEditScriptFolder> mDialogEditScriptFolder{nullptr};
+            std::unique_ptr<DialogPreferences> mDialogPreferences{nullptr};
 
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuSource{nullptr};
@@ -204,6 +217,8 @@ namespace ZapFR
 
             LineEditSearch* mLineEditSearch{nullptr};   // owned by the toolbar, so plain pointer
             QPushButton* mHamburgerMenuButton{nullptr}; // owned by the toolbar, so plain pointer
+
+            Theme mPreferenceTheme{Theme::UseSystem};
 
             QString dataDir() const;
             QString configDir() const;
@@ -263,6 +278,8 @@ namespace ZapFR
 
             static constexpr uint64_t msPostsPerPage{100};
             static constexpr uint64_t msLogsPerPage{100};
+
+            void dumpPalette();
         };
     } // namespace Client
 } // namespace ZapFR
