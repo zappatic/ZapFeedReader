@@ -7,8 +7,10 @@ cmake_policy(SET CMP0076 NEW)
 string(TOLOWER "${CMAKE_BUILD_TYPE}" lcbt)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${lcbt}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${lcbt}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${lcbt}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${lcbt}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${lcbt}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${lcbt}")
 
 add_compile_options(-Wall -Wextra -pedantic -Werror -Wconversion -Weffc++ -Wshadow -Wnon-virtual-dtor -Wcast-align -Wunused -Woverloaded-virtual -Wno-uninitialized)
 

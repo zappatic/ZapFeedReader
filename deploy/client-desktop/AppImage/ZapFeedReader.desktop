@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=ZapFeedReader
+Exec=zapfeedreader-client
+Icon=ZapFeedReader
+Type=Application
+Categories=Network;News;
