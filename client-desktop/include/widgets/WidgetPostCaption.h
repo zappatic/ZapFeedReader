@@ -25,6 +25,8 @@ namespace ZapFR
 {
     namespace Client
     {
+        class MainWindow;
+
         class WidgetPostCaption : public QWidget
         {
             Q_OBJECT
@@ -32,14 +34,19 @@ namespace ZapFR
           public:
             explicit WidgetPostCaption(QWidget* parent = nullptr);
             ~WidgetPostCaption() = default;
+            WidgetPostCaption(const WidgetPostCaption& e) = delete;
+            WidgetPostCaption& operator=(const WidgetPostCaption&) = delete;
+            WidgetPostCaption(WidgetPostCaption&&) = delete;
+            WidgetPostCaption& operator=(WidgetPostCaption&&) = delete;
 
-            void setCaption(const QString& caption);
+            void setCaption(const QString& caption, MainWindow* mainWindow);
 
           protected:
             void paintEvent(QPaintEvent* event) override;
 
           private:
             QString mCaption{""};
+            MainWindow* mMainWindow{nullptr};
         };
     } // namespace Client
 } // namespace ZapFR

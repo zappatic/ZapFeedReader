@@ -17,14 +17,16 @@
 */
 
 #include "widgets/WidgetPostCaption.h"
+#include "widgets/MainWindow.h"
 
 ZapFR::Client::WidgetPostCaption::WidgetPostCaption(QWidget* parent) : QWidget(parent)
 {
 }
 
-void ZapFR::Client::WidgetPostCaption::setCaption(const QString& caption)
+void ZapFR::Client::WidgetPostCaption::setCaption(const QString& caption, MainWindow* mainWindow)
 {
     mCaption = caption;
+    mMainWindow = mainWindow;
 }
 
 void ZapFR::Client::WidgetPostCaption::paintEvent(QPaintEvent* /*event*/)
@@ -32,6 +34,21 @@ void ZapFR::Client::WidgetPostCaption::paintEvent(QPaintEvent* /*event*/)
     if (!mCaption.isEmpty())
     {
         auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
+
+        // our value overrides the system, if it's explicitly light or dark
+        if (mMainWindow != nullptr)
+        {
+            auto preferenceTheme = mMainWindow->currentPreferenceTheme();
+            if (preferenceTheme == Theme::Light)
+            {
+                currentColorScheme = Qt::ColorScheme::Light;
+            }
+            else if (preferenceTheme == Theme::Dark)
+            {
+                currentColorScheme = Qt::ColorScheme::Dark;
+            }
+        }
+
         auto textPen = QPen(currentColorScheme == Qt::ColorScheme::Dark ? QColor(68, 68, 68) : QColor(170, 170, 170));
 
         auto textRect = QRect(0, 50, width(), 100);

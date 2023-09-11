@@ -360,13 +360,13 @@ void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndex
     else if (selected.count() == 0)
     {
         setBlankPostPage();
-        ui->widgetPostCaption->setCaption(tr("No post selected"));
+        ui->widgetPostCaption->setCaption(tr("No post selected"), this);
         ui->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
     }
     else
     {
         setBlankPostPage();
-        ui->widgetPostCaption->setCaption(tr("%1 posts selected").arg(selected.count()));
+        ui->widgetPostCaption->setCaption(tr("%1 posts selected").arg(selected.count()), this);
         ui->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
     }
 }
@@ -428,7 +428,7 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
     else
     {
         setBlankPostPage();
-        ui->widgetPostCaption->setCaption(tr("No post selected"));
+        ui->widgetPostCaption->setCaption(tr("No post selected"), this);
         ui->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
     }
 }
@@ -507,6 +507,17 @@ QString ZapFR::Client::MainWindow::postStyles() const
         QColor highlightColor = palette.color(QPalette::Active, QPalette::Highlight);
 
         auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
+
+        // our value overrides the system, if it's explicitly light or dark
+        if (mPreferenceTheme == Theme::Light)
+        {
+            currentColorScheme = Qt::ColorScheme::Light;
+        }
+        else if (mPreferenceTheme == Theme::Dark)
+        {
+            currentColorScheme = Qt::ColorScheme::Dark;
+        }
+
         if (currentColorScheme == Qt::ColorScheme::Dark)
         {
             overrideFilename = "posttheme.dark.css";
@@ -982,4 +993,6 @@ void ZapFR::Client::MainWindow::initializeUIPosts()
 
     mItemModelPostEnclosures = std::make_unique<QStandardItemModel>(this);
     ui->tableViewPostEnclosures->setModel(mItemModelPostEnclosures.get());
+
+    ui->tableViewPosts->setMainWindow(this);
 }

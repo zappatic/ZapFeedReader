@@ -17,6 +17,7 @@
 */
 
 #include "widgets/TableViewPosts.h"
+#include "widgets/MainWindow.h"
 #include "widgets/PopupFlagChooser.h"
 
 ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPaletteCorrected(parent)
@@ -160,6 +161,20 @@ void ZapFR::Client::TableViewPosts::paintEvent(QPaintEvent* event)
     if (model() != nullptr && model()->rowCount() == 0)
     {
         auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
+
+        // our value overrides the system, if it's explicitly light or dark
+        if (mMainWindow != nullptr)
+        {
+            auto preferenceTheme = mMainWindow->currentPreferenceTheme();
+            if (preferenceTheme == Theme::Light)
+            {
+                currentColorScheme = Qt::ColorScheme::Light;
+            }
+            else if (preferenceTheme == Theme::Dark)
+            {
+                currentColorScheme = Qt::ColorScheme::Dark;
+            }
+        }
         auto textPen = QPen(currentColorScheme == Qt::ColorScheme::Dark ? QColor(68, 68, 68) : QColor(170, 170, 170));
         auto vp = viewport();
         auto textRect = QRect(0, 50, vp->width(), 100);
@@ -172,4 +187,9 @@ void ZapFR::Client::TableViewPosts::paintEvent(QPaintEvent* event)
         painter.setFont(f);
         painter.drawText(textRect, Qt::AlignTop | Qt::AlignHCenter, tr("No posts found"));
     }
+}
+
+void ZapFR::Client::TableViewPosts::setMainWindow(MainWindow* mainWindow) noexcept
+{
+    mMainWindow = mainWindow;
 }

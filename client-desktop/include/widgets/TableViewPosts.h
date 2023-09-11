@@ -29,6 +29,7 @@ namespace ZapFR
     namespace Client
     {
         class PopupFlagChooser;
+        class MainWindow;
 
         class TableViewPosts : public TableViewPaletteCorrected
         {
@@ -37,6 +38,12 @@ namespace ZapFR
           public:
             TableViewPosts(QWidget* parent = nullptr);
             ~TableViewPosts() = default;
+            TableViewPosts(const TableViewPosts& e) = delete;
+            TableViewPosts& operator=(const TableViewPosts&) = delete;
+            TableViewPosts(TableViewPosts&&) = delete;
+            TableViewPosts& operator=(TableViewPosts&&) = delete;
+
+            void setMainWindow(MainWindow* mainWindow) noexcept;
 
           signals:
             void selectedPostsChanged(const QModelIndexList&);
@@ -57,6 +64,7 @@ namespace ZapFR
 
           private:
             std::unique_ptr<PopupFlagChooser> mPopupFlagChooser{nullptr};
+            MainWindow* mMainWindow{nullptr};
         };
     } // namespace Client
 } // namespace ZapFR
