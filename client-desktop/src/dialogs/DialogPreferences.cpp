@@ -50,6 +50,7 @@ void ZapFR::Client::DialogPreferences::reset()
             break;
         }
     }
+    ui->spinBoxFontSize->setValue(mainWindow->currentPreferenceUIFontSize());
 }
 
 ZapFR::Client::Theme ZapFR::Client::DialogPreferences::chosenTheme() const
@@ -66,4 +67,9 @@ ZapFR::Client::Theme ZapFR::Client::DialogPreferences::chosenTheme() const
     {
         return Theme::UseSystem;
     }
+}
+
+uint16_t ZapFR::Client::DialogPreferences::chosenUIFontSize() const
+{
+    return static_cast<uint16_t>(ui->spinBoxFontSize->value());
 }

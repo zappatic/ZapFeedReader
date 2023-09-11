@@ -75,6 +75,7 @@ namespace ZapFR
 
             StandardItemModelSources* sourcesItemModel() const noexcept { return mItemModelSources.get(); }
             Theme currentPreferenceTheme() const noexcept { return mPreferenceTheme; }
+            uint16_t currentPreferenceUIFontSize() const noexcept { return mPreferenceUIFontSize; }
 
           private slots:
             // actions
@@ -219,6 +220,7 @@ namespace ZapFR
             QPushButton* mHamburgerMenuButton{nullptr}; // owned by the toolbar, so plain pointer
 
             Theme mPreferenceTheme{Theme::UseSystem};
+            uint16_t mPreferenceUIFontSize{11};
 
             QString dataDir() const;
             QString configDir() const;
@@ -271,6 +273,7 @@ namespace ZapFR
             void configureIcons();
             void updateToolbar();
             void updateActivePostFilter();
+            void updatePreferredFontSize();
             void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
             std::vector<std::tuple<uint64_t, uint64_t>> selectedPostIDs() const;
             QStandardItem* findSourceStandardItem(uint64_t sourceID);

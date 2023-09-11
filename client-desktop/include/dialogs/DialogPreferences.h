@@ -45,6 +45,7 @@ namespace ZapFR
 
             void reset();
             Theme chosenTheme() const;
+            uint16_t chosenUIFontSize() const;
 
           private:
             Ui::DialogPreferences* ui;

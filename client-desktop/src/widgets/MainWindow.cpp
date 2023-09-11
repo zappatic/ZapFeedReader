@@ -84,6 +84,7 @@ void ZapFR::Client::MainWindow::initializeUI()
     initializeUIPosts();
     initializeUILogs();
     initializeUIScripts();
+    updatePreferredFontSize();
 
     // add a spacer in the toolbar to separate the left from the right buttons
     auto spacerWidget = new QWidget();
@@ -150,6 +151,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
     {
         root.insert(SETTING_UI_THEME, mPreferenceTheme == Theme::Light ? "light" : "dark");
     }
+    root.insert(SETTING_UI_FONTSIZE, mPreferenceUIFontSize);
 
     auto sf = QFile(settingsFile());
     sf.open(QIODeviceBase::WriteOnly);
@@ -207,6 +209,11 @@ void ZapFR::Client::MainWindow::restoreSettings()
                     auto value = root.value(SETTING_UI_THEME);
                     mPreferenceTheme = (value == "light" ? Theme::Light : Theme::Dark);
                     applyColorScheme(Qt::ColorScheme::Unknown); // parameter doesn't matter
+                }
+                if (root.contains(SETTING_UI_FONTSIZE))
+                {
+                    mPreferenceUIFontSize = static_cast<uint16_t>(root.value(SETTING_UI_FONTSIZE).toInt(11));
+                    updatePreferredFontSize();
                 }
             }
         }
@@ -392,6 +399,35 @@ QString ZapFR::Client::MainWindow::configDir() const
 QString ZapFR::Client::MainWindow::settingsFile() const
 {
     return QDir::cleanPath(configDir() + QDir::separator() + "zapfeedreader-client.conf");
+}
+
+void ZapFR::Client::MainWindow::updatePreferredFontSize()
+{
+    auto font = ui->treeViewSources->font();
+    font.setPointSizeF(mPreferenceUIFontSize);
+    ui->treeViewSources->setFont(font);
+
+    font = ui->tableViewPosts->font();
+    font.setPointSizeF(mPreferenceUIFontSize);
+    ui->tableViewPosts->setFont(font);
+
+    font = ui->tableViewPostEnclosures->font();
+    font.setPointSizeF(mPreferenceUIFontSize);
+    ui->tableViewPostEnclosures->setFont(font);
+
+    font = ui->tableViewScriptFolders->font();
+    font.setPointSizeF(mPreferenceUIFontSize);
+    ui->tableViewScriptFolders->setFont(font);
+
+    font = ui->tableViewLogs->font();
+    font.setPointSizeF(mPreferenceUIFontSize);
+    ui->tableViewLogs->setFont(font);
+
+    font = ui->tableViewScripts->font();
+    font.setPointSizeF(mPreferenceUIFontSize);
+    ui->tableViewScripts->setFont(font);
+
+    mPostStylesCacheValid = false;
 }
 
 void ZapFR::Client::MainWindow::configureIcons()
@@ -752,6 +788,9 @@ void ZapFR::Client::MainWindow::showPreferences()
                     {
                         mPreferenceTheme = mDialogPreferences->chosenTheme();
                         applyColorScheme(Qt::ColorScheme::Unknown); // parameter doesn't matter
+
+                        mPreferenceUIFontSize = mDialogPreferences->chosenUIFontSize();
+                        updatePreferredFontSize();
                     }
                 });
     }

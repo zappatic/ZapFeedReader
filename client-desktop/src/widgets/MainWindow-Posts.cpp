@@ -505,6 +505,9 @@ QString ZapFR::Client::MainWindow::postStyles() const
         QString backgroundColor;
         QString textColor;
         QColor highlightColor = palette.color(QPalette::Active, QPalette::Highlight);
+        QString bodyFontSize = QString::number(std::ceil(mPreferenceUIFontSize * 1.333f));
+        QString titleFontSize = QString::number(std::ceil((mPreferenceUIFontSize + 10) * 1.333f));
+        QString infoHeaderFontSize = QString::number(std::ceil((mPreferenceUIFontSize - 2) * 1.333f));
 
         auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
 
@@ -540,17 +543,20 @@ QString ZapFR::Client::MainWindow::postStyles() const
             return styles;
         }
 
-        cache = QString(R"(body { font-family: "%1", sans-serif; background-color: %2; color: %3; })"
+        cache = QString(R"(body { font-family: "%1", sans-serif; font-size: %5px; background-color: %2; color: %3; margin: 2px 25px; })"
                         "\n"
                         "a { color: %4; }\n"
-                        ".zapfr_title { color: %3; font-size: 36px; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0; user-select:none; }\n"
-                        ".zapfr_infoheader { font-size: 13px; display: flex; gap: 10px; }\n"
+                        ".zapfr_title { color: %3; font-size: %6px; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0; user-select:none; }\n"
+                        ".zapfr_infoheader { font-size: %7px; display: flex; gap: 10px; }\n"
                         ".zapfr_infoheader_separator { display: inline-block; margin-right: 10px; }\n"
                         ".zapfr_divider { margin-bottom: 30px; height: 1px; border: none; color: %3; background-color: %3; }\n")
                     .arg(font.family())
                     .arg(backgroundColor)
                     .arg(textColor)
-                    .arg(highlightColor.name());
+                    .arg(highlightColor.name())
+                    .arg(bodyFontSize)
+                    .arg(titleFontSize)
+                    .arg(infoHeaderFontSize);
         mPostStylesCacheValid = true;
     }
 
