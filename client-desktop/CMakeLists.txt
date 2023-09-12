@@ -28,7 +28,6 @@ set(PROJECT_SOURCES
         src/widgets/MainWindow-Properties.cpp
         src/widgets/WebEnginePagePost.cpp
         src/widgets/WebEngineViewPost.cpp
-        src/widgets/TableViewPaletteCorrected.cpp
         src/widgets/TableViewPosts.cpp
         src/widgets/TableViewPostEnclosures.cpp
         src/widgets/TableViewLogs.cpp
@@ -66,7 +65,6 @@ set(PROJECT_SOURCES
         include/widgets/MainWindow.h
         include/widgets/WebEnginePagePost.h
         include/widgets/WebEngineViewPost.h
-        include/widgets/TableViewPaletteCorrected.h
         include/widgets/TableViewPosts.h
         include/widgets/TableViewPostEnclosures.h
         include/widgets/TableViewLogs.h

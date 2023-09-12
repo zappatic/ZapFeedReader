@@ -20,13 +20,12 @@
 #define ZAPFR_CLIENT_TABLEVIEWLOGS_H
 
 #include "ClientGlobal.h"
-#include "TableViewPaletteCorrected.h"
 
 namespace ZapFR
 {
     namespace Client
     {
-        class TableViewLogs : public TableViewPaletteCorrected
+        class TableViewLogs : public QTableView
         {
             Q_OBJECT
 

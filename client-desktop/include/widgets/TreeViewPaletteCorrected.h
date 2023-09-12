@@ -35,9 +35,6 @@ namespace ZapFR
 
           protected:
             bool viewportEvent(QEvent* event) override;
-
-          private:
-            void updateColorPalette();
         };
     } // namespace Client
 } // namespace ZapFR

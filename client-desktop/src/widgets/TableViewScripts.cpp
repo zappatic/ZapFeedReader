@@ -18,7 +18,7 @@
 
 #include "widgets/TableViewScripts.h"
 
-ZapFR::Client::TableViewScripts::TableViewScripts(QWidget* parent) : TableViewPaletteCorrected(parent)
+ZapFR::Client::TableViewScripts::TableViewScripts(QWidget* parent) : QTableView(parent)
 {
 }
 
@@ -30,6 +30,6 @@ void ZapFR::Client::TableViewScripts::keyPressEvent(QKeyEvent* event)
     }
     else
     {
-        TableViewPaletteCorrected::keyPressEvent(event);
+        QTableView::keyPressEvent(event);
     }
 }

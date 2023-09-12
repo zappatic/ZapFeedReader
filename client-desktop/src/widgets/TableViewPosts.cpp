@@ -20,7 +20,7 @@
 #include "widgets/MainWindow.h"
 #include "widgets/PopupFlagChooser.h"
 
-ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPaletteCorrected(parent)
+ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : QTableView(parent)
 {
     mPopupFlagChooser = std::make_unique<PopupFlagChooser>(this);
 
@@ -92,7 +92,7 @@ void ZapFR::Client::TableViewPosts::keyPressEvent(QKeyEvent* event)
     {
         openPostInExternalBrowser();
     }
-    TableViewPaletteCorrected::keyPressEvent(event);
+    QTableView::keyPressEvent(event);
 }
 
 void ZapFR::Client::TableViewPosts::processFlagToggle(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle)
@@ -156,7 +156,7 @@ void ZapFR::Client::TableViewPosts::openPostInExternalBrowser()
 
 void ZapFR::Client::TableViewPosts::paintEvent(QPaintEvent* event)
 {
-    TableViewPaletteCorrected::paintEvent(event);
+    QTableView::paintEvent(event);
 
     if (model() != nullptr && model()->rowCount() == 0)
     {

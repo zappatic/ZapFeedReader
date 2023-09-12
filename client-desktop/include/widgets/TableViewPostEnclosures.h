@@ -20,7 +20,6 @@
 #define ZAPFR_CLIENT_TABLEVIEWPOSTSENCLOSURES_H
 
 #include "ClientGlobal.h"
-#include "TableViewPaletteCorrected.h"
 
 namespace ZapFR
 {
@@ -28,7 +27,7 @@ namespace ZapFR
     {
         class PopupFlagChooser;
 
-        class TableViewPostEnclosures : public TableViewPaletteCorrected
+        class TableViewPostEnclosures : public QTableView
         {
             Q_OBJECT
 

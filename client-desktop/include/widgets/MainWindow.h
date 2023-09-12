@@ -282,7 +282,9 @@ namespace ZapFR
             static constexpr uint64_t msPostsPerPage{100};
             static constexpr uint64_t msLogsPerPage{100};
 
+#ifdef ZFR_DUMP_PALETTE
             void dumpPalette();
+#endif
         };
     } // namespace Client
 } // namespace ZapFR

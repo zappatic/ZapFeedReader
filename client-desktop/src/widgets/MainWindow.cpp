@@ -57,6 +57,9 @@ namespace
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+#ifdef ZFR_DUMP_PALETTE
+    dumpPalette();
+#endif
     ZapFR::Engine::ScriptLocal::setScriptDir(QDir::cleanPath(dataDir() + QDir::separator() + "scripts").toStdString());
     ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
     ZapFR::Engine::Database::getInstance()->initialize(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader.db").toStdString(),
@@ -223,13 +226,38 @@ void ZapFR::Client::MainWindow::restoreSettings()
     }
 }
 
+#ifdef ZFR_DUMP_PALETTE
 void ZapFR::Client::MainWindow::dumpPalette()
 {
     std::array<QPalette::ColorGroup, 3> colorGroups{QPalette::Disabled, QPalette::Active, QPalette::Inactive};
+    std::array<QString, 3> colorGroupNames{"QPalette::Disabled", "QPalette::Active", "QPalette::Inactive"};
+
     std::array<QPalette::ColorRole, 20> colorRoles{
         QPalette::Window, QPalette::WindowText, QPalette::Base,       QPalette::AlternateBase,   QPalette::ToolTipBase, QPalette::ToolTipText, QPalette::PlaceholderText,
         QPalette::Text,   QPalette::Button,     QPalette::ButtonText, QPalette::BrightText,      QPalette::Light,       QPalette::Midlight,    QPalette::Dark,
         QPalette::Mid,    QPalette::Shadow,     QPalette::Highlight,  QPalette::HighlightedText, QPalette::Link,        QPalette::LinkVisited,
+    };
+    std::array<QString, 20> colorRoleNames{
+        "QPalette::Window",
+        "QPalette::WindowText",
+        "QPalette::Base",
+        "QPalette::AlternateBase",
+        "QPalette::ToolTipBase",
+        "QPalette::ToolTipText",
+        "QPalette::PlaceholderText",
+        "QPalette::Text",
+        "QPalette::Button",
+        "QPalette::ButtonText",
+        "QPalette::BrightText",
+        "QPalette::Light",
+        "QPalette::Midlight",
+        "QPalette::Dark",
+        "QPalette::Mid",
+        "QPalette::Shadow",
+        "QPalette::Highlight",
+        "QPalette::HighlightedText",
+        "QPalette::Link",
+        "QPalette::LinkVisited",
     };
 
     auto palette = QGuiApplication::palette();
@@ -245,7 +273,71 @@ void ZapFR::Client::MainWindow::dumpPalette()
     }
     Poco::JSON::Stringifier::stringify(o, std::cout);
     std::cout << std::endl;
+
+    QString theme = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark ? "Dark" : "Light";
+
+    int32_t imageWidth{900}, imageHeight{600};
+    QImage img({imageWidth, imageHeight}, QImage::Format::Format_RGB32);
+    QPainter painter(&img);
+    painter.setRenderHint(QPainter::TextAntialiasing, true);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.fillRect(QRect(0, 0, imageWidth, imageHeight), Qt::white);
+
+    int32_t marginTop{40};
+    int32_t marginLeft{20};
+    int32_t marginRow{5};
+    int32_t marginCol{5};
+    int32_t rowHeight{20};
+    int32_t swatchTableYStart{marginTop + 30};
+    int32_t colorRoleNameColumnWidth{185};
+    int32_t swatchWidth{100};
+    int32_t swatchColorNameWidth{125};
+    int32_t x{marginLeft}, y{marginTop};
+
+    auto defaultFont = painter.font();
+    auto headerFont = defaultFont;
+    headerFont.setPointSize(18);
+    auto colorNameFont = defaultFont;
+    colorNameFont.setFamily("Courier");
+
+    painter.setFont(headerFont);
+    painter.drawText(QPoint(x, y), theme);
+    y = swatchTableYStart;
+
+    for (size_t col = 0; col < colorGroups.size(); ++col)
+    {
+        auto columnX = marginLeft + colorRoleNameColumnWidth + (marginCol * 2) + (static_cast<int32_t>(col) * (swatchWidth + swatchColorNameWidth + marginCol));
+        painter.setFont(defaultFont);
+        painter.drawText(QPoint(columnX, y), colorGroupNames.at(col));
+        y += marginRow;
+
+        for (size_t row = 0; row < colorRoles.size(); ++row)
+        {
+            if (col == 0)
+            {
+                painter.setFont(defaultFont);
+                painter.drawText(QRect(x, y, colorRoleNameColumnWidth, rowHeight), Qt::AlignRight | Qt::AlignVCenter, colorRoleNames.at(row));
+            }
+            x = columnX;
+
+            auto color = palette.color(colorGroups.at(col), colorRoles.at(row));
+            auto swatchRect = QRect(x, y, swatchWidth, rowHeight);
+            painter.setPen(Qt::black);
+            painter.fillRect(swatchRect, color);
+            painter.drawRect(swatchRect);
+            painter.setFont(colorNameFont);
+            painter.drawText(QRect(x + swatchWidth + marginCol, y, swatchColorNameWidth, rowHeight), Qt::AlignLeft | Qt::AlignVCenter, color.name());
+
+            y += rowHeight + marginRow;
+            x = marginLeft;
+        }
+        y = swatchTableYStart;
+    }
+
+    painter.end();
+    img.save(QString("%1.jpg").arg(theme));
 }
+#endif
 
 void ZapFR::Client::MainWindow::importOPML()
 {
@@ -547,9 +639,30 @@ void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
                 auto colorRole = static_cast<QPalette::ColorRole>(Poco::NumberParser::parseUnsigned(colorRoleStr));
                 auto colorValue = QColor(colorRolesObj->getValue<std::string>(colorRoleStr).c_str());
 
+                // don't set the highlight color to the predetermined color, as it may be set as an accent color in the OS
+                if (colorRole == QPalette::Highlight)
+                {
+                    continue;
+                }
+
                 palette->setColor(colorGroup, colorRole, colorValue);
             }
         }
+
+        // explicitly overwrite these colors, as the inactive/disabled ones seem to be wrong by default :/
+        palette->setColor(QPalette::Inactive, QPalette::Highlight, palette->color(QPalette::Active, QPalette::Highlight));
+        palette->setColor(QPalette::Inactive, QPalette::HighlightedText, palette->color(QPalette::Active, QPalette::HighlightedText));
+        palette->setColor(QPalette::Inactive, QPalette::Button, palette->color(QPalette::Active, QPalette::Button));
+        palette->setColor(QPalette::Inactive, QPalette::ButtonText, palette->color(QPalette::Active, QPalette::ButtonText));
+        palette->setColor(QPalette::Disabled, QPalette::AlternateBase, palette->color(QPalette::Active, QPalette::AlternateBase));
+        palette->setColor(QPalette::Disabled, QPalette::Base, palette->color(QPalette::Active, QPalette::Base));
+        palette->setColor(QPalette::Disabled, QPalette::Button, palette->color(QPalette::Active, QPalette::Button));
+        palette->setColor(QPalette::Disabled, QPalette::Window, palette->color(QPalette::Active, QPalette::Window));
+        // ToolTipText in dark mode seems to be switched to white, but the ToolTipBase is the same light yellow, making it unreadable
+        // TODO: this doesn't seem to work though, as this color is not picked up by the tooltips, so (temporarily?) fixed by subclassing
+        // treeview, so that at least the error message on a feed is visible
+        palette->setColor(QPalette::ToolTipText, Qt::blue);
+
         return palette;
     };
 

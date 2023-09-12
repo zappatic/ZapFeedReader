@@ -18,7 +18,7 @@
 
 #include "widgets/TableViewScriptFolders.h"
 
-ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) : TableViewPaletteCorrected(parent)
+ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) : QTableView(parent)
 {
 }
 
@@ -42,6 +42,6 @@ void ZapFR::Client::TableViewScriptFolders::keyPressEvent(QKeyEvent* event)
     }
     else
     {
-        TableViewPaletteCorrected::keyPressEvent(event);
+        QTableView::keyPressEvent(event);
     }
 }

@@ -20,13 +20,12 @@
 #define ZAPFR_CLIENT_TABLEVIEWSCRIPTS_H
 
 #include "ClientGlobal.h"
-#include "TableViewPaletteCorrected.h"
 
 namespace ZapFR
 {
     namespace Client
     {
-        class TableViewScripts : public TableViewPaletteCorrected
+        class TableViewScripts : public QTableView
         {
             Q_OBJECT
 
