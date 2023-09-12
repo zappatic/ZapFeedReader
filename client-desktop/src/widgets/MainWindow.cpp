@@ -407,25 +407,32 @@ void ZapFR::Client::MainWindow::updatePreferredFontSize()
     font.setPointSizeF(mPreferenceUIFontSize);
     ui->treeViewSources->setFont(font);
 
+    auto tableViewRowHeight = static_cast<int32_t>(std::ceil(static_cast<float>(mPreferenceUIFontSize) * 1.333f) + 8);
+
     font = ui->tableViewPosts->font();
     font.setPointSizeF(mPreferenceUIFontSize);
     ui->tableViewPosts->setFont(font);
+    ui->tableViewPosts->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
     font = ui->tableViewPostEnclosures->font();
     font.setPointSizeF(mPreferenceUIFontSize);
     ui->tableViewPostEnclosures->setFont(font);
+    ui->tableViewPostEnclosures->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
     font = ui->tableViewScriptFolders->font();
     font.setPointSizeF(mPreferenceUIFontSize);
     ui->tableViewScriptFolders->setFont(font);
+    ui->tableViewScriptFolders->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
     font = ui->tableViewLogs->font();
     font.setPointSizeF(mPreferenceUIFontSize);
     ui->tableViewLogs->setFont(font);
+    ui->tableViewLogs->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
     font = ui->tableViewScripts->font();
     font.setPointSizeF(mPreferenceUIFontSize);
     ui->tableViewScripts->setFont(font);
+    ui->tableViewScripts->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
     mPostStylesCacheValid = false;
 }
