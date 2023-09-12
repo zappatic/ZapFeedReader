@@ -158,7 +158,7 @@ namespace ZapFR
         static constexpr uint32_t ScriptFolderColumnTitle = 0;
 
         static constexpr uint32_t ScriptsColumnType = 0;
-        static constexpr uint32_t ScriptsColumnFilename = 1;
+        static constexpr uint32_t ScriptsColumnTitle = 1;
         static constexpr uint32_t ScriptsColumnIsEnabled = 2;
         static constexpr uint32_t ScriptsColumnRunOnEvents = 3;
         static constexpr uint32_t ScriptsColumnRunOnFeedIDs = 4;
@@ -166,11 +166,11 @@ namespace ZapFR
         static constexpr uint32_t ScriptIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t ScriptIsEnabledRole{Qt::ItemDataRole::UserRole + 2};
         static constexpr uint32_t ScriptSourceIDRole{Qt::ItemDataRole::UserRole + 3};
-        static constexpr uint32_t ScriptFilenameRole{Qt::ItemDataRole::UserRole + 4};
         static constexpr uint32_t ScriptRunOnEventsRole{Qt::ItemDataRole::UserRole + 5};
         static constexpr uint32_t ScriptRunOnFeedIDsRole{Qt::ItemDataRole::UserRole + 6};
         static constexpr uint32_t ScriptEventCountRole{Qt::ItemDataRole::UserRole + 7};
-        static constexpr uint32_t ScriptExistsOnDiskRole{Qt::ItemDataRole::UserRole + 8};
+        static constexpr uint32_t ScriptTitleRole{Qt::ItemDataRole::UserRole + 8};
+        static constexpr uint32_t ScriptScriptRole{Qt::ItemDataRole::UserRole + 9};
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";

@@ -217,11 +217,12 @@ void ZapFR::Engine::Database::installDBSchemaV1()
     {
         (*mSession) << "CREATE TABLE IF NOT EXISTS scripts ("
                        " id INTEGER PRIMARY KEY"
+                       ",title TEXT NOT NULL"
                        ",type TEXT NOT NULL DEFAULT 'lua'"
-                       ",filename TEXT NOT NULL"
                        ",isEnabled BOOLEAN DEFAULT TRUE"
                        ",runOnEvents TEXT NOT NULL DEFAULT 'newpost'"
                        ",runOnFeedIDs TEXT"
+                       ",script TEXT NOT NULL DEFAULT ''"
                        ")",
             now;
     }

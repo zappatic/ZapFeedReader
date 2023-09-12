@@ -118,7 +118,7 @@ Poco::JSON::Object ZapFR::Engine::Script::toJSON()
             break;
         }
     }
-    o.set(JSONIdentifierScriptFilename, mFilename);
+    o.set(JSONIdentifierScriptTitle, mTitle);
     o.set(JSONIdentifierScriptIsEnabled, mIsEnabled);
     o.set(JSONIdentifierScriptRunOnEvents, runOnEventsString(mRunOnEvents));
 
@@ -127,7 +127,7 @@ Poco::JSON::Object ZapFR::Engine::Script::toJSON()
         o.set(JSONIdentifierScriptRunOnFeedIDs, runOnFeedIDsString(mRunOnFeedIDs));
     }
 
-    o.set(JSONIdentifierScriptExistsOnDisk, mExistsOnDisk);
+    o.set(JSONIdentifierScriptScript, mScript);
 
     return o;
 }

@@ -44,7 +44,6 @@ int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
     auto group = mConfiguration->getString("zapfr.group", "");
     gsUserHomePath = server.dropRootPrivilege(user, group);
 
-    ZapFR::Engine::ScriptLocal::setScriptDir(dataDir() + Poco::Path::separator() + "scripts");
     ZapFR::Engine::FeedLocal::setIconDir(dataDir() + Poco::Path::separator() + "icons");
     ZapFR::Engine::Database::getInstance()->initialize(dataDir() + Poco::Path::separator() + "zapfeedreader.db", ZapFR::Engine::ApplicationType::Server);
 

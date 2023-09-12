@@ -400,10 +400,10 @@ void ZapFR::Engine::SourceLocal::removeScript(uint64_t scriptID)
     ScriptLocal::remove(scriptID);
 }
 
-void ZapFR::Engine::SourceLocal::addScript(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
-                                           const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+void ZapFR::Engine::SourceLocal::addScript(Script::Type type, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
+                                           const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script)
 {
-    ScriptLocal::create(type, filename, enabled, events, feedIDs);
+    ScriptLocal::create(type, title, enabled, events, feedIDs, script);
 }
 
 /* ************************** SOURCE STUFF ************************** */

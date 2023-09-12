@@ -65,10 +65,6 @@ void ZapFR::Client::ItemDelegateScript::paint(QPainter* painter, const QStyleOpt
     {
         brushText = Qt::darkRed;
     }
-    else if (currentColumn == ScriptsColumnFilename && !index.data(ScriptExistsOnDiskRole).toBool())
-    {
-        brushText = Qt::darkRed;
-    }
 
     switch (currentColumn)
     {

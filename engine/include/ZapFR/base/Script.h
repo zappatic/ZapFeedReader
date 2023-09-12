@@ -49,22 +49,22 @@ namespace ZapFR
             Script& operator=(Script&&) = delete;
 
             uint64_t id() const noexcept { return mID; }
+            std::string title() const noexcept { return mTitle; }
             Type type() const noexcept { return mType; }
-            std::string filename() const noexcept { return mFilename; }
             bool isEnabled() const noexcept { return mIsEnabled; }
             std::unordered_set<Event> runOnEvents() const noexcept { return mRunOnEvents; }
             std::optional<std::unordered_set<uint64_t>> runOnFeedIDs() const noexcept { return mRunOnFeedIDs; }
-            bool existsOnDisk() const noexcept { return mExistsOnDisk; }
+            std::string script() const noexcept { return mScript; }
 
             void setType(Type t) { mType = t; }
-            void setFilename(const std::string& f) { mFilename = f; }
+            void setTitle(const std::string& t) { mTitle = t; }
             void setIsEnabled(bool b) { mIsEnabled = b; }
-            void setExistsOnDisk(bool b) { mExistsOnDisk = b; }
             void setRunOnEvents(std::unordered_set<Event> events) { mRunOnEvents = events; }
             void setRunOnFeedIDs(std::unordered_set<uint64_t> feedIDs) { mRunOnFeedIDs = feedIDs; }
+            void setScript(const std::string& s) { mScript = s; }
 
-            virtual void update(Type type, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
-                                const std::optional<std::unordered_set<uint64_t>>& feedIDs) = 0;
+            virtual void update(Type type, const std::string& title, bool enabled, const std::unordered_set<Event>& events,
+                                const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script) = 0;
 
             static std::unordered_set<Event> parseRunOnEvents(const std::string& str);
             static std::unordered_set<uint64_t> parseRunOnFeedIDs(const std::string& str);
@@ -77,22 +77,22 @@ namespace ZapFR
 
             virtual Poco::JSON::Object toJSON();
             static constexpr const char* JSONIdentifierScriptID{"id"};
+            static constexpr const char* JSONIdentifierScriptTitle{"title"};
             static constexpr const char* JSONIdentifierScriptType{"type"};
-            static constexpr const char* JSONIdentifierScriptFilename{"filename"};
             static constexpr const char* JSONIdentifierScriptIsEnabled{"isEnabled"};
             static constexpr const char* JSONIdentifierScriptRunOnEvents{"runOnEvents"};
             static constexpr const char* JSONIdentifierScriptRunOnFeedIDs{"runOnFeedIDs"};
-            static constexpr const char* JSONIdentifierScriptExistsOnDisk{"existsOnDisk"};
+            static constexpr const char* JSONIdentifierScriptScript{"script"};
 
           protected:
             uint64_t mID{0};
             Source* mParentSource{nullptr};
+            std::string mTitle{""};
             Type mType{Type::Lua};
-            std::string mFilename{""};
             bool mIsEnabled{false};
             std::unordered_set<Event> mRunOnEvents{};
             std::optional<std::unordered_set<uint64_t>> mRunOnFeedIDs{};
-            bool mExistsOnDisk{false};
+            std::string mScript{""};
         };
     } // namespace Engine
 } // namespace ZapFR

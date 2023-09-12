@@ -75,8 +75,8 @@ namespace ZapFR
             std::vector<std::unique_ptr<Script>> getScripts() override;
             std::optional<std::unique_ptr<Script>> getScript(uint64_t scriptID, uint32_t fetchInfo) override;
             void removeScript(uint64_t scriptID) override;
-            void addScript(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
-                           const std::optional<std::unordered_set<uint64_t>>& feedIDs) override;
+            void addScript(Script::Type type, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
+                           const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script) override;
 
           protected:
             std::unordered_map<uint64_t, std::vector<uint64_t>> remapFeedPostTuplesToMap(const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) const;

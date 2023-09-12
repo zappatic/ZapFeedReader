@@ -19,10 +19,10 @@
 #include "ZapFR/agents/script/AgentScriptUpdate.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentScriptUpdate::AgentScriptUpdate(uint64_t sourceID, uint64_t scriptID, Script::Type type, const std::string& filename, bool enabled,
+ZapFR::Engine::AgentScriptUpdate::AgentScriptUpdate(uint64_t sourceID, uint64_t scriptID, Script::Type type, const std::string& title, bool enabled,
                                                     const std::unordered_set<Script::Event>& events, const std::optional<std::unordered_set<uint64_t>>& feedIDs,
-                                                    std::function<void(uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mScriptID(scriptID), mType(type), mFilename(filename), mEnabled(enabled), mEvents(events), mFeedIDs(feedIDs),
+                                                    const std::string& script, std::function<void(uint64_t, uint64_t)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mScriptID(scriptID), mType(type), mTitle(title), mEnabled(enabled), mEvents(events), mFeedIDs(feedIDs), mScript(script),
       mFinishedCallback(finishedCallback)
 {
 }
@@ -35,7 +35,7 @@ void ZapFR::Engine::AgentScriptUpdate::run()
         auto script = source.value()->getScript(mScriptID, Source::FetchInfo::None);
         if (script.has_value())
         {
-            script.value()->update(mType, mFilename, mEnabled, mEvents, mFeedIDs);
+            script.value()->update(mType, mTitle, mEnabled, mEvents, mFeedIDs, mScript);
             mFinishedCallback(mSourceID, mScriptID);
         }
     }

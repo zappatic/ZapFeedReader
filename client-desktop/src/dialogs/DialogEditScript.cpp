@@ -52,9 +52,9 @@ ZapFR::Client::DialogEditScript::DisplayMode ZapFR::Client::DialogEditScript::di
     return mDisplayMode;
 }
 
-void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& filename, bool isEnabled,
+void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& title, bool isEnabled,
                                             const std::unordered_set<ZapFR::Engine::Script::Event>& runOnEvents,
-                                            const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs)
+                                            const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs, const QString& script)
 {
     mDisplayMode = dm;
     mCurrentSourceID = sourceID;
@@ -85,7 +85,7 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
     }
 
     mCurrentID = id;
-    ui->lineEditFilename->setText(filename);
+    ui->lineEditTitle->setText(title);
     ui->checkBoxEnabled->setCheckState(isEnabled ? Qt::Checked : Qt::Unchecked);
 
     ui->checkBoxRunOnNewPost->setCheckState(Qt::Unchecked);
@@ -154,7 +154,9 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
     };
     expandChildren(mFeedsModel->invisibleRootItem());
 
-    ui->lineEditFilename->setFocus();
+    ui->textEditScript->setText(script);
+    ui->tabWidget->setCurrentIndex(0);
+    ui->lineEditTitle->setFocus();
 }
 
 uint64_t ZapFR::Client::DialogEditScript::scriptID() const noexcept
@@ -167,9 +169,14 @@ uint64_t ZapFR::Client::DialogEditScript::scriptSourceID() const noexcept
     return mCurrentSourceID;
 }
 
-QString ZapFR::Client::DialogEditScript::filename() const noexcept
+QString ZapFR::Client::DialogEditScript::title() const noexcept
 {
-    return ui->lineEditFilename->text();
+    return ui->lineEditTitle->text();
+}
+
+QString ZapFR::Client::DialogEditScript::script() const noexcept
+{
+    return ui->textEditScript->toPlainText();
 }
 
 bool ZapFR::Client::DialogEditScript::isScriptEnabled() const noexcept

@@ -31,22 +31,16 @@ namespace ZapFR
             ScriptLocal(uint64_t id, Source* parentSource);
             ~ScriptLocal() = default;
 
-            std::string scriptContents() const;
-            void update(Type type, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
-                        const std::optional<std::unordered_set<uint64_t>>& feedIDs) override;
-
-            static void setScriptDir(const std::string& scriptDir);
-            static std::string msScriptDir;
+            void update(Type type, const std::string& title, bool enabled, const std::unordered_set<Event>& events, const std::optional<std::unordered_set<uint64_t>>& feedIDs,
+                        const std::string& script) override;
 
             static std::vector<std::unique_ptr<Script>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,
                                                                       const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static std::optional<std::unique_ptr<Script>> querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                       const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static void remove(uint64_t scriptID);
-            static void create(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
-                               const std::optional<std::unordered_set<uint64_t>>& feedIDs);
-
-            bool exists() const;
+            static void create(Script::Type type, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
+                               const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script);
         };
     } // namespace Engine
 } // namespace ZapFR

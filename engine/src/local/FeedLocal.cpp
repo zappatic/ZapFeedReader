@@ -188,7 +188,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
     auto scripts = source.getScripts();
     for (const auto& script : scripts)
     {
-        if (script->isEnabled() && script->existsOnDisk())
+        if (script->isEnabled() && !script->script().empty())
         {
             // check if we run this script on this feed ID
             auto runOnFeedIDs = script->runOnFeedIDs();
@@ -202,11 +202,11 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
             auto events = script->runOnEvents();
             if (events.contains(Script::Event::NewPost))
             {
-                scriptsRanOnNewPost.emplace_back(scriptLocal->scriptContents());
+                scriptsRanOnNewPost.emplace_back(scriptLocal->script());
             }
             if (events.contains(Script::Event::UpdatePost))
             {
-                scriptsRanOnUpdatePost.emplace_back(scriptLocal->scriptContents());
+                scriptsRanOnUpdatePost.emplace_back(scriptLocal->script());
             }
         }
     }

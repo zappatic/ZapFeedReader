@@ -49,12 +49,14 @@ namespace ZapFR
                 Edit
             };
             DisplayMode displayMode() const noexcept;
-            void reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& filename, bool isEnabled,
-                       const std::unordered_set<ZapFR::Engine::Script::Event>& runOnEvents, const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs);
+            void reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& title, bool isEnabled,
+                       const std::unordered_set<ZapFR::Engine::Script::Event>& runOnEvents, const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs,
+                       const QString& scripts);
 
             uint64_t scriptID() const noexcept;
             uint64_t scriptSourceID() const noexcept;
-            QString filename() const noexcept;
+            QString title() const noexcept;
+            QString script() const noexcept;
             bool isScriptEnabled() const noexcept;
             std::unordered_set<ZapFR::Engine::Script::Event> runOnEvents() const;
             bool runOnAllFeeds() const noexcept;

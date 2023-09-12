@@ -667,8 +667,8 @@ void ZapFR::Engine::SourceRemote::removeScript(uint64_t scriptID)
     }
 }
 
-void ZapFR::Engine::SourceRemote::addScript(Script::Type /*type*/, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
-                                            const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+void ZapFR::Engine::SourceRemote::addScript(Script::Type /*type*/, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
+                                            const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script)
 {
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
@@ -678,10 +678,11 @@ void ZapFR::Engine::SourceRemote::addScript(Script::Type /*type*/, const std::st
 
         std::map<std::string, std::string> params;
         params["type"] = Script::msTypeLuaIdentifier; // forced to lua
-        params["filename"] = filename;
+        params["title"] = title;
         params["isEnabled"] = enabled ? "true" : "false";
         params["runOnEvents"] = Script::runOnEventsString(events);
         params["runOnFeedIDs"] = Script::runOnFeedIDsString(feedIDs);
+        params["script"] = script;
 
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
     }

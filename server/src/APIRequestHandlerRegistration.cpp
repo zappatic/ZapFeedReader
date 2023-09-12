@@ -302,10 +302,11 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/script$)", R"(/script)");
 				entry->addBodyParameter({R"(type)", true, R"(The type of the script ('lua'))"});
-				entry->addBodyParameter({R"(filename)", true, R"(The filename of the script)"});
+				entry->addBodyParameter({R"(title)", true, R"(The title of the script)"});
 				entry->addBodyParameter({R"(isEnabled)", true, R"(Whether the script is enabled or not ('true' or 'false'))"});
 				entry->addBodyParameter({R"(runOnEvents)", false, R"(A comma separated list of events the script should run on)"});
 				entry->addBodyParameter({R"(runOnFeedIDs)", false, R"(A comma separated list of feedIDs the script should run for)"});
+				entry->addBodyParameter({R"(script)", true, R"(The script contents)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
@@ -343,10 +344,11 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setPath(R"(^\/script/([0-9]+)$)", R"(/script/<scriptID>)");
 				entry->addURIParameter({R"(scriptID)", R"(The id of the script to update)"});
 				entry->addBodyParameter({R"(type)", true, R"(The type of the script ('lua'))"});
-				entry->addBodyParameter({R"(filename)", true, R"(The filename of the script)"});
+				entry->addBodyParameter({R"(title)", true, R"(The title of the script)"});
 				entry->addBodyParameter({R"(isEnabled)", true, R"(Whether the script is enabled or not ('true' or 'false'))"});
 				entry->addBodyParameter({R"(runOnEvents)", false, R"(A comma separated list of events the script should run on)"});
 				entry->addBodyParameter({R"(runOnFeedIDs)", false, R"(A comma separated list of feedIDs the script should run for)"});
+				entry->addBodyParameter({R"(script)", true, R"(The script contents)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");

@@ -107,8 +107,8 @@ namespace ZapFR
             virtual std::vector<std::unique_ptr<Script>> getScripts() = 0;
             virtual std::optional<std::unique_ptr<Script>> getScript(uint64_t scriptID, uint32_t fetchInfo) = 0;
             virtual void removeScript(uint64_t scriptID) = 0;
-            virtual void addScript(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
-                                   const std::optional<std::unordered_set<uint64_t>>& feedIDs) = 0;
+            virtual void addScript(Script::Type type, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
+                                   const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script) = 0;
 
             static std::optional<std::unique_ptr<Source>> getSource(uint64_t sourceID);
             static std::vector<std::unique_ptr<Source>> getSources(std::optional<std::string> typeFilter);

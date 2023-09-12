@@ -123,12 +123,12 @@ namespace ZapFR
 
             // scripts
             void queueGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback);
-            void queueUpdateScript(uint64_t sourceID, uint64_t scriptID, Script::Type type, const std::string& filename, bool enabled,
-                                   const std::unordered_set<Script::Event>& events, const std::optional<std::unordered_set<uint64_t>>& feedIDs,
+            void queueUpdateScript(uint64_t sourceID, uint64_t scriptID, Script::Type type, const std::string& title, bool enabled,
+                                   const std::unordered_set<Script::Event>& events, const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script,
                                    std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueRemoveScript(uint64_t sourceID, uint64_t scriptID, std::function<void(uint64_t, uint64_t)> finishedCallback);
-            void queueAddScript(uint64_t sourceID, Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
-                                const std::optional<std::unordered_set<uint64_t>>& feedIDs, std::function<void(uint64_t)> finishedCallback);
+            void queueAddScript(uint64_t sourceID, Script::Type type, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
+                                const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script, std::function<void(uint64_t)> finishedCallback);
 
             // querying the threadpool/queue
             void queueMonitorFeedRefreshCompletion(std::function<void()> finishedCallback);

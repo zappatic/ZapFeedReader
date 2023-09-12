@@ -21,122 +21,150 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <property name="labelAlignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="labelType">
-       <property name="text">
-        <string>Type :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="comboBoxType">
+     <widget class="QWidget" name="tabDetails">
+      <attribute name="title">
+       <string>Details</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <property name="text">
-         <string>Lua</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelFilename">
-       <property name="text">
-        <string>Filename :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditFilename"/>
-     </item>
-     <item row="2" column="1">
-      <widget class="QCheckBox" name="checkBoxEnabled">
-       <property name="text">
-        <string>Enabled</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="labelRunOnEvents">
-       <property name="text">
-        <string>Run on event(s) :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QCheckBox" name="checkBoxRunOnNewPost">
-         <property name="text">
-          <string>New post</string>
+        <layout class="QFormLayout" name="formLayout">
+         <property name="labelAlignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="checkBoxRunOnUpdatePost">
-         <property name="text">
-          <string>Update post</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
+         <item row="0" column="0">
+          <widget class="QLabel" name="labelType">
+           <property name="text">
+            <string>Type :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="comboBoxType">
+           <item>
+            <property name="text">
+             <string>Lua</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="checkBoxEnabled">
+           <property name="text">
+            <string>Enabled</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="labelRunOnEvents">
+           <property name="text">
+            <string>Run on event(s) :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QCheckBox" name="checkBoxRunOnNewPost">
+             <property name="text">
+              <string>New post</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBoxRunOnUpdatePost">
+             <property name="text">
+              <string>Update post</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="labelRunOnFeeds">
+           <property name="text">
+            <string>Run on feed(s) :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="topMargin">
+            <number>4</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="checkBoxRunOnAllFeeds">
+             <property name="text">
+              <string>All feeds</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="ZapFR::Client::TreeViewEditScriptDialogSources" name="treeViewRunOnFeedIDs">
+             <property name="cursor" stdset="0">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::NoSelection</enum>
+             </property>
+             <attribute name="headerVisible">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="labelTitle">
+           <property name="text">
+            <string>Title :</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEditTitle"/>
+         </item>
+        </layout>
        </item>
       </layout>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="labelRunOnFeeds">
-       <property name="text">
-        <string>Run on feed(s) :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <property name="topMargin">
-        <number>4</number>
-       </property>
+     </widget>
+     <widget class="QWidget" name="tabScriptContents">
+      <attribute name="title">
+       <string>Script</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QCheckBox" name="checkBoxRunOnAllFeeds">
-         <property name="text">
-          <string>All feeds</string>
+        <widget class="QTextEdit" name="textEditScript">
+         <property name="lineWrapMode">
+          <enum>QTextEdit::NoWrap</enum>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="ZapFR::Client::TreeViewEditScriptDialogSources" name="treeViewRunOnFeedIDs">
-         <property name="cursor" stdset="0">
-          <cursorShape>PointingHandCursor</cursorShape>
-         </property>
-         <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
-         </property>
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::NoSelection</enum>
-         </property>
-         <attribute name="headerVisible">
-          <bool>false</bool>
-         </attribute>
         </widget>
        </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

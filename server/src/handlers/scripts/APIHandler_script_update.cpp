@@ -32,10 +32,11 @@
 //
 //	Parameters:
 //		type (REQD) - The type of the script ('lua') - apiRequest->parameter("type")
-//		filename (REQD) - The filename of the script - apiRequest->parameter("filename")
+//		title (REQD) - The title of the script - apiRequest->parameter("title")
 //		isEnabled (REQD) - Whether the script is enabled or not ('true' or 'false') - apiRequest->parameter("isEnabled")
 //		runOnEvents - A comma separated list of events the script should run on - apiRequest->parameter("runOnEvents")
 //		runOnFeedIDs - A comma separated list of feedIDs the script should run for - apiRequest->parameter("runOnFeedIDs")
+//		script (REQD) - The script contents - apiRequest->parameter("script")
 //
 //	Content-Type: application/json
 //	JSON output: Object
@@ -46,10 +47,11 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_script_update([[ma
 {
     const auto scriptIDStr = apiRequest->pathComponentAt(1);
     const auto type = apiRequest->parameter("type");
-    const auto filename = apiRequest->parameter("filename");
+    const auto title = apiRequest->parameter("title");
     const auto isEnabled = (apiRequest->parameter("isEnabled") == "true");
     const auto runOnEventsStr = apiRequest->parameter("runOnEvents");
     const auto runOnFeedIDsStr = apiRequest->parameter("runOnFeedIDs");
+    const auto scriptContents = apiRequest->parameter("script");
 
     uint64_t scriptID{0};
     Poco::NumberParser::tryParseUnsigned64(scriptIDStr, scriptID);
@@ -70,7 +72,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_script_update([[ma
             if (script.has_value())
             {
                 // force lua
-                script.value()->update(ZapFR::Engine::Script::Type::Lua, filename, isEnabled, events, feedIDs);
+                script.value()->update(ZapFR::Engine::Script::Type::Lua, title, isEnabled, events, feedIDs, scriptContents);
             }
         }
     }

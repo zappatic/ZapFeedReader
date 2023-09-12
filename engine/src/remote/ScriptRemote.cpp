@@ -24,8 +24,8 @@ ZapFR::Engine::ScriptRemote::ScriptRemote(uint64_t id, Source* parentSource) : S
 {
 }
 
-void ZapFR::Engine::ScriptRemote::update(Type /*type*/, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
-                                         const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+void ZapFR::Engine::ScriptRemote::update(Type /*type*/, const std::string& title, bool enabled, const std::unordered_set<Event>& events,
+                                         const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script)
 {
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
     auto uri = remoteSource->remoteURL();
@@ -36,10 +36,11 @@ void ZapFR::Engine::ScriptRemote::update(Type /*type*/, const std::string& filen
 
         std::map<std::string, std::string> params;
         params["type"] = Script::msTypeLuaIdentifier; // forced to lua
-        params["filename"] = filename;
+        params["title"] = title;
         params["isEnabled"] = enabled ? "true" : "false";
         params["runOnEvents"] = Script::runOnEventsString(events);
         params["runOnFeedIDs"] = Script::runOnFeedIDsString(feedIDs);
+        params["script"] = script;
 
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_PATCH, creds, params);
     }
@@ -61,9 +62,9 @@ std::unique_ptr<ZapFR::Engine::Script> ZapFR::Engine::ScriptRemote::fromJSON(Sou
         throw std::runtime_error("Unknown script type");
     }
 
-    script->setFilename(o->getValue<std::string>(Script::JSONIdentifierScriptFilename));
+    script->setTitle(o->getValue<std::string>(Script::JSONIdentifierScriptTitle));
     script->setIsEnabled(o->getValue<bool>(Script::JSONIdentifierScriptIsEnabled));
-    script->setExistsOnDisk(o->getValue<bool>(Script::JSONIdentifierScriptExistsOnDisk));
+    script->setScript(o->getValue<std::string>(Script::JSONIdentifierScriptScript));
     script->setRunOnEvents(Script::parseRunOnEvents(o->getValue<std::string>(Script::JSONIdentifierScriptRunOnEvents)));
     if (o->has(Script::JSONIdentifierScriptRunOnFeedIDs))
     {

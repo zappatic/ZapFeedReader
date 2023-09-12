@@ -31,8 +31,8 @@ namespace ZapFR
             ScriptRemote(uint64_t id, Source* parentSource);
             ~ScriptRemote() = default;
 
-            void update(Type type, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
-                        const std::optional<std::unordered_set<uint64_t>>& feedIDs) override;
+            void update(Type type, const std::string& title, bool enabled, const std::unordered_set<Event>& events,
+                        const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script) override;
 
             static std::unique_ptr<Script> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
         };

@@ -23,52 +23,12 @@
 
 using namespace Poco::Data::Keywords;
 
-std::string ZapFR::Engine::ScriptLocal::msScriptDir{""};
-
 ZapFR::Engine::ScriptLocal::ScriptLocal(uint64_t id, Source* parentSource) : Script(id, parentSource)
 {
 }
 
-std::string ZapFR::Engine::ScriptLocal::scriptContents() const
-{
-    std::string script = "";
-    if (exists())
-    {
-        auto scriptFile = Poco::File(msScriptDir + Poco::Path::separator() + mFilename);
-        Poco::FileInputStream fis(scriptFile.path());
-        Poco::StreamCopier::copyToString(fis, script);
-        fis.close();
-    }
-    return script;
-}
-
-bool ZapFR::Engine::ScriptLocal::exists() const
-{
-    if (mFilename.empty())
-    {
-        return false;
-    }
-
-    auto scriptFile = Poco::File(msScriptDir + Poco::Path::separator() + mFilename);
-    if (!scriptFile.exists())
-    {
-        return false;
-    }
-    return true;
-}
-
-void ZapFR::Engine::ScriptLocal::setScriptDir(const std::string& iconDir)
-{
-    msScriptDir = iconDir;
-    auto d = Poco::File(msScriptDir);
-    if (!d.exists())
-    {
-        d.createDirectories();
-    }
-}
-
-void ZapFR::Engine::ScriptLocal::update(Type /*type*/, const std::string& filename, bool enabled, const std::unordered_set<Event>& events,
-                                        const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+void ZapFR::Engine::ScriptLocal::update(Type /*type*/, const std::string& title, bool enabled, const std::unordered_set<Event>& events,
+                                        const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script)
 {
     // join all the events into a comma separated identifier string
     std::vector<std::string> eventStrings;
@@ -96,12 +56,13 @@ void ZapFR::Engine::ScriptLocal::update(Type /*type*/, const std::string& filena
 
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE scripts SET" // type is not set (yet), default = Lua
-                  " filename=?"
+                  " title=?"
                   ",isEnabled=?"
                   ",runOnEvents=?"
                   ",runOnFeedIDs=?"
+                  ",script=?"
                   " WHERE id=?",
-        useRef(filename), use(enabled), useRef(joinedEvents), use(joinedFeedIDs), use(mID), now;
+        useRef(title), use(enabled), useRef(joinedEvents), use(joinedFeedIDs), useRef(script), use(mID), now;
 }
 
 void ZapFR::Engine::ScriptLocal::remove(uint64_t scriptID)
@@ -110,8 +71,8 @@ void ZapFR::Engine::ScriptLocal::remove(uint64_t scriptID)
     deleteStmt << "DELETE FROM scripts WHERE id=?", use(scriptID), now;
 }
 
-void ZapFR::Engine::ScriptLocal::create(Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
-                                        const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+void ZapFR::Engine::ScriptLocal::create(Script::Type type, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
+                                        const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script)
 {
     std::string typeStr;
     switch (type)
@@ -149,10 +110,10 @@ void ZapFR::Engine::ScriptLocal::create(Script::Type type, const std::string& fi
 
     Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
     insertStmt << "INSERT INTO scripts"
-                  " (type,filename,isEnabled,runOnEvents,runOnFeedIDs)"
+                  " (type,title,isEnabled,runOnEvents,runOnFeedIDs, script)"
                   " VALUES"
-                  " (?,?,?,?,?)",
-        useRef(typeStr), useRef(filename), use(enabled), useRef(joinedEvents), use(joinedFeedIDs), now;
+                  " (?,?,?,?,?,?)",
+        useRef(typeStr), useRef(title), use(enabled), useRef(joinedEvents), use(joinedFeedIDs), useRef(script), now;
 }
 
 std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
@@ -163,20 +124,22 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::
 
     uint64_t id{0};
     std::string type{""};
-    std::string filename{""};
+    std::string title{""};
     bool isEnabled{false};
     std::string runOnEvents{""};
     Poco::Nullable<std::string> runOnFeedIDs{};
+    std::string script;
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
 
     std::stringstream ss;
     ss << "SELECT scripts.id"
           ",scripts.type"
-          ",scripts.filename"
+          ",scripts.title"
           ",scripts.isEnabled"
           ",scripts.runOnEvents"
           ",scripts.runOnFeedIDs"
+          ",scripts.script"
           " FROM scripts";
     if (!whereClause.empty())
     {
@@ -196,10 +159,11 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::
 
     selectStmt.addExtract(into(id));
     selectStmt.addExtract(into(type));
-    selectStmt.addExtract(into(filename));
+    selectStmt.addExtract(into(title));
     selectStmt.addExtract(into(isEnabled));
     selectStmt.addExtract(into(runOnEvents));
     selectStmt.addExtract(into(runOnFeedIDs));
+    selectStmt.addExtract(into(script));
 
     while (!selectStmt.done())
     {
@@ -209,8 +173,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::
             {
                 auto s = std::make_unique<ScriptLocal>(id, parentSource);
                 s->setType(Script::Type::Lua);
-                s->setFilename(filename);
-                s->setExistsOnDisk(s->exists());
+                s->setTitle(title);
                 s->setIsEnabled(isEnabled);
                 s->setRunOnEvents(Script::parseRunOnEvents(runOnEvents));
                 if (!runOnFeedIDs.isNull())
@@ -221,6 +184,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal::
                         s->setRunOnFeedIDs(feedIDs);
                     }
                 }
+                s->setScript(script);
                 scripts.emplace_back(std::move(s));
             }
         }
@@ -233,19 +197,21 @@ std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal
 {
     uint64_t id{0};
     std::string type{""};
-    std::string filename{""};
+    std::string title{""};
     bool isEnabled{false};
     std::string runOnEvents{""};
     Poco::Nullable<std::string> runOnFeedIDs{};
+    std::string script;
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     std::stringstream ss;
     ss << "SELECT scripts.id"
           ",scripts.type"
-          ",scripts.filename"
+          ",scripts.title"
           ",scripts.isEnabled"
           ",scripts.runOnEvents"
           ",scripts.runOnFeedIDs"
+          ",scripts.script"
           " FROM scripts";
     if (!whereClause.empty())
     {
@@ -264,10 +230,11 @@ std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal
 
     selectStmt.addExtract(into(id));
     selectStmt.addExtract(into(type));
-    selectStmt.addExtract(into(filename));
+    selectStmt.addExtract(into(title));
     selectStmt.addExtract(into(isEnabled));
     selectStmt.addExtract(into(runOnEvents));
     selectStmt.addExtract(into(runOnFeedIDs));
+    selectStmt.addExtract(into(script));
 
     selectStmt.execute();
 
@@ -278,8 +245,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal
         {
             auto s = std::make_unique<ScriptLocal>(id, parentSource);
             s->setType(Script::Type::Lua);
-            s->setFilename(filename);
-            s->setExistsOnDisk(s->exists());
+            s->setTitle(title);
             s->setIsEnabled(isEnabled);
             s->setRunOnEvents(Script::parseRunOnEvents(runOnEvents));
             if (!runOnFeedIDs.isNull())
@@ -290,6 +256,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::ScriptLocal
                     s->setRunOnFeedIDs(feedIDs);
                 }
             }
+            s->setScript(script);
             return s;
         }
     }

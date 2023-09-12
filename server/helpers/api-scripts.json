@@ -39,9 +39,9 @@
         "description": "The type of the script ('lua')"
       },
       {
-        "name": "filename",
+        "name": "title",
         "required": true,
-        "description": "The filename of the script"
+        "description": "The title of the script"
       },
       {
         "name": "isEnabled",
@@ -57,6 +57,11 @@
         "name": "runOnFeedIDs",
         "required": false,
         "description": "A comma separated list of feedIDs the script should run for"
+      },
+      {
+        "name": "script",
+        "required": true,
+        "description": "The script contents"
       }
     ],
     "requireCredentials": true,
@@ -96,9 +101,9 @@
         "description": "The type of the script ('lua')"
       },
       {
-        "name": "filename",
+        "name": "title",
         "required": true,
-        "description": "The filename of the script"
+        "description": "The title of the script"
       },
       {
         "name": "isEnabled",
@@ -114,6 +119,11 @@
         "name": "runOnFeedIDs",
         "required": false,
         "description": "A comma separated list of feedIDs the script should run for"
+      },
+      {
+        "name": "script",
+        "required": true,
+        "description": "The script contents"
       }
     ],
     "requireCredentials": true,

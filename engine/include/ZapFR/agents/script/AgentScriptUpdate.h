@@ -30,8 +30,8 @@ namespace ZapFR
         class AgentScriptUpdate : public AgentRunnable
         {
           public:
-            explicit AgentScriptUpdate(uint64_t sourceID, uint64_t scriptID, Script::Type type, const std::string& filename, bool enabled,
-                                       const std::unordered_set<Script::Event>& events, const std::optional<std::unordered_set<uint64_t>>& feedIDs,
+            explicit AgentScriptUpdate(uint64_t sourceID, uint64_t scriptID, Script::Type type, const std::string& title, bool enabled,
+                                       const std::unordered_set<Script::Event>& events, const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script,
                                        std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentScriptUpdate() = default;
 
@@ -42,10 +42,11 @@ namespace ZapFR
             uint64_t mSourceID{0};
             uint64_t mScriptID{0};
             Script::Type mType{Script::Type::Lua};
-            std::string mFilename{""};
+            std::string mTitle{""};
             bool mEnabled{false};
             std::unordered_set<Script::Event> mEvents;
             std::optional<std::unordered_set<uint64_t>> mFeedIDs;
+            std::string mScript{""};
             std::function<void(uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine

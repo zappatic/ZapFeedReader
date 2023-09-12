@@ -30,8 +30,8 @@ namespace ZapFR
         class AgentScriptAdd : public AgentRunnable
         {
           public:
-            explicit AgentScriptAdd(uint64_t sourceID, Script::Type type, const std::string& filename, bool enabled, const std::unordered_set<Script::Event>& events,
-                                    const std::optional<std::unordered_set<uint64_t>>& feedIDs, std::function<void(uint64_t)> finishedCallback);
+            explicit AgentScriptAdd(uint64_t sourceID, Script::Type type, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
+                                    const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script, std::function<void(uint64_t)> finishedCallback);
             virtual ~AgentScriptAdd() = default;
 
             void run() override;
@@ -40,10 +40,11 @@ namespace ZapFR
           private:
             uint64_t mSourceID{0};
             Script::Type mType{Script::Type::Lua};
-            std::string mFilename{""};
+            std::string mTitle{""};
             bool mEnabled{false};
             std::unordered_set<Script::Event> mEvents;
             std::optional<std::unordered_set<uint64_t>> mFeedIDs;
+            std::string mScript{""};
             std::function<void(uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
