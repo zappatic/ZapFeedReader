@@ -86,6 +86,7 @@ void ZapFR::Client::MainWindow::initializeUI()
     initializeUIPosts();
     initializeUILogs();
     initializeUIScripts();
+    initializeUIScriptFolders();
     updatePreferredFontSize();
 
     // add a spacer in the toolbar to separate the left from the right buttons
@@ -668,7 +669,8 @@ void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
             }
 
             if (overrideBuggedValues)
-            { // explicitly overwrite these colors, as the inactive/disabled ones seem to be wrong by default :/
+            {
+                // explicitly overwrite these colors, as the inactive/disabled ones seem to be wrong by default :/
                 palette->setColor(QPalette::Inactive, QPalette::Highlight, palette->color(QPalette::Active, QPalette::Highlight));
                 palette->setColor(QPalette::Inactive, QPalette::HighlightedText, palette->color(QPalette::Active, QPalette::HighlightedText));
                 palette->setColor(QPalette::Inactive, QPalette::Button, palette->color(QPalette::Active, QPalette::Button));

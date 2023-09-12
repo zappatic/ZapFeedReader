@@ -34,13 +34,13 @@ namespace ZapFR
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                               FlagColor flagColor) override;
 
-            void update(const std::string& title) override;
+            void update(const std::string& title, bool showTotal, bool showUnread) override;
 
             static std::vector<std::unique_ptr<ScriptFolder>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,
                                                                             const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static std::optional<std::unique_ptr<ScriptFolder>> querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                             const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-            static void create(const std::string& title);
+            static void create(const std::string& title, bool showTotal, bool showUnread);
             static void remove(uint64_t scriptFolderID);
         };
     } // namespace Engine

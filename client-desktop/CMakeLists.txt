@@ -47,6 +47,7 @@ set(PROJECT_SOURCES
         src/delegates/ItemDelegateLog.cpp
         src/delegates/ItemDelegateScript.cpp
         src/delegates/ItemDelegateEditScriptDialogSource.cpp
+        src/delegates/ItemDelegateScriptFolder.cpp
         src/dialogs/DialogWithSourcesAndFolders.cpp
         src/dialogs/DialogAddFeed.cpp
         src/dialogs/DialogAddFolder.cpp
@@ -84,6 +85,7 @@ set(PROJECT_SOURCES
         include/delegates/ItemDelegateLog.h
         include/delegates/ItemDelegateScript.h
         include/delegates/ItemDelegateEditScriptDialogSource.h
+        include/delegates/ItemDelegateScriptFolder.h
         include/dialogs/DialogWithSourcesAndFolders.h
         include/dialogs/DialogAddFeed.h
         include/dialogs/DialogAddFolder.h

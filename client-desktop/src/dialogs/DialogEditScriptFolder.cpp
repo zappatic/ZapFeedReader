@@ -44,12 +44,14 @@ uint64_t ZapFR::Client::DialogEditScriptFolder::id() const noexcept
     return mCurrentID;
 }
 
-void ZapFR::Client::DialogEditScriptFolder::reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& title)
+void ZapFR::Client::DialogEditScriptFolder::reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& title, bool showTotal, bool showUnread)
 {
     mDisplayMode = dm;
     mCurrentSourceID = sourceID;
     mCurrentID = id;
     ui->lineEditTitle->setText(title);
+    ui->checkBoxShowTotal->setChecked(showTotal);
+    ui->checkBoxShowUnread->setChecked(showUnread);
 
     QString buttonCaption;
     switch (dm)
@@ -83,4 +85,14 @@ void ZapFR::Client::DialogEditScriptFolder::reset(DisplayMode dm, uint64_t sourc
 QString ZapFR::Client::DialogEditScriptFolder::title() const noexcept
 {
     return ui->lineEditTitle->text();
+}
+
+bool ZapFR::Client::DialogEditScriptFolder::showTotal() const noexcept
+{
+    return ui->checkBoxShowTotal->isChecked();
+}
+
+bool ZapFR::Client::DialogEditScriptFolder::showUnread() const noexcept
+{
+    return ui->checkBoxShowUnread->isChecked();
 }

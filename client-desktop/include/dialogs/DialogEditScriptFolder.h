@@ -48,8 +48,10 @@ namespace ZapFR
                 Edit
             };
             DisplayMode displayMode() const noexcept;
-            void reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& title);
+            void reset(DisplayMode dm, uint64_t sourceID, uint64_t id, const QString& title, bool showTotal, bool showUnread);
             QString title() const noexcept;
+            bool showTotal() const noexcept;
+            bool showUnread() const noexcept;
             uint64_t sourceID() const noexcept;
             uint64_t id() const noexcept;
 

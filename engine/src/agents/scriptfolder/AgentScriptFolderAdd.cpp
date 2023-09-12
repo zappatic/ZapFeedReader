@@ -19,8 +19,9 @@
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderAdd.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentScriptFolderAdd::AgentScriptFolderAdd(uint64_t sourceID, const std::string& title, std::function<void(uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mTitle(title), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentScriptFolderAdd::AgentScriptFolderAdd(uint64_t sourceID, const std::string& title, bool showTotal, bool showUnread,
+                                                          std::function<void(uint64_t)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mTitle(title), mShowTotal(showTotal), mShowUnread(showUnread), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -29,7 +30,7 @@ void ZapFR::Engine::AgentScriptFolderAdd::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->addScriptFolder(mTitle);
+        source.value()->addScriptFolder(mTitle, mShowTotal, mShowUnread);
         mFinishedCallback(mSourceID);
     }
 

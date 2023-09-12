@@ -34,7 +34,7 @@ namespace ZapFR
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                               FlagColor flagColor) override;
 
-            void update(const std::string& title) override;
+            void update(const std::string& title, bool showTotal, bool showUnread) override;
 
             static std::unique_ptr<ScriptFolder> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
         };

@@ -70,7 +70,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(postCount, std::move(posts));
 }
 
-void ZapFR::Engine::ScriptFolderRemote::update(const std::string& title)
+void ZapFR::Engine::ScriptFolderRemote::update(const std::string& title, bool showTotal, bool showUnread)
 {
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
     auto uri = remoteSource->remoteURL();
@@ -81,6 +81,8 @@ void ZapFR::Engine::ScriptFolderRemote::update(const std::string& title)
 
         std::map<std::string, std::string> params;
         params["title"] = title;
+        params["showTotal"] = showTotal ? "true" : "false";
+        params["showUnread"] = showUnread ? "true" : "false";
 
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_PATCH, creds, params);
     }
@@ -92,6 +94,10 @@ std::unique_ptr<ZapFR::Engine::ScriptFolder> ZapFR::Engine::ScriptFolderRemote::
 
     auto scriptFolder = std::make_unique<ScriptFolderRemote>(scriptFolderID, parentSource);
     scriptFolder->setTitle(o->getValue<std::string>(ScriptFolder::JSONIdentifierScriptFolderTitle));
+    scriptFolder->setShowTotal(o->getValue<bool>(ScriptFolder::JSONIdentifierScriptFolderShowTotal));
+    scriptFolder->setShowUnread(o->getValue<bool>(ScriptFolder::JSONIdentifierScriptFolderShowUnread));
+    scriptFolder->setTotalPostCount(o->getValue<uint64_t>(ScriptFolder::JSONIdentifierScriptFolderTotalPostCount));
+    scriptFolder->setTotalUnreadCount(o->getValue<uint64_t>(ScriptFolder::JSONIdentifierScriptFolderTotalUnreadCount));
 
     return scriptFolder;
 }

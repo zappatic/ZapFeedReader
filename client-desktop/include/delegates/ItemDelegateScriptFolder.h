@@ -16,33 +16,26 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTSCRIPTFOLDERADD_H
-#define ZAPFR_ENGINE_AGENTSCRIPTFOLDERADD_H
+#ifndef ZAPFR_CLIENT_ITEMDELEGATESCRIPTFOLDER_H
+#define ZAPFR_CLIENT_ITEMDELEGATESCRIPTFOLDER_H
 
-#include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
+#include "ClientGlobal.h"
 
 namespace ZapFR
 {
-    namespace Engine
+    namespace Client
     {
-        class AgentScriptFolderAdd : public AgentRunnable
+        class ItemDelegateScriptFolder : public QStyledItemDelegate
         {
+            Q_OBJECT
+
           public:
-            explicit AgentScriptFolderAdd(uint64_t sourceID, const std::string& title, bool showTotal, bool showUnread, std::function<void(uint64_t)> finishedCallback);
-            virtual ~AgentScriptFolderAdd() = default;
+            explicit ItemDelegateScriptFolder(QObject* parent = nullptr);
+            ~ItemDelegateScriptFolder() = default;
 
-            void run() override;
-            Type type() const noexcept override { return Type::ScriptFolderAdd; }
-
-          private:
-            uint64_t mSourceID{0};
-            std::string mTitle{""};
-            bool mShowTotal{false};
-            bool mShowUnread{false};
-            std::function<void(uint64_t)> mFinishedCallback{};
+            void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
         };
-    } // namespace Engine
+    } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTSCRIPTFOLDERADD_H
+#endif // ZAPFR_CLIENT_ITEMDELEGATESCRIPTFOLDER_H

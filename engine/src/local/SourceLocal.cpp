@@ -367,9 +367,9 @@ std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::Sourc
     }
 }
 
-void ZapFR::Engine::SourceLocal::addScriptFolder(const std::string& title)
+void ZapFR::Engine::SourceLocal::addScriptFolder(const std::string& title, bool showTotal, bool showUnread)
 {
-    ScriptFolderLocal::create(title);
+    ScriptFolderLocal::create(title, showTotal, showUnread);
 }
 
 void ZapFR::Engine::SourceLocal::removeScriptFolder(uint64_t scriptFolderID)

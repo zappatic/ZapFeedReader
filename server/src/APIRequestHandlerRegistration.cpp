@@ -359,10 +359,26 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/scriptfolder$)", R"(/scriptfolder)");
 				entry->addBodyParameter({R"(title)", true, R"(The title of the script folder to add)"});
+				entry->addBodyParameter({R"(showTotal)", true, R"(Whether to show the total number of posts)"});
+				entry->addBodyParameter({R"(showUnread)", true, R"(Whether to show the unread number of posts)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
 				entry->setHandler(ZapFR::Server::APIHandler_scriptfolder_add);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Assigns posts to a script folder)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/scriptfolder/([0-9]+)/assign-posts$)", R"(/scriptfolder/<scriptFolderID>/assign-posts)");
+				entry->addURIParameter({R"(scriptFolderID)", R"(The id of the script folder to assign the posts to)"});
+				entry->addBodyParameter({R"(feedsAndPostIDs)", true, R"(Stringified json array: [ {feedID: x, postID: x}, {...}, ...])"});
+				entry->addBodyParameter({R"(assign)", true, R"(Whether to assign or unassign the posts ('true' or 'false'))"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_scriptfolder_assignposts);
 				msAPIs.emplace_back(std::move(entry));
 			}
 
@@ -396,6 +412,8 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setPath(R"(^\/scriptfolder/([0-9]+)$)", R"(/scriptfolder/<scriptFolderID>)");
 				entry->addURIParameter({R"(scriptFolderID)", R"(The id of the script folder to update)"});
 				entry->addBodyParameter({R"(title)", true, R"(The new title of the script folder)"});
+				entry->addBodyParameter({R"(showTotal)", true, R"(Whether to show the total number of posts)"});
+				entry->addBodyParameter({R"(showUnread)", true, R"(Whether to show the unread number of posts)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");

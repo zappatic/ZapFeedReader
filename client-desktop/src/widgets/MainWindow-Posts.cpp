@@ -639,6 +639,8 @@ void ZapFR::Client::MainWindow::postsMarkedRead(uint64_t sourceID, const std::ve
                                                                                                    feedIDs, false, unreadCount);
                                                                      });
     }
+
+    reloadScriptFolders(true);
 }
 
 void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs)
@@ -673,6 +675,8 @@ void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, const std::
                                                                                                    feedIDs, false, unreadCount);
                                                                      });
     }
+
+    reloadScriptFolders(true);
 }
 
 void ZapFR::Client::MainWindow::postsMarkedFlagged(bool doReloadPosts)
@@ -695,11 +699,12 @@ void ZapFR::Client::MainWindow::postsMarkedUnflagged(bool doReloadPosts)
 
 void ZapFR::Client::MainWindow::postsAssignedToScriptFolder(uint64_t /*sourceID*/, uint64_t /*scriptFolderID*/)
 {
-    // nop
+    reloadScriptFolders(true);
 }
 
 void ZapFR::Client::MainWindow::postsRemovedFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID)
 {
+    reloadScriptFolders(true);
     auto index = ui->tableViewScriptFolders->currentIndex();
     if (index.isValid())
     {

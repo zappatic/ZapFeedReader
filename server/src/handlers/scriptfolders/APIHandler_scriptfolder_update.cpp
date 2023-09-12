@@ -32,6 +32,8 @@
 //
 //	Parameters:
 //		title (REQD) - The new title of the script folder - apiRequest->parameter("title")
+//		showTotal (REQD) - Whether to show the total number of posts - apiRequest->parameter("showTotal")
+//		showUnread (REQD) - Whether to show the unread number of posts - apiRequest->parameter("showUnread")
 //
 //	Content-Type: application/json
 //	JSON output: Object
@@ -42,6 +44,8 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_updat
 {
     const auto scriptFolderIDStr = apiRequest->pathComponentAt(1);
     const auto newTitle = apiRequest->parameter("title");
+    const auto showTotal = apiRequest->parameter("showTotal") == "true";
+    const auto showUnread = apiRequest->parameter("showUnread") == "true";
 
     uint64_t scriptFolderID{0};
     Poco::NumberParser::tryParseUnsigned64(scriptFolderIDStr, scriptFolderID);
@@ -54,7 +58,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_updat
             auto scriptFolder = source.value()->getScriptFolder(scriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
             if (scriptFolder.has_value())
             {
-                scriptFolder.value()->update(newTitle);
+                scriptFolder.value()->update(newTitle, showTotal, showUnread);
             }
         }
     }

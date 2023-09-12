@@ -197,6 +197,8 @@ void ZapFR::Engine::Database::installDBSchemaV1()
         (*mSession) << "CREATE TABLE IF NOT EXISTS scriptfolders ("
                        " id INTEGER PRIMARY KEY"
                        ",title TEXT NOT NULL"
+                       ",showTotal BOOLEAN NOT NULL DEFAULT TRUE"
+                       ",showUnread BOOLEAN NOT NULL DEFAULT TRUE"
                        ")",
             now;
     }

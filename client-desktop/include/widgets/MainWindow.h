@@ -250,6 +250,7 @@ namespace ZapFR
             void initializeUIPosts();
             void initializeUILogs();
             void initializeUIScripts();
+            void initializeUIScriptFolders();
 
             void saveSettings() const;
             void restoreSettings();

@@ -29,7 +29,8 @@ namespace ZapFR
         class AgentScriptFolderUpdate : public AgentRunnable
         {
           public:
-            explicit AgentScriptFolderUpdate(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title, std::function<void(uint64_t, uint64_t)> finishedCallback);
+            explicit AgentScriptFolderUpdate(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title, bool showTotal, bool showUnread,
+                                             std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentScriptFolderUpdate() = default;
 
             void run() override;
@@ -39,6 +40,8 @@ namespace ZapFR
             uint64_t mSourceID{0};
             uint64_t mScriptFolderID{0};
             std::string mTitle{""};
+            bool mShowTotal{false};
+            bool mShowUnread{false};
             std::function<void(uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine

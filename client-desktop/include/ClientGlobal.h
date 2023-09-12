@@ -150,6 +150,10 @@ namespace ZapFR
 
         static constexpr uint32_t ScriptFolderIDRole{Qt::ItemDataRole::UserRole + 1};
         static constexpr uint32_t ScriptFolderSourceIDRole{Qt::ItemDataRole::UserRole + 2};
+        static constexpr uint32_t ScriptFolderShowTotalRole{Qt::ItemDataRole::UserRole + 3};
+        static constexpr uint32_t ScriptFolderShowUnreadRole{Qt::ItemDataRole::UserRole + 4};
+        static constexpr uint32_t ScriptFolderTotalPostCountRole{Qt::ItemDataRole::UserRole + 5};
+        static constexpr uint32_t ScriptFolderTotalUnreadCountRole{Qt::ItemDataRole::UserRole + 6};
 
         static constexpr uint32_t ScriptFolderColumnTitle = 0;
 

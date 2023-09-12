@@ -572,7 +572,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::Sourc
     return {};
 }
 
-void ZapFR::Engine::SourceRemote::addScriptFolder(const std::string& title)
+void ZapFR::Engine::SourceRemote::addScriptFolder(const std::string& title, bool showTotal, bool showUnread)
 {
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
@@ -582,6 +582,8 @@ void ZapFR::Engine::SourceRemote::addScriptFolder(const std::string& title)
 
         std::map<std::string, std::string> params;
         params["title"] = title;
+        params["showTotal"] = showTotal ? "true" : "false";
+        params["showUnread"] = showUnread ? "true" : "false";
 
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
     }

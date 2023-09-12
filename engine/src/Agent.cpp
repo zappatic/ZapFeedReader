@@ -343,15 +343,15 @@ void ZapFR::Engine::Agent::queueGetScriptFolderPosts(uint64_t sourceID, uint64_t
     enqueue(std::make_unique<AgentScriptFolderGetPosts>(sourceID, scriptFolderID, perPage, page, showOnlyUnread, searchFilter, flagColor, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueAddScriptFolder(uint64_t sourceID, const std::string& title, std::function<void(uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueAddScriptFolder(uint64_t sourceID, const std::string& title, bool showTotal, bool showUnread, std::function<void(uint64_t)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentScriptFolderAdd>(sourceID, title, finishedCallback));
+    enqueue(std::make_unique<AgentScriptFolderAdd>(sourceID, title, showTotal, showUnread, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueUpdateScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title,
+void ZapFR::Engine::Agent::queueUpdateScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title, bool showTotal, bool showUnread,
                                                    std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentScriptFolderUpdate>(sourceID, scriptFolderID, title, finishedCallback));
+    enqueue(std::make_unique<AgentScriptFolderUpdate>(sourceID, scriptFolderID, title, showTotal, showUnread, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueRemoveScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, uint64_t)> finishedCallback)

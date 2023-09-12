@@ -28,6 +28,8 @@
 //
 //	Parameters:
 //		title (REQD) - The title of the script folder to add - apiRequest->parameter("title")
+//		showTotal (REQD) - Whether to show the total number of posts - apiRequest->parameter("showTotal")
+//		showUnread (REQD) - Whether to show the unread number of posts - apiRequest->parameter("showUnread")
 //
 //	Content-Type: application/json
 //	JSON output: Object
@@ -37,11 +39,13 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_add([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto title = apiRequest->parameter("title");
+    const auto showTotal = apiRequest->parameter("showTotal") == "true";
+    const auto showUnread = apiRequest->parameter("showUnread") == "true";
 
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        source.value()->addScriptFolder(title);
+        source.value()->addScriptFolder(title, showTotal, showUnread);
     }
 
     Poco::JSON::Object o;

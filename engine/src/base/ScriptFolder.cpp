@@ -28,5 +28,9 @@ Poco::JSON::Object ZapFR::Engine::ScriptFolder::toJSON()
     Poco::JSON::Object o;
     o.set(JSONIdentifierScriptFolderID, mID);
     o.set(JSONIdentifierScriptFolderTitle, mTitle);
+    o.set(JSONIdentifierScriptFolderShowTotal, mShowTotal);
+    o.set(JSONIdentifierScriptFolderShowUnread, mShowUnread);
+    o.set(JSONIdentifierScriptFolderTotalPostCount, mTotalPostCount);
+    o.set(JSONIdentifierScriptFolderTotalUnreadCount, mTotalUnreadCount);
     return o;
 }

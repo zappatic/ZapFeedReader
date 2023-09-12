@@ -41,21 +41,38 @@ namespace ZapFR
 
             uint64_t id() const noexcept { return mID; }
             std::string title() const noexcept { return mTitle; }
+            bool showTotal() const noexcept { return mShowTotal; }
+            bool showUnread() const noexcept { return mShowUnread; }
+            uint64_t totalPostCount() const noexcept { return mTotalPostCount; }
+            uint64_t totalUnreadCount() const noexcept { return mTotalUnreadCount; }
+
             void setTitle(const std::string& title) { mTitle = title; }
+            void setShowTotal(bool b) { mShowTotal = b; }
+            void setShowUnread(bool b) { mShowUnread = b; }
+            void setTotalPostCount(uint64_t p) { mTotalPostCount = p; }
+            void setTotalUnreadCount(uint64_t p) { mTotalUnreadCount = p; }
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                                       FlagColor flagColor) = 0;
 
-            virtual void update(const std::string& title) = 0;
+            virtual void update(const std::string& title, bool showTotal, bool showUnread) = 0;
 
             virtual Poco::JSON::Object toJSON();
             static constexpr const char* JSONIdentifierScriptFolderID{"id"};
             static constexpr const char* JSONIdentifierScriptFolderTitle{"title"};
+            static constexpr const char* JSONIdentifierScriptFolderShowTotal{"showTotal"};
+            static constexpr const char* JSONIdentifierScriptFolderShowUnread{"showUnread"};
+            static constexpr const char* JSONIdentifierScriptFolderTotalPostCount{"totalPostCount"};
+            static constexpr const char* JSONIdentifierScriptFolderTotalUnreadCount{"totalUnreadCount"};
 
           protected:
             uint64_t mID{0};
             Source* mParentSource{nullptr};
             std::string mTitle{""};
+            bool mShowTotal{false};
+            bool mShowUnread{false};
+            uint64_t mTotalPostCount{0};
+            uint64_t mTotalUnreadCount{0};
         };
     } // namespace Engine
 } // namespace ZapFR

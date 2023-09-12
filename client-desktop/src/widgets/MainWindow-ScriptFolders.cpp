@@ -19,6 +19,7 @@
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/ScriptFolder.h"
+#include "delegates/ItemDelegateScriptFolder.h"
 #include "dialogs/DialogEditScriptFolder.h"
 #include "widgets/MainWindow.h"
 
@@ -33,6 +34,10 @@ void ZapFR::Client::MainWindow::reloadScriptFolders(bool forceReload)
             auto titleItem = new QStandardItem(QString::fromUtf8(scriptFolder->title()));
             titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->id()), ScriptFolderIDRole);
             titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), ScriptFolderSourceIDRole);
+            titleItem->setData(QVariant::fromValue<bool>(scriptFolder->showTotal()), ScriptFolderShowTotalRole);
+            titleItem->setData(QVariant::fromValue<bool>(scriptFolder->showUnread()), ScriptFolderShowUnreadRole);
+            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->totalPostCount()), ScriptFolderTotalPostCountRole);
+            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->totalUnreadCount()), ScriptFolderTotalUnreadCountRole);
             titleItem->setData(QString("ID: %1").arg(scriptFolder->id()), Qt::ToolTipRole);
 
             QList<QStandardItem*> rowData;
@@ -76,7 +81,7 @@ void ZapFR::Client::MainWindow::addScriptFolder()
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
 
         auto dialog = editScriptFolderDialog();
-        dialog->reset(DialogEditScriptFolder::DisplayMode::Add, sourceID, 0, "");
+        dialog->reset(DialogEditScriptFolder::DisplayMode::Add, sourceID, 0, "", false, false);
         dialog->open();
     }
 }
@@ -89,9 +94,11 @@ void ZapFR::Client::MainWindow::editScriptFolder()
         auto sourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
         auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
         auto title = index.data(Qt::DisplayRole).toString();
+        auto showTotal = index.data(ScriptFolderShowTotalRole).toBool();
+        auto showUnread = index.data(ScriptFolderShowUnreadRole).toBool();
 
         auto dialog = editScriptFolderDialog();
-        dialog->reset(DialogEditScriptFolder::DisplayMode::Edit, sourceID, scriptFolderID, title);
+        dialog->reset(DialogEditScriptFolder::DisplayMode::Edit, sourceID, scriptFolderID, title, showTotal, showUnread);
         dialog->open();
     }
 }
@@ -133,6 +140,8 @@ ZapFR::Client::DialogEditScriptFolder* ZapFR::Client::MainWindow::editScriptFold
                     auto sourceID = mDialogEditScriptFolder->sourceID();
                     auto scriptFolderID = mDialogEditScriptFolder->id();
                     auto title = mDialogEditScriptFolder->title().toStdString();
+                    auto showTotal = mDialogEditScriptFolder->showTotal();
+                    auto showUnread = mDialogEditScriptFolder->showUnread();
                     if (!title.empty())
                     {
                         switch (mDialogEditScriptFolder->displayMode())
@@ -140,13 +149,14 @@ ZapFR::Client::DialogEditScriptFolder* ZapFR::Client::MainWindow::editScriptFold
                             case DialogEditScriptFolder::DisplayMode::Add:
                             {
                                 ZapFR::Engine::Agent::getInstance()->queueAddScriptFolder(
-                                    sourceID, title, [&](uint64_t addedSourceID) { QMetaObject::invokeMethod(this, "scriptFolderAdded", Qt::AutoConnection, addedSourceID); });
+                                    sourceID, title, showTotal, showUnread,
+                                    [&](uint64_t addedSourceID) { QMetaObject::invokeMethod(this, "scriptFolderAdded", Qt::AutoConnection, addedSourceID); });
                                 break;
                             }
                             case DialogEditScriptFolder::DisplayMode::Edit:
                             {
                                 ZapFR::Engine::Agent::getInstance()->queueUpdateScriptFolder(
-                                    sourceID, scriptFolderID, title,
+                                    sourceID, scriptFolderID, title, showTotal, showUnread,
                                     [&](uint64_t updatedSourceID, uint64_t updatedScriptFolderID)
                                     { QMetaObject::invokeMethod(this, "scriptFolderUpdated", Qt::AutoConnection, updatedSourceID, updatedScriptFolderID); });
                                 break;
@@ -205,4 +215,9 @@ void ZapFR::Client::MainWindow::createScriptFolderContextMenus()
     mScriptFolderContextMenu->addAction(ui->action_Edit_script_folder);
     mScriptFolderContextMenu->addSeparator();
     mScriptFolderContextMenu->addAction(ui->action_Remove_script_folder);
+}
+
+void ZapFR::Client::MainWindow::initializeUIScriptFolders()
+{
+    ui->tableViewScriptFolders->setItemDelegate(new ItemDelegateScriptFolder(ui->tableViewScriptFolders));
 }

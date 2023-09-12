@@ -68,10 +68,10 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(count, std::move(posts));
 }
 
-void ZapFR::Engine::ScriptFolderLocal::update(const std::string& title)
+void ZapFR::Engine::ScriptFolderLocal::update(const std::string& title, bool showTotal, bool showUnread)
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-    updateStmt << "UPDATE scriptfolders SET title=? WHERE id=?", useRef(title), use(mID), now;
+    updateStmt << "UPDATE scriptfolders SET title=?, showTotal=?, showUnread=? WHERE id=?", useRef(title), use(showTotal), use(showUnread), use(mID), now;
 }
 
 std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptFolderLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
@@ -82,12 +82,16 @@ std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptF
 
     uint64_t id{0};
     std::string title{""};
+    bool showTotal{false};
+    bool showUnread{false};
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
 
     std::stringstream ss;
     ss << "SELECT scriptfolders.id"
           ",scriptfolders.title"
+          ",scriptfolders.showTotal"
+          ",scriptfolders.showUnread"
           " FROM scriptfolders";
     if (!whereClause.empty())
     {
@@ -107,6 +111,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptF
 
     selectStmt.addExtract(into(id));
     selectStmt.addExtract(into(title));
+    selectStmt.addExtract(into(showTotal));
+    selectStmt.addExtract(into(showUnread));
 
     while (!selectStmt.done())
     {
@@ -114,6 +120,15 @@ std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptF
         {
             auto sfl = std::make_unique<ScriptFolderLocal>(id, parentSource);
             sfl->setTitle(title);
+            sfl->setShowTotal(showTotal);
+            sfl->setShowUnread(showUnread);
+
+            sfl->setTotalPostCount(PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)"},
+                                                         {useRef(id, "scriptFolderID")}));
+            sfl->setTotalUnreadCount(
+                PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)", "posts.isRead=FALSE"},
+                                      {useRef(id, "scriptFolderID")}));
+
             scriptFolders.emplace_back(std::move(sfl));
         }
     }
@@ -125,12 +140,16 @@ std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::Scrip
 {
     uint64_t id{0};
     std::string title{""};
+    bool showTotal{false};
+    bool showUnread{false};
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
 
     std::stringstream ss;
     ss << "SELECT scriptfolders.id"
           ",scriptfolders.title"
+          ",scriptfolders.showTotal"
+          ",scriptfolders.showUnread"
           " FROM scriptfolders";
     if (!whereClause.empty())
     {
@@ -149,6 +168,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::Scrip
 
     selectStmt.addExtract(into(id));
     selectStmt.addExtract(into(title));
+    selectStmt.addExtract(into(showTotal));
+    selectStmt.addExtract(into(showUnread));
 
     selectStmt.execute();
 
@@ -157,15 +178,23 @@ std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::Scrip
     {
         auto sfl = std::make_unique<ScriptFolderLocal>(id, parentSource);
         sfl->setTitle(title);
+        sfl->setShowTotal(showTotal);
+        sfl->setShowUnread(showUnread);
+
+        sfl->setTotalPostCount(PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)"},
+                                                     {useRef(id, "scriptFolderID")}));
+        sfl->setTotalUnreadCount(
+            PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)", "posts.isRead=FALSE"},
+                                  {useRef(id, "scriptFolderID")}));
         return sfl;
     }
     return {};
 }
 
-void ZapFR::Engine::ScriptFolderLocal::create(const std::string& title)
+void ZapFR::Engine::ScriptFolderLocal::create(const std::string& title, bool showTotal, bool showUnread)
 {
     Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
-    insertStmt << "INSERT INTO scriptfolders (title) VALUES (?)", useRef(title), now;
+    insertStmt << "INSERT INTO scriptfolders (title, showTotal, showUnread) VALUES (?, ?, ?)", useRef(title), use(showTotal), use(showUnread), now;
 }
 
 void ZapFR::Engine::ScriptFolderLocal::remove(uint64_t scriptFolderID)

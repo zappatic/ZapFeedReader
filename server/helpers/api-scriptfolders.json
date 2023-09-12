@@ -40,6 +40,16 @@
         "name": "title",
         "required": true,
         "description": "The title of the script folder to add"
+      },
+      {
+        "name": "showTotal",
+        "required": true,
+        "description": "Whether to show the total number of posts"
+      },
+      {
+        "name": "showUnread",
+        "required": true,
+        "description": "Whether to show the unread number of posts"
       }
     ],
     "requireCredentials": true,
@@ -80,6 +90,44 @@
         "name": "title",
         "required": true,
         "description": "The new title of the script folder"
+      },
+      {
+        "name": "showTotal",
+        "required": true,
+        "description": "Whether to show the total number of posts"
+      },
+      {
+        "name": "showUnread",
+        "required": true,
+        "description": "Whether to show the unread number of posts"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
+  "scriptfolder-assignposts": {
+    "section": "Scriptfolders",
+    "description": "Assigns posts to a script folder",
+    "method": "POST",
+    "path": "^\\/scriptfolder/([0-9]+)/assign-posts$",
+    "prettyPath": "/scriptfolder/<scriptFolderID>/assign-posts",
+    "uriParameters": [
+      {
+        "name": "scriptFolderID",
+        "description": "The id of the script folder to assign the posts to"
+      }
+    ],
+    "parameters": [
+      {
+        "name": "feedsAndPostIDs",
+        "required": true,
+        "description": "Stringified json array: [ {feedID: x, postID: x}, {...}, ...]"
+      },
+      {
+        "name": "assign",
+        "required": true,
+        "description": "Whether to assign or unassign the posts ('true' or 'false')"
       }
     ],
     "requireCredentials": true,
