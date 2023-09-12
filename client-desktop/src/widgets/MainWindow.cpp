@@ -50,8 +50,7 @@ namespace
 
     // clang-format off
     // generated with MainWindow::dumpPalette()
-    static const std::string gsThemeDarkValues{R"({"0":{"0":"#ffffff","1":"#2a2a2a","10":"#2a2a2a","11":"#1e1e1e","12":"#e95420","13":"#ffffff","14":"#308cc6","15":"#ff00ff","16":"#272727","18":"#ffffdc","19":"#f7f7f7","2":"#343434","20":"#9b9b9b","3":"#e9e7e3","4":"#222222","5":"#a0a0a4","6":"#ffffff","7":"#ffffff","8":"#ffffff","9":"#2a2a2a"},"1":{"0":"#7f7f7f","1":"#d4d0c8","10":"#d4d0c8","11":"#000000","12":"#e95420","13":"#ffffff","14":"#308cc6","15":"#ff00ff","16":"#272727","18":"#ffffdc","19":"#f7f7f7","2":"#ffffff","20":"#9b9b9b","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#7f7f7f","7":"#ffffff","8":"#ffffff","9":"#d4d0c8"},"2":{"0":"#ffffff","1":"#d4d0c8","10":"#2a2a2a","11":"#000000","12":"#308cc6","13":"#343434","14":"#308cc6","15":"#ff00ff","16":"#272727","18":"#ffffdc","19":"#f7f7f7","2":"#ffffff","20":"#9b9b9b","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#ffffff","7":"#ffffff","8":"#7f7f7f","9":"#2a2a2a"}})"};
-    static const std::string gsThemeLightValues{R"({"0":{"0":"#636363","1":"#fcfcfc","10":"#fcfcfc","11":"#b1b1b1","12":"#e95420","13":"#ffffff","14":"#0000ff","15":"#ff00ff","16":"#ececec","18":"#ffffdc","19":"#3d3d3d","2":"#ffffff","20":"#646464","3":"#e9e7e3","4":"#cacaca","5":"#a0a0a4","6":"#000000","7":"#ffffff","8":"#000000","9":"#fcfcfc"},"1":{"0":"#313131","1":"#d4d0c8","10":"#d4d0c8","11":"#000000","12":"#e95420","13":"#000000","14":"#0000ff","15":"#ff00ff","16":"#ececec","18":"#ffffdc","19":"#3d3d3d","2":"#ffffff","20":"#646464","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#313131","7":"#ffffff","8":"#000000","9":"#d4d0c8"},"2":{"0":"#636363","1":"#d4d0c8","10":"#fcfcfc","11":"#000000","12":"#308cc6","13":"#fafafa","14":"#0000ff","15":"#ff00ff","16":"#ececec","18":"#ffffdc","19":"#3d3d3d","2":"#ffffff","20":"#646464","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#000000","7":"#ffffff","8":"#313131","9":"#fcfcfc"}})"};
+    static const std::string gsThemeValues{R"({"dark":{"0":{"0":"#ffffff","1":"#2a2a2a","2":"#343434","3":"#e9e7e3","4":"#222222","5":"#a0a0a4","6":"#ffffff","7":"#ffffff","8":"#ffffff","9":"#2a2a2a","10":"#2a2a2a","11":"#1e1e1e","12":"#e95420","13":"#ffffff","14":"#308cc6","15":"#ff00ff","16":"#272727","18":"#ffffdc","19":"#f7f7f7","20":"#9b9b9b"},"1":{"0":"#7f7f7f","1":"#d4d0c8","2":"#ffffff","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#7f7f7f","7":"#ffffff","8":"#ffffff","9":"#d4d0c8","10":"#d4d0c8","11":"#000000","12":"#e95420","13":"#ffffff","14":"#308cc6","15":"#ff00ff","16":"#272727","18":"#ffffdc","19":"#f7f7f7","20":"#9b9b9b"},"2":{"0":"#ffffff","1":"#d4d0c8","2":"#ffffff","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#ffffff","7":"#ffffff","8":"#7f7f7f","9":"#2a2a2a","10":"#2a2a2a","11":"#000000","12":"#308cc6","13":"#343434","14":"#308cc6","15":"#ff00ff","16":"#272727","18":"#ffffdc","19":"#f7f7f7","20":"#9b9b9b"}},"light":{"0":{"0":"#636363","1":"#fcfcfc","2":"#ffffff","3":"#e9e7e3","4":"#cacaca","5":"#a0a0a4","6":"#000000","7":"#ffffff","8":"#000000","9":"#fcfcfc","10":"#fcfcfc","11":"#b1b1b1","12":"#e95420","13":"#ffffff","14":"#0000ff","15":"#ff00ff","16":"#ececec","18":"#ffffdc","19":"#3d3d3d","20":"#646464"},"1":{"0":"#313131","1":"#d4d0c8","2":"#ffffff","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#313131","7":"#ffffff","8":"#000000","9":"#d4d0c8","10":"#d4d0c8","11":"#000000","12":"#e95420","13":"#000000","14":"#0000ff","15":"#ff00ff","16":"#ececec","18":"#ffffdc","19":"#3d3d3d","20":"#646464"},"2":{"0":"#636363","1":"#d4d0c8","2":"#ffffff","3":"#e9e7e3","4":"#6a6864","5":"#a0a0a4","6":"#000000","7":"#ffffff","8":"#313131","9":"#fcfcfc","10":"#fcfcfc","11":"#000000","12":"#308cc6","13":"#fafafa","14":"#0000ff","15":"#ff00ff","16":"#ececec","18":"#ffffdc","19":"#3d3d3d","20":"#646464"}}})"};
     // clang-format on
 } // namespace
 
@@ -622,46 +621,76 @@ void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
     static std::optional<std::unique_ptr<QPalette>> cacheLightTheme{};
     static std::optional<std::unique_ptr<QPalette>> cacheDarkTheme{};
 
-    auto parseThemeValues = [](const std::string& themeValues) -> std::unique_ptr<QPalette>
+    auto parseThemeValues = [&](const std::string& theme) -> std::unique_ptr<QPalette>
     {
-        Poco::JSON::Parser parser;
-        auto root = parser.parse(themeValues);
-        auto colorGroupsObj = root.extract<Poco::JSON::Object::Ptr>();
+        auto themeValues = gsThemeValues;
+        auto overrideBuggedValues{true};
 
-        auto palette = std::make_unique<QPalette>();
-        for (const auto& colorGroupStr : colorGroupsObj->getNames())
+        auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + "theme.json"));
+        if (override.exists())
         {
-            auto colorGroup = static_cast<QPalette::ColorGroup>(Poco::NumberParser::parseUnsigned(colorGroupStr));
-
-            auto colorRolesObj = colorGroupsObj->getObject(colorGroupStr);
-            for (const auto& colorRoleStr : colorRolesObj->getNames())
-            {
-                auto colorRole = static_cast<QPalette::ColorRole>(Poco::NumberParser::parseUnsigned(colorRoleStr));
-                auto colorValue = QColor(colorRolesObj->getValue<std::string>(colorRoleStr).c_str());
-
-                // don't set the highlight color to the predetermined color, as it may be set as an accent color in the OS
-                if (colorRole == QPalette::Highlight)
-                {
-                    continue;
-                }
-
-                palette->setColor(colorGroup, colorRole, colorValue);
-            }
+            override.open(QIODeviceBase::ReadOnly);
+            themeValues = QString::fromUtf8(override.readAll()).toStdString();
+            override.close();
+            overrideBuggedValues = false;
         }
 
-        // explicitly overwrite these colors, as the inactive/disabled ones seem to be wrong by default :/
-        palette->setColor(QPalette::Inactive, QPalette::Highlight, palette->color(QPalette::Active, QPalette::Highlight));
-        palette->setColor(QPalette::Inactive, QPalette::HighlightedText, palette->color(QPalette::Active, QPalette::HighlightedText));
-        palette->setColor(QPalette::Inactive, QPalette::Button, palette->color(QPalette::Active, QPalette::Button));
-        palette->setColor(QPalette::Inactive, QPalette::ButtonText, palette->color(QPalette::Active, QPalette::ButtonText));
-        palette->setColor(QPalette::Disabled, QPalette::AlternateBase, palette->color(QPalette::Active, QPalette::AlternateBase));
-        palette->setColor(QPalette::Disabled, QPalette::Base, palette->color(QPalette::Active, QPalette::Base));
-        palette->setColor(QPalette::Disabled, QPalette::Button, palette->color(QPalette::Active, QPalette::Button));
-        palette->setColor(QPalette::Disabled, QPalette::Window, palette->color(QPalette::Active, QPalette::Window));
-        // ToolTipText in dark mode seems to be switched to white, but the ToolTipBase is the same light yellow, making it unreadable
-        // TODO: this doesn't seem to work though, as this color is not picked up by the tooltips, so (temporarily?) fixed by subclassing
-        // treeview, so that at least the error message on a feed is visible
-        palette->setColor(QPalette::ToolTipText, Qt::blue);
+        auto palette = std::make_unique<QPalette>();
+        try
+        {
+            Poco::JSON::Parser parser;
+            auto root = parser.parse(themeValues);
+            auto themes = root.extract<Poco::JSON::Object::Ptr>();
+            if (!themes->has(theme))
+            {
+                return std::make_unique<QPalette>();
+            }
+            auto colorGroupsObj = themes->getObject(theme);
+
+            for (const auto& colorGroupStr : colorGroupsObj->getNames())
+            {
+                auto colorGroup = static_cast<QPalette::ColorGroup>(Poco::NumberParser::parseUnsigned(colorGroupStr));
+
+                auto colorRolesObj = colorGroupsObj->getObject(colorGroupStr);
+                for (const auto& colorRoleStr : colorRolesObj->getNames())
+                {
+                    auto colorRole = static_cast<QPalette::ColorRole>(Poco::NumberParser::parseUnsigned(colorRoleStr));
+                    auto colorValue = QColor(colorRolesObj->getValue<std::string>(colorRoleStr).c_str());
+
+                    // don't set the highlight color to the predetermined color, as it may be set as an accent color in the OS
+                    if (colorRole == QPalette::Highlight)
+                    {
+                        continue;
+                    }
+
+                    palette->setColor(colorGroup, colorRole, colorValue);
+                }
+            }
+
+            if (overrideBuggedValues)
+            { // explicitly overwrite these colors, as the inactive/disabled ones seem to be wrong by default :/
+                palette->setColor(QPalette::Inactive, QPalette::Highlight, palette->color(QPalette::Active, QPalette::Highlight));
+                palette->setColor(QPalette::Inactive, QPalette::HighlightedText, palette->color(QPalette::Active, QPalette::HighlightedText));
+                palette->setColor(QPalette::Inactive, QPalette::Button, palette->color(QPalette::Active, QPalette::Button));
+                palette->setColor(QPalette::Inactive, QPalette::ButtonText, palette->color(QPalette::Active, QPalette::ButtonText));
+                palette->setColor(QPalette::Disabled, QPalette::AlternateBase, palette->color(QPalette::Active, QPalette::AlternateBase));
+                palette->setColor(QPalette::Disabled, QPalette::Base, palette->color(QPalette::Active, QPalette::Base));
+                palette->setColor(QPalette::Disabled, QPalette::Button, palette->color(QPalette::Active, QPalette::Button));
+                palette->setColor(QPalette::Disabled, QPalette::Window, palette->color(QPalette::Active, QPalette::Window));
+                // ToolTipText in dark mode seems to be switched to white, but the ToolTipBase is the same light yellow, making it unreadable
+                // TODO: this doesn't seem to work though, as this color is not picked up by the tooltips, so (temporarily?) fixed by subclassing
+                // treeview, so that at least the error message on a feed is visible
+                palette->setColor(QPalette::ToolTipText, Qt::blue);
+            }
+        }
+        catch (const Poco::Exception& e)
+        {
+            std::cerr << "Could not parse theme values: " << e.displayText() << "\n";
+        }
+        catch (...)
+        {
+            std::cerr << "Could not parse theme values\n";
+        }
 
         return palette;
     };
@@ -671,7 +700,7 @@ void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
     {
         if (!cacheLightTheme.has_value())
         {
-            cacheLightTheme = parseThemeValues(gsThemeLightValues);
+            cacheLightTheme = parseThemeValues("light");
         }
         paletteToEnforce = cacheLightTheme.value().get();
     }
@@ -679,7 +708,7 @@ void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
     {
         if (!cacheDarkTheme.has_value())
         {
-            cacheDarkTheme = parseThemeValues(gsThemeDarkValues);
+            cacheDarkTheme = parseThemeValues("dark");
         }
         paletteToEnforce = cacheDarkTheme.value().get();
     }
@@ -691,7 +720,7 @@ void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
             {
                 if (!cacheDarkTheme.has_value())
                 {
-                    cacheDarkTheme = parseThemeValues(gsThemeDarkValues);
+                    cacheDarkTheme = parseThemeValues("dark");
                 }
                 paletteToEnforce = cacheDarkTheme.value().get();
                 break;
@@ -700,7 +729,7 @@ void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
             {
                 if (!cacheLightTheme.has_value())
                 {
-                    cacheLightTheme = parseThemeValues(gsThemeLightValues);
+                    cacheLightTheme = parseThemeValues("light");
                 }
                 paletteToEnforce = cacheLightTheme.value().get();
                 break;
