@@ -530,11 +530,7 @@ void ZapFR::Client::MainWindow::updatePreferredFontSize()
 
 void ZapFR::Client::MainWindow::configureIcons()
 {
-    // the defaults are for the light theme
-    auto color = QString("#000");
-    auto colorDisabled = QString("#aaa");
     auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
-
     // our value overrides the system, if it's explicitly light or dark
     if (mPreferenceTheme == Theme::Light)
     {
@@ -545,10 +541,15 @@ void ZapFR::Client::MainWindow::configureIcons()
         currentColorScheme = Qt::ColorScheme::Dark;
     }
 
+    // the defaults are for the light theme
+    auto color = QString("#000");
+    auto colorDisabled = QString("#aaa");
+    auto colorBorder = QString("#cacaca");
     if (currentColorScheme == Qt::ColorScheme::Dark)
     {
         color = "#fff";
         colorDisabled = "#555";
+        colorBorder = "#222222";
     }
 
     const auto configureIcon = [&](const QString& svgResource)
@@ -609,9 +610,7 @@ void ZapFR::Client::MainWindow::configureIcons()
                                        "QToolButton:disabled { color:%1; }\n")
                                    .arg(colorDisabled));
 
-    auto palette = ui->frameFlagFilters->palette();
-    ui->frameFlagFilters->setStyleSheet(QString("QFrame { border-top: 0px; border-left: 0px; border-right: 1px solid %1; border-bottom: 1px solid %1;}")
-                                            .arg(palette.color(QPalette::Active, QPalette::Dark).name()));
+    ui->frameFlagFilters->setStyleSheet(QString("QFrame { border-top: 0px; border-left: 0px; border-right: 1px solid %1; border-bottom: 1px solid %1;}").arg(colorBorder));
 
     mLineEditSearch->setSearchIconColor(currentColorScheme == Qt::ColorScheme::Dark ? "#eee" : "#333");
 }
