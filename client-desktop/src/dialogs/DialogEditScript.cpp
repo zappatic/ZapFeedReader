@@ -40,8 +40,16 @@ ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(par
                     auto current = item->data(Qt::CheckStateRole);
                     item->setData(current == Qt::Checked ? Qt::Unchecked : Qt::Checked, Qt::CheckStateRole);
                 }
+                markDirty();
             });
     connect(ui->checkBoxRunOnAllFeeds, &QCheckBox::clicked, [&](bool checked) { ui->treeViewRunOnFeedIDs->setEnabled(!checked); });
+
+    connect(ui->lineEditTitle, &QLineEdit::textChanged, this, &DialogEditScript::markDirty);
+    connect(ui->textEditScript, &QTextEdit::textChanged, this, &DialogEditScript::markDirty);
+    connect(ui->checkBoxEnabled, &QCheckBox::stateChanged, this, &DialogEditScript::markDirty);
+    connect(ui->checkBoxRunOnAllFeeds, &QCheckBox::stateChanged, this, &DialogEditScript::markDirty);
+    connect(ui->checkBoxRunOnNewPost, &QCheckBox::stateChanged, this, &DialogEditScript::markDirty);
+    connect(ui->checkBoxRunOnUpdatePost, &QCheckBox::stateChanged, this, &DialogEditScript::markDirty);
 }
 
 ZapFR::Client::DialogEditScript::~DialogEditScript()
@@ -159,6 +167,7 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
     ui->textEditScript->setText(script);
     ui->tabWidget->setCurrentIndex(0);
     ui->lineEditTitle->setFocus();
+    mIsDirty = false;
 }
 
 uint64_t ZapFR::Client::DialogEditScript::scriptID() const noexcept
@@ -237,4 +246,38 @@ std::unordered_set<uint64_t> ZapFR::Client::DialogEditScript::runOnFeedIDs() con
     findCheckedFeedIDs(mFeedsModel->invisibleRootItem());
 
     return feedIDs;
+}
+
+void ZapFR::Client::DialogEditScript::markDirty()
+{
+    mIsDirty = true;
+}
+
+void ZapFR::Client::DialogEditScript::closeEvent(QCloseEvent* e)
+{
+    if (mIsDirty)
+    {
+        auto m = QMessageBox(this);
+        m.setIcon(QMessageBox::Icon::Warning);
+        auto cancelButton = m.addButton(QMessageBox::Cancel);
+        m.addButton(QMessageBox::Ignore);
+        auto saveButton = m.addButton(QMessageBox::Save);
+        m.setWindowTitle(tr("Unsaved changes"));
+        m.setText(tr("You have made changes that haven't been saved yet."));
+        m.setDefaultButton(QMessageBox::Cancel);
+        m.exec();
+        auto cb = m.clickedButton();
+        if (cb == cancelButton)
+        {
+            e->ignore();
+            return;
+        }
+        else if (cb == saveButton)
+        {
+            e->ignore();
+            accept();
+            return;
+        }
+    }
+    QDialog::closeEvent(e);
 }

@@ -64,6 +64,12 @@ namespace ZapFR
             bool runOnAllFeeds() const noexcept;
             std::unordered_set<uint64_t> runOnFeedIDs() const;
 
+          protected:
+            void closeEvent(QCloseEvent* e) override;
+
+          private slots:
+            void markDirty();
+
           private:
             Ui::DialogEditScript* ui;
             uint64_t mCurrentSourceID{0};
@@ -71,6 +77,7 @@ namespace ZapFR
             DisplayMode mDisplayMode{DisplayMode::Add};
             std::unique_ptr<QStandardItemModel> mFeedsModel{nullptr};
             std::unique_ptr<SyntaxHighlighterLua> mSyntaxHighlighterLua{nullptr};
+            bool mIsDirty{false};
         };
     } // namespace Client
 } // namespace ZapFR
