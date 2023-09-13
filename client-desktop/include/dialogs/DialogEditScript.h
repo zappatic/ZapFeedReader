@@ -31,6 +31,8 @@ namespace ZapFR
 {
     namespace Client
     {
+        class SyntaxHighlighterLua;
+
         class DialogEditScript : public QDialog
         {
             Q_OBJECT
@@ -68,6 +70,7 @@ namespace ZapFR
             uint64_t mCurrentID{0};
             DisplayMode mDisplayMode{DisplayMode::Add};
             std::unique_ptr<QStandardItemModel> mFeedsModel{nullptr};
+            std::unique_ptr<SyntaxHighlighterLua> mSyntaxHighlighterLua{nullptr};
         };
     } // namespace Client
 } // namespace ZapFR

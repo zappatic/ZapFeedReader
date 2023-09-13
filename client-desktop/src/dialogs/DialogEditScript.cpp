@@ -17,6 +17,7 @@
 */
 
 #include "dialogs/DialogEditScript.h"
+#include "SyntaxHighlighterLua.h"
 #include "delegates/ItemDelegateEditScriptDialogSource.h"
 #include "models/StandardItemModelSources.h"
 #include "ui_DialogEditScript.h"
@@ -26,6 +27,7 @@ ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(par
 {
     ui->setupUi(this);
     mFeedsModel = std::make_unique<QStandardItemModel>(this);
+    mSyntaxHighlighterLua = std::make_unique<SyntaxHighlighterLua>(ui->textEditScript->document());
     ui->treeViewRunOnFeedIDs->setModel(mFeedsModel.get());
     ui->treeViewRunOnFeedIDs->setItemDelegate(new ItemDelegateEditScriptDialogSource(ui->treeViewRunOnFeedIDs));
 

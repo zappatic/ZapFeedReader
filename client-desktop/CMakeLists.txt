@@ -16,6 +16,7 @@ set(PROJECT_SOURCES
         src/main.cpp
         src/Utilities.cpp
         src/FeedIconCache.cpp
+        src/SyntaxHighlighterLua.cpp
         src/widgets/MainWindow.cpp
         src/widgets/MainWindow-Posts.cpp
         src/widgets/MainWindow-Sources.cpp
@@ -62,6 +63,7 @@ set(PROJECT_SOURCES
         src/models/SortFilterProxyModelSources.cpp
         include/ClientGlobal.h
         include/FeedIconCache.h
+        include/SyntaxHighlighterLua.h
         include/Utilities.h
         include/widgets/MainWindow.h
         include/widgets/WebEnginePagePost.h

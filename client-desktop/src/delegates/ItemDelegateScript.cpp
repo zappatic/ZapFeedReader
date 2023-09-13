@@ -65,6 +65,10 @@ void ZapFR::Client::ItemDelegateScript::paint(QPainter* painter, const QStyleOpt
     {
         brushText = Qt::darkRed;
     }
+    else if (currentColumn == ScriptsColumnTitle && index.data(ScriptScriptRole).toString().isEmpty())
+    {
+        brushText = Qt::darkRed;
+    }
 
     switch (currentColumn)
     {

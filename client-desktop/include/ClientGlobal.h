@@ -64,7 +64,9 @@
 #include <QStyleHints>
 #include <QStylePainter>
 #include <QStyledItemDelegate>
+#include <QSyntaxHighlighter>
 #include <QTableView>
+#include <QTextCharFormat>
 #include <QTimer>
 #include <QToolTip>
 #include <QTranslator>
