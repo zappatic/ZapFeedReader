@@ -22,6 +22,7 @@
 #include "ClientGlobal.h"
 #include "Utilities.h"
 #include "ZapFR/Flag.h"
+#include "widgets/TableViewPaletteCorrected.h"
 
 namespace ZapFR
 {
@@ -30,7 +31,7 @@ namespace ZapFR
         class PopupFlagChooser;
         class MainWindow;
 
-        class TableViewPosts : public QTableView
+        class TableViewPosts : public TableViewPaletteCorrected
         {
             Q_OBJECT
 

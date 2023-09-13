@@ -18,7 +18,7 @@
 
 #include "widgets/TableViewScriptFolders.h"
 
-ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) : QTableView(parent)
+ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
 }
 

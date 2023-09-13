@@ -20,7 +20,7 @@
 #define ZAPFR_CLIENT_TREEVIEWSOURCES_H
 
 #include "ClientGlobal.h"
-#include "TreeViewPaletteCorrected.h"
+#include "widgets/TreeViewPaletteCorrected.h"
 
 namespace ZapFR
 {

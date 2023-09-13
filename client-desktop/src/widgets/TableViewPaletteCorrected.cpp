@@ -16,31 +16,20 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_TREEVIEWEDITSCRIPTDIALOGSOURCES_H
-#define ZAPFR_CLIENT_TREEVIEWEDITSCRIPTDIALOGSOURCES_H
+#include "widgets/TableViewPaletteCorrected.h"
 
-#include "ClientGlobal.h"
-#include "widgets/TreeViewPaletteCorrected.h"
-
-namespace ZapFR
+ZapFR::Client::TableViewPaletteCorrected::TableViewPaletteCorrected(QWidget* parent) : QTableView(parent)
 {
-    namespace Client
+}
+
+bool ZapFR::Client::TableViewPaletteCorrected::viewportEvent(QEvent* event)
+{
+    if (event->type() == QEvent::ToolTip)
     {
-        class TreeViewEditScriptDialogSources : public TreeViewPaletteCorrected
-        {
-            Q_OBJECT
-
-          public:
-            TreeViewEditScriptDialogSources(QWidget* parent = nullptr);
-            ~TreeViewEditScriptDialogSources() = default;
-
-          signals:
-            void feedClicked(const QModelIndex&);
-
-          protected:
-            void mousePressEvent(QMouseEvent* event) override;
-        };
-    } // namespace Client
-} // namespace ZapFR
-
-#endif // ZAPFR_CLIENT_TREEVIEWEDITSCRIPTDIALOGSOURCES_H
+        // workaround for qt bug showing tooltip text as gray on light yellow background in dark mode
+        auto tooltipPalette = QToolTip::palette();
+        tooltipPalette.setColor(QPalette::Inactive, QPalette::ToolTipText, Qt::black);
+        QToolTip::setPalette(tooltipPalette);
+    }
+    return QTableView::viewportEvent(event);
+}

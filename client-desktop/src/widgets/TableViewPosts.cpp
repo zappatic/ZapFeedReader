@@ -20,7 +20,7 @@
 #include "widgets/MainWindow.h"
 #include "widgets/PopupFlagChooser.h"
 
-ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : QTableView(parent)
+ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
     mPopupFlagChooser = std::make_unique<PopupFlagChooser>(this);
 

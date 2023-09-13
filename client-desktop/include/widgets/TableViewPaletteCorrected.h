@@ -16,31 +16,27 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_CLIENT_TREEVIEWEDITSCRIPTDIALOGSOURCES_H
-#define ZAPFR_CLIENT_TREEVIEWEDITSCRIPTDIALOGSOURCES_H
+#ifndef ZAPFR_CLIENT_TABLEVIEWPALETTECORRECTED_H
+#define ZAPFR_CLIENT_TABLEVIEWPALETTECORRECTED_H
 
 #include "ClientGlobal.h"
-#include "widgets/TreeViewPaletteCorrected.h"
 
 namespace ZapFR
 {
     namespace Client
     {
-        class TreeViewEditScriptDialogSources : public TreeViewPaletteCorrected
+        class TableViewPaletteCorrected : public QTableView
         {
             Q_OBJECT
 
           public:
-            TreeViewEditScriptDialogSources(QWidget* parent = nullptr);
-            ~TreeViewEditScriptDialogSources() = default;
-
-          signals:
-            void feedClicked(const QModelIndex&);
+            TableViewPaletteCorrected(QWidget* parent = nullptr);
+            ~TableViewPaletteCorrected() = default;
 
           protected:
-            void mousePressEvent(QMouseEvent* event) override;
+            bool viewportEvent(QEvent* event) override;
         };
     } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_CLIENT_TREEVIEWEDITSCRIPTDIALOGSOURCES_H
+#endif // ZAPFR_CLIENT_TABLEVIEWPALETTECORRECTED_H

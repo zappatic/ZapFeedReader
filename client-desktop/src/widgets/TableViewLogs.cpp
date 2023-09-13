@@ -18,6 +18,6 @@
 
 #include "widgets/TableViewLogs.h"
 
-ZapFR::Client::TableViewLogs::TableViewLogs(QWidget* parent) : QTableView(parent)
+ZapFR::Client::TableViewLogs::TableViewLogs(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
 }

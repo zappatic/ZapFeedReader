@@ -18,7 +18,7 @@
 
 #include "widgets/TableViewPostEnclosures.h"
 
-ZapFR::Client::TableViewPostEnclosures::TableViewPostEnclosures(QWidget* parent) : QTableView(parent)
+ZapFR::Client::TableViewPostEnclosures::TableViewPostEnclosures(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
     mContextMenu = std::make_unique<QMenu>(nullptr);
     mCopyLinkAction = std::make_unique<QAction>(tr("Copy link"));
