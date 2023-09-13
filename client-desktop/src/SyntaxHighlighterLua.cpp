@@ -33,8 +33,8 @@ ZapFR::Client::SyntaxHighlighterLua::SyntaxHighlighterLua(QTextDocument* parent)
                                         R"(CurrentPost\.title)",
                                         R"(CurrentPost:markAsRead\(\))",
                                         R"(CurrentPost:markAsUnread\(\))",
-                                        R"(CurrentPost:flag\(\))",
-                                        R"(CurrentPost:unflag\(\))",
+                                        R"(CurrentPost:flag\(.*?\))",
+                                        R"(CurrentPost:unflag\(.*?\))",
                                         R"(CurrentPost:assignToScriptFolder\(.*?\))",
                                         R"(CurrentPost:unassignFromScriptFolder\(.*?\))"};
 

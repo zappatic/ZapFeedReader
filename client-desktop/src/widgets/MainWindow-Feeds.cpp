@@ -226,7 +226,7 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
             }
         }
     }
-
+    reloadScriptFolders(true);
     reloadUsedFlagColors(true);
 }
 
