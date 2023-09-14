@@ -32,7 +32,11 @@ void ZapFR::Engine::AgentScriptAdd::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->addScript(mType, mTitle, mEnabled, mEvents, mFeedIDs, mScript);
+        try
+        {
+            source.value()->addScript(mType, mTitle, mEnabled, mEvents, mFeedIDs, mScript);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID);
     }
 

@@ -34,18 +34,23 @@ void ZapFR::Engine::AgentFeedGetPosts::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-        if (feed.has_value())
+        std::vector<Post*> postPointers;
+        std::vector<std::unique_ptr<Post>> posts;
+        uint64_t postCount{0};
+        try
         {
-            auto [postCount, posts] = feed.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColorFilter);
-            std::vector<Post*> postPointers;
-            for (const auto& post : posts)
+            auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+            if (feed.has_value())
             {
-                postPointers.emplace_back(post.get());
+                std::tie(postCount, posts) = feed.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColorFilter);
+                for (const auto& post : posts)
+                {
+                    postPointers.emplace_back(post.get());
+                }
             }
-
-            mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
     }
 
     mIsDone = true;

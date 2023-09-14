@@ -62,6 +62,7 @@
 #include <Poco/Util/SystemConfiguration.h>
 #include <Poco/XML/XMLWriter.h>
 
+#include <cxxabi.h>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -89,6 +90,7 @@ namespace ZapFR
         static const uint16_t DefaultServerPort{16016};
         [[maybe_unused]] static const char* IdentifierLocalServer{"zapfeedreader.local"};
         [[maybe_unused]] static const char* IdentifierRemoteServer{"zapfeedreader.remote"};
+
     } // namespace Engine
 } // namespace ZapFR
 

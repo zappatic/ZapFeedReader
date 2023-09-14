@@ -56,7 +56,7 @@ void ZapFR::Client::MainWindow::addFeed()
 
 void ZapFR::Client::MainWindow::removeFeed()
 {
-    QMessageBox messageBox;
+    QMessageBox messageBox(this);
     messageBox.setText(tr("Remove feed"));
     messageBox.setWindowTitle(tr("Remove feed"));
     messageBox.setInformativeText(tr("Are you sure you want to remove this feed? All associated posts will be removed!"));
@@ -204,12 +204,12 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
             feedItem->setData(QVariant::fromValue<uint64_t>(feedUnreadCount), SourceTreeEntryUnreadCount);
             if (!error.empty())
             {
-                feedItem->setData(QString::fromUtf8(error), SourceTreeEntryFeedErrorRole);
+                feedItem->setData(QString::fromUtf8(error), SourceTreeEntryErrorRole);
                 feedItem->setData(QString::fromUtf8(error), Qt::ToolTipRole);
             }
             else
             {
-                feedItem->setData(QVariant(), SourceTreeEntryFeedErrorRole);
+                feedItem->setData(QVariant(), SourceTreeEntryErrorRole);
                 feedItem->setData("", Qt::ToolTipRole);
             }
 

@@ -17,6 +17,7 @@
 */
 
 #include "dialogs/DialogWithSourcesAndFolders.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
@@ -73,22 +74,49 @@ void ZapFR::Client::DialogWithSourcesAndFolders::setPreselectedSourceAndFolderID
         counter++;
     }
 
-    if (toSelect != -1)
-    {
-        mComboBoxSources->setCurrentIndex(toSelect);
-    }
-
     mFolderIDToPreselect = static_cast<int64_t>(selectedFolderID);
-    currentSourceChanged(-1);
+    mComboBoxSources->setCurrentIndex(toSelect);
 }
 
-void ZapFR::Client::DialogWithSourcesAndFolders::currentSourceChanged(int /*index*/)
+void ZapFR::Client::DialogWithSourcesAndFolders::currentSourceChanged(int index)
 {
-    if (mComboBoxFolders == nullptr || mComboBoxSources == nullptr)
+    if (mComboBoxFolders == nullptr || mComboBoxSources == nullptr || index == -1)
     {
         return;
     }
 
+    auto sourceID = mComboBoxSources->currentData(SourceIDRole).toULongLong();
+    ZapFR::Engine::Agent::getInstance()->queueGetFolders(sourceID, 0,
+                                                         [&](const std::vector<ZapFR::Engine::Folder*>& rootFolders)
+                                                         {
+                                                             static QString space(" ");
+                                                             QList<QStandardItem*> items;
+
+                                                             // lambda to recursively create folder items
+                                                             std::function<void(ZapFR::Engine::Folder*, ssize_t)> createFolderItems;
+                                                             createFolderItems = [&](ZapFR::Engine::Folder* folder, ssize_t depth)
+                                                             {
+                                                                 auto folderItem =
+                                                                     new QStandardItem(QString("%1%2").arg(space.repeated(depth * 4)).arg(QString::fromUtf8(folder->title())));
+                                                                 folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), FolderIDRole);
+                                                                 items.append(folderItem);
+
+                                                                 for (const auto& subfolder : folder->subfolders())
+                                                                 {
+                                                                     createFolderItems(subfolder.get(), depth + 1);
+                                                                 }
+                                                             };
+
+                                                             for (const auto& folder : rootFolders)
+                                                             {
+                                                                 createFolderItems(folder, 0);
+                                                             }
+                                                             QMetaObject::invokeMethod(this, "populateFolders", Qt::AutoConnection, items);
+                                                         });
+}
+
+void ZapFR::Client::DialogWithSourcesAndFolders::populateFolders(const QList<QStandardItem*>& folders)
+{
     mFoldersModel->clear();
 
     // insert a blank folder item, to be able to add to the root folder
@@ -96,42 +124,19 @@ void ZapFR::Client::DialogWithSourcesAndFolders::currentSourceChanged(int /*inde
     blankFolderItem->setData(QVariant::fromValue<uint64_t>(0), FolderIDRole);
     mFoldersModel->appendRow(blankFolderItem);
 
-    static QString space(" ");
     int32_t currentIndex = 1;
     int32_t indexToPreselect = -1;
-    // lambda to recursively create folder items
-    std::function<void(ZapFR::Engine::Folder*, ssize_t)> createFolderItems;
-    createFolderItems = [&](ZapFR::Engine::Folder* folder, ssize_t depth)
+    for (const auto& folder : folders)
     {
-        auto folderItem = new QStandardItem(QString("%1%2").arg(space.repeated(depth * 4)).arg(QString::fromUtf8(folder->title())));
-        folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), FolderIDRole);
-        mFoldersModel->appendRow(folderItem);
+        mFoldersModel->appendRow(folder);
 
-        if (mFolderIDToPreselect == static_cast<int64_t>(folder->id()))
+        auto folderID = folder->data(FolderIDRole).toULongLong();
+        if (mFolderIDToPreselect == static_cast<int64_t>(folderID))
         {
             indexToPreselect = currentIndex;
         }
-
         currentIndex++;
-
-        for (const auto& subfolder : folder->subfolders())
-        {
-            createFolderItems(subfolder.get(), depth + 1);
-        }
-    };
-
-    auto sourceID = mComboBoxSources->currentData(SourceIDRole).toULongLong();
-
-    auto source = ZapFR::Engine::Source::getSource(sourceID);
-    if (source.has_value())
-    {
-        auto rootFolders = source.value()->getFolders(0, ZapFR::Engine::Source::FetchInfo::Subfolders); // TODO: this should be over an agent !!
-        for (const auto& folder : rootFolders)
-        {
-            createFolderItems(folder.get(), 0);
-        }
     }
-
     if (indexToPreselect != -1)
     {
         mComboBoxFolders->setCurrentIndex(indexToPreselect);

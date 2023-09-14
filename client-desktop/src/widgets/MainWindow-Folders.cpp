@@ -92,7 +92,7 @@ void ZapFR::Client::MainWindow::editFolder()
 
 void ZapFR::Client::MainWindow::removeFolder()
 {
-    QMessageBox messageBox;
+    QMessageBox messageBox(this);
     messageBox.setText(tr("Remove folder"));
     messageBox.setWindowTitle(tr("Remove folder"));
     messageBox.setInformativeText(tr("Are you sure you want to remove this folder, all its subfolders, and all feeds they contain? All associated posts will be removed!"));

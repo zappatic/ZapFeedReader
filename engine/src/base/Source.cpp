@@ -59,6 +59,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSo
     std::string sourceTitle;
     uint64_t sourceSortOrder;
     std::string sourceConfigData;
+    Poco::Nullable<std::string> lastError;
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     if (typeFilter.has_value())
@@ -68,10 +69,11 @@ std::vector<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSo
                       ",title"
                       ",sortOrder"
                       ",configData"
+                      ",lastError"
                       " FROM sources"
                       " WHERE type=?"
                       " ORDER BY sortOrder ASC",
-            useRef(typeFilter.value()), into(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), range(0, 1);
+            useRef(typeFilter.value()), into(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), into(lastError), range(0, 1);
     }
     else
     {
@@ -80,9 +82,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSo
                       ",title"
                       ",sortOrder"
                       ",configData"
+                      ",lastError"
                       " FROM sources"
                       " ORDER BY sortOrder ASC",
-            into(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), range(0, 1);
+            into(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), into(lastError), range(0, 1);
     }
     while (!selectStmt.done())
     {
@@ -92,6 +95,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::getSo
             s->setTitle(sourceTitle);
             s->setSortOrder(sourceSortOrder);
             s->setConfigData(sourceConfigData);
+            if (!lastError.isNull())
+            {
+                s->setLastError(lastError.value());
+            }
             sourceList.emplace_back(std::move(s));
         }
     }
@@ -104,15 +111,17 @@ std::optional<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::get
     std::string sourceTitle;
     uint64_t sourceSortOrder;
     std::string sourceConfigData;
+    Poco::Nullable<std::string> lastError;
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT type"
                   ",title"
                   ",sortOrder"
                   ",configData"
+                  ",lastError"
                   " FROM sources"
                   " WHERE id=?",
-        use(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), now;
+        use(sourceID), into(sourceType), into(sourceTitle), into(sourceSortOrder), into(sourceConfigData), into(lastError), now;
 
     auto rs = Poco::Data::RecordSet(selectStmt);
     if (rs.rowCount() == 1)
@@ -121,6 +130,10 @@ std::optional<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::get
         s->setTitle(sourceTitle);
         s->setSortOrder(sourceSortOrder);
         s->setConfigData(sourceConfigData);
+        if (!lastError.isNull())
+        {
+            s->setLastError(lastError.value());
+        }
         return s;
     }
     return {};
@@ -130,6 +143,19 @@ void ZapFR::Engine::Source::updateTitle(const std::string& newTitle)
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE sources SET title=? WHERE id=?", useRef(newTitle), use(mID), now;
+}
+
+void ZapFR::Engine::Source::updateLastError(const std::string& error)
+{
+    Poco::Nullable<std::string> e;
+    if (!error.empty())
+    {
+        e = error;
+    }
+
+    Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+    updateStmt << "UPDATE sources SET lastError=? WHERE id=?", useRef(e), use(mID), now;
+    setLastError(error);
 }
 
 std::optional<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::create(const std::string& type, const std::string& title, const std::string& configData)

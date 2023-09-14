@@ -31,14 +31,19 @@ void ZapFR::Engine::AgentPostGet::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-        if (feed.has_value())
+        std::optional<std::unique_ptr<Post>> post;
+        try
         {
-            auto post = feed.value()->getPost(mPostID);
-            if (post.has_value())
+            auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+            if (feed.has_value())
             {
-                mFinishedCallback(std::move(post.value()));
+                post = feed.value()->getPost(mPostID);
             }
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        if (post.has_value())
+        {
+            mFinishedCallback(std::move(post.value()));
         }
     }
 

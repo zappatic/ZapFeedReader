@@ -17,8 +17,8 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderGetLogs.h"
-#include "ZapFR/base/Folder.h"
 #include "ZapFR/Log.h"
+#include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderGetLogs::AgentFolderGetLogs(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page,
@@ -32,18 +32,23 @@ void ZapFR::Engine::AgentFolderGetLogs::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
-        if (folder.has_value())
+        std::vector<std::unique_ptr<Log>> logs;
+        std::vector<Log*> logPointers;
+        uint64_t logCount{0};
+        try
         {
-            auto [logCount, logs] = folder.value()->getLogs(mPerPage, mPage);
-            std::vector<Log*> logPointers;
-            for (const auto& log : logs)
+            auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
+            if (folder.has_value())
             {
-                logPointers.emplace_back(log.get());
+                std::tie(logCount, logs) = folder.value()->getLogs(mPerPage, mPage);
+                for (const auto& log : logs)
+                {
+                    logPointers.emplace_back(log.get());
+                }
             }
-
-            mFinishedCallback(mSourceID, logPointers, mPage, logCount);
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        mFinishedCallback(mSourceID, logPointers, mPage, logCount);
     }
 
     mIsDone = true;

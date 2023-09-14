@@ -31,13 +31,18 @@ void ZapFR::Engine::AgentSourceGetLogs::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto [logCount, logs] = source.value()->getLogs(mPerPage, mPage);
         std::vector<Log*> logPointers;
-        for (const auto& log : logs)
+        std::vector<std::unique_ptr<Log>> logs;
+        uint64_t logCount{0};
+        try
         {
-            logPointers.emplace_back(log.get());
+            std::tie(logCount, logs) = source.value()->getLogs(mPerPage, mPage);
+            for (const auto& log : logs)
+            {
+                logPointers.emplace_back(log.get());
+            }
         }
-
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID, logPointers, mPage, logCount);
     }
 

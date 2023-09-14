@@ -30,7 +30,12 @@ void ZapFR::Engine::AgentFolderGet::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::Statistics);
+        std::optional<std::unique_ptr<Folder>> folder;
+        try
+        {
+            folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::Statistics);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         if (folder.has_value())
         {
             mFinishedCallback(folder.value().get());

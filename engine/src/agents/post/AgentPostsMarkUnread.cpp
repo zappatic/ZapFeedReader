@@ -31,7 +31,11 @@ void ZapFR::Engine::AgentPostsMarkUnread::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->setPostsReadStatus(false, mFeedAndPostIDs);
+        try
+        {
+            source.value()->setPostsReadStatus(false, mFeedAndPostIDs);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID, mFeedAndPostIDs);
     }
 

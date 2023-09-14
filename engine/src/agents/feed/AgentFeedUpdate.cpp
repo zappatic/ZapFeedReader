@@ -31,12 +31,16 @@ void ZapFR::Engine::AgentFeedUpdate::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-        if (feed.has_value())
+        try
         {
-            feed.value()->updateProperties(mFeedURL, mRefreshIntervalInSeconds);
-            mFinishedCallback();
+            auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+            if (feed.has_value())
+            {
+                feed.value()->updateProperties(mFeedURL, mRefreshIntervalInSeconds);
+            }
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        mFinishedCallback();
     }
 
     mIsDone = true;

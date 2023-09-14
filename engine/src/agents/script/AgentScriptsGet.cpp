@@ -30,13 +30,17 @@ void ZapFR::Engine::AgentScriptsGet::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto scripts = source.value()->getScripts();
         std::vector<Script*> scriptPointers;
-        for (const auto& script : scripts)
+        std::vector<std::unique_ptr<Script>> scripts;
+        try
         {
-            scriptPointers.emplace_back(script.get());
+            scripts = source.value()->getScripts();
+            for (const auto& script : scripts)
+            {
+                scriptPointers.emplace_back(script.get());
+            }
         }
-
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID, scriptPointers);
     }
 

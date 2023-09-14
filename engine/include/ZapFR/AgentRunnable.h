@@ -52,6 +52,7 @@ namespace ZapFR
                 FolderRefresh,
                 FolderRemove,
                 FolderUpdate,
+                FoldersGet,
                 MonitorFeedRefreshCompletion,
                 PostGet,
                 PostsMarkFlagged,
@@ -90,5 +91,25 @@ namespace ZapFR
         };
     } // namespace Engine
 } // namespace ZapFR
+
+#define LOG_AND_UNMANGLE_EXCEPTION(MESSAGE)                                                                                                                                   \
+    int32_t status;                                                                                                                                                           \
+    char* demangled = abi::__cxa_demangle(typeid(*this).name(), 0, 0, &status);                                                                                               \
+    source.value()->updateLastError(fmt::format("{} ({})", MESSAGE, demangled));                                                                                              \
+    free(demangled);
+
+#define CATCH_AND_LOG_EXCEPTION_IN_SOURCE                                                                                                                                     \
+    catch (const Poco::Exception& e)                                                                                                                                          \
+    {                                                                                                                                                                         \
+        LOG_AND_UNMANGLE_EXCEPTION(e.displayText())                                                                                                                           \
+    }                                                                                                                                                                         \
+    catch (const std::exception& e)                                                                                                                                           \
+    {                                                                                                                                                                         \
+        LOG_AND_UNMANGLE_EXCEPTION(e.what())                                                                                                                                  \
+    }                                                                                                                                                                         \
+    catch (...)                                                                                                                                                               \
+    {                                                                                                                                                                         \
+        LOG_AND_UNMANGLE_EXCEPTION("Unknown error occurred")                                                                                                                  \
+    }
 
 #endif // ZAPFR_ENGINE_AGENTRUNNABLE_H

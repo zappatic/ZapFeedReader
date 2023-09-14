@@ -34,18 +34,23 @@ void ZapFR::Engine::AgentFolderGetPosts::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
-        if (folder.has_value())
+        std::vector<std::unique_ptr<Post>> posts;
+        std::vector<Post*> postPointers;
+        uint64_t postCount{0};
+        try
         {
-            auto [postCount, posts] = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
-            std::vector<Post*> postPointers;
-            for (const auto& post : posts)
+            auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
+            if (folder.has_value())
             {
-                postPointers.emplace_back(post.get());
+                std::tie(postCount, posts) = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
+                for (const auto& post : posts)
+                {
+                    postPointers.emplace_back(post.get());
+                }
             }
-
-            mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
     }
 
     mIsDone = true;

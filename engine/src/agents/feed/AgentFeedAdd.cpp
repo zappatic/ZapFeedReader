@@ -30,7 +30,12 @@ void ZapFR::Engine::AgentFeedAdd::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feedID = source.value()->addFeed(mURL, mFolderID);
+        uint64_t feedID{0};
+        try
+        {
+            feedID = source.value()->addFeed(mURL, mFolderID);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID, feedID);
     }
 

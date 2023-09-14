@@ -31,7 +31,11 @@ void ZapFR::Engine::AgentFolderAdd::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->addFolder(mTitle, mParentFolderID);
+        try
+        {
+            source.value()->addFolder(mTitle, mParentFolderID);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback();
     }
 

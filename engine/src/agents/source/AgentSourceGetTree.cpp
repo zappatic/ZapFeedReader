@@ -17,6 +17,7 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceGetTree.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
@@ -33,19 +34,25 @@ void ZapFR::Engine::AgentSourceGetTree::run()
     if (source.has_value())
     {
         std::vector<Feed*> feedPointers{};
-        auto feeds = source.value()->getFeeds(Source::FetchInfo::Icon);
-        for (const auto& feed : feeds)
-        {
-            feedPointers.emplace_back(feed.get());
-        }
-
+        std::vector<std::unique_ptr<Feed>> feeds;
         std::vector<Folder*> folderPointers{};
-        auto folders = source.value()->getFolders(0, Source::FetchInfo::Subfolders);
-        for (const auto& folder : folders)
-        {
-            folderPointers.emplace_back(folder.get());
-        }
+        std::vector<std::unique_ptr<Folder>> folders;
 
+        try
+        {
+            feeds = source.value()->getFeeds(Source::FetchInfo::Icon);
+            for (const auto& feed : feeds)
+            {
+                feedPointers.emplace_back(feed.get());
+            }
+
+            folders = source.value()->getFolders(0, Source::FetchInfo::Subfolders);
+            for (const auto& folder : folders)
+            {
+                folderPointers.emplace_back(folder.get());
+            }
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(source.value().get(), folderPointers, feedPointers);
     }
 

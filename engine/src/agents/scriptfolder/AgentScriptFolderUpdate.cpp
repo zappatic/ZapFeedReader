@@ -31,12 +31,16 @@ void ZapFR::Engine::AgentScriptFolderUpdate::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto scriptFolder = source.value()->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
-        if (scriptFolder.has_value())
+        try
         {
-            scriptFolder.value()->update(mTitle, mShowTotal, mShowUnread);
-            mFinishedCallback(mSourceID, mScriptFolderID);
+            auto scriptFolder = source.value()->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
+            if (scriptFolder.has_value())
+            {
+                scriptFolder.value()->update(mTitle, mShowTotal, mShowUnread);
+            }
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        mFinishedCallback(mSourceID, mScriptFolderID);
     }
 
     mIsDone = true;

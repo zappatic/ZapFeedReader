@@ -47,6 +47,7 @@ namespace ZapFR
 
           private slots:
             void currentSourceChanged(int index);
+            void populateFolders(const QList<QStandardItem*>& folders = {});
 
           private:
             QComboBox* mComboBoxSources{nullptr};

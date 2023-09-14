@@ -60,7 +60,7 @@ void ZapFR::Client::DialogImportOPML::chooseOPMLFile(bool /*checked*/)
         }
         catch (const Poco::Exception& e)
         {
-            QMessageBox mb;
+            QMessageBox mb(this);
             mb.setText(tr("Error parsing OPML file"));
             mb.setInformativeText(QString::fromUtf8(e.displayText()));
             mb.setIcon(QMessageBox::Icon::Critical);

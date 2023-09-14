@@ -30,13 +30,17 @@ void ZapFR::Engine::AgentScriptFoldersGet::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto scriptFolders = source.value()->getScriptFolders();
         std::vector<ScriptFolder*> scriptFolderPointers;
-        for (const auto& scriptFolder : scriptFolders)
+        std::vector<std::unique_ptr<ScriptFolder>> scriptFolders;
+        try
         {
-            scriptFolderPointers.emplace_back(scriptFolder.get());
+            scriptFolders = source.value()->getScriptFolders();
+            for (const auto& scriptFolder : scriptFolders)
+            {
+                scriptFolderPointers.emplace_back(scriptFolder.get());
+            }
         }
-
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID, scriptFolderPointers);
     }
 

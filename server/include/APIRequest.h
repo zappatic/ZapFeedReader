@@ -44,7 +44,6 @@ namespace ZapFR
             bool hasParameter(const std::string& key) const noexcept;
             const Poco::Net::HTMLForm& parameters() const noexcept { return mParameters; }
             const Poco::URI& uri() const noexcept { return mURI; }
-            std::string clientIPAddress() const noexcept { return mClientIPAddress; }
 
           private:
             API* mAPI{nullptr};
@@ -52,7 +51,6 @@ namespace ZapFR
             Poco::Net::HTTPServerRequest* mRequest{nullptr};
             Poco::Net::HTMLForm mParameters{};
             Poco::URI mURI{};
-            std::string mClientIPAddress{""};
         };
     } // namespace Server
 } // namespace ZapFR

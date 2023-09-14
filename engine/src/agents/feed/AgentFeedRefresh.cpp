@@ -30,12 +30,17 @@ void ZapFR::Engine::AgentFeedRefresh::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-        if (feed.has_value())
+        std::optional<std::unique_ptr<Feed>> feed;
+        try
         {
-            feed.value()->refresh();
-            mFinishedCallback(mSourceID, feed.value().get());
+            feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+            if (feed.has_value())
+            {
+                feed.value()->refresh();
+            }
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        mFinishedCallback(mSourceID, feed.value().get());
     }
 
     mIsDone = true;

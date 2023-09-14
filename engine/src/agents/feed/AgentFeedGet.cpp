@@ -30,8 +30,13 @@ void ZapFR::Engine::AgentFeedGet::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::Data | ZapFR::Engine::Source::FetchInfo::Statistics |
-                                                         ZapFR::Engine::Source::FetchInfo::FeedUnreadCount);
+        std::optional<std::unique_ptr<Feed>> feed;
+        try
+        {
+            feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::Data | ZapFR::Engine::Source::FetchInfo::Statistics |
+                                                        ZapFR::Engine::Source::FetchInfo::FeedUnreadCount);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         if (feed.has_value())
         {
             mFinishedCallback(mSourceID, feed.value().get());

@@ -29,7 +29,11 @@ void ZapFR::Engine::AgentSourceGet::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->fetchStatistics();
+        try
+        {
+            source.value()->fetchStatistics();
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(source.value().get());
     }
 

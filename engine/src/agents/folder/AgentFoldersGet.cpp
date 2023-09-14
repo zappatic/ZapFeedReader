@@ -16,26 +16,32 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/source/AgentSourceMarkRead.h"
-#include "ZapFR/base/Feed.h"
+#include "ZapFR/agents/folder/AgentFoldersGet.h"
+#include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentSourceMarkRead::AgentSourceMarkRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentFoldersGet::AgentFoldersGet(uint64_t sourceID, uint64_t folderID, std::function<void(const std::vector<Folder*>&)> finishedCallback)
+    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceMarkRead::run()
+void ZapFR::Engine::AgentFoldersGet::run()
 {
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
+        std::vector<Folder*> folderPointers;
+        std::vector<std::unique_ptr<Folder>> folders;
         try
         {
-            source.value()->markAllAsRead();
+            folders = source.value()->getFolders(mFolderID, ZapFR::Engine::Source::FetchInfo::Subfolders);
+            for (const auto& folder : folders)
+            {
+                folderPointers.emplace_back(folder.get());
+            }
         }
         CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID);
+        mFinishedCallback(folderPointers);
     }
 
     mIsDone = true;

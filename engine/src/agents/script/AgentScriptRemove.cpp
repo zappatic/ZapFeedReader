@@ -29,7 +29,11 @@ void ZapFR::Engine::AgentScriptRemove::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->removeScript(mScriptID);
+        try
+        {
+            source.value()->removeScript(mScriptID);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID, mScriptID);
     }
 

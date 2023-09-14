@@ -25,6 +25,12 @@ namespace ZapFR
 {
     namespace Server
     {
+        struct Account
+        {
+            std::string login;
+            std::string password;
+        };
+
         class Daemon : public Poco::Util::ServerApplication
         {
           public:
@@ -33,11 +39,15 @@ namespace ZapFR
             void uninitialize() override;
 
             std::string configString(const std::string& key);
+            bool hasAccounts() const noexcept;
+            bool areCredentialsValid(const std::string& login, const std::string& password) const;
 
           private:
-            std::string dataDir();
-
             Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
+            std::vector<Account> mAccounts{};
+
+            void loadAccounts();
+            std::string dataDir();
         };
     } // namespace Server
 } // namespace ZapFR

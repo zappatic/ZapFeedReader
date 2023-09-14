@@ -29,7 +29,11 @@ void ZapFR::Engine::AgentScriptFolderRemove::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->removeScriptFolder(mScriptFolderID);
+        try
+        {
+            source.value()->removeScriptFolder(mScriptFolderID);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID, mScriptFolderID);
     }
 

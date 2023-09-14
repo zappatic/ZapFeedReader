@@ -18,6 +18,7 @@
 
 #include "APIRequest.h"
 #include "API.h"
+#include "Daemon.h"
 #include "ZapFR/Helpers.h"
 
 ZapFR::Server::APIRequest::APIRequest(API* api, Poco::Net::HTTPServerRequest& request) : mAPI(api)
@@ -25,14 +26,35 @@ ZapFR::Server::APIRequest::APIRequest(API* api, Poco::Net::HTTPServerRequest& re
     mRequest = &request;
     mURI = Poco::URI("https://" + request.getHost() + request.getURI());
 
-    std::vector<std::string> ipAddressComponents;
-    ZapFR::Engine::Helpers::splitString(request.clientAddress().toString(), ':', ipAddressComponents);
-    ipAddressComponents.pop_back();
-    mClientIPAddress = ZapFR::Engine::Helpers::joinString(ipAddressComponents, ":");
-
-    if (api->requiresCredentials())
+    if (api->requiresCredentials() && api->daemon()->hasAccounts())
     {
-        // TODO
+        if (!request.hasCredentials())
+        {
+            throw UnauthorizedError("Credentials absent");
+        }
+
+        auto credentialsCorrect{false};
+        std::string scheme;
+        std::string authInfo;
+        request.getCredentials(scheme, authInfo);
+        if (scheme == "Basic" && !authInfo.empty())
+        {
+            std::istringstream base64stream(authInfo);
+            Poco::Base64Decoder b64decoderstream(base64stream);
+            std::string decoded(std::istreambuf_iterator<char>(b64decoderstream), {});
+            std::vector<std::string> authComponents;
+            ZapFR::Engine::Helpers::splitString(decoded, ':', authComponents);
+            if (authComponents.size() == 2)
+            {
+                auto login = authComponents.at(0);
+                auto password = authComponents.at(1);
+                credentialsCorrect = api->daemon()->areCredentialsValid(login, password);
+            }
+        }
+        if (!credentialsCorrect)
+        {
+            throw UnauthorizedError("Invalid login/password");
+        }
     }
 
     // Load path components from the URI

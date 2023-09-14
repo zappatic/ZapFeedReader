@@ -70,6 +70,13 @@ void ZapFR::Client::MainWindow::reloadSources()
                 sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), SourceTreeEntryParentSourceIDRole);
                 sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->sortOrder()), SourceTreeEntrySortOrderRole);
                 sourceItem->setData(QString::fromUtf8(retrievedSource->type()), SourceTreeEntrySourceTypeRole);
+                const auto& lastError = retrievedSource->lastError();
+                if (!lastError.empty())
+                {
+                    auto errorQString = QString::fromUtf8(lastError);
+                    sourceItem->setData(errorQString, SourceTreeEntryErrorRole);
+                    sourceItem->setData(errorQString, Qt::ToolTipRole);
+                }
 
                 // add all the folders and subfolders
                 for (const auto& folder : rootFolders)
@@ -104,7 +111,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                     auto feedError = feed->lastRefreshError();
                     if (feedError.has_value())
                     {
-                        feedItem->setData(QString::fromUtf8(feedError.value()), SourceTreeEntryFeedErrorRole);
+                        feedItem->setData(QString::fromUtf8(feedError.value()), SourceTreeEntryErrorRole);
                         feedItem->setData(QString::fromUtf8(feedError.value()), Qt::ToolTipRole);
                     }
                     feedItem->setData(QString::fromUtf8(feed->url()), SourceTreeEntryFeedURLRole);
@@ -450,7 +457,7 @@ void ZapFR::Client::MainWindow::removeSource()
             return;
         }
 
-        QMessageBox messageBox;
+        QMessageBox messageBox(this);
         messageBox.setWindowTitle(tr("Remove source"));
         messageBox.setText(tr("Remove source?"));
         messageBox.setInformativeText(tr("Are you sure you want to remove this remote source?"));

@@ -30,7 +30,11 @@ void ZapFR::Engine::AgentFolderMove::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->moveFolder(mFolderID, mNewFolderID, mNewSortOrder);
+        try
+        {
+            source.value()->moveFolder(mFolderID, mNewFolderID, mNewSortOrder);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback();
     }
 

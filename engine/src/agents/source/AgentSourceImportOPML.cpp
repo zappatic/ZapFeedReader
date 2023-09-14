@@ -34,14 +34,18 @@ void ZapFR::Engine::AgentSourceImportOPML::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feedIDs = source.value()->importOPML(mOPML, mParentFolderID);
-        mOPMLParsedCallback();
-        for (const auto& feedID : feedIDs)
+        try
         {
-            // We just create agent threads here so the refreshing can be done concurrently
-            // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
-            Agent::getInstance()->queueRefreshFeed(mSourceID, feedID, mFeedRefreshedCallback);
+            auto feedIDs = source.value()->importOPML(mOPML, mParentFolderID);
+            mOPMLParsedCallback();
+            for (const auto& feedID : feedIDs)
+            {
+                // We just create agent threads here so the refreshing can be done concurrently
+                // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
+                Agent::getInstance()->queueRefreshFeed(mSourceID, feedID, mFeedRefreshedCallback);
+            }
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
     }
     mIsDone = true;
 }

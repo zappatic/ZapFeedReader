@@ -32,6 +32,8 @@ int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
 {
     mConfiguration = Poco::AutoPtr<Poco::Util::JSONConfiguration>(new Poco::Util::JSONConfiguration(gsConfigurationPath));
 
+    loadAccounts();
+
     auto bindAddress = mConfiguration->getString("zapfr.bind", "0.0.0.0");
     auto bindPort = static_cast<uint16_t>(mConfiguration->getUInt("zapfr.port", ZapFR::Engine::DefaultServerPort));
     auto sslPubCert = mConfiguration->getString("zapfr.ssl_pubcert", "");
@@ -79,7 +81,54 @@ std::string ZapFR::Server::Daemon::dataDir()
     return dir.path();
 }
 
+void ZapFR::Server::Daemon::loadAccounts()
+{
+    try
+    {
+        if (mConfiguration->has("zapfr.accounts"))
+        {
+            auto accounts = Poco::JSON::Parser().parse(mConfiguration->getRawString("zapfr.accounts")).extract<Poco::JSON::Array::Ptr>();
+            for (size_t i = 0; i < accounts->size(); ++i)
+            {
+                auto account = accounts->getObject(static_cast<uint32_t>(i));
+                auto login = account->getValue<std::string>("login");
+                auto password = account->getValue<std::string>("password");
+                mAccounts.emplace_back(login, password);
+            }
+        }
+    }
+    catch (const Poco::Exception& e)
+    {
+        std::cerr << "Failed loading accounts from configuration file: " << e.displayText() << "\n";
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Failed loading accounts from configuration file: " << e.what() << "\n";
+    }
+    catch (...)
+    {
+        std::cerr << "Failed loading accounts from configuration file: unknown error\n";
+    }
+}
+
 std::string ZapFR::Server::Daemon::configString(const std::string& key)
 {
     return mConfiguration->getString(key, "");
+}
+
+bool ZapFR::Server::Daemon::hasAccounts() const noexcept
+{
+    return !mAccounts.empty();
+}
+
+bool ZapFR::Server::Daemon::areCredentialsValid(const std::string& login, const std::string& password) const
+{
+    for (const auto& account : mAccounts)
+    {
+        if (account.login == login && account.password == password)
+        {
+            return true;
+        }
+    }
+    return false;
 }

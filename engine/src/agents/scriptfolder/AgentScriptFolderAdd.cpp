@@ -30,7 +30,11 @@ void ZapFR::Engine::AgentScriptFolderAdd::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->addScriptFolder(mTitle, mShowTotal, mShowUnread);
+        try
+        {
+            source.value()->addScriptFolder(mTitle, mShowTotal, mShowUnread);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID);
     }
 

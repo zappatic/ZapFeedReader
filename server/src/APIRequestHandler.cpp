@@ -49,6 +49,7 @@ void ZapFR::Server::APIRequestHandler::handleRequest(Poco::Net::HTTPServerReques
     }
     catch (const UnauthorizedError& e)
     {
+        response.set("WWW-Authenticate", "Basic realm=\"Zap Feed Reader\"");
         httpStatus = Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED;
         exceptionMessage = e.what();
     }

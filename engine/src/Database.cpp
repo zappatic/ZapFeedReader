@@ -144,6 +144,7 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ",title TEXT"
                        ",sortOrder INTEGER NOT NULL"
                        ",configData TEXT"
+                       ",lastError TEXT"
                        ")",
             now;
 

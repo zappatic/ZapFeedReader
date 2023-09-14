@@ -32,12 +32,16 @@ void ZapFR::Engine::AgentScriptUpdate::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto script = source.value()->getScript(mScriptID, Source::FetchInfo::None);
-        if (script.has_value())
+        try
         {
-            script.value()->update(mType, mTitle, mEnabled, mEvents, mFeedIDs, mScript);
-            mFinishedCallback(mSourceID, mScriptID);
+            auto script = source.value()->getScript(mScriptID, Source::FetchInfo::None);
+            if (script.has_value())
+            {
+                script.value()->update(mType, mTitle, mEnabled, mEvents, mFeedIDs, mScript);
+            }
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        mFinishedCallback(mSourceID, mScriptID);
     }
 
     mIsDone = true;

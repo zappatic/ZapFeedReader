@@ -6,6 +6,16 @@
     "ssl_privkey": "<path to the private SSL key, leave blank for HTTP serving instead of HTTPS>",
     "user": "<the user the server should run as, after dropping root privileges>",
     "group": "<the group the server should run as, after dropping root privileges>",
-    "servername": "<the name of the server, shown as the source name in the client>"
+    "servername": "<the name of the server, shown as the source name in the client>",
+    "accounts": [
+      {
+        "login": "<login>",
+        "password": "<password>"
+      },
+      {
+        "login": "<login2>",
+        "password": "<password2>"
+      }
+    ]
   }
 }

@@ -31,14 +31,18 @@ void ZapFR::Engine::AgentSourceRefresh::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto feeds = source.value()->getFeeds(Source::FetchInfo::None);
-        for (const auto& feed : feeds)
+        try
         {
-            // We just create agent threads here instead of refreshing the source manually
-            // so the refreshing can be done concurrently
-            // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
-            Agent::getInstance()->queueRefreshFeed(mSourceID, feed->id(), mFinishedCallback);
+            auto feeds = source.value()->getFeeds(Source::FetchInfo::None);
+            for (const auto& feed : feeds)
+            {
+                // We just create agent threads here instead of refreshing the source manually
+                // so the refreshing can be done concurrently
+                // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
+                Agent::getInstance()->queueRefreshFeed(mSourceID, feed->id(), mFinishedCallback);
+            }
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
     }
 
     mIsDone = true;

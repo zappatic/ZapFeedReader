@@ -71,11 +71,13 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         painter->fillRect(option.rect, brushBackground);
     }
 
+    auto entryType = index.data(SourceTreeEntryTypeRole).toULongLong();
+
     // draw the icon
-    if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+    if (entryType == SOURCETREE_ENTRY_TYPE_FEED)
     {
         QPixmap icon;
-        auto feedError = index.data(SourceTreeEntryFeedErrorRole);
+        auto feedError = index.data(SourceTreeEntryErrorRole);
         if (!feedError.isNull() && feedError.isValid() && !feedError.toString().isEmpty())
         {
             icon = QPixmap(":/feedError.svg");
@@ -90,6 +92,14 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         painter->drawPixmap(iconTargetRect, icon, icon.rect());
         titleRect.adjust(static_cast<int32_t>(iconSize) + 9, 0, 0, 0);
     }
+    else if (entryType == SOURCETREE_ENTRY_TYPE_SOURCE)
+    {
+        auto sourceError = index.data(SourceTreeEntryErrorRole);
+        if (!sourceError.isNull() && sourceError.isValid() && !sourceError.toString().isEmpty())
+        {
+            brushText = QBrush(Qt::darkRed);
+        }
+    }
 
     // draw the title
     auto title = index.data(Qt::DisplayRole).toString();
@@ -99,7 +109,7 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
     painter->drawText(titleRect, elidedTitle, titleTextOptions);
 
     // draw the unread amount badge
-    if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED && index.data(SourceTreeEntryDisplayUnreadCountBadge).toBool() == true)
+    if (entryType == SOURCETREE_ENTRY_TYPE_FEED && index.data(SourceTreeEntryDisplayUnreadCountBadge).toBool() == true)
     {
         auto unreadCount = index.data(SourceTreeEntryUnreadCount).toULongLong();
         if (unreadCount > 0)

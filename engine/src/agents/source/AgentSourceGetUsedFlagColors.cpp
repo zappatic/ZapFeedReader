@@ -32,7 +32,13 @@ void ZapFR::Engine::AgentSourceGetUsedFlagColors::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        mFinishedCallback(source.value()->id(), source.value()->getUsedFlagColors());
+        std::unordered_set<FlagColor> flagColors;
+        try
+        {
+            flagColors = source.value()->getUsedFlagColors();
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        mFinishedCallback(source.value()->id(), flagColors);
     }
 
     mIsDone = true;

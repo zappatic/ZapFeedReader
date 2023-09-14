@@ -29,7 +29,11 @@ void ZapFR::Engine::AgentFolderRemove::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->removeFolder(mFolderID);
+        try
+        {
+            source.value()->removeFolder(mFolderID);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback();
     }
 

@@ -33,7 +33,11 @@ void ZapFR::Engine::AgentScriptFolderRemovePosts::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        source.value()->assignPostsToScriptFolder(mScriptFolderID, false, mFeedAndPostIDs);
+        try
+        {
+            source.value()->assignPostsToScriptFolder(mScriptFolderID, false, mFeedAndPostIDs);
+        }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
         mFinishedCallback(mSourceID, mScriptFolderID);
     }
 

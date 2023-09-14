@@ -59,17 +59,20 @@ namespace ZapFR
                 Subfolders = 32,
             };
 
-            uint64_t id() const noexcept { return mID; }
-            std::string title() const noexcept { return mTitle; }
-            std::string type() const noexcept { return mType; }
-            uint64_t sortOrder() const noexcept { return mSortOrder; }
-            std::string configData() const noexcept { return mConfigData; }
-            std::unordered_map<Statistic, std::string> statistics() { return mStatistics; }
+            const uint64_t& id() const noexcept { return mID; }
+            const std::string& title() const noexcept { return mTitle; }
+            const std::string& type() const noexcept { return mType; }
+            const uint64_t& sortOrder() const noexcept { return mSortOrder; }
+            const std::string& configData() const noexcept { return mConfigData; }
+            const std::unordered_map<Statistic, std::string>& statistics() { return mStatistics; }
+            const std::string& lastError() const noexcept { return mLastError; }
 
             void setTitle(const std::string& title) { mTitle = title; }
             void setType(const std::string& type) { mType = type; }
             void setSortOrder(uint64_t sortOrder) noexcept { mSortOrder = sortOrder; }
             void setConfigData(const std::string& configData) { mConfigData = configData; }
+            void setLastError(const std::string& error) { mLastError = error; }
+            void updateLastError(const std::string& error);
 
             void updateTitle(const std::string& newTitle);
             virtual std::unordered_set<uint64_t> importOPML(const std::string& opml, uint64_t parentFolderID) = 0;
@@ -126,6 +129,7 @@ namespace ZapFR
             uint64_t mSortOrder{0};
             std::string mConfigData{""};
             std::unordered_map<Statistic, std::string> mStatistics{};
+            std::string mLastError{""};
 
             static std::mutex msCreateSourceMutex;
         };

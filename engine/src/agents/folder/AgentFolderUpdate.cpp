@@ -31,12 +31,16 @@ void ZapFR::Engine::AgentFolderUpdate::run()
     auto source = Source::getSource(mSourceID);
     if (source.has_value())
     {
-        auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
-        if (folder.has_value())
+        try
         {
-            folder.value()->update(mNewTitle);
-            mFinishedCallback(mSourceID, mFolderID, mNewTitle);
+            auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
+            if (folder.has_value())
+            {
+                folder.value()->update(mNewTitle);
+            }
         }
+        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        mFinishedCallback(mSourceID, mFolderID, mNewTitle);
     }
 
     mIsDone = true;
