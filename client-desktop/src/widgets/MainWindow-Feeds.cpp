@@ -179,6 +179,7 @@ void ZapFR::Client::MainWindow::feedMarkedRead(uint64_t sourceID, uint64_t feedI
     updateFeedUnreadCountBadge(sourceID, {feedID}, false, 0);
     mCurrentPostPage = 1;
     reloadPosts();
+    reloadScriptFolders(true);
 }
 
 void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::string& error, const std::string& feedTitle,

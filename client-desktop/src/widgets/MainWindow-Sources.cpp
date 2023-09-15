@@ -487,6 +487,7 @@ void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
     updateFeedUnreadCountBadge(sourceID, {}, true, 0);
     mCurrentPostPage = 1;
     reloadPosts();
+    reloadScriptFolders(true);
 }
 
 QStandardItem* ZapFR::Client::MainWindow::findSourceStandardItem(uint64_t sourceID)

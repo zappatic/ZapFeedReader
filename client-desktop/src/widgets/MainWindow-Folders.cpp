@@ -173,6 +173,7 @@ void ZapFR::Client::MainWindow::folderMarkedRead(uint64_t sourceID, std::unorder
     updateFeedUnreadCountBadge(sourceID, feedIDs, false, 0);
     mCurrentPostPage = 1;
     reloadPosts();
+    reloadScriptFolders(true);
 }
 
 void ZapFR::Client::MainWindow::connectFolderStuff()
