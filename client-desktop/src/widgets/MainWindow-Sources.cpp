@@ -107,7 +107,10 @@ void ZapFR::Client::MainWindow::reloadSources()
                     {
                         feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
                     }
-                    feedItem->setData(true, SourceTreeEntryDisplayUnreadCountBadge);
+                    if (ui->stackedWidgetContentPanes->currentIndex() == StackedPanePosts)
+                    {
+                        feedItem->setData(true, SourceTreeEntryDisplayUnreadCountBadge);
+                    }
                     auto feedError = feed->lastRefreshError();
                     if (feedError.has_value())
                     {
