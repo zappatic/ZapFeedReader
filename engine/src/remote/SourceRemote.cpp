@@ -87,7 +87,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::g
             for (size_t i = 0; i < feedArr->size(); ++i)
             {
                 auto feedObj = feedArr->getObject(static_cast<uint32_t>(i));
-                feeds.emplace_back(std::move(FeedRemote::fromJSON(this, feedObj)));
+                feeds.emplace_back(FeedRemote::fromJSON(this, feedObj));
             }
         }
     }
@@ -214,7 +214,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote:
             for (size_t i = 0; i < folderArr->size(); ++i)
             {
                 auto folderObj = folderArr->getObject(static_cast<uint32_t>(i));
-                folders.emplace_back(std::move(FolderRemote::fromJSON(this, folderObj)));
+                folders.emplace_back(FolderRemote::fromJSON(this, folderObj));
             }
         }
     }
@@ -336,7 +336,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
                 for (size_t i = 0; i < postArr->size(); ++i)
                 {
                     auto postObj = postArr->getObject(static_cast<uint32_t>(i));
-                    posts.emplace_back(std::move(PostRemote::fromJSON(postObj)));
+                    posts.emplace_back(PostRemote::fromJSON(postObj));
                 }
             }
         }
@@ -477,7 +477,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
                 for (size_t i = 0; i < logArr->size(); ++i)
                 {
                     auto logObj = logArr->getObject(static_cast<uint32_t>(i));
-                    logs.emplace_back(std::move(Log::fromJSON(logObj)));
+                    logs.emplace_back(Log::fromJSON(logObj));
                 }
             }
         }
@@ -538,7 +538,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceR
             for (size_t i = 0; i < scriptFolderArr->size(); ++i)
             {
                 auto scriptFolderObj = scriptFolderArr->getObject(static_cast<uint32_t>(i));
-                scriptFolders.emplace_back(std::move(ScriptFolderRemote::fromJSON(this, scriptFolderObj)));
+                scriptFolders.emplace_back(ScriptFolderRemote::fromJSON(this, scriptFolderObj));
             }
         }
     }
@@ -621,7 +621,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceRemote:
             for (size_t i = 0; i < scriptArr->size(); ++i)
             {
                 auto scriptObj = scriptArr->getObject(static_cast<uint32_t>(i));
-                scripts.emplace_back(std::move(ScriptRemote::fromJSON(this, scriptObj)));
+                scripts.emplace_back(ScriptRemote::fromJSON(this, scriptObj));
             }
         }
     }

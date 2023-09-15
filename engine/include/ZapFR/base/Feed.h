@@ -40,7 +40,7 @@ namespace ZapFR
             Feed(Feed&&) = delete;
             Feed& operator=(Feed&&) = delete;
 
-            enum class Statistic
+            enum class Statistic : uint64_t
             {
                 PostCount,
                 FlaggedPostCount,

@@ -40,7 +40,7 @@ namespace ZapFR
             Folder(Folder&&) = delete;
             Folder& operator=(Folder&&) = delete;
 
-            enum class Statistic
+            enum class Statistic : uint64_t
             {
                 FeedCount,
                 PostCount,

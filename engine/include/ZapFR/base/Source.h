@@ -39,7 +39,7 @@ namespace ZapFR
             explicit Source(uint64_t id) : mID(id) {}
             virtual ~Source() = default;
 
-            enum class Statistic
+            enum class Statistic : uint64_t
             {
                 FeedCount,
                 PostCount,

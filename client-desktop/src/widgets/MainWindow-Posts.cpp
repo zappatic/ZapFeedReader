@@ -462,7 +462,7 @@ void ZapFR::Client::MainWindow::postReadyToBeShown(const QString& html, const st
             auto mimeTypeItem = new QStandardItem(mimeType.name());
             mimeTypeItem->setData(url, PostEnclosureLinkRole);
 
-            auto sizeItem = new QStandardItem(locale().formattedDataSize(e.size));
+            auto sizeItem = new QStandardItem(locale().formattedDataSize(static_cast<int64_t>(e.size)));
             sizeItem->setData(url, PostEnclosureLinkRole);
 
             QList<QStandardItem*> rowData;

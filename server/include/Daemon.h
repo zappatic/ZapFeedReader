@@ -27,6 +27,7 @@ namespace ZapFR
     {
         struct Account
         {
+            Account(const std::string& accountLogin, const std::string& accountPassword) : login(accountLogin), password(accountPassword) {}
             std::string login;
             std::string password;
         };

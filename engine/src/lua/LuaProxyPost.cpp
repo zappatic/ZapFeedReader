@@ -140,7 +140,7 @@ int ZapFR::Engine::LuaProxyPost::assignToScriptFolder(lua_State* L)
     if (post != nullptr)
     {
         int success;
-        auto scriptFolderID = lua_tointegerx(L, 2, &success);
+        auto scriptFolderID = static_cast<uint64_t>(lua_tointegerx(L, 2, &success));
         if (success != 0)
         {
             post->assignToScriptFolder(scriptFolderID);
@@ -159,7 +159,7 @@ int ZapFR::Engine::LuaProxyPost::unassignFromScriptFolder(lua_State* L)
     if (post != nullptr)
     {
         int success;
-        auto scriptFolderID = lua_tointegerx(L, 2, &success);
+        auto scriptFolderID = static_cast<uint64_t>(lua_tointegerx(L, 2, &success));
         if (success != 0)
         {
             post->unassignFromScriptFolder(scriptFolderID);

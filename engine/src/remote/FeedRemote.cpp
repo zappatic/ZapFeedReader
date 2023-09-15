@@ -62,7 +62,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
                 for (size_t i = 0; i < postArr->size(); ++i)
                 {
                     auto postObj = postArr->getObject(static_cast<uint32_t>(i));
-                    posts.emplace_back(std::move(PostRemote::fromJSON(postObj)));
+                    posts.emplace_back(PostRemote::fromJSON(postObj));
                 }
             }
         }
@@ -159,7 +159,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
                 for (size_t i = 0; i < logArr->size(); ++i)
                 {
                     auto logObj = logArr->getObject(static_cast<uint32_t>(i));
-                    logs.emplace_back(std::move(Log::fromJSON(logObj)));
+                    logs.emplace_back(Log::fromJSON(logObj));
                 }
             }
         }
