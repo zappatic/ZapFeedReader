@@ -156,6 +156,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
         root.insert(SETTING_UI_THEME, mPreferenceTheme == Theme::Light ? "light" : "dark");
     }
     root.insert(SETTING_UI_FONTSIZE, mPreferenceUIFontSize);
+    root.insert(SETTING_POST_FONTSIZE, mPreferencePostFontSize);
     root.insert(SETTING_FEEDS_REFRESH_BEHAVIOUR, mPreferenceRefreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
 
     auto sf = QFile(settingsFile());
@@ -219,6 +220,10 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 {
                     mPreferenceUIFontSize = static_cast<uint16_t>(root.value(SETTING_UI_FONTSIZE).toInt(11));
                     updatePreferredFontSize();
+                }
+                if (root.contains(SETTING_POST_FONTSIZE))
+                {
+                    mPreferencePostFontSize = static_cast<uint16_t>(root.value(SETTING_POST_FONTSIZE).toInt(11));
                 }
                 if (root.contains(SETTING_FEEDS_REFRESH_BEHAVIOUR))
                 {
@@ -948,6 +953,9 @@ void ZapFR::Client::MainWindow::showPreferences()
 
                         mPreferenceUIFontSize = mDialogPreferences->chosenUIFontSize();
                         updatePreferredFontSize();
+
+                        mPreferencePostFontSize = mDialogPreferences->chosenPostFontSize();
+                        reloadCurrentPost();
 
                         mPreferenceRefreshBehaviour = mDialogPreferences->chosenRefreshBehaviour();
                         updateToolbar();

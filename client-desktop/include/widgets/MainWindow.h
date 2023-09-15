@@ -82,6 +82,7 @@ namespace ZapFR
             StandardItemModelSources* sourcesItemModel() const noexcept { return mItemModelSources.get(); }
             Theme currentPreferenceTheme() const noexcept { return mPreferenceTheme; }
             uint16_t currentPreferenceUIFontSize() const noexcept { return mPreferenceUIFontSize; }
+            uint16_t currentPreferencePostFontSize() const noexcept { return mPreferencePostFontSize; }
             RefreshBehaviour currentPreferenceRefreshBehaviour() const noexcept { return mPreferenceRefreshBehaviour; }
 
           private slots:
@@ -229,6 +230,7 @@ namespace ZapFR
 
             Theme mPreferenceTheme{Theme::UseSystem};
             uint16_t mPreferenceUIFontSize{11};
+            uint16_t mPreferencePostFontSize{16};
             RefreshBehaviour mPreferenceRefreshBehaviour{RefreshBehaviour::CurrentSelection};
 
             QString dataDir() const;

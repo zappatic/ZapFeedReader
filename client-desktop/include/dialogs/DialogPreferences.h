@@ -46,6 +46,7 @@ namespace ZapFR
             void reset();
             Theme chosenTheme() const;
             uint16_t chosenUIFontSize() const;
+            uint16_t chosenPostFontSize() const;
             RefreshBehaviour chosenRefreshBehaviour() const;
 
           private:

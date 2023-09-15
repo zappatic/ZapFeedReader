@@ -63,7 +63,8 @@ void ZapFR::Client::DialogPreferences::reset()
             break;
         }
     }
-    ui->spinBoxFontSize->setValue(mainWindow->currentPreferenceUIFontSize());
+    ui->spinBoxUIFontSize->setValue(mainWindow->currentPreferenceUIFontSize());
+    ui->spinBoxPostFontSize->setValue(mainWindow->currentPreferencePostFontSize());
 
     ui->tabWidget->setCurrentIndex(0);
 }
@@ -86,7 +87,12 @@ ZapFR::Client::Theme ZapFR::Client::DialogPreferences::chosenTheme() const
 
 uint16_t ZapFR::Client::DialogPreferences::chosenUIFontSize() const
 {
-    return static_cast<uint16_t>(ui->spinBoxFontSize->value());
+    return static_cast<uint16_t>(ui->spinBoxUIFontSize->value());
+}
+
+uint16_t ZapFR::Client::DialogPreferences::chosenPostFontSize() const
+{
+    return static_cast<uint16_t>(ui->spinBoxPostFontSize->value());
 }
 
 ZapFR::Client::RefreshBehaviour ZapFR::Client::DialogPreferences::chosenRefreshBehaviour() const
