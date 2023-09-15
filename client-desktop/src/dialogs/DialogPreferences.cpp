@@ -50,7 +50,22 @@ void ZapFR::Client::DialogPreferences::reset()
             break;
         }
     }
+    switch (mainWindow->currentPreferenceRefreshBehaviour())
+    {
+        case RefreshBehaviour::CurrentSelection:
+        {
+            ui->radioButtonRefreshBehaviourAsSelected->setChecked(true);
+            break;
+        }
+        case RefreshBehaviour::EntireSource:
+        {
+            ui->radioButtonradioButtonRefreshBehaviourForceSource->setChecked(true);
+            break;
+        }
+    }
     ui->spinBoxFontSize->setValue(mainWindow->currentPreferenceUIFontSize());
+
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 ZapFR::Client::Theme ZapFR::Client::DialogPreferences::chosenTheme() const
@@ -72,4 +87,16 @@ ZapFR::Client::Theme ZapFR::Client::DialogPreferences::chosenTheme() const
 uint16_t ZapFR::Client::DialogPreferences::chosenUIFontSize() const
 {
     return static_cast<uint16_t>(ui->spinBoxFontSize->value());
+}
+
+ZapFR::Client::RefreshBehaviour ZapFR::Client::DialogPreferences::chosenRefreshBehaviour() const
+{
+    if (ui->radioButtonradioButtonRefreshBehaviourForceSource->isChecked())
+    {
+        return RefreshBehaviour::EntireSource;
+    }
+    else
+    {
+        return RefreshBehaviour::CurrentSelection;
+    }
 }

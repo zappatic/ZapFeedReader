@@ -86,6 +86,10 @@ void ZapFR::Client::MainWindow::refreshFeeds()
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
         auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+        if (mPreferenceRefreshBehaviour == RefreshBehaviour::EntireSource)
+        {
+            type = SOURCETREE_ENTRY_TYPE_SOURCE;
+        }
         switch (type)
         {
             case SOURCETREE_ENTRY_TYPE_FEED:

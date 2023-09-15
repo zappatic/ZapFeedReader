@@ -88,6 +88,7 @@ namespace ZapFR
         static const QString SETTING_SOURCETREEVIEW_EXPANSION = "sourcetreeview.expansion";
         static const QString SETTING_UI_THEME = "ui.theme";
         static const QString SETTING_UI_FONTSIZE = "ui.fontsize";
+        static const QString SETTING_FEEDS_REFRESH_BEHAVIOUR = "feeds.refreshbehaviour";
 
         static constexpr uint32_t SOURCETREE_ENTRY_TYPE_SOURCE = 0;
         static constexpr uint32_t SOURCETREE_ENTRY_TYPE_FEED = 1;

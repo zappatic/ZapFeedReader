@@ -61,6 +61,12 @@ namespace ZapFR
             UseSystem
         };
 
+        enum class RefreshBehaviour
+        {
+            CurrentSelection,
+            EntireSource,
+        };
+
         class MainWindow : public QMainWindow
         {
             Q_OBJECT
@@ -76,6 +82,7 @@ namespace ZapFR
             StandardItemModelSources* sourcesItemModel() const noexcept { return mItemModelSources.get(); }
             Theme currentPreferenceTheme() const noexcept { return mPreferenceTheme; }
             uint16_t currentPreferenceUIFontSize() const noexcept { return mPreferenceUIFontSize; }
+            RefreshBehaviour currentPreferenceRefreshBehaviour() const noexcept { return mPreferenceRefreshBehaviour; }
 
           private slots:
             // actions
@@ -222,6 +229,7 @@ namespace ZapFR
 
             Theme mPreferenceTheme{Theme::UseSystem};
             uint16_t mPreferenceUIFontSize{11};
+            RefreshBehaviour mPreferenceRefreshBehaviour{RefreshBehaviour::CurrentSelection};
 
             QString dataDir() const;
             QString configDir() const;

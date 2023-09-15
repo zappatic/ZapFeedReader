@@ -156,6 +156,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
         root.insert(SETTING_UI_THEME, mPreferenceTheme == Theme::Light ? "light" : "dark");
     }
     root.insert(SETTING_UI_FONTSIZE, mPreferenceUIFontSize);
+    root.insert(SETTING_FEEDS_REFRESH_BEHAVIOUR, mPreferenceRefreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
 
     auto sf = QFile(settingsFile());
     sf.open(QIODeviceBase::WriteOnly);
@@ -218,6 +219,11 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 {
                     mPreferenceUIFontSize = static_cast<uint16_t>(root.value(SETTING_UI_FONTSIZE).toInt(11));
                     updatePreferredFontSize();
+                }
+                if (root.contains(SETTING_FEEDS_REFRESH_BEHAVIOUR))
+                {
+                    mPreferenceRefreshBehaviour =
+                        (root.value(SETTING_FEEDS_REFRESH_BEHAVIOUR).toString() == "entiresource" ? RefreshBehaviour::EntireSource : RefreshBehaviour::CurrentSelection);
                 }
             }
         }
@@ -783,13 +789,13 @@ void ZapFR::Client::MainWindow::updateToolbar()
                     case SOURCETREE_ENTRY_TYPE_FEED:
                     {
                         markAsReadCaption = tr("Mark feed as read");
-                        refreshFeedsCaption = tr("Refresh feed");
+                        refreshFeedsCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh feed") : tr("Refresh source"));
                         break;
                     }
                     case SOURCETREE_ENTRY_TYPE_FOLDER:
                     {
                         markAsReadCaption = tr("Mark folder as read");
-                        refreshFeedsCaption = tr("Refresh folder");
+                        refreshFeedsCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh folder") : tr("Refresh source"));
                         break;
                     }
                     case SOURCETREE_ENTRY_TYPE_SOURCE:
@@ -942,6 +948,9 @@ void ZapFR::Client::MainWindow::showPreferences()
 
                         mPreferenceUIFontSize = mDialogPreferences->chosenUIFontSize();
                         updatePreferredFontSize();
+
+                        mPreferenceRefreshBehaviour = mDialogPreferences->chosenRefreshBehaviour();
+                        updateToolbar();
                     }
                 });
     }
