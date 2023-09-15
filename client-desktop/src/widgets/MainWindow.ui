@@ -980,7 +980,7 @@
    </attribute>
    <addaction name="action_Add_feed"/>
    <addaction name="action_Add_folder"/>
-   <addaction name="action_Refresh_feeds"/>
+   <addaction name="action_Toolbar_refresh"/>
    <addaction name="action_Mark_as_read"/>
    <addaction name="action_View_logs"/>
    <addaction name="action_View_scripts"/>
@@ -1010,7 +1010,10 @@
     <string>Mark as read</string>
    </property>
   </action>
-  <action name="action_Refresh_feeds">
+  <action name="action_Refresh">
+   <property name="text">
+    <string>Refresh</string>
+   </property>
    <property name="toolTip">
     <string>Refresh</string>
    </property>
@@ -1165,6 +1168,14 @@
    </property>
    <property name="toolTip">
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="action_Toolbar_refresh">
+   <property name="text">
+    <string>Refresh</string>
+   </property>
+   <property name="toolTip">
+    <string>Refresh</string>
    </property>
   </action>
  </widget>

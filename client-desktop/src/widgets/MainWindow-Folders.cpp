@@ -187,7 +187,7 @@ void ZapFR::Client::MainWindow::connectFolderStuff()
 void ZapFR::Client::MainWindow::createFolderContextMenus()
 {
     mSourceContextMenuFolder = std::make_unique<QMenu>(nullptr);
-    mSourceContextMenuFolder->addAction(ui->action_Refresh_feeds);
+    mSourceContextMenuFolder->addAction(ui->action_Refresh);
     mSourceContextMenuFolder->addAction(ui->action_Mark_as_read);
     mSourceContextMenuFolder->addSeparator();
     mSourceContextMenuFolder->addAction(ui->action_Add_feed);

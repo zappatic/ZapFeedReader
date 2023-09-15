@@ -92,7 +92,8 @@ namespace ZapFR
             void setUnreadBadgesShown(bool b);
 
             void addFeed();
-            void refreshFeeds();
+            void refreshViaToolbarButton();
+            void refreshViaContextMenu();
             void removeFeed();
 
             void addFolder();
@@ -286,6 +287,7 @@ namespace ZapFR
             void updateToolbar();
             void updateActivePostFilter();
             void updatePreferredFontSize();
+            void refreshSourceEntryType(const QModelIndex& index, uint64_t type);
             void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
             std::vector<std::tuple<uint64_t, uint64_t>> selectedPostIDs() const;
             QStandardItem* findSourceStandardItem(uint64_t sourceID);

@@ -590,7 +590,8 @@ void ZapFR::Client::MainWindow::configureIcons()
         return icon;
     };
 
-    ui->action_Refresh_feeds->setIcon(configureIcon(":/refreshFeed.svg"));
+    ui->action_Refresh->setIcon(configureIcon(":/refreshFeed.svg"));
+    ui->action_Toolbar_refresh->setIcon(configureIcon(":/refreshFeed.svg"));
     ui->action_Mark_as_read->setIcon(configureIcon(":/markAsRead.svg"));
     ui->action_Add_feed->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_Add_source->setIcon(configureIcon(":/addFeed.svg"));
@@ -781,7 +782,8 @@ void ZapFR::Client::MainWindow::updateToolbar()
         {
             bool anythingSelected{false};
             QString markAsReadCaption;
-            QString refreshFeedsCaption;
+            QString refreshCaption;
+            QString refreshToolbarCaption;
 
             auto index = ui->treeViewSources->currentIndex();
             if (index.isValid())
@@ -794,19 +796,22 @@ void ZapFR::Client::MainWindow::updateToolbar()
                     case SOURCETREE_ENTRY_TYPE_FEED:
                     {
                         markAsReadCaption = tr("Mark feed as read");
-                        refreshFeedsCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh feed") : tr("Refresh source"));
+                        refreshToolbarCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh feed") : tr("Refresh source"));
+                        refreshCaption = tr("Refresh feed");
                         break;
                     }
                     case SOURCETREE_ENTRY_TYPE_FOLDER:
                     {
                         markAsReadCaption = tr("Mark folder as read");
-                        refreshFeedsCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh folder") : tr("Refresh source"));
+                        refreshToolbarCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh folder") : tr("Refresh source"));
+                        refreshCaption = tr("Refresh folder");
                         break;
                     }
                     case SOURCETREE_ENTRY_TYPE_SOURCE:
                     {
                         markAsReadCaption = tr("Mark source as read");
-                        refreshFeedsCaption = tr("Refresh source");
+                        refreshToolbarCaption = tr("Refresh source");
+                        refreshCaption = tr("Refresh source");
                         break;
                     }
                 }
@@ -814,7 +819,8 @@ void ZapFR::Client::MainWindow::updateToolbar()
 
             ui->action_Add_feed->setVisible(true);
             ui->action_Add_folder->setVisible(true);
-            ui->action_Refresh_feeds->setVisible(true);
+            ui->action_Refresh->setVisible(true);
+            ui->action_Toolbar_refresh->setVisible(true);
             ui->action_Mark_as_read->setVisible(true);
             ui->action_View_logs->setVisible(true);
             ui->action_View_scripts->setVisible(true);
@@ -828,8 +834,10 @@ void ZapFR::Client::MainWindow::updateToolbar()
             ui->action_Mark_as_read->setEnabled(anythingSelected);
             ui->action_Mark_as_read->setText(markAsReadCaption);
             ui->action_View_logs->setEnabled(anythingSelected);
-            ui->action_Refresh_feeds->setEnabled(anythingSelected);
-            ui->action_Refresh_feeds->setText(refreshFeedsCaption);
+            ui->action_Refresh->setEnabled(anythingSelected);
+            ui->action_Refresh->setText(refreshCaption);
+            ui->action_Toolbar_refresh->setEnabled(anythingSelected);
+            ui->action_Toolbar_refresh->setText(refreshToolbarCaption);
 
             for (const auto& action : ui->toolBar->actions())
             {
