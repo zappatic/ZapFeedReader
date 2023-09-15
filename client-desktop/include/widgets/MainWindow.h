@@ -120,6 +120,7 @@ namespace ZapFR
             void postsTableViewSelectionChanged(const QModelIndexList& selected);
 
             // callbacks
+            void agentErrorOccurred(uint64_t sourceID, const std::string& errorMessage);
             void sourceMarkedRead(uint64_t sourceID);
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
             void sourcePropertiesReceived(const QMap<QString, QVariant>& props);

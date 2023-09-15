@@ -33,11 +33,10 @@ namespace ZapFR
                                              std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentScriptFolderUpdate() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::ScriptFolderUpdate; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mScriptFolderID{0};
             std::string mTitle{""};
             bool mShowTotal{false};

@@ -17,28 +17,19 @@
 */
 
 #include "ZapFR/agents/post/AgentPostsMarkFlagged.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentPostsMarkFlagged::AgentPostsMarkFlagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
                                                             const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFlagColors(flagColors), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFlagColors(flagColors), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentPostsMarkFlagged::run()
+void ZapFR::Engine::AgentPostsMarkFlagged::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
-    {
-        try
-        {
-            source.value()->setPostsFlagStatus(true, mFlagColors, mFeedAndPostIDs);
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback();
-    }
-
-    mIsDone = true;
+    source->setPostsFlagStatus(true, mFlagColors, mFeedAndPostIDs);
+    mFinishedCallback();
 }

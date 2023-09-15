@@ -24,28 +24,18 @@
 
 ZapFR::Engine::AgentSourceImportOPML::AgentSourceImportOPML(uint64_t sourceID, const std::string& opml, uint64_t parentFolderID, std::function<void()> opmlParsedCallback,
                                                             std::function<void(uint64_t, Feed*)> feedRefreshedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mOPML(opml), mParentFolderID(parentFolderID), mOPMLParsedCallback(opmlParsedCallback),
-      mFeedRefreshedCallback(feedRefreshedCallback)
+    : AgentRunnable(sourceID), mOPML(opml), mParentFolderID(parentFolderID), mOPMLParsedCallback(opmlParsedCallback), mFeedRefreshedCallback(feedRefreshedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceImportOPML::run()
+void ZapFR::Engine::AgentSourceImportOPML::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto feedIDs = source->importOPML(mOPML, mParentFolderID);
+    mOPMLParsedCallback();
+    for (const auto& feedID : feedIDs)
     {
-        try
-        {
-            auto feedIDs = source.value()->importOPML(mOPML, mParentFolderID);
-            mOPMLParsedCallback();
-            for (const auto& feedID : feedIDs)
-            {
-                // We just create agent threads here so the refreshing can be done concurrently
-                // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
-                Agent::getInstance()->queueRefreshFeed(mSourceID, feedID, mFeedRefreshedCallback);
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        // We just create agent threads here so the refreshing can be done concurrently
+        // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
+        Agent::getInstance()->queueRefreshFeed(mSourceID, feedID, mFeedRefreshedCallback);
     }
-    mIsDone = true;
 }

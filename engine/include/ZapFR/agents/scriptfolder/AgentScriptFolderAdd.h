@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentScriptFolderAdd(uint64_t sourceID, const std::string& title, bool showTotal, bool showUnread, std::function<void(uint64_t)> finishedCallback);
             virtual ~AgentScriptFolderAdd() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::ScriptFolderAdd; }
 
           private:
-            uint64_t mSourceID{0};
             std::string mTitle{""};
             bool mShowTotal{false};
             bool mShowUnread{false};

@@ -34,11 +34,10 @@ namespace ZapFR
             explicit AgentSourceRefresh(uint64_t sourceID, std::function<void(uint64_t, Feed*)> finishedCallback);
             virtual ~AgentSourceRefresh() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::SourceRefresh; }
 
           private:
-            uint64_t mSourceID{0};
             std::function<void(uint64_t, Feed*)> mFinishedCallback{};
         };
     } // namespace Engine

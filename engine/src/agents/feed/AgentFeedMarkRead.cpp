@@ -17,30 +17,21 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedMarkRead.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedMarkRead::AgentFeedMarkRead(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFeedMarkRead::run()
+void ZapFR::Engine::AgentFeedMarkRead::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+    if (feed.has_value())
     {
-        try
-        {
-            auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-            if (feed.has_value())
-            {
-                feed.value()->markAllAsRead();
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, mFeedID);
+        feed.value()->markAllAsRead();
     }
-
-    mIsDone = true;
+    mFinishedCallback(mSourceID, mFeedID);
 }

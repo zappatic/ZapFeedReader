@@ -37,11 +37,10 @@ namespace ZapFR
                                            std::function<void(uint64_t, Feed*)> feedRefreshedCallback);
             virtual ~AgentSourceImportOPML() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::SourceImportOPML; }
 
           private:
-            uint64_t mSourceID{0};
             std::string mOPML{""};
             uint64_t mParentFolderID{0};
             std::function<void()> mOPMLParsedCallback{};

@@ -39,6 +39,7 @@ namespace ZapFR
             AgentMonitorFeedRefreshCompletion& operator=(AgentMonitorFeedRefreshCompletion&&) = delete;
 
             void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::MonitorFeedRefreshCompletion; }
 
           private:

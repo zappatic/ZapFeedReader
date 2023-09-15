@@ -34,11 +34,10 @@ namespace ZapFR
                                            const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback);
             virtual ~AgentPostsMarkFlagged() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::PostsMarkFlagged; }
 
           private:
-            uint64_t mSourceID{0};
             std::vector<std::tuple<uint64_t, uint64_t>> mFeedAndPostIDs{};
             std::unordered_set<FlagColor> mFlagColors;
             std::function<void()> mFinishedCallback{};

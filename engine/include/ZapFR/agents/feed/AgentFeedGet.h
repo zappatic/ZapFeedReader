@@ -34,11 +34,10 @@ namespace ZapFR
             explicit AgentFeedGet(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed*)> finishedCallback);
             virtual ~AgentFeedGet() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FeedGet; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFeedID{0};
             std::function<void(uint64_t, Feed*)> mFinishedCallback{};
         };

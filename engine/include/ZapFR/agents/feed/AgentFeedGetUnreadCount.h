@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentFeedGetUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentFeedGetUnreadCount() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FeedGetUnreadCount; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFeedID{0};
             std::function<void(uint64_t, uint64_t, uint64_t)> mFinishedCallback{};
         };

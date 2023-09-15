@@ -44,6 +44,8 @@ namespace ZapFR
 
             static Agent* getInstance();
             void joinAll() const;
+            void registerErrorCallback(std::function<void(uint64_t, const std::string&)> ecb) { mErrorCallback = ecb; }
+            void broadcastError(uint64_t sourceID, const std::string& errorMessage) const;
 
             // querying posts
             void queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
@@ -143,6 +145,8 @@ namespace ZapFR
             std::unique_ptr<Poco::Timer> mQueueTimer{nullptr};
             std::unique_ptr<Poco::ThreadPool> mThreadPool{nullptr};
             std::vector<std::unique_ptr<AgentRunnable>> mRunningAgents{};
+
+            std::optional<std::function<void(uint64_t, const std::string&)>> mErrorCallback{};
 
             void onQueueTimer(Poco::Timer& timer);
             void enqueue(std::unique_ptr<AgentRunnable> agent);

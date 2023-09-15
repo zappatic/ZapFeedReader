@@ -17,26 +17,17 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceMarkRead.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentSourceMarkRead::AgentSourceMarkRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceMarkRead::run()
+void ZapFR::Engine::AgentSourceMarkRead::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
-    {
-        try
-        {
-            source.value()->markAllAsRead();
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID);
-    }
-
-    mIsDone = true;
+    source->markAllAsRead();
+    mFinishedCallback(mSourceID);
 }

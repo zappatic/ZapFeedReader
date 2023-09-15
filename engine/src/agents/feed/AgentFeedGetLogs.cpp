@@ -17,39 +17,32 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedGetLogs.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedGetLogs::AgentFeedGetLogs(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page,
                                                   std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFeedGetLogs::run()
+void ZapFR::Engine::AgentFeedGetLogs::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    std::vector<std::unique_ptr<Log>> logs;
+    std::vector<Log*> logPointers;
+    uint64_t logCount{0};
+
+    auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+    if (feed.has_value())
     {
-        std::vector<std::unique_ptr<Log>> logs;
-        std::vector<Log*> logPointers;
-        uint64_t logCount{0};
-        try
+        std::tie(logCount, logs) = feed.value()->getLogs(mPerPage, mPage);
+        for (const auto& log : logs)
         {
-            auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-            if (feed.has_value())
-            {
-                std::tie(logCount, logs) = feed.value()->getLogs(mPerPage, mPage);
-                for (const auto& log : logs)
-                {
-                    logPointers.emplace_back(log.get());
-                }
-            }
+            logPointers.emplace_back(log.get());
         }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, logPointers, mPage, logCount);
     }
 
-    mIsDone = true;
+    mFinishedCallback(mSourceID, logPointers, mPage, logCount);
 }

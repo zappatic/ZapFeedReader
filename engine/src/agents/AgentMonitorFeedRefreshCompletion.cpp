@@ -23,7 +23,7 @@
 using namespace std::chrono_literals;
 
 ZapFR::Engine::AgentMonitorFeedRefreshCompletion::AgentMonitorFeedRefreshCompletion(Agent* agentManager, std::function<void()> finishedCallback)
-    : AgentRunnable(), mAgentManager(agentManager), mFinishedCallback(finishedCallback)
+    : AgentRunnable(0), mAgentManager(agentManager), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -40,6 +40,8 @@ void ZapFR::Engine::AgentMonitorFeedRefreshCompletion::run()
     }
 
     mFinishedCallback();
+}
 
-    mIsDone = true;
+void ZapFR::Engine::AgentMonitorFeedRefreshCompletion::payload([[maybe_unused]] Source* source)
+{
 }

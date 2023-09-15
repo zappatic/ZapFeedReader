@@ -17,31 +17,22 @@
 */
 
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderUpdate.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/ScriptFolder.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptFolderUpdate::AgentScriptFolderUpdate(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title, bool showTotal, bool showUnread,
                                                                 std::function<void(uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mScriptFolderID(scriptFolderID), mTitle(title), mShowTotal(showTotal), mShowUnread(showUnread), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mScriptFolderID(scriptFolderID), mTitle(title), mShowTotal(showTotal), mShowUnread(showUnread), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentScriptFolderUpdate::run()
+void ZapFR::Engine::AgentScriptFolderUpdate::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto scriptFolder = source->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
+    if (scriptFolder.has_value())
     {
-        try
-        {
-            auto scriptFolder = source.value()->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
-            if (scriptFolder.has_value())
-            {
-                scriptFolder.value()->update(mTitle, mShowTotal, mShowUnread);
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, mScriptFolderID);
+        scriptFolder.value()->update(mTitle, mShowTotal, mShowUnread);
     }
-
-    mIsDone = true;
+    mFinishedCallback(mSourceID, mScriptFolderID);
 }

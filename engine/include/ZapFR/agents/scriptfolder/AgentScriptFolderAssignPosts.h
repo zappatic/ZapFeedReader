@@ -33,11 +33,10 @@ namespace ZapFR
                                                   std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentScriptFolderAssignPosts() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::ScriptFolderAssignPosts; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mScriptFolderID{0};
             std::vector<std::tuple<uint64_t, uint64_t>> mFeedAndPostIDs{};
             std::function<void(uint64_t, uint64_t)> mFinishedCallback{};

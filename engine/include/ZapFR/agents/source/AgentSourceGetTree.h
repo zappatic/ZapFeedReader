@@ -36,11 +36,12 @@ namespace ZapFR
             explicit AgentSourceGetTree(uint64_t sourceID, std::function<void(Source*, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback);
             virtual ~AgentSourceGetTree() = default;
 
-            void run() override;
+            void payload(Source* source) override;
+            void onPayloadException(Source* source) override;
+
             Type type() const noexcept override { return Type::SourceGetTree; }
 
           private:
-            uint64_t mSourceID{0};
             std::function<void(Source*, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> mFinishedCallback{};
         };
     } // namespace Engine

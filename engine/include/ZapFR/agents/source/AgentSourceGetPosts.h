@@ -36,11 +36,10 @@ namespace ZapFR
                                          std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentSourceGetPosts() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::SourceGetPosts; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mPerPage{0};
             uint64_t mPage{0};
             bool mShowOnlyUnread{false};

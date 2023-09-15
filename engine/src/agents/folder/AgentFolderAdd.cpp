@@ -17,27 +17,18 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderAdd.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderAdd::AgentFolderAdd(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mParentFolderID(parentFolderID), mTitle(title), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mParentFolderID(parentFolderID), mTitle(title), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFolderAdd::run()
+void ZapFR::Engine::AgentFolderAdd::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
-    {
-        try
-        {
-            source.value()->addFolder(mTitle, mParentFolderID);
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback();
-    }
-
-    mIsDone = true;
+    source->addFolder(mTitle, mParentFolderID);
+    mFinishedCallback();
 }

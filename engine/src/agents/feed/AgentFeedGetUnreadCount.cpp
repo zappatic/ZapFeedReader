@@ -17,30 +17,20 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedGetUnreadCount.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedGetUnreadCount::AgentFeedGetUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFeedGetUnreadCount::run()
+void ZapFR::Engine::AgentFeedGetUnreadCount::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::FeedUnreadCount);
+    if (feed.has_value())
     {
-        std::optional<std::unique_ptr<Feed>> feed;
-        try
-        {
-            feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::FeedUnreadCount);
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        if (feed.has_value())
-        {
-            mFinishedCallback(source.value()->id(), feed.value()->id(), feed.value()->unreadCount());
-        }
+        mFinishedCallback(source->id(), feed.value()->id(), feed.value()->unreadCount());
     }
-
-    mIsDone = true;
 }

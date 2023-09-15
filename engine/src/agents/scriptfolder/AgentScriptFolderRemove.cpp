@@ -17,25 +17,16 @@
 */
 
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderRemove.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptFolderRemove::AgentScriptFolderRemove(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mScriptFolderID(scriptFolderID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mScriptFolderID(scriptFolderID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentScriptFolderRemove::run()
+void ZapFR::Engine::AgentScriptFolderRemove::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
-    {
-        try
-        {
-            source.value()->removeScriptFolder(mScriptFolderID);
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, mScriptFolderID);
-    }
-
-    mIsDone = true;
+    source->removeScriptFolder(mScriptFolderID);
+    mFinishedCallback(mSourceID, mScriptFolderID);
 }

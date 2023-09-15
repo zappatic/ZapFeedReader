@@ -17,31 +17,21 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedRefresh.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedRefresh::AgentFeedRefresh(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, ZapFR::Engine::Feed*)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFeedRefresh::run()
+void ZapFR::Engine::AgentFeedRefresh::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+    if (feed.has_value())
     {
-        std::optional<std::unique_ptr<Feed>> feed;
-        try
-        {
-            feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-            if (feed.has_value())
-            {
-                feed.value()->refresh();
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, feed.value().get());
+        feed.value()->refresh();
     }
-
-    mIsDone = true;
+    mFinishedCallback(mSourceID, feed.value().get());
 }

@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentFeedAdd() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FeedAdd; }
 
           private:
-            uint64_t mSourceID{0};
             std::string mURL{0};
             uint64_t mFolderID{0};
             std::function<void(uint64_t, uint64_t)> mFinishedCallback{};

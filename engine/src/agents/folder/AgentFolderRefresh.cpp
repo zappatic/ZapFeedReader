@@ -23,32 +23,22 @@
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderRefresh::AgentFolderRefresh(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, Feed*)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFolderRefresh::run()
+void ZapFR::Engine::AgentFolderRefresh::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::FolderFeedIDs);
+    if (folder.has_value())
     {
-        try
+        auto feedIDs = folder.value()->feedIDsInFoldersAndSubfolders();
+        for (const auto& feedID : feedIDs)
         {
-            auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::FolderFeedIDs);
-            if (folder.has_value())
-            {
-                auto feedIDs = folder.value()->feedIDsInFoldersAndSubfolders();
-                for (const auto& feedID : feedIDs)
-                {
-                    // We just create agent threads here instead of refreshing the folder manually
-                    // so the refreshing can be done concurrently
-                    // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
-                    Agent::getInstance()->queueRefreshFeed(mSourceID, feedID, mFinishedCallback);
-                }
-            }
+            // We just create agent threads here instead of refreshing the folder manually
+            // so the refreshing can be done concurrently
+            // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
+            Agent::getInstance()->queueRefreshFeed(mSourceID, feedID, mFinishedCallback);
         }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
     }
-
-    mIsDone = true;
 }

@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentFeedRemove(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             virtual ~AgentFeedRemove() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FeedRemove; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFeedID{0};
             std::function<void()> mFinishedCallback{};
         };

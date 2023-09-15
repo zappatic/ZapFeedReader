@@ -17,30 +17,20 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderGet.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderGet::AgentFolderGet(uint64_t sourceID, uint64_t folderID, std::function<void(Folder*)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFolderGet::run()
+void ZapFR::Engine::AgentFolderGet::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::Statistics);
+    if (folder.has_value())
     {
-        std::optional<std::unique_ptr<Folder>> folder;
-        try
-        {
-            folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::Statistics);
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        if (folder.has_value())
-        {
-            mFinishedCallback(folder.value().get());
-        }
+        mFinishedCallback(folder.value().get());
     }
-
-    mIsDone = true;
 }

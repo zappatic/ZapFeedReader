@@ -22,28 +22,18 @@
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentSourceRefresh::AgentSourceRefresh(uint64_t sourceID, std::function<void(uint64_t, Feed*)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceRefresh::run()
+void ZapFR::Engine::AgentSourceRefresh::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto feeds = source->getFeeds(Source::FetchInfo::None);
+    for (const auto& feed : feeds)
     {
-        try
-        {
-            auto feeds = source.value()->getFeeds(Source::FetchInfo::None);
-            for (const auto& feed : feeds)
-            {
-                // We just create agent threads here instead of refreshing the source manually
-                // so the refreshing can be done concurrently
-                // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
-                Agent::getInstance()->queueRefreshFeed(mSourceID, feed->id(), mFinishedCallback);
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
+        // We just create agent threads here instead of refreshing the source manually
+        // so the refreshing can be done concurrently
+        // The callback will be called for each feed that is refreshed (with the feed ID as the parameter)
+        Agent::getInstance()->queueRefreshFeed(mSourceID, feed->id(), mFinishedCallback);
     }
-
-    mIsDone = true;
 }

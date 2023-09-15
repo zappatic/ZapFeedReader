@@ -30,14 +30,13 @@ namespace ZapFR
         {
           public:
             explicit AgentFeedUpdate(uint64_t sourceID, uint64_t feedID, const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds,
-                                            std::function<void()> finishedCallback);
+                                     std::function<void()> finishedCallback);
             virtual ~AgentFeedUpdate() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FeedSetProperties; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFeedID{0};
             std::string mFeedURL{""};
             std::optional<uint64_t> mRefreshIntervalInSeconds{};

@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentSourceMarkRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
             virtual ~AgentSourceMarkRead() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::SourceMarkRead; }
 
           private:
-            uint64_t mSourceID{0};
             std::function<void(uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine

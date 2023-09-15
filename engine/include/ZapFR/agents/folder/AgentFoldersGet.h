@@ -34,11 +34,10 @@ namespace ZapFR
             explicit AgentFoldersGet(uint64_t sourceID, uint64_t folderID, std::function<void(const std::vector<Folder*>&)> finishedCallback);
             virtual ~AgentFoldersGet() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FoldersGet; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFolderID{0};
             std::function<void(const std::vector<Folder*>&)> mFinishedCallback{};
         };

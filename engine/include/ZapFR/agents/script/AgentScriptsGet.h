@@ -34,11 +34,10 @@ namespace ZapFR
             explicit AgentScriptsGet(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback);
             virtual ~AgentScriptsGet() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::ScriptsGet; }
 
           private:
-            uint64_t mSourceID{0};
             std::function<void(uint64_t, const std::vector<Script*>&)> mFinishedCallback{};
         };
     } // namespace Engine

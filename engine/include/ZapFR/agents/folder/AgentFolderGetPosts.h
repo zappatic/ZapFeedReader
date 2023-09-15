@@ -36,11 +36,10 @@ namespace ZapFR
                                          FlagColor flagColor, std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentFolderGetPosts() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FolderGetPosts; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFolderID{0};
             uint64_t mPerPage{0};
             uint64_t mPage{0};

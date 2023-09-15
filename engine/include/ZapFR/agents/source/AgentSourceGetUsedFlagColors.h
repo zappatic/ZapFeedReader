@@ -35,11 +35,10 @@ namespace ZapFR
             explicit AgentSourceGetUsedFlagColors(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> finishedCallback);
             virtual ~AgentSourceGetUsedFlagColors() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::SourceGetUsedFlagColors; }
 
           private:
-            uint64_t mSourceID{0};
             std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> mFinishedCallback{};
         };
     } // namespace Engine

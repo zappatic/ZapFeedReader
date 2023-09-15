@@ -34,11 +34,10 @@ namespace ZapFR
             explicit AgentPostGet(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<ZapFR::Engine::Post>)> finishedCallback);
             virtual ~AgentPostGet() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::PostGet; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFeedID{0};
             uint64_t mPostID{0};
             std::function<void(std::unique_ptr<Post>)> mFinishedCallback{};

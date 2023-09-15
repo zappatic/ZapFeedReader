@@ -17,6 +17,7 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderGetPosts.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
@@ -24,34 +25,22 @@
 ZapFR::Engine::AgentFolderGetPosts::AgentFolderGetPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
                                                         const std::string& searchFilter, FlagColor flagColor,
                                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter),
-      mFlagColor(flagColor), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter), mFlagColor(flagColor),
+      mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFolderGetPosts::run()
+void ZapFR::Engine::AgentFolderGetPosts::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
+    if (folder.has_value())
     {
-        std::vector<std::unique_ptr<Post>> posts;
+        auto [postCount, posts] = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
         std::vector<Post*> postPointers;
-        uint64_t postCount{0};
-        try
+        for (const auto& post : posts)
         {
-            auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
-            if (folder.has_value())
-            {
-                std::tie(postCount, posts) = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
-                for (const auto& post : posts)
-                {
-                    postPointers.emplace_back(post.get());
-                }
-            }
+            postPointers.emplace_back(post.get());
         }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
+        mFinishedCallback(source->id(), postPointers, mPage, postCount);
     }
-
-    mIsDone = true;
 }

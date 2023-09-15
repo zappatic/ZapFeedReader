@@ -34,11 +34,10 @@ namespace ZapFR
                                     const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script, std::function<void(uint64_t)> finishedCallback);
             virtual ~AgentScriptAdd() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::ScriptAdd; }
 
           private:
-            uint64_t mSourceID{0};
             Script::Type mType{Script::Type::Lua};
             std::string mTitle{""};
             bool mEnabled{false};

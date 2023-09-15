@@ -17,32 +17,22 @@
 */
 
 #include "ZapFR/agents/folder/AgentFoldersGet.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFoldersGet::AgentFoldersGet(uint64_t sourceID, uint64_t folderID, std::function<void(const std::vector<Folder*>&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFoldersGet::run()
+void ZapFR::Engine::AgentFoldersGet::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    std::vector<Folder*> folderPointers;
+    auto folders = source->getFolders(mFolderID, ZapFR::Engine::Source::FetchInfo::Subfolders);
+    for (const auto& folder : folders)
     {
-        std::vector<Folder*> folderPointers;
-        std::vector<std::unique_ptr<Folder>> folders;
-        try
-        {
-            folders = source.value()->getFolders(mFolderID, ZapFR::Engine::Source::FetchInfo::Subfolders);
-            for (const auto& folder : folders)
-            {
-                folderPointers.emplace_back(folder.get());
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(folderPointers);
+        folderPointers.emplace_back(folder.get());
     }
-
-    mIsDone = true;
+    mFinishedCallback(folderPointers);
 }

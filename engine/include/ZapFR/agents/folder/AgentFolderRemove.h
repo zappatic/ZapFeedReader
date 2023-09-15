@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentFolderRemove(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
             virtual ~AgentFolderRemove() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FolderRemove; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFolderID{0};
             std::function<void()> mFinishedCallback{};
         };

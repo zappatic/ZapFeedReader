@@ -25,10 +25,12 @@ namespace ZapFR
 {
     namespace Engine
     {
+        class Source;
+
         class AgentRunnable : public Poco::Runnable
         {
           public:
-            AgentRunnable() = default;
+            explicit AgentRunnable(uint64_t sourceID);
             virtual ~AgentRunnable() = default;
 
             enum class Type
@@ -81,35 +83,20 @@ namespace ZapFR
             };
 
             virtual Type type() const noexcept = 0;
-            void run() override{};
+            virtual void payload(Source* source) = 0;
+            virtual void onPayloadException([[maybe_unused]] Source* source){};
+
+            void run() override;
             bool isDone() const noexcept { return mIsDone; }
             void setShouldAbort(bool b) { mShouldAbort = b; }
 
           protected:
             bool mIsDone{false};
             bool mShouldAbort{false};
+
+            uint64_t mSourceID{0};
         };
     } // namespace Engine
 } // namespace ZapFR
-
-#define LOG_AND_DEMANGLE_EXCEPTION(MESSAGE)                                                                                                                                   \
-    int32_t status;                                                                                                                                                           \
-    char* demangled = abi::__cxa_demangle(typeid(*this).name(), 0, 0, &status);                                                                                               \
-    source.value()->updateLastError(fmt::format("{} ({})", MESSAGE, demangled));                                                                                              \
-    free(demangled);
-
-#define CATCH_AND_LOG_EXCEPTION_IN_SOURCE                                                                                                                                     \
-    catch (const Poco::Exception& e)                                                                                                                                          \
-    {                                                                                                                                                                         \
-        LOG_AND_DEMANGLE_EXCEPTION(e.displayText())                                                                                                                           \
-    }                                                                                                                                                                         \
-    catch (const std::exception& e)                                                                                                                                           \
-    {                                                                                                                                                                         \
-        LOG_AND_DEMANGLE_EXCEPTION(e.what())                                                                                                                                  \
-    }                                                                                                                                                                         \
-    catch (...)                                                                                                                                                               \
-    {                                                                                                                                                                         \
-        LOG_AND_DEMANGLE_EXCEPTION("Unknown error occurred")                                                                                                                  \
-    }
 
 #endif // ZAPFR_ENGINE_AGENTRUNNABLE_H

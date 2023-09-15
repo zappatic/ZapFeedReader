@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentFeedMove(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
             virtual ~AgentFeedMove() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FeedMove; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFeedID{0};
             uint64_t mNewFolderID{0};
             uint64_t mNewSortOrder{0};

@@ -17,32 +17,23 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderMarkRead.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderMarkRead::AgentFolderMarkRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFolderMarkRead::run()
+void ZapFR::Engine::AgentFolderMarkRead::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    std::unordered_set<uint64_t> feedIDs;
+    auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
+    if (folder.has_value())
     {
-        std::unordered_set<uint64_t> feedIDs;
-        try
-        {
-            auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
-            if (folder.has_value())
-            {
-                feedIDs = folder.value()->markAllAsRead();
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, feedIDs);
+        feedIDs = folder.value()->markAllAsRead();
     }
-
-    mIsDone = true;
+    mFinishedCallback(mSourceID, feedIDs);
 }

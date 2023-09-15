@@ -17,25 +17,20 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceGet.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentSourceGet::AgentSourceGet(uint64_t sourceID, std::function<void(Source*)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentSourceGet::AgentSourceGet(uint64_t sourceID, std::function<void(Source*)> finishedCallback) : AgentRunnable(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceGet::run()
+void ZapFR::Engine::AgentSourceGet::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
-    {
-        try
-        {
-            source.value()->fetchStatistics();
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(source.value().get());
-    }
+    source->fetchStatistics();
+    mFinishedCallback(source);
+}
 
-    mIsDone = true;
+void ZapFR::Engine::AgentSourceGet::onPayloadException(Source* source)
+{
+    mFinishedCallback(source);
 }

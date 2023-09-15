@@ -35,11 +35,10 @@ namespace ZapFR
                                        std::function<void(uint64_t, uint64_t, const std::string&)> finishedCallback);
             virtual ~AgentFolderUpdate() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FolderUpdate; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFolderID{0};
             std::string mNewTitle{""};
             std::function<void(uint64_t, uint64_t, const std::string&)> mFinishedCallback{};

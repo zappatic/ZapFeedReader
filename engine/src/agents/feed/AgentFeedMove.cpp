@@ -17,25 +17,16 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedMove.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedMove::AgentFeedMove(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mNewFolderID(newFolder), mNewSortOrder(newSortOrder), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFeedID(feedID), mNewFolderID(newFolder), mNewSortOrder(newSortOrder), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFeedMove::run()
+void ZapFR::Engine::AgentFeedMove::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
-    {
-        try
-        {
-            source.value()->moveFeed(mFeedID, mNewFolderID, mNewSortOrder);
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback();
-    }
-
-    mIsDone = true;
+    source->moveFeed(mFeedID, mNewFolderID, mNewSortOrder);
+    mFinishedCallback();
 }

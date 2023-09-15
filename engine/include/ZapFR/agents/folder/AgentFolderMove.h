@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentFolderMove(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
             virtual ~AgentFolderMove() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FolderMove; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFolderID{0};
             uint64_t mNewFolderID{0};
             uint64_t mNewSortOrder{0};

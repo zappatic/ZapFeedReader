@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentFolderAdd(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback);
             virtual ~AgentFolderAdd() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FolderAdd; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mParentFolderID{0};
             std::string mTitle{""};
             std::function<void()> mFinishedCallback{};

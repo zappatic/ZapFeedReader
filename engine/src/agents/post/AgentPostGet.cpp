@@ -17,35 +17,26 @@
 */
 
 #include "ZapFR/agents/post/AgentPostGet.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentPostGet::AgentPostGet(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<ZapFR::Engine::Post>)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mPostID(postID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFeedID(feedID), mPostID(postID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentPostGet::run()
+void ZapFR::Engine::AgentPostGet::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    std::optional<std::unique_ptr<Post>> post;
+    auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+    if (feed.has_value())
     {
-        std::optional<std::unique_ptr<Post>> post;
-        try
-        {
-            auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-            if (feed.has_value())
-            {
-                post = feed.value()->getPost(mPostID);
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        if (post.has_value())
-        {
-            mFinishedCallback(std::move(post.value()));
-        }
+        post = feed.value()->getPost(mPostID);
     }
-
-    mIsDone = true;
+    if (post.has_value())
+    {
+        mFinishedCallback(std::move(post.value()));
+    }
 }

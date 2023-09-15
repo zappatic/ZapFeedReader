@@ -17,31 +17,22 @@
 */
 
 #include "ZapFR/agents/feed/AgentFeedUpdate.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFeedUpdate::AgentFeedUpdate(uint64_t sourceID, uint64_t feedID, const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds,
                                                 std::function<void()> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedID(feedID), mFeedURL(feedURL), mRefreshIntervalInSeconds(refreshIntervalInSeconds), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFeedID(feedID), mFeedURL(feedURL), mRefreshIntervalInSeconds(refreshIntervalInSeconds), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFeedUpdate::run()
+void ZapFR::Engine::AgentFeedUpdate::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+    if (feed.has_value())
     {
-        try
-        {
-            auto feed = source.value()->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-            if (feed.has_value())
-            {
-                feed.value()->updateProperties(mFeedURL, mRefreshIntervalInSeconds);
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback();
+        feed.value()->updateProperties(mFeedURL, mRefreshIntervalInSeconds);
     }
-
-    mIsDone = true;
+    mFinishedCallback();
 }

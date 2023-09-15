@@ -17,29 +17,19 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceGetUsedFlagColors.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentSourceGetUsedFlagColors::AgentSourceGetUsedFlagColors(uint64_t sourceID,
                                                                           std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceGetUsedFlagColors::run()
+void ZapFR::Engine::AgentSourceGetUsedFlagColors::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
-    {
-        std::unordered_set<FlagColor> flagColors;
-        try
-        {
-            flagColors = source.value()->getUsedFlagColors();
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(source.value()->id(), flagColors);
-    }
-
-    mIsDone = true;
+    auto flagColors = source->getUsedFlagColors();
+    mFinishedCallback(source->id(), flagColors);
 }

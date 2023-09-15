@@ -17,32 +17,22 @@
 */
 
 #include "ZapFR/agents/scriptfolder/AgentScriptFoldersGet.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/ScriptFolder.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptFoldersGet::AgentScriptFoldersGet(uint64_t sourceID, std::function<void(uint64_t, const std::vector<ScriptFolder*>&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentScriptFoldersGet::run()
+void ZapFR::Engine::AgentScriptFoldersGet::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    std::vector<ScriptFolder*> scriptFolderPointers;
+    auto scriptFolders = source->getScriptFolders();
+    for (const auto& scriptFolder : scriptFolders)
     {
-        std::vector<ScriptFolder*> scriptFolderPointers;
-        std::vector<std::unique_ptr<ScriptFolder>> scriptFolders;
-        try
-        {
-            scriptFolders = source.value()->getScriptFolders();
-            for (const auto& scriptFolder : scriptFolders)
-            {
-                scriptFolderPointers.emplace_back(scriptFolder.get());
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, scriptFolderPointers);
+        scriptFolderPointers.emplace_back(scriptFolder.get());
     }
-
-    mIsDone = true;
+    mFinishedCallback(mSourceID, scriptFolderPointers);
 }

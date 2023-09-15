@@ -17,34 +17,23 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceGetLogs.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentSourceGetLogs::AgentSourceGetLogs(uint64_t sourceID, uint64_t perPage, uint64_t page,
                                                       std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mPerPage(perPage), mPage(page), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceGetLogs::run()
+void ZapFR::Engine::AgentSourceGetLogs::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    std::vector<Log*> logPointers;
+    auto [logCount, logs] = source->getLogs(mPerPage, mPage);
+    for (const auto& log : logs)
     {
-        std::vector<Log*> logPointers;
-        std::vector<std::unique_ptr<Log>> logs;
-        uint64_t logCount{0};
-        try
-        {
-            std::tie(logCount, logs) = source.value()->getLogs(mPerPage, mPage);
-            for (const auto& log : logs)
-            {
-                logPointers.emplace_back(log.get());
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, logPointers, mPage, logCount);
+        logPointers.emplace_back(log.get());
     }
-
-    mIsDone = true;
+    mFinishedCallback(mSourceID, logPointers, mPage, logCount);
 }

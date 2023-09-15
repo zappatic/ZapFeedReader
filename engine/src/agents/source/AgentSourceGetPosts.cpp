@@ -17,6 +17,7 @@
 */
 
 #include "ZapFR/agents/source/AgentSourceGetPosts.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
@@ -24,30 +25,18 @@
 ZapFR::Engine::AgentSourceGetPosts::AgentSourceGetPosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                         FlagColor flagColor,
                                                         std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter), mFlagColor(flagColor),
+    : AgentRunnable(sourceID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter), mFlagColor(flagColor),
       mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceGetPosts::run()
+void ZapFR::Engine::AgentSourceGetPosts::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    std::vector<Post*> postPointers;
+    auto [postCount, posts] = source->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
+    for (const auto& post : posts)
     {
-        std::vector<Post*> postPointers;
-        std::vector<std::unique_ptr<Post>> posts;
-        uint64_t postCount{0};
-        try
-        {
-            std::tie(postCount, posts) = source.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
-            for (const auto& post : posts)
-            {
-                postPointers.emplace_back(post.get());
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(source.value()->id(), postPointers, mPage, postCount);
+        postPointers.emplace_back(post.get());
     }
-
-    mIsDone = true;
+    mFinishedCallback(source->id(), postPointers, mPage, postCount);
 }

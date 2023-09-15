@@ -24,37 +24,30 @@
 
 ZapFR::Engine::AgentSourceGetTree::AgentSourceGetTree(uint64_t sourceID,
                                                       std::function<void(Source*, const std::vector<Folder*>&, const std::vector<Feed*>& feeds)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceGetTree::run()
+void ZapFR::Engine::AgentSourceGetTree::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    std::vector<Feed*> feedPointers{};
+    auto feeds = source->getFeeds(Source::FetchInfo::Icon);
+    for (const auto& feed : feeds)
     {
-        std::vector<Feed*> feedPointers{};
-        std::vector<std::unique_ptr<Feed>> feeds;
-        std::vector<Folder*> folderPointers{};
-        std::vector<std::unique_ptr<Folder>> folders;
-
-        try
-        {
-            feeds = source.value()->getFeeds(Source::FetchInfo::Icon);
-            for (const auto& feed : feeds)
-            {
-                feedPointers.emplace_back(feed.get());
-            }
-
-            folders = source.value()->getFolders(0, Source::FetchInfo::Subfolders);
-            for (const auto& folder : folders)
-            {
-                folderPointers.emplace_back(folder.get());
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(source.value().get(), folderPointers, feedPointers);
+        feedPointers.emplace_back(feed.get());
     }
 
-    mIsDone = true;
+    std::vector<Folder*> folderPointers{};
+    auto folders = source->getFolders(0, Source::FetchInfo::Subfolders);
+    for (const auto& folder : folders)
+    {
+        folderPointers.emplace_back(folder.get());
+    }
+
+    mFinishedCallback(source, folderPointers, feedPointers);
+}
+
+void ZapFR::Engine::AgentSourceGetTree::onPayloadException(Source* source)
+{
+    mFinishedCallback(source, {}, {});
 }

@@ -1,6 +1,7 @@
 target_sources(zapfeedreader-engine PRIVATE
     Helpers.cpp
     Agent.cpp
+    AgentRunnable.cpp
     Database.cpp
     Log.cpp
     OPMLParser.cpp

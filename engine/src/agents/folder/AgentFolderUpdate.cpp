@@ -17,31 +17,22 @@
 */
 
 #include "ZapFR/agents/folder/AgentFolderUpdate.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderUpdate::AgentFolderUpdate(uint64_t sourceID, uint64_t folderID, const std::string& newTitle,
                                                     std::function<void(uint64_t, uint64_t, const std::string&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFolderID(folderID), mNewTitle(newTitle), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFolderID(folderID), mNewTitle(newTitle), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFolderUpdate::run()
+void ZapFR::Engine::AgentFolderUpdate::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
+    if (folder.has_value())
     {
-        try
-        {
-            auto folder = source.value()->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
-            if (folder.has_value())
-            {
-                folder.value()->update(mNewTitle);
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, mFolderID, mNewTitle);
+        folder.value()->update(mNewTitle);
     }
-
-    mIsDone = true;
+    mFinishedCallback(mSourceID, mFolderID, mNewTitle);
 }

@@ -17,27 +17,18 @@
 */
 
 #include "ZapFR/agents/post/AgentPostsMarkRead.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentPostsMarkRead::AgentPostsMarkRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
                                                       std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentPostsMarkRead::run()
+void ZapFR::Engine::AgentPostsMarkRead::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
-    {
-        try
-        {
-            source.value()->setPostsReadStatus(true, mFeedAndPostIDs);
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, mFeedAndPostIDs);
-    }
-
-    mIsDone = true;
+    source->setPostsReadStatus(true, mFeedAndPostIDs);
+    mFinishedCallback(mSourceID, mFeedAndPostIDs);
 }

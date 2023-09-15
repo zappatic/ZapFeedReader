@@ -35,11 +35,10 @@ namespace ZapFR
                                        std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentScriptUpdate() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::ScriptUpdate; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mScriptID{0};
             Script::Type mType{Script::Type::Lua};
             std::string mTitle{""};

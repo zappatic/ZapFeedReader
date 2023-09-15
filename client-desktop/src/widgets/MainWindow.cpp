@@ -62,6 +62,8 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
     ZapFR::Engine::Database::getInstance()->initialize(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader.db").toStdString(),
                                                        ZapFR::Engine::ApplicationType::Client);
+    ZapFR::Engine::Agent::getInstance()->registerErrorCallback([&](uint64_t sourceID, const std::string& errorMessage)
+                                                               { QMetaObject::invokeMethod(this, "agentErrorOccurred", Qt::AutoConnection, sourceID, errorMessage); });
 
     ui->setupUi(this);
     initializeUI();
@@ -945,6 +947,23 @@ void ZapFR::Client::MainWindow::showPreferences()
     }
     mDialogPreferences->reset();
     mDialogPreferences->open();
+}
+
+void ZapFR::Client::MainWindow::agentErrorOccurred(uint64_t sourceID, const std::string& errorMessage)
+{
+    auto rootItem = mItemModelSources->invisibleRootItem();
+    for (auto i = 0; i < rootItem->rowCount(); ++i)
+    {
+        auto child = rootItem->child(i);
+        auto type = child->data(SourceTreeEntryTypeRole).toULongLong();
+        auto id = child->data(SourceTreeEntryIDRole).toULongLong();
+        if (type == SOURCETREE_ENTRY_TYPE_SOURCE && id == sourceID)
+        {
+            child->setData(QString::fromUtf8(errorMessage), SourceTreeEntryErrorRole);
+            child->setData(QString::fromUtf8(errorMessage), Qt::ToolTipRole);
+            break;
+        }
+    }
 }
 
 void ZapFR::Client::MainWindow::createContextMenus()

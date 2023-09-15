@@ -153,6 +153,14 @@ uint64_t ZapFR::Engine::Agent::totalCountOfType(AgentRunnable::Type t) const
     return amount;
 }
 
+void ZapFR::Engine::Agent::broadcastError(uint64_t sourceID, const std::string& errorMessage) const
+{
+    if (mErrorCallback.has_value())
+    {
+        mErrorCallback.value()(sourceID, errorMessage);
+    }
+}
+
 void ZapFR::Engine::Agent::queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed*)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFeedRefresh>(sourceID, feedID, finishedCallback));

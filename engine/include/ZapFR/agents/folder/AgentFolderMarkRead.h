@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentFolderMarkRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
             virtual ~AgentFolderMarkRead() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::FolderMarkRead; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mFolderID{0};
             std::function<void(uint64_t, std::unordered_set<uint64_t>)> mFinishedCallback{};
         };

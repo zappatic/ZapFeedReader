@@ -17,32 +17,22 @@
 */
 
 #include "ZapFR/agents/script/AgentScriptsGet.h"
+#include "ZapFR/Agent.h"
 #include "ZapFR/base/Script.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentScriptsGet::AgentScriptsGet(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback)
-    : AgentRunnable(), mSourceID(sourceID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentScriptsGet::run()
+void ZapFR::Engine::AgentScriptsGet::payload(Source* source)
 {
-    auto source = Source::getSource(mSourceID);
-    if (source.has_value())
+    std::vector<Script*> scriptPointers;
+    auto scripts = source->getScripts();
+    for (const auto& script : scripts)
     {
-        std::vector<Script*> scriptPointers;
-        std::vector<std::unique_ptr<Script>> scripts;
-        try
-        {
-            scripts = source.value()->getScripts();
-            for (const auto& script : scripts)
-            {
-                scriptPointers.emplace_back(script.get());
-            }
-        }
-        CATCH_AND_LOG_EXCEPTION_IN_SOURCE
-        mFinishedCallback(mSourceID, scriptPointers);
+        scriptPointers.emplace_back(script.get());
     }
-
-    mIsDone = true;
+    mFinishedCallback(mSourceID, scriptPointers);
 }

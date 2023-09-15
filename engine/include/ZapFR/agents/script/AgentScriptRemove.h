@@ -32,11 +32,10 @@ namespace ZapFR
             explicit AgentScriptRemove(uint64_t sourceID, uint64_t scriptID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentScriptRemove() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::ScriptRemove; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mScriptID{0};
             std::function<void(uint64_t, uint64_t)> mFinishedCallback{};
         };

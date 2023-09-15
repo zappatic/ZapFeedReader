@@ -37,11 +37,10 @@ namespace ZapFR
                                                std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentScriptFolderGetPosts() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::ScriptFolderGetPosts; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mScriptFolderID{0};
             uint64_t mPerPage{0};
             uint64_t mPage{0};

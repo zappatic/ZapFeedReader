@@ -35,11 +35,10 @@ namespace ZapFR
                                         std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentSourceGetLogs() = default;
 
-            void run() override;
+            void payload(Source* source) override;
             Type type() const noexcept override { return Type::SourceGetLogs; }
 
           private:
-            uint64_t mSourceID{0};
             uint64_t mPerPage{0};
             uint64_t mPage{0};
             std::function<void(uint64_t, const std::vector<Log*>&, uint64_t, uint64_t)> mFinishedCallback{};
