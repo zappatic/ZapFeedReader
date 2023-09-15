@@ -20,6 +20,14 @@
 
 ZapFR::Client::TreeViewSources::TreeViewSources(QWidget* parent) : TreeViewPaletteCorrected(parent)
 {
+    connect(this, &QTreeView::expanded,
+            [&](const QModelIndex& index)
+            {
+                if ((QGuiApplication::keyboardModifiers() & Qt::ControlModifier) == Qt::ControlModifier)
+                {
+                    expandRecursively(index);
+                }
+            });
 }
 
 void ZapFR::Client::TreeViewSources::currentChanged(const QModelIndex& current, const QModelIndex& /*previous*/)
