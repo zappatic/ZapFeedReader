@@ -44,8 +44,11 @@ namespace ZapFR
             QStringList mimeTypes() const override;
             QMimeData* mimeData(const QModelIndexList& indexes) const override;
 
+            void setAllowDragAndDrop(bool b) noexcept { mAllowDragAndDrop = b; }
+
           private:
             MainWindow* mMainWindow;
+            bool mAllowDragAndDrop{true};
         };
     } // namespace Client
 } // namespace ZapFR

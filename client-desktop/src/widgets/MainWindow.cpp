@@ -1003,6 +1003,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                     {
                         ui->frameFlagFilters->setVisible(true);
                         ui->tableViewScriptFolders->setVisible(true);
+                        mItemModelSources->setAllowDragAndDrop(true);
                         setUnreadBadgesShown(true);
                         mCurrentPostPage = 1;
                         mPreviouslySelectedSourceID = 0;
@@ -1020,6 +1021,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                     {
                         ui->frameFlagFilters->setVisible(false);
                         ui->tableViewScriptFolders->setVisible(false);
+                        mItemModelSources->setAllowDragAndDrop(false);
                         setUnreadBadgesShown(false);
                         if (mProxyModelSources != nullptr)
                         {
@@ -1033,6 +1035,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                     {
                         ui->frameFlagFilters->setVisible(false);
                         ui->tableViewScriptFolders->setVisible(false);
+                        mItemModelSources->setAllowDragAndDrop(false);
                         setUnreadBadgesShown(false);
                         if (mProxyModelSources != nullptr)
                         {
@@ -1069,6 +1072,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                     {
                         ui->frameFlagFilters->setVisible(false);
                         ui->tableViewScriptFolders->setVisible(false);
+                        mItemModelSources->setAllowDragAndDrop(false);
                         setUnreadBadgesShown(false);
                         if (mProxyModelSources != nullptr)
                         {

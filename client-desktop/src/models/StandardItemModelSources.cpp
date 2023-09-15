@@ -28,6 +28,13 @@ Qt::ItemFlags ZapFR::Client::StandardItemModelSources::flags(const QModelIndex& 
 {
     auto flags = QStandardItemModel::flags(index);
 
+    if (!mAllowDragAndDrop)
+    {
+        flags = flags & ~(Qt::ItemIsDragEnabled);
+        flags = flags & ~(Qt::ItemIsDropEnabled);
+        return flags;
+    }
+
     if (index.isValid())
     {
         auto type = index.data(SourceTreeEntryTypeRole);
@@ -53,6 +60,11 @@ Qt::ItemFlags ZapFR::Client::StandardItemModelSources::flags(const QModelIndex& 
 
 bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data, Qt::DropAction /*action*/, int row, int /*column*/, const QModelIndex& parent)
 {
+    if (!mAllowDragAndDrop)
+    {
+        return false;
+    }
+
     QByteArray json;
     if (data->hasFormat(MIMETYPE_DRAGGABLE_FEED))
     {
@@ -107,7 +119,7 @@ QStringList ZapFR::Client::StandardItemModelSources::mimeTypes() const
 
 QMimeData* ZapFR::Client::StandardItemModelSources::mimeData(const QModelIndexList& indexes) const
 {
-    if (indexes.length() == 0)
+    if (!mAllowDragAndDrop || indexes.length() == 0)
     {
         return nullptr;
     }

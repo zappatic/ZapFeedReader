@@ -525,26 +525,29 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
     connect(ui->treeViewSources, &TreeViewSources::deletePressed,
             [&]()
             {
-                auto currentIndex = ui->treeViewSources->currentIndex();
-                if (currentIndex.isValid())
+                if (ui->stackedWidgetContentPanes->currentIndex() == StackedPanePosts)
                 {
-                    auto type = currentIndex.data(SourceTreeEntryTypeRole).toULongLong();
-                    switch (type)
+                    auto currentIndex = ui->treeViewSources->currentIndex();
+                    if (currentIndex.isValid())
                     {
-                        case SOURCETREE_ENTRY_TYPE_FOLDER:
+                        auto type = currentIndex.data(SourceTreeEntryTypeRole).toULongLong();
+                        switch (type)
                         {
-                            removeFolder();
-                            break;
-                        }
-                        case SOURCETREE_ENTRY_TYPE_FEED:
-                        {
-                            removeFeed();
-                            break;
-                        }
-                        case SOURCETREE_ENTRY_TYPE_SOURCE:
-                        {
-                            removeSource();
-                            break;
+                            case SOURCETREE_ENTRY_TYPE_FOLDER:
+                            {
+                                removeFolder();
+                                break;
+                            }
+                            case SOURCETREE_ENTRY_TYPE_FEED:
+                            {
+                                removeFeed();
+                                break;
+                            }
+                            case SOURCETREE_ENTRY_TYPE_SOURCE:
+                            {
+                                removeSource();
+                                break;
+                            }
                         }
                     }
                 }
