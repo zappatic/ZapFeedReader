@@ -42,11 +42,11 @@ Poco::URI ZapFR::Engine::SourceRemote::remoteURL() const
             Poco::JSON::Parser parser;
             auto root = parser.parse(mConfigData);
             auto obj = root.extract<Poco::JSON::Object::Ptr>();
-            auto host = obj->getValue<std::string>("host");
-            auto port = obj->getValue<uint16_t>("port");
-            auto useHTTPS = obj->getValue<bool>("useHTTPS");
-            mRemoteLogin = obj->getValue<std::string>("login");
-            mRemotePassword = obj->getValue<std::string>("password");
+            auto host = obj->getValue<std::string>(JSONIdentifierRemoteConfigDataHost);
+            auto port = obj->getValue<uint16_t>(JSONIdentifierRemoteConfigDataPort);
+            auto useHTTPS = obj->getValue<bool>(JSONIdentifierRemoteConfigDataUseHTTPS);
+            mRemoteLogin = obj->getValue<std::string>(JSONIdentifierRemoteConfigDataLogin);
+            mRemotePassword = obj->getValue<std::string>(JSONIdentifierRemoteConfigDataPassword);
 
             mRemoteURL.setScheme(useHTTPS ? "https" : "http");
             mRemoteURL.setHost(host);

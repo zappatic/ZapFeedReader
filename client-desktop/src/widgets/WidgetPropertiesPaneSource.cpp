@@ -26,6 +26,7 @@
 ZapFR::Client::WidgetPropertiesPaneSource::WidgetPropertiesPaneSource(QWidget* parent) : QWidget(parent), ui(new Ui::WidgetPropertiesPaneSource)
 {
     ui->setupUi(this);
+    ui->labelRemotePortInfo->setText(ui->labelRemotePortInfo->text().arg(ZapFR::Engine::DefaultServerPort));
 
     auto f = ui->labelCaption->font();
     f.setWeight(QFont::DemiBold);
@@ -45,7 +46,54 @@ void ZapFR::Client::WidgetPropertiesPaneSource::reset(const QMap<QString, QVaria
 
     ui->labelCaption->setText(props["title"].toString());
     ui->lineEditTitle->setText(props["title"].toString());
-    ui->labelTypeValue->setText(props["type"].toString());
+
+    auto type = props["type"].toString();
+    ui->labelTypeValue->setText(type);
+
+    ui->lineEditRemoteHost->setText("");
+    ui->lineEditRemotePort->setText("");
+    ui->lineEditRemoteLogin->setText("");
+    ui->lineEditRemotePassword->setText("");
+    ui->checkBoxRemoteUseHTTPS->setChecked(false);
+
+    auto remoteFieldsEnabled{false};
+    if (type == ZapFR::Engine::IdentifierRemoteServer)
+    {
+        remoteFieldsEnabled = true;
+        try
+        {
+            Poco::JSON::Parser parser;
+            auto rootObj = parser.parse(props["configData"].toString().toStdString()).extract<Poco::JSON::Object::Ptr>();
+            if (rootObj->has(ZapFR::Engine::JSONIdentifierRemoteConfigDataHost))
+            {
+                ui->lineEditRemoteHost->setText(QString::fromUtf8(rootObj->getValue<std::string>(ZapFR::Engine::JSONIdentifierRemoteConfigDataHost)));
+            }
+            if (rootObj->has(ZapFR::Engine::JSONIdentifierRemoteConfigDataPort))
+            {
+                ui->lineEditRemotePort->setText(QString::number(rootObj->getValue<uint16_t>(ZapFR::Engine::JSONIdentifierRemoteConfigDataPort)));
+            }
+            if (rootObj->has(ZapFR::Engine::JSONIdentifierRemoteConfigDataLogin))
+            {
+                ui->lineEditRemoteLogin->setText(QString::fromUtf8(rootObj->getValue<std::string>(ZapFR::Engine::JSONIdentifierRemoteConfigDataLogin)));
+            }
+            if (rootObj->has(ZapFR::Engine::JSONIdentifierRemoteConfigDataPassword))
+            {
+                ui->lineEditRemotePassword->setText(QString::fromUtf8(rootObj->getValue<std::string>(ZapFR::Engine::JSONIdentifierRemoteConfigDataPassword)));
+            }
+            if (rootObj->has(ZapFR::Engine::JSONIdentifierRemoteConfigDataUseHTTPS))
+            {
+                ui->checkBoxRemoteUseHTTPS->setChecked(rootObj->getValue<bool>(ZapFR::Engine::JSONIdentifierRemoteConfigDataUseHTTPS));
+            }
+        }
+        catch (...)
+        {
+        }
+    }
+    ui->lineEditRemoteHost->setEnabled(remoteFieldsEnabled);
+    ui->lineEditRemotePort->setEnabled(remoteFieldsEnabled);
+    ui->lineEditRemoteLogin->setEnabled(remoteFieldsEnabled);
+    ui->lineEditRemotePassword->setEnabled(remoteFieldsEnabled);
+    ui->checkBoxRemoteUseHTTPS->setEnabled(remoteFieldsEnabled);
 
     auto stats = props["statistics"].value<QMap<uint64_t, QString>>();
 
@@ -101,13 +149,31 @@ void ZapFR::Client::WidgetPropertiesPaneSource::save()
     auto newTitle = ui->lineEditTitle->text().trimmed();
     if (!newTitle.isEmpty())
     {
-        // seeing as the title of the source is stored locally, even in cases of remove zapfr instances
+        // seeing as the properties of the source are stored locally, even in cases of remove zapfr instances
         // we don't have to go over an agent to update the source
         auto source = ZapFR::Engine::Source::getSource(mSourceID);
         if (source.has_value())
         {
-            source.value()->updateTitle(newTitle.toStdString());
-            emit sourceTitleUpdated(source.value()->id(), newTitle);
+            std::string configData;
+            if (source.value()->type() == ZapFR::Engine::IdentifierRemoteServer)
+            {
+                auto portStr = ui->lineEditRemotePort->text().toStdString();
+                uint32_t port{0};
+                Poco::NumberParser::tryParseUnsigned(portStr, port);
+
+                auto configDataObj = QJsonObject();
+                configDataObj[ZapFR::Engine::JSONIdentifierRemoteConfigDataHost] = ui->lineEditRemoteHost->text();
+                configDataObj[ZapFR::Engine::JSONIdentifierRemoteConfigDataPort] = QJsonValue::fromVariant(QVariant::fromValue<uint32_t>(port));
+                configDataObj[ZapFR::Engine::JSONIdentifierRemoteConfigDataLogin] = ui->lineEditRemoteLogin->text();
+                configDataObj[ZapFR::Engine::JSONIdentifierRemoteConfigDataPassword] = ui->lineEditRemotePassword->text();
+                configDataObj[ZapFR::Engine::JSONIdentifierRemoteConfigDataUseHTTPS] =
+                    QJsonValue::fromVariant(QVariant::fromValue<bool>(ui->checkBoxRemoteUseHTTPS->isChecked()));
+                configData = QJsonDocument(configDataObj).toJson(QJsonDocument::Compact).toStdString();
+            }
+
+            source.value()->update(newTitle.toStdString(), configData);
+
+            emit sourceUpdated(source.value()->id());
         }
     }
 }

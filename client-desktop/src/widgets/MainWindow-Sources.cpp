@@ -428,11 +428,11 @@ void ZapFR::Client::MainWindow::addSource()
                         if (!hostName.isEmpty())
                         {
                             auto configData = QJsonObject();
-                            configData["host"] = hostName;
-                            configData["port"] = mDialogAddSource->port();
-                            configData["login"] = mDialogAddSource->login();
-                            configData["password"] = mDialogAddSource->password();
-                            configData["useHTTPS"] = mDialogAddSource->useHTTPS();
+                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataHost] = hostName;
+                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataPort] = mDialogAddSource->port();
+                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataLogin] = mDialogAddSource->login();
+                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataPassword] = mDialogAddSource->password();
+                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataUseHTTPS] = mDialogAddSource->useHTTPS();
                             auto configDataStr = QJsonDocument(configData).toJson(QJsonDocument::Compact).toStdString();
                             ZapFR::Engine::Source::create(sourceType, sourceTitle, configDataStr);
                             reloadSources();

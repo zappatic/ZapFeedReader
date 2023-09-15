@@ -175,6 +175,7 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std
         {
             credentials.authenticate(request, response);
             session->sendRequest(request);
+            resultStr.clear();
             std::istream& authenticatedResponseStream = session->receiveResponse(response);
             Poco::StreamCopier::copyToString(authenticatedResponseStream, resultStr);
             status = response.getStatus();

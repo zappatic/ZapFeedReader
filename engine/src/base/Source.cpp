@@ -139,10 +139,10 @@ std::optional<std::unique_ptr<ZapFR::Engine::Source>> ZapFR::Engine::Source::get
     return {};
 }
 
-void ZapFR::Engine::Source::updateTitle(const std::string& newTitle)
+void ZapFR::Engine::Source::update(const std::string& newTitle, const std::string& newConfigData)
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
-    updateStmt << "UPDATE sources SET title=? WHERE id=?", useRef(newTitle), use(mID), now;
+    updateStmt << "UPDATE sources SET title=?, configData=? WHERE id=?", useRef(newTitle), useRef(newConfigData), use(mID), now;
 }
 
 void ZapFR::Engine::Source::updateLastError(const std::string& error)

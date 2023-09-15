@@ -30,19 +30,7 @@
 void ZapFR::Client::MainWindow::connectPropertiesStuff()
 {
     connect(ui->action_View_properties, &QAction::triggered, [&]() { reloadPropertiesPane(); });
-    connect(ui->widgetPropertiesPaneSource, &WidgetPropertiesPaneSource::sourceTitleUpdated,
-            [&](uint64_t sourceID, const QString& newTitle)
-            {
-                auto root = mItemModelSources->invisibleRootItem();
-                for (int32_t i = 0; i < root->rowCount(); ++i)
-                {
-                    auto child = root->child(i);
-                    if (child->data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_SOURCE && child->data(SourceTreeEntryIDRole).toULongLong() == sourceID)
-                    {
-                        child->setData(newTitle, Qt::DisplayRole);
-                    }
-                }
-            });
+    connect(ui->widgetPropertiesPaneSource, &WidgetPropertiesPaneSource::sourceUpdated, [&]() { reloadSources(); });
 }
 
 void ZapFR::Client::MainWindow::reloadPropertiesPane()
@@ -62,6 +50,7 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
                                                                         props["sourceID"] = QVariant::fromValue<uint64_t>(source->id());
                                                                         props["title"] = QString::fromUtf8(source->title());
                                                                         props["type"] = QString::fromUtf8(source->type());
+                                                                        props["configData"] = QString::fromUtf8(source->configData());
 
                                                                         QMap<uint64_t, QString> stats;
                                                                         for (const auto& [s, v] : source->statistics())

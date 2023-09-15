@@ -91,6 +91,12 @@ namespace ZapFR
         [[maybe_unused]] static const char* IdentifierLocalServer{"zapfeedreader.local"};
         [[maybe_unused]] static const char* IdentifierRemoteServer{"zapfeedreader.remote"};
 
+        [[maybe_unused]] static const char* JSONIdentifierRemoteConfigDataHost{"host"};
+        [[maybe_unused]] static const char* JSONIdentifierRemoteConfigDataPort{"port"};
+        [[maybe_unused]] static const char* JSONIdentifierRemoteConfigDataLogin{"login"};
+        [[maybe_unused]] static const char* JSONIdentifierRemoteConfigDataPassword{"password"};
+        [[maybe_unused]] static const char* JSONIdentifierRemoteConfigDataUseHTTPS{"useHTTPS"};
+
     } // namespace Engine
 } // namespace ZapFR
 

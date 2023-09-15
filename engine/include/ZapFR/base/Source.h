@@ -74,7 +74,7 @@ namespace ZapFR
             void setLastError(const std::string& error) { mLastError = error; }
             void updateLastError(const std::string& error);
 
-            void updateTitle(const std::string& newTitle);
+            void update(const std::string& newTitle, const std::string& newConfigData);
             virtual std::unordered_set<uint64_t> importOPML(const std::string& opml, uint64_t parentFolderID) = 0;
             virtual void fetchStatistics() = 0;
 

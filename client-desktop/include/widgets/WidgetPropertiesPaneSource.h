@@ -44,7 +44,7 @@ namespace ZapFR
             void reset(const QMap<QString, QVariant>& props);
 
           signals:
-            void sourceTitleUpdated(uint64_t sourceID, const QString& newTitle);
+            void sourceUpdated(uint64_t sourceID);
 
           private slots:
             void save();
