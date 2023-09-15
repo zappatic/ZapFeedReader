@@ -132,6 +132,14 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std
 
     static const auto userAgent = fmt::format("ZapFeedReader/{}", ZapFR::Engine::APIVersion);
     request.set("User-Agent", userAgent);
+    if (!credentials.empty())
+    {
+        std::stringstream b64Stream;
+        Poco::Base64Encoder encoder(b64Stream);
+        encoder << credentials.getUsername() << ":" << credentials.getPassword();
+        encoder.close();
+        request.set("Authorization", fmt::format("Basic {}", b64Stream.str()));
+    }
 
     if (method == Poco::Net::HTTPRequest::HTTP_POST || method == Poco::Net::HTTPRequest::HTTP_PATCH)
     {
@@ -171,19 +179,7 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std
     }
     else if (status == 401)
     {
-        if (!credentials.empty())
-        {
-            credentials.authenticate(request, response);
-            session->sendRequest(request);
-            resultStr.clear();
-            std::istream& authenticatedResponseStream = session->receiveResponse(response);
-            Poco::StreamCopier::copyToString(authenticatedResponseStream, resultStr);
-            status = response.getStatus();
-        }
-        else
-        {
-            throw std::runtime_error("HTTP status 401 Unauthorized; no credentials provided");
-        }
+        throw std::runtime_error("HTTP status 401 Unauthorized; invalid or no credentials provided");
     }
 
     if (status < 200 || status > 299)
