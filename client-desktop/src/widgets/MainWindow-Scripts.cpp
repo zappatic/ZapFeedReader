@@ -274,6 +274,7 @@ void ZapFR::Client::MainWindow::scriptUpdated(uint64_t /*sourceID*/, uint64_t /*
 void ZapFR::Client::MainWindow::scriptRemoved(uint64_t /*sourceID*/, uint64_t /*scriptID*/)
 {
     reloadScripts(true);
+    ui->statusbar->showMessage(tr("Script removed"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::scriptAdded(uint64_t /*sourceID*/)

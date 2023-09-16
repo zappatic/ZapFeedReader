@@ -183,6 +183,7 @@ void ZapFR::Client::MainWindow::scriptFolderRemoved(uint64_t /*sourceID*/, uint6
     reloadScriptFolders(true);
     ui->tableViewScriptFolders->setCurrentIndex(QModelIndex());
     reloadPosts();
+    ui->statusbar->showMessage(tr("Scriptfolder removed"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::connectScriptFolderStuff()

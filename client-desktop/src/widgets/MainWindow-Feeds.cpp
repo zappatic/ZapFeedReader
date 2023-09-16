@@ -184,6 +184,7 @@ void ZapFR::Client::MainWindow::feedRemoved()
 {
     reloadSources();
     populatePosts();
+    ui->statusbar->showMessage(tr("Feed removed"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::feedMoved()
@@ -197,11 +198,13 @@ void ZapFR::Client::MainWindow::feedMarkedRead(uint64_t sourceID, uint64_t feedI
     mCurrentPostPage = 1;
     reloadPosts();
     reloadScriptFolders(true);
+    ui->statusbar->showMessage(tr("Feed marked as read"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::string& error, const std::string& feedTitle,
                                               const std::string& iconHash, const std::string& iconData)
 {
+    ui->statusbar->showMessage(tr("Feed '%1' refreshed").arg(QString::fromUtf8(feedTitle)), StatusBarDefaultTimeout);
     auto sourceItem = findSourceStandardItem(sourceID);
     if (sourceItem != nullptr)
     {

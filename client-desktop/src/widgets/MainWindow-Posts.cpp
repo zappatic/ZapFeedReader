@@ -637,6 +637,7 @@ void ZapFR::Client::MainWindow::postsMarkedRead(uint64_t sourceID, const std::ve
     }
 
     reloadScriptFolders(true);
+    // no statusbar update here, as it's called just for clicking/reading a post in the table, which would be distracting
 }
 
 void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs)
@@ -673,6 +674,7 @@ void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, const std::
     }
 
     reloadScriptFolders(true);
+    ui->statusbar->showMessage(tr("Post(s) marked as unread"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::postsMarkedFlagged(bool doReloadPosts)
@@ -682,6 +684,7 @@ void ZapFR::Client::MainWindow::postsMarkedFlagged(bool doReloadPosts)
     {
         reloadPosts();
     }
+    ui->statusbar->showMessage(tr("Post(s) marked as flagged"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::postsMarkedUnflagged(bool doReloadPosts)
@@ -691,11 +694,13 @@ void ZapFR::Client::MainWindow::postsMarkedUnflagged(bool doReloadPosts)
     {
         reloadPosts();
     }
+    ui->statusbar->showMessage(tr("Post(s) marked as unflagged"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::postsAssignedToScriptFolder(uint64_t /*sourceID*/, uint64_t /*scriptFolderID*/)
 {
     reloadScriptFolders(true);
+    ui->statusbar->showMessage(tr("Post(s) assigned to script folder"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::postsRemovedFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID)
@@ -716,6 +721,7 @@ void ZapFR::Client::MainWindow::postsRemovedFromScriptFolder(uint64_t sourceID, 
         }
         reloadPosts();
     }
+    ui->statusbar->showMessage(tr("Post(s) unassigned from script folder"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::connectPostStuff()
@@ -848,13 +854,16 @@ void ZapFR::Client::MainWindow::connectPostStuff()
     connect(mPostWebEnginePage.get(), &QWebEnginePage::linkHovered,
             [&](const QString& url)
             {
-                if (!url.isEmpty())
+                if (ui->stackedWidgetPost->currentIndex() == StackedPanePost)
                 {
-                    ui->statusbar->showMessage(url);
-                }
-                else
-                {
-                    ui->statusbar->clearMessage();
+                    if (!url.isEmpty())
+                    {
+                        ui->statusbar->showMessage(url);
+                    }
+                    else
+                    {
+                        ui->statusbar->clearMessage();
+                    }
                 }
             });
 

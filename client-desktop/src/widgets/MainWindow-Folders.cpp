@@ -123,6 +123,7 @@ void ZapFR::Client::MainWindow::folderMoved()
 void ZapFR::Client::MainWindow::folderAdded()
 {
     reloadSources();
+    ui->statusbar->showMessage(tr("Folder added"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::folderUpdated(uint64_t sourceID, uint64_t folderID, const std::string& newTitle)
@@ -166,6 +167,7 @@ void ZapFR::Client::MainWindow::folderRemoved()
 {
     reloadSources();
     populatePosts();
+    ui->statusbar->showMessage(tr("Folder removed"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::folderMarkedRead(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs)
@@ -174,6 +176,7 @@ void ZapFR::Client::MainWindow::folderMarkedRead(uint64_t sourceID, std::unorder
     mCurrentPostPage = 1;
     reloadPosts();
     reloadScriptFolders(true);
+    ui->statusbar->showMessage(tr("Folder marked as read"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::connectFolderStuff()

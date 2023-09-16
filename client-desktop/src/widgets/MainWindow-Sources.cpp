@@ -488,6 +488,7 @@ void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
     mCurrentPostPage = 1;
     reloadPosts();
     reloadScriptFolders(true);
+    ui->statusbar->showMessage(tr("Source marked as read"), StatusBarDefaultTimeout);
 }
 
 QStandardItem* ZapFR::Client::MainWindow::findSourceStandardItem(uint64_t sourceID)
