@@ -978,6 +978,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="action_Reconnect_to_source"/>
    <addaction name="action_Add_feed"/>
    <addaction name="action_Add_folder"/>
    <addaction name="action_Toolbar_refresh"/>
@@ -1176,6 +1177,11 @@
    </property>
    <property name="toolTip">
     <string>Refresh</string>
+   </property>
+  </action>
+  <action name="action_Reconnect_to_source">
+   <property name="text">
+    <string>Reconnect to source</string>
    </property>
   </action>
  </widget>

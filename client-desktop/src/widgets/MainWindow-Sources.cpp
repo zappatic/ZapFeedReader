@@ -491,6 +491,21 @@ void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
     ui->statusbar->showMessage(tr("Source marked as read"), StatusBarDefaultTimeout);
 }
 
+bool ZapFR::Client::MainWindow::doesSourceHaveError(uint64_t sourceID)
+{
+    auto root = mItemModelSources->invisibleRootItem();
+    for (int32_t i = 0; i < root->rowCount(); ++i)
+    {
+        auto child = root->child(i);
+        if (child->data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_SOURCE && child->data(SourceTreeEntryIDRole).toULongLong() == sourceID)
+        {
+            auto error = child->data(SourceTreeEntryErrorRole);
+            return (!error.isNull() && error.isValid() && !error.toString().isEmpty());
+        }
+    }
+    return false;
+}
+
 void ZapFR::Client::MainWindow::remoteSourceUnreadCountsReceived(uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
 {
     std::function<void(QStandardItem*)> updateBadges;
@@ -570,6 +585,38 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
     connect(ui->action_Add_source, &QAction::triggered, this, &MainWindow::addSource);
     connect(ui->action_Remove_source, &QAction::triggered, this, &MainWindow::removeSource);
 
+    connect(ui->action_Reconnect_to_source, &QAction::triggered,
+            [&]()
+            {
+                if (ui->stackedWidgetContentPanes->currentIndex() == StackedPanePosts)
+                {
+                    auto currentIndex = ui->treeViewSources->currentIndex();
+                    if (currentIndex.isValid())
+                    {
+                        auto sourceID = currentIndex.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+
+                        // clear out the error first, then do a simple (remote) request which might re-trigger the error, or keep it cleared
+                        auto root = mItemModelSources->invisibleRootItem();
+                        for (int32_t i = 0; i < root->rowCount(); ++i)
+                        {
+                            auto child = root->child(i);
+                            if (child->data(SourceTreeEntryIDRole) == sourceID)
+                            {
+                                child->setData(QVariant(), SourceTreeEntryErrorRole);
+                                break;
+                            }
+                        }
+
+                        ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(
+                            sourceID,
+                            [&](uint64_t /*affectedSourceID*/, const std::unordered_map<uint64_t, uint64_t>& /*unreadCounts*/)
+                            {
+                                // nop
+                            });
+                    }
+                }
+            });
+
     connect(ui->treeViewSources, &TreeViewSources::deletePressed,
             [&]()
             {
@@ -609,23 +656,31 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                     auto index = ui->treeViewSources->indexAt(p);
                     if (index.isValid())
                     {
-                        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
-                        switch (type)
+                        auto parentSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                        if (doesSourceHaveError(parentSourceID))
                         {
-                            case SOURCETREE_ENTRY_TYPE_FEED:
+                            mSourceContextMenuSourceError->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                        }
+                        else
+                        {
+                            auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+                            switch (type)
                             {
-                                mSourceContextMenuFeed->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
-                                break;
-                            }
-                            case SOURCETREE_ENTRY_TYPE_FOLDER:
-                            {
-                                mSourceContextMenuFolder->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
-                                break;
-                            }
-                            case SOURCETREE_ENTRY_TYPE_SOURCE:
-                            {
-                                mSourceContextMenuSource->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
-                                break;
+                                case SOURCETREE_ENTRY_TYPE_FEED:
+                                {
+                                    mSourceContextMenuFeed->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                                    break;
+                                }
+                                case SOURCETREE_ENTRY_TYPE_FOLDER:
+                                {
+                                    mSourceContextMenuFolder->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                                    break;
+                                }
+                                case SOURCETREE_ENTRY_TYPE_SOURCE:
+                                {
+                                    mSourceContextMenuSource->popup(ui->treeViewSources->viewport()->mapToGlobal(p));
+                                    break;
+                                }
                             }
                         }
                     }
@@ -698,6 +753,11 @@ void ZapFR::Client::MainWindow::createSourceContextMenus()
     mSourceContextMenuSource->addSeparator();
     mSourceContextMenuSource->addAction(ui->action_View_logs);
     mSourceContextMenuSource->addAction(ui->action_View_properties);
+
+    mSourceContextMenuSourceError = std::make_unique<QMenu>(nullptr);
+    mSourceContextMenuSourceError->addAction(ui->action_Reconnect_to_source);
+    mSourceContextMenuSourceError->addSeparator();
+    mSourceContextMenuSourceError->addAction(ui->action_View_properties);
 }
 
 void ZapFR::Client::MainWindow::initializeUISources()

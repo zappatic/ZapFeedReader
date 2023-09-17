@@ -624,6 +624,7 @@ void ZapFR::Client::MainWindow::configureIcons()
 
     ui->action_Refresh->setIcon(configureIcon(":/refreshFeed.svg"));
     ui->action_Toolbar_refresh->setIcon(configureIcon(":/refreshFeed.svg"));
+    ui->action_Reconnect_to_source->setIcon(configureIcon(":/refreshFeed.svg"));
     ui->action_Mark_as_read->setIcon(configureIcon(":/markAsRead.svg"));
     ui->action_Add_feed->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_Add_source->setIcon(configureIcon(":/addFeed.svg"));
@@ -816,6 +817,8 @@ void ZapFR::Client::MainWindow::updateToolbar()
             QString markAsReadCaption;
             QString refreshCaption;
             QString refreshToolbarCaption;
+            auto parentSourceHasError{false};
+            auto showSearchField{true};
 
             auto index = ui->treeViewSources->currentIndex();
             if (index.isValid())
@@ -823,6 +826,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
                 anythingSelected = true;
 
                 auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+                parentSourceHasError = doesSourceHaveError(index.data(SourceTreeEntryParentSourceIDRole).toULongLong());
                 switch (type)
                 {
                     case SOURCETREE_ENTRY_TYPE_FEED:
@@ -849,31 +853,39 @@ void ZapFR::Client::MainWindow::updateToolbar()
                 }
             }
 
-            ui->action_Add_feed->setVisible(true);
-            ui->action_Add_folder->setVisible(true);
-            ui->action_Refresh->setVisible(true);
-            ui->action_Toolbar_refresh->setVisible(true);
-            ui->action_Mark_as_read->setVisible(true);
-            ui->action_View_logs->setVisible(true);
-            ui->action_View_scripts->setVisible(true);
-            ui->action_Add_source->setVisible(true);
-            ui->action_Remove_source->setVisible(true);
-            ui->action_Import_OPML->setVisible(true);
-            ui->action_Export_OPML->setVisible(true);
+            if (parentSourceHasError)
+            {
+                showSearchField = false;
+                ui->action_Reconnect_to_source->setVisible(true);
+            }
+            else
+            {
+                ui->action_Add_feed->setVisible(true);
+                ui->action_Add_folder->setVisible(true);
+                ui->action_Refresh->setVisible(true);
+                ui->action_Toolbar_refresh->setVisible(true);
+                ui->action_Mark_as_read->setVisible(true);
+                ui->action_View_logs->setVisible(true);
+                ui->action_View_scripts->setVisible(true);
+                ui->action_Add_source->setVisible(true);
+                ui->action_Remove_source->setVisible(true);
+                ui->action_Import_OPML->setVisible(true);
+                ui->action_Export_OPML->setVisible(true);
 
-            ui->action_Add_feed->setEnabled(anythingSelected);
-            ui->action_Add_folder->setEnabled(anythingSelected);
-            ui->action_Mark_as_read->setEnabled(anythingSelected);
-            ui->action_Mark_as_read->setText(markAsReadCaption);
-            ui->action_View_logs->setEnabled(anythingSelected);
-            ui->action_Refresh->setEnabled(anythingSelected);
-            ui->action_Refresh->setText(refreshCaption);
-            ui->action_Toolbar_refresh->setEnabled(anythingSelected);
-            ui->action_Toolbar_refresh->setText(refreshToolbarCaption);
+                ui->action_Add_feed->setEnabled(anythingSelected);
+                ui->action_Add_folder->setEnabled(anythingSelected);
+                ui->action_Mark_as_read->setEnabled(anythingSelected);
+                ui->action_Mark_as_read->setText(markAsReadCaption);
+                ui->action_View_logs->setEnabled(anythingSelected);
+                ui->action_Refresh->setEnabled(anythingSelected);
+                ui->action_Refresh->setText(refreshCaption);
+                ui->action_Toolbar_refresh->setEnabled(anythingSelected);
+                ui->action_Toolbar_refresh->setText(refreshToolbarCaption);
+            }
 
             for (const auto& action : ui->toolBar->actions())
             {
-                if (action->property(gsPostPaneToolbarSpacerLeft).isValid() || action->property(gsPostPaneLineEditSearch).isValid())
+                if (action->property(gsPostPaneToolbarSpacerLeft).isValid() || (showSearchField && action->property(gsPostPaneLineEditSearch).isValid()))
                 {
                     action->setVisible(true);
                 }

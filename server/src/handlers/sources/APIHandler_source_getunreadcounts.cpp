@@ -40,7 +40,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_getunreadco
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        unreadCounts = source.value()->getStatus();
+        unreadCounts = source.value()->getUnreadCounts();
     }
 
     for (const auto& [feedID, count] : unreadCounts)
