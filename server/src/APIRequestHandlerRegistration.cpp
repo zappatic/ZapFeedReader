@@ -446,6 +446,17 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Retrieves a mapping of feed IDs to unread counts)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/unread-counts$)", R"(/unread-counts)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_source_getunreadcounts);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Import an OPML file)");
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/import-opml$)", R"(/import-opml)");

@@ -90,6 +90,8 @@ namespace ZapFR
         static const QString SETTING_UI_FONTSIZE = "ui.fontsize";
         static const QString SETTING_POST_FONTSIZE = "post.fontsize";
         static const QString SETTING_FEEDS_REFRESH_BEHAVIOUR = "feeds.refreshbehaviour";
+        static const QString SETTING_FEEDS_AUTOREFRESH_ENABLED = "feeds.autorefresh.enabled";
+        static const QString SETTING_FEEDS_AUTOREFRESH_INTERVAL = "feeds.autorefresh.interval";
 
         static const uint32_t SOURCETREE_ENTRY_TYPE_SOURCE = 0;
         static const uint32_t SOURCETREE_ENTRY_TYPE_FEED = 1;

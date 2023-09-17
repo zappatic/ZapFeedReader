@@ -307,6 +307,24 @@ ZapFR::Engine::SourceLocal::remapFeedPostTuplesToMap(const std::vector<std::tupl
     return feedsWithPostsMap;
 }
 
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceLocal::getUnreadCounts()
+{
+    std::unordered_map<uint64_t, uint64_t> unreadCounts;
+
+    uint64_t feedID{0};
+    uint64_t count{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT posts.feedID,COUNT(*) FROM posts WHERE posts.isRead=FALSE GROUP BY posts.feedID", into(feedID), into(count), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            unreadCounts[feedID] = count;
+        }
+    }
+    return unreadCounts;
+}
+
 /* ************************** LOGS STUFF ************************** */
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::SourceLocal::getLogs(uint64_t perPage, uint64_t page)
 {

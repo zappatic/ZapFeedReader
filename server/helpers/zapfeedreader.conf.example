@@ -16,6 +16,10 @@
         "login": "<login2>",
         "password": "<password2>"
       }
-    ]
+    ],
+    "autorefresh": {
+      "enabled": true,
+      "interval": 900
+    }
   }
 }

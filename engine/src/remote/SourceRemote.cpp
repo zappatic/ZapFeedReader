@@ -447,6 +447,40 @@ void ZapFR::Engine::SourceRemote::assignPostsToScriptFolder(uint64_t scriptFolde
     }
 }
 
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::getUnreadCounts()
+{
+    std::unordered_map<uint64_t, uint64_t> unreadCounts;
+
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/unread-counts");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!rootObj.isNull())
+        {
+            std::vector<std::string> keys;
+            rootObj->getNames(keys);
+            for (const auto& key : keys)
+            {
+                uint64_t feedID{0};
+                Poco::NumberParser::tryParseUnsigned64(key, feedID);
+                if (feedID != 0)
+                {
+                    auto count = rootObj->getValue<uint64_t>(key);
+                    unreadCounts[feedID] = count;
+                }
+            }
+        }
+    }
+
+    return unreadCounts;
+}
+
 /* ************************** LOGS STUFF ************************** */
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::SourceRemote::getLogs(uint64_t perPage, uint64_t page)
 {

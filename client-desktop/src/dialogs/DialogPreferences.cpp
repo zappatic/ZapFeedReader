@@ -17,6 +17,7 @@
 */
 
 #include "dialogs/DialogPreferences.h"
+#include "ZapFR/AutoRefresh.h"
 #include "ui_DialogPreferences.h"
 
 ZapFR::Client::DialogPreferences::DialogPreferences(QWidget* parent) : QDialog(parent), ui(new Ui::DialogPreferences)
@@ -66,6 +67,10 @@ void ZapFR::Client::DialogPreferences::reset()
     ui->spinBoxUIFontSize->setValue(mainWindow->currentPreferenceUIFontSize());
     ui->spinBoxPostFontSize->setValue(mainWindow->currentPreferencePostFontSize());
 
+    auto ar = ZapFR::Engine::AutoRefresh::getInstance();
+    ui->spinBoxAutoRefreshInterval->setValue(static_cast<int32_t>(ar->feedRefreshInterval() / 60));
+    ui->checkBoxAutoRefreshEnabled->setChecked(ar->isEnabled());
+
     ui->tabWidget->setCurrentIndex(0);
 }
 
@@ -105,4 +110,14 @@ ZapFR::Client::RefreshBehaviour ZapFR::Client::DialogPreferences::chosenRefreshB
     {
         return RefreshBehaviour::CurrentSelection;
     }
+}
+
+uint64_t ZapFR::Client::DialogPreferences::chosenAutoRefreshInterval() const
+{
+    return static_cast<uint64_t>(ui->spinBoxAutoRefreshInterval->value() * 60);
+}
+
+bool ZapFR::Client::DialogPreferences::chosenAutoRefreshEnabled() const
+{
+    return ui->checkBoxAutoRefreshEnabled->isChecked();
 }

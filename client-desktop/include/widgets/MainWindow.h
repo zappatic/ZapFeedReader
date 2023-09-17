@@ -133,6 +133,7 @@ namespace ZapFR
             void sourceMarkedRead(uint64_t sourceID);
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
             void sourcePropertiesReceived(const QMap<QString, QVariant>& props);
+            void remoteSourceUnreadCountsReceived(uint64_t sourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts);
 
             void feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::string& error, const std::string& feedTitle,
                                const std::string& iconHash, const std::string& icon);
@@ -215,6 +216,7 @@ namespace ZapFR
             mutable bool mPostStylesCacheValid{false};
             ZapFR::Engine::FlagColor mFlagFilter{ZapFR::Engine::FlagColor::Gray};
 
+            std::unique_ptr<QTimer> mUpdateRemoteSourceBadgesTimer{nullptr};
             std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
             DialogEditScript* editScriptDialog();
             DialogEditScriptFolder* editScriptFolderDialog();

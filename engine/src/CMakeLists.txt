@@ -2,6 +2,7 @@ target_sources(zapfeedreader-engine PRIVATE
     Helpers.cpp
     Agent.cpp
     AgentRunnable.cpp
+    AutoRefresh.cpp
     Database.cpp
     Log.cpp
     OPMLParser.cpp
@@ -54,6 +55,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/source/AgentSourceGetLogs.cpp
     agents/source/AgentSourceGetPosts.cpp
     agents/source/AgentSourceGetTree.cpp
+    agents/source/AgentSourceGetUnreadCount.cpp
     agents/source/AgentSourceGetUsedFlagColors.cpp
     agents/source/AgentSourceImportOPML.cpp
     agents/source/AgentSourceMarkRead.cpp

@@ -48,6 +48,8 @@ namespace ZapFR
             uint16_t chosenUIFontSize() const;
             uint16_t chosenPostFontSize() const;
             RefreshBehaviour chosenRefreshBehaviour() const;
+            uint64_t chosenAutoRefreshInterval() const;
+            bool chosenAutoRefreshEnabled() const;
 
           private:
             Ui::DialogPreferences* ui;

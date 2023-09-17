@@ -20,6 +20,7 @@
 #include "./ui_MainWindow.h"
 #include "Utilities.h"
 #include "ZapFR/Agent.h"
+#include "ZapFR/AutoRefresh.h"
 #include "ZapFR/Database.h"
 #include "ZapFR/Flag.h"
 #include "ZapFR/Log.h"
@@ -60,10 +61,24 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     dumpPalette();
 #endif
     ZapFR::Engine::FeedLocal::setIconDir(QDir::cleanPath(dataDir() + QDir::separator() + "icons").toStdString());
+
     ZapFR::Engine::Database::getInstance()->initialize(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader.db").toStdString(),
                                                        ZapFR::Engine::ApplicationType::Client);
+
     ZapFR::Engine::Agent::getInstance()->registerErrorCallback([&](uint64_t sourceID, const std::string& errorMessage)
                                                                { QMetaObject::invokeMethod(this, "agentErrorOccurred", Qt::AutoConnection, sourceID, errorMessage); });
+
+    ZapFR::Engine::AutoRefresh::getInstance()->setFeedRefreshedCallback(
+        [&](uint64_t sourceID, ZapFR::Engine::Feed* refreshedFeed)
+        {
+            auto id = refreshedFeed->id();
+            auto unreadCount = refreshedFeed->unreadCount();
+            auto error = refreshedFeed->lastRefreshError();
+            auto title = refreshedFeed->title();
+            auto iconHash = refreshedFeed->iconHash();
+            auto iconData = refreshedFeed->iconData();
+            QMetaObject::invokeMethod(this, "feedRefreshed", Qt::AutoConnection, sourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData);
+        });
 
     ui->setupUi(this);
     initializeUI();
@@ -158,6 +173,9 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(SETTING_UI_FONTSIZE, mPreferenceUIFontSize);
     root.insert(SETTING_POST_FONTSIZE, mPreferencePostFontSize);
     root.insert(SETTING_FEEDS_REFRESH_BEHAVIOUR, mPreferenceRefreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
+    auto ar = ZapFR::Engine::AutoRefresh::getInstance();
+    root.insert(SETTING_FEEDS_AUTOREFRESH_INTERVAL, static_cast<int32_t>(ar->feedRefreshInterval()));
+    root.insert(SETTING_FEEDS_AUTOREFRESH_ENABLED, ar->isEnabled());
 
     auto sf = QFile(settingsFile());
     sf.open(QIODeviceBase::WriteOnly);
@@ -230,6 +248,20 @@ void ZapFR::Client::MainWindow::restoreSettings()
                     mPreferenceRefreshBehaviour =
                         (root.value(SETTING_FEEDS_REFRESH_BEHAVIOUR).toString() == "entiresource" ? RefreshBehaviour::EntireSource : RefreshBehaviour::CurrentSelection);
                 }
+
+                auto enableAutoRefresh{true};
+                if (root.contains(SETTING_FEEDS_AUTOREFRESH_ENABLED))
+                {
+                    enableAutoRefresh = root.value(SETTING_FEEDS_AUTOREFRESH_ENABLED).toBool();
+                }
+                ZapFR::Engine::AutoRefresh::getInstance()->setEnabled(enableAutoRefresh);
+
+                uint64_t autoRefreshInterval{ZapFR::Engine::DefaultFeedAutoRefreshInterval};
+                if (root.contains(SETTING_FEEDS_AUTOREFRESH_INTERVAL))
+                {
+                    autoRefreshInterval = static_cast<uint64_t>(root.value(SETTING_FEEDS_AUTOREFRESH_INTERVAL).toInt(ZapFR::Engine::DefaultFeedAutoRefreshInterval));
+                }
+                ZapFR::Engine::AutoRefresh::getInstance()->setFeedRefreshInterval(autoRefreshInterval);
             }
         }
     }
@@ -967,6 +999,12 @@ void ZapFR::Client::MainWindow::showPreferences()
 
                         mPreferenceRefreshBehaviour = mDialogPreferences->chosenRefreshBehaviour();
                         updateToolbar();
+
+                        auto ar = ZapFR::Engine::AutoRefresh::getInstance();
+                        ar->setEnabled(mDialogPreferences->chosenAutoRefreshEnabled());
+                        ar->setFeedRefreshInterval(mDialogPreferences->chosenAutoRefreshInterval());
+
+                        saveSettings();
                     }
                 });
     }

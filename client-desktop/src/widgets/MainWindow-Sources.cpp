@@ -491,6 +491,52 @@ void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
     ui->statusbar->showMessage(tr("Source marked as read"), StatusBarDefaultTimeout);
 }
 
+void ZapFR::Client::MainWindow::remoteSourceUnreadCountsReceived(uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
+{
+    std::function<void(QStandardItem*)> updateBadges;
+    updateBadges = [&](QStandardItem* parent)
+    {
+        auto type = parent->data(SourceTreeEntryTypeRole).toULongLong();
+        auto parentSourceID = parent->data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        if (parentSourceID == affectedSourceID)
+        {
+            switch (type)
+            {
+                case SOURCETREE_ENTRY_TYPE_FEED:
+                {
+                    auto parentFeedID = parent->data(SourceTreeEntryIDRole).toULongLong();
+                    for (const auto& [feedID, unreadCount] : unreadCounts)
+                    {
+                        if (feedID == parentFeedID)
+                        {
+                            parent->setData(QVariant::fromValue<uint64_t>(unreadCount), SourceTreeEntryUnreadCount);
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case SOURCETREE_ENTRY_TYPE_FOLDER:
+                case SOURCETREE_ENTRY_TYPE_SOURCE:
+                {
+                    for (int32_t i = 0; i < parent->rowCount(); ++i)
+                    {
+                        auto child = parent->child(i);
+                        updateBadges(child);
+                    }
+                    break;
+                }
+            }
+        }
+    };
+
+    auto rootParent = mItemModelSources->invisibleRootItem();
+    for (int32_t i = 0; i < rootParent->rowCount(); ++i)
+    {
+        auto rootChild = rootParent->child(i);
+        updateBadges(rootChild);
+    }
+}
+
 QStandardItem* ZapFR::Client::MainWindow::findSourceStandardItem(uint64_t sourceID)
 {
     QStandardItem* sourceItem{nullptr};
@@ -622,6 +668,21 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                     }
                 }
             });
+
+    mUpdateRemoteSourceBadgesTimer = std::make_unique<QTimer>(this);
+    mUpdateRemoteSourceBadgesTimer->setInterval(30 * 1000);
+    connect(mUpdateRemoteSourceBadgesTimer.get(), &QTimer::timeout,
+            [&]()
+            {
+                auto sources = ZapFR::Engine::Source::getSources(ZapFR::Engine::IdentifierRemoteServer);
+                for (const auto& source : sources)
+                {
+                    ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(
+                        source->id(), [&](uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
+                        { QMetaObject::invokeMethod(this, "remoteSourceUnreadCountsReceived", Qt::AutoConnection, affectedSourceID, unreadCounts); });
+                }
+            });
+    mUpdateRemoteSourceBadgesTimer->start();
 }
 
 void ZapFR::Client::MainWindow::createSourceContextMenus()

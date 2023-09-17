@@ -87,6 +87,7 @@ namespace ZapFR
         };
 
         static const uint64_t APIVersion{1};
+        static const uint64_t DefaultFeedAutoRefreshInterval{15 * 60};
         static const uint16_t DefaultServerPort{16016};
         [[maybe_unused]] static const char* IdentifierLocalServer{"zapfeedreader.local"};
         [[maybe_unused]] static const char* IdentifierRemoteServer{"zapfeedreader.remote"};

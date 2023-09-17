@@ -108,5 +108,17 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Array"
+  },
+  "source-getunreadcounts": {
+    "section": "Sources",
+    "description": "Retrieves a mapping of feed IDs to unread counts",
+    "method": "GET",
+    "path": "^\\/unread-counts$",
+    "prettyPath": "/unread-counts",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }
