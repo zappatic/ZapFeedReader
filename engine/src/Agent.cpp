@@ -19,6 +19,7 @@
 #include "ZapFR/Agent.h"
 #include "ZapFR/agents/AgentMonitorFeedRefreshCompletion.h"
 #include "ZapFR/agents/feed/AgentFeedAdd.h"
+#include "ZapFR/agents/feed/AgentFeedClearLogs.h"
 #include "ZapFR/agents/feed/AgentFeedGet.h"
 #include "ZapFR/agents/feed/AgentFeedGetLogs.h"
 #include "ZapFR/agents/feed/AgentFeedGetPosts.h"
@@ -29,6 +30,7 @@
 #include "ZapFR/agents/feed/AgentFeedRemove.h"
 #include "ZapFR/agents/feed/AgentFeedUpdate.h"
 #include "ZapFR/agents/folder/AgentFolderAdd.h"
+#include "ZapFR/agents/folder/AgentFolderClearLogs.h"
 #include "ZapFR/agents/folder/AgentFolderGet.h"
 #include "ZapFR/agents/folder/AgentFolderGetLogs.h"
 #include "ZapFR/agents/folder/AgentFolderGetPosts.h"
@@ -54,6 +56,7 @@
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderRemovePosts.h"
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderUpdate.h"
 #include "ZapFR/agents/scriptfolder/AgentScriptFoldersGet.h"
+#include "ZapFR/agents/source/AgentSourceClearLogs.h"
 #include "ZapFR/agents/source/AgentSourceGet.h"
 #include "ZapFR/agents/source/AgentSourceGetLogs.h"
 #include "ZapFR/agents/source/AgentSourceGetPosts.h"
@@ -415,4 +418,19 @@ void ZapFR::Engine::Agent::queueMonitorFeedRefreshCompletion(std::function<void(
     // that doesn't really matter, as the feed-refreshing would have to finish first anyway, and the monitor thread wouldn't
     // have been able to complete before that.
     enqueue(std::make_unique<AgentMonitorFeedRefreshCompletion>(this, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueClearSourceLogs(uint64_t sourceID, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentSourceClearLogs>(sourceID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueClearFeedLogs(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentFeedClearLogs>(sourceID, feedID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueClearFolderLogs(uint64_t sourceID, uint64_t folderID, std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentFolderClearLogs>(sourceID, folderID, finishedCallback));
 }

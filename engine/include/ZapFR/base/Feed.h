@@ -98,6 +98,7 @@ namespace ZapFR
             virtual void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) = 0;
             virtual void refresh() = 0;
             virtual void markAllAsRead() = 0;
+            virtual void clearLogs() = 0;
 
             void setDataFetched(bool b) { mDataFetched = b; }
 

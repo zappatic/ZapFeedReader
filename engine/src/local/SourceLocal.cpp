@@ -496,3 +496,9 @@ std::unordered_set<uint64_t> ZapFR::Engine::SourceLocal::importOPML(const std::s
 
     return feedIDs;
 }
+
+void ZapFR::Engine::SourceLocal::clearLogs()
+{
+    Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << "DELETE FROM logs", now;
+}

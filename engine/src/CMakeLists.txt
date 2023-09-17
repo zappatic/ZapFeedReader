@@ -16,6 +16,7 @@ target_sources(zapfeedreader-engine PRIVATE
     ScriptLua.cpp
     agents/AgentMonitorFeedRefreshCompletion.cpp
     agents/feed/AgentFeedAdd.cpp
+    agents/feed/AgentFeedClearLogs.cpp
     agents/feed/AgentFeedGet.cpp
     agents/feed/AgentFeedGetLogs.cpp
     agents/feed/AgentFeedGetPosts.cpp
@@ -26,6 +27,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/feed/AgentFeedRemove.cpp
     agents/feed/AgentFeedUpdate.cpp
     agents/folder/AgentFolderAdd.cpp
+    agents/folder/AgentFolderClearLogs.cpp
     agents/folder/AgentFolderGet.cpp
     agents/folder/AgentFolderGetLogs.cpp
     agents/folder/AgentFolderGetPosts.cpp
@@ -51,6 +53,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/script/AgentScriptRemove.cpp
     agents/script/AgentScriptUpdate.cpp
     agents/script/AgentScriptsGet.cpp
+    agents/source/AgentSourceClearLogs.cpp
     agents/source/AgentSourceGet.cpp
     agents/source/AgentSourceGetLogs.cpp
     agents/source/AgentSourceGetPosts.cpp

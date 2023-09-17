@@ -398,6 +398,12 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
     return std::make_tuple(logCount, std::move(logs));
 }
 
+void ZapFR::Engine::FeedLocal::clearLogs()
+{
+    Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << "DELETE FROM logs WHERE feedID=?", use(mID), now;
+}
+
 void ZapFR::Engine::FeedLocal::fetchStatistics()
 {
     mStatistics.clear();

@@ -36,6 +36,7 @@ namespace ZapFR
             enum class Type
             {
                 FeedAdd,
+                FeedClearLogs,
                 FeedGet,
                 FeedGetLogs,
                 FeedGetPosts,
@@ -46,6 +47,7 @@ namespace ZapFR
                 FeedRemove,
                 FeedSetProperties,
                 FolderAdd,
+                FolderClearLogs,
                 FolderGet,
                 FolderGetLogs,
                 FolderGetPosts,
@@ -72,6 +74,7 @@ namespace ZapFR
                 ScriptRemove,
                 ScriptsGet,
                 ScriptUpdate,
+                SourceClearLogs,
                 SourceGet,
                 SourceGetLogs,
                 SourceGetPosts,

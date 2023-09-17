@@ -116,6 +116,11 @@ namespace ZapFR
             void queueMarkSourceRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
             void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t, Feed*)> finishedCallback);
 
+            // log manipulation
+            void queueClearSourceLogs(uint64_t sourceID, std::function<void()> finishedCallback);
+            void queueClearFeedLogs(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
+            void queueClearFolderLogs(uint64_t sourceID, uint64_t folderID, std::function<void()> finishedCallback);
+
             // script folders
             void queueGetScriptFolders(uint64_t sourceID, std::function<void(uint64_t, const std::vector<ScriptFolder*>&)> finishedCallback);
             void queueGetScriptFolderPosts(uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,

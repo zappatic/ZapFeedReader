@@ -37,6 +37,7 @@ namespace ZapFR
 
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_about(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_add(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_deletelogs(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_get(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_markasread(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_move(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
@@ -45,6 +46,7 @@ namespace ZapFR
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feed_update(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_feeds_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_folder_add(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_folder_deletelogs(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_folder_get(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_folder_markasread(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_folder_move(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
@@ -66,6 +68,7 @@ namespace ZapFR
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scriptfolder_update(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scriptfolders_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scripts_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_deletelogs(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_getunreadcounts(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_importopml(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_markasread(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);

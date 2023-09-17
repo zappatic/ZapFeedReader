@@ -36,6 +36,7 @@ namespace ZapFR
             std::unordered_set<uint64_t> markAllAsRead() override;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
+            void clearLogs() override;
 
             void update(const std::string& newTitle) override;
 

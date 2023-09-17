@@ -34,6 +34,7 @@ namespace ZapFR
             // source stuff
             void fetchStatistics() override;
             std::unordered_set<uint64_t> importOPML(const std::string& opml, uint64_t parentFolderID) override;
+            void clearLogs() override;
 
             // feed stuff
             std::vector<std::unique_ptr<Feed>> getFeeds(uint32_t fetchInfo) override;

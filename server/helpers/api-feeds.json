@@ -167,5 +167,22 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "feed-deletelogs": {
+    "section": "Feeds",
+    "description": "Removes all the logs for this feed",
+    "method": "DELETE",
+    "path": "^\\/feed/([0-9]+)/logs$",
+    "prettyPath": "/feed/<feedID>/logs",
+    "uriParameters": [
+      {
+        "name": "feedID",
+        "description": "The id of the feed to remove the logs for"
+      }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }

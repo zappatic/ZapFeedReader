@@ -77,6 +77,7 @@ namespace ZapFR
             void update(const std::string& newTitle, const std::string& newConfigData);
             virtual std::unordered_set<uint64_t> importOPML(const std::string& opml, uint64_t parentFolderID) = 0;
             virtual void fetchStatistics() = 0;
+            virtual void clearLogs() = 0;
 
             virtual std::vector<std::unique_ptr<Feed>> getFeeds(uint32_t fetchInfo) = 0;
             virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, uint32_t fetchInfo) = 0;

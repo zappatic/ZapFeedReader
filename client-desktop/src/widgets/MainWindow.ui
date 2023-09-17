@@ -986,6 +986,7 @@
    <addaction name="action_View_logs"/>
    <addaction name="action_View_scripts"/>
    <addaction name="action_Back_to_posts"/>
+   <addaction name="action_Clear_logs"/>
    <addaction name="action_Remove_script"/>
    <addaction name="action_Add_script"/>
    <addaction name="action_Edit_script"/>
@@ -1182,6 +1183,11 @@
   <action name="action_Reconnect_to_source">
    <property name="text">
     <string>Reconnect to source</string>
+   </property>
+  </action>
+  <action name="action_Clear_logs">
+   <property name="text">
+    <string>Clear logs</string>
    </property>
   </action>
  </widget>

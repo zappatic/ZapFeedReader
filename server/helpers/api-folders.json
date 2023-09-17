@@ -149,5 +149,22 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "folder-deletelogs": {
+    "section": "Folders",
+    "description": "Removes all the logs for the feeds in this folder",
+    "method": "DELETE",
+    "path": "^\\/folder/([0-9]+)/logs$",
+    "prettyPath": "/folder/<folderID>/logs",
+    "uriParameters": [
+      {
+        "name": "folderID",
+        "description": "The id of the folder to remove the logs for"
+      }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }

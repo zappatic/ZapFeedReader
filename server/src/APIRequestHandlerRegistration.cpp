@@ -60,6 +60,18 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Removes all the logs for this feed)");
+				entry->setMethod("DELETE");
+				entry->setPath(R"(^\/feed/([0-9]+)/logs$)", R"(/feed/<feedID>/logs)");
+				entry->addURIParameter({R"(feedID)", R"(The id of the feed to remove the logs for)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_feed_deletelogs);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Retrieves a feed)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/feed/([0-9]+)$)", R"(/feed/<feedID>)");
@@ -160,6 +172,18 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
 				entry->setHandler(ZapFR::Server::APIHandler_folder_add);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Removes all the logs for the feeds in this folder)");
+				entry->setMethod("DELETE");
+				entry->setPath(R"(^\/folder/([0-9]+)/logs$)", R"(/folder/<folderID>/logs)");
+				entry->addURIParameter({R"(folderID)", R"(The id of the folder to remove the logs for)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_folder_deletelogs);
 				msAPIs.emplace_back(std::move(entry));
 			}
 
@@ -442,6 +466,17 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Array)");
 				entry->setHandler(ZapFR::Server::APIHandler_scripts_list);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Removes all the logs in the source)");
+				entry->setMethod("DELETE");
+				entry->setPath(R"(^\/logs$)", R"(/logs)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_source_deletelogs);
 				msAPIs.emplace_back(std::move(entry));
 			}
 

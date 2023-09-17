@@ -779,3 +779,14 @@ void ZapFR::Engine::SourceRemote::fetchStatistics()
         }
     }
 }
+
+void ZapFR::Engine::SourceRemote::clearLogs()
+{
+    auto uri = remoteURL();
+    if (mRemoteURLIsValid)
+    {
+        uri.setPath("/logs");
+        auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_DELETE, creds, {});
+    }
+}

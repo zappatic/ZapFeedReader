@@ -168,6 +168,18 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
     return std::make_tuple(logCount, std::move(logs));
 }
 
+void ZapFR::Engine::FeedRemote::clearLogs()
+{
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath(fmt::format("/feed/{}/logs", mID));
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_DELETE, creds, {});
+    }
+}
+
 void ZapFR::Engine::FeedRemote::updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds)
 {
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);

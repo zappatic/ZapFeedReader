@@ -150,6 +150,42 @@ void ZapFR::Client::MainWindow::connectLogsStuff()
                 reloadLogs();
             });
 
+    connect(ui->action_Clear_logs, &QAction::triggered,
+            [&]()
+            {
+                if (QMessageBox::question(this, tr("Clear logs"), tr("Are you sure you wish to clear these logs?")) == QMessageBox::No)
+                {
+                    return;
+                }
+
+                auto index = ui->treeViewSources->currentIndex();
+                if (index.isValid())
+                {
+                    auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                    switch (type)
+                    {
+                        case SOURCETREE_ENTRY_TYPE_SOURCE:
+                        {
+                            ZapFR::Engine::Agent::getInstance()->queueClearSourceLogs(sourceID, [&]() { reloadLogs(); });
+                            break;
+                        }
+                        case SOURCETREE_ENTRY_TYPE_FOLDER:
+                        {
+                            auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+                            ZapFR::Engine::Agent::getInstance()->queueClearFolderLogs(sourceID, folderID, [&]() { reloadLogs(); });
+                            break;
+                        }
+                        case SOURCETREE_ENTRY_TYPE_FEED:
+                        {
+                            auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+                            ZapFR::Engine::Agent::getInstance()->queueClearFeedLogs(sourceID, feedID, [&]() { reloadLogs(); });
+                            break;
+                        }
+                    }
+                }
+            });
+
     connect(ui->pushButtonLogPreviousPage, &QPushButton::clicked,
             [&]()
             {

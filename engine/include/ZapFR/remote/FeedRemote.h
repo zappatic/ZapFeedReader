@@ -36,6 +36,7 @@ namespace ZapFR
             std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
+            void clearLogs() override;
 
             void refresh() override;
             void markAllAsRead() override;

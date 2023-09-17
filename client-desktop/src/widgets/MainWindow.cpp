@@ -631,6 +631,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
     ui->action_Edit_folder->setIcon(configureIcon(":/edit.svg"));
     ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
+    ui->action_Clear_logs->setIcon(configureIcon(":/remove.svg"));
     ui->action_View_scripts->setIcon(configureIcon(":/script.svg"));
     ui->action_Back_to_posts->setIcon(configureIcon(":/back.svg"));
     ui->action_Edit_script->setIcon(configureIcon(":/edit.svg"));
@@ -895,6 +896,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
         case StackedPaneLogs:
         {
             ui->action_Back_to_posts->setVisible(true);
+            ui->action_Clear_logs->setVisible(true);
             for (const auto& action : ui->toolBar->actions())
             {
                 if (action->property(gsPostPaneToolbarSpacerRight).isValid())

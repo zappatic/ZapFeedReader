@@ -20,6 +20,7 @@ target_sources(zapfeedreader-server PRIVATE
     handlers/APIHandler_about.cpp
 	handlers/APIHandler_index.cpp
 	handlers/feeds/APIHandler_feed_add.cpp
+	handlers/feeds/APIHandler_feed_deletelogs.cpp
 	handlers/feeds/APIHandler_feed_get.cpp
 	handlers/feeds/APIHandler_feed_markasread.cpp
 	handlers/feeds/APIHandler_feed_move.cpp
@@ -28,6 +29,7 @@ target_sources(zapfeedreader-server PRIVATE
 	handlers/feeds/APIHandler_feed_update.cpp
 	handlers/feeds/APIHandler_feeds_list.cpp
 	handlers/folders/APIHandler_folder_add.cpp
+	handlers/folders/APIHandler_folder_deletelogs.cpp
 	handlers/folders/APIHandler_folder_get.cpp
 	handlers/folders/APIHandler_folder_markasread.cpp
 	handlers/folders/APIHandler_folder_move.cpp
@@ -48,6 +50,7 @@ target_sources(zapfeedreader-server PRIVATE
 	handlers/scripts/APIHandler_script_remove.cpp
 	handlers/scripts/APIHandler_script_update.cpp
 	handlers/scripts/APIHandler_scripts_list.cpp
+	handlers/sources/APIHandler_source_deletelogs.cpp
 	handlers/sources/APIHandler_source_getunreadcounts.cpp
 	handlers/sources/APIHandler_source_importopml.cpp
 	handlers/sources/APIHandler_source_markasread.cpp

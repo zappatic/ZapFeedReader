@@ -242,6 +242,18 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
     return std::make_tuple(logCount, std::move(logs));
 }
 
+void ZapFR::Engine::FolderLocal::clearLogs()
+{
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
+    if (joinedFeedIDs.empty())
+    {
+        return;
+    }
+
+    Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << Poco::format("DELETE FROM logs WHERE feedID IN (%s)", joinedFeedIDs), now;
+}
+
 uint64_t ZapFR::Engine::FolderLocal::nextSortOrder(uint64_t folderID)
 {
     uint64_t sortOrder{0};

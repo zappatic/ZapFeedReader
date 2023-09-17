@@ -69,6 +69,7 @@ namespace ZapFR
             virtual std::unordered_set<uint64_t> markAllAsRead() = 0;
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;
+            virtual void clearLogs() = 0;
 
             virtual void update(const std::string& newTitle) = 0;
 

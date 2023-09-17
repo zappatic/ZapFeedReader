@@ -120,5 +120,17 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "source-deletelogs": {
+    "section": "Sources",
+    "description": "Removes all the logs in the source",
+    "method": "DELETE",
+    "path": "^\\/logs$",
+    "prettyPath": "/logs",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
   }
 }
