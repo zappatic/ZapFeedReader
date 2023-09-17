@@ -48,13 +48,13 @@ namespace ZapFR
             Script(Script&&) = delete;
             Script& operator=(Script&&) = delete;
 
-            uint64_t id() const noexcept { return mID; }
-            std::string title() const noexcept { return mTitle; }
-            Type type() const noexcept { return mType; }
+            const uint64_t& id() const noexcept { return mID; }
+            const std::string& title() const noexcept { return mTitle; }
+            const Type& type() const noexcept { return mType; }
             bool isEnabled() const noexcept { return mIsEnabled; }
-            std::unordered_set<Event> runOnEvents() const noexcept { return mRunOnEvents; }
-            std::optional<std::unordered_set<uint64_t>> runOnFeedIDs() const noexcept { return mRunOnFeedIDs; }
-            std::string script() const noexcept { return mScript; }
+            const std::unordered_set<Event>& runOnEvents() const noexcept { return mRunOnEvents; }
+            const std::optional<std::unordered_set<uint64_t>>& runOnFeedIDs() const noexcept { return mRunOnFeedIDs; }
+            const std::string& script() const noexcept { return mScript; }
 
             void setType(Type t) { mType = t; }
             void setTitle(const std::string& t) { mTitle = t; }

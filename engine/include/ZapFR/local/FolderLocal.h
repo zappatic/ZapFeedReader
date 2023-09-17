@@ -43,7 +43,7 @@ namespace ZapFR
             void fetchStatistics();
 
             std::vector<uint64_t> folderAndSubfolderIDs() const;
-            std::vector<uint64_t> feedIDsInFoldersAndSubfolders() override;
+            const std::vector<uint64_t>& feedIDsInFoldersAndSubfolders() override;
             void fetchFeedIDsInFoldersAndSubfolders();
 
             static std::vector<std::unique_ptr<Folder>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,

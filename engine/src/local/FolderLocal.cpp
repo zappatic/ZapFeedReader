@@ -185,7 +185,7 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::folderAndSubfolderIDs() const
     return folderIDs;
 }
 
-std::vector<uint64_t> ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders()
+const std::vector<uint64_t>& ZapFR::Engine::FolderLocal::feedIDsInFoldersAndSubfolders()
 {
     if (!mFeedIDsFetched)
     {

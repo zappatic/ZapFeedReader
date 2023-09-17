@@ -39,12 +39,12 @@ namespace ZapFR
             ScriptFolder(ScriptFolder&&) = delete;
             ScriptFolder& operator=(ScriptFolder&&) = delete;
 
-            uint64_t id() const noexcept { return mID; }
-            std::string title() const noexcept { return mTitle; }
+            const uint64_t& id() const noexcept { return mID; }
+            const std::string& title() const noexcept { return mTitle; }
             bool showTotal() const noexcept { return mShowTotal; }
             bool showUnread() const noexcept { return mShowUnread; }
-            uint64_t totalPostCount() const noexcept { return mTotalPostCount; }
-            uint64_t totalUnreadCount() const noexcept { return mTotalUnreadCount; }
+            const uint64_t& totalPostCount() const noexcept { return mTotalPostCount; }
+            const uint64_t& totalUnreadCount() const noexcept { return mTotalUnreadCount; }
 
             void setTitle(const std::string& title) { mTitle = title; }
             void setShowTotal(bool b) { mShowTotal = b; }

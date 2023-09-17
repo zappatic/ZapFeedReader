@@ -49,12 +49,12 @@ namespace ZapFR
                 NewestPost,
             };
 
-            uint64_t id() const noexcept { return mID; }
-            uint64_t parentID() const noexcept { return mParentFolderID; }
-            std::string title() const noexcept { return mTitle; }
-            uint64_t sortOrder() const noexcept { return mSortOrder; }
-            std::unordered_map<Statistic, std::string> statistics() { return mStatistics; }
-            virtual std::vector<uint64_t> feedIDsInFoldersAndSubfolders() { return mFeedIDs; }
+            const uint64_t& id() const noexcept { return mID; }
+            const uint64_t& parentID() const noexcept { return mParentFolderID; }
+            const std::string& title() const noexcept { return mTitle; }
+            const uint64_t& sortOrder() const noexcept { return mSortOrder; }
+            const std::unordered_map<Statistic, std::string>& statistics() { return mStatistics; }
+            virtual const std::vector<uint64_t>& feedIDsInFoldersAndSubfolders() { return mFeedIDs; }
 
             void setTitle(const std::string& title) { mTitle = title; }
             void setSortOrder(uint64_t sortOrder) { mSortOrder = sortOrder; }

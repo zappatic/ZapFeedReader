@@ -48,26 +48,26 @@ namespace ZapFR
                 NewestPost,
             };
 
-            uint64_t id() const noexcept { return mID; }
-            std::string url() const noexcept { return mURL; }
-            uint64_t folder() const noexcept { return mFolderID; }
-            std::string guid() const noexcept { return mGuid; }
-            std::string title() const noexcept { return mTitle; }
-            std::string subtitle() const noexcept { return mSubtitle; }
-            std::string link() const noexcept { return mLink; }
-            std::string description() const noexcept { return mDescription; }
-            std::string language() const noexcept { return mLanguage; }
-            std::string copyright() const noexcept { return mCopyright; }
-            std::string iconURL() const noexcept { return mIconURL; }
-            std::string iconData() const { return mIconData; }
-            std::string iconHash() const { return mIconHash; }
-            std::string iconLastFetched() const noexcept { return mIconLastFetched; }
-            std::string lastChecked() const noexcept { return mLastChecked; }
-            uint64_t sortOrder() const noexcept { return mSortOrder; }
-            uint64_t unreadCount() const noexcept { return mUnreadCount; }
-            std::optional<std::string> lastRefreshError() { return mLastRefreshError; }
-            std::optional<uint64_t> refreshInterval() { return mRefreshInterval; }
-            std::unordered_map<Statistic, std::string> statistics() { return mStatistics; }
+            const uint64_t& id() const noexcept { return mID; }
+            const std::string& url() const noexcept { return mURL; }
+            const uint64_t& folder() const noexcept { return mFolderID; }
+            const std::string& guid() const noexcept { return mGuid; }
+            const std::string& title() const noexcept { return mTitle; }
+            const std::string& subtitle() const noexcept { return mSubtitle; }
+            const std::string& link() const noexcept { return mLink; }
+            const std::string& description() const noexcept { return mDescription; }
+            const std::string& language() const noexcept { return mLanguage; }
+            const std::string& copyright() const noexcept { return mCopyright; }
+            const std::string& iconURL() const noexcept { return mIconURL; }
+            const std::string& iconData() const { return mIconData; }
+            const std::string& iconHash() const { return mIconHash; }
+            const std::string& iconLastFetched() const noexcept { return mIconLastFetched; }
+            const std::string& lastChecked() const noexcept { return mLastChecked; }
+            const uint64_t& sortOrder() const noexcept { return mSortOrder; }
+            const uint64_t& unreadCount() const noexcept { return mUnreadCount; }
+            const std::optional<std::string>& lastRefreshError() { return mLastRefreshError; }
+            const std::optional<uint64_t>& refreshInterval() { return mRefreshInterval; }
+            const std::unordered_map<Statistic, std::string>& statistics() { return mStatistics; }
 
             void setURL(const std::string& url) { mURL = url; }
             void setIconURL(const std::string& iconURL) { mIconURL = iconURL; }

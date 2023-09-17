@@ -39,20 +39,20 @@ namespace ZapFR
                 uint64_t size{0};
             };
 
-            uint64_t id() const noexcept { return mID; }
-            uint64_t feedID() const noexcept { return mFeedID; }
-            std::string feedTitle() const noexcept { return mFeedTitle; }
-            std::string feedLink() const noexcept { return mFeedLink; }
+            const uint64_t& id() const noexcept { return mID; }
+            const uint64_t& feedID() const noexcept { return mFeedID; }
+            const std::string& feedTitle() const noexcept { return mFeedTitle; }
+            const std::string& feedLink() const noexcept { return mFeedLink; }
             bool isRead() const noexcept { return mIsRead; }
-            std::string title() const noexcept { return mTitle; }
-            std::string link() const noexcept { return mLink; }
-            std::string content() const noexcept { return mContent; }
-            std::string author() const noexcept { return mAuthor; }
-            std::string commentsURL() const noexcept { return mCommentsURL; }
-            std::string guid() const noexcept { return mGuid; }
-            std::string datePublished() const noexcept { return mDatePublished; }
-            std::unordered_set<FlagColor> flagColors() { return mFlagColors; }
-            std::vector<Enclosure> enclosures() { return mEnclosures; }
+            const std::string& title() const noexcept { return mTitle; }
+            const std::string& link() const noexcept { return mLink; }
+            const std::string& content() const noexcept { return mContent; }
+            const std::string& author() const noexcept { return mAuthor; }
+            const std::string& commentsURL() const noexcept { return mCommentsURL; }
+            const std::string& guid() const noexcept { return mGuid; }
+            const std::string& datePublished() const noexcept { return mDatePublished; }
+            const std::unordered_set<FlagColor>& flagColors() { return mFlagColors; }
+            const std::vector<Enclosure>& enclosures() { return mEnclosures; }
 
             void setIsRead(bool b) { mIsRead = b; }
             void setFeedID(uint64_t feedID) { mFeedID = feedID; }
