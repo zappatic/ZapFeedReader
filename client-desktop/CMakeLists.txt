@@ -157,4 +157,4 @@ if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(zapfeedreader-client)
 endif()
 
-add_custom_target(deploy-linux-appimage COMMAND ${CMAKE_COMMAND} -E env QTDIR="${QT_DIR}" ${CMAKE_SOURCE_DIR}/deploy/client-desktop/AppImage/buildAppImage.sh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_custom_target(deploy-linux-appimage COMMAND ${CMAKE_COMMAND} -E env QTDIR="${QT_DIR}" ${CMAKE_SOURCE_DIR}/deploy/client-desktop/AppImage/BuildAppImage.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

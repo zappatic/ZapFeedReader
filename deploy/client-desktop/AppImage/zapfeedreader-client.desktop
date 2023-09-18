@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=ZapFeedReader
 Exec=zapfeedreader-client
-Icon=ZapFeedReader
+Icon=zapfeedreader-client
 Type=Application
+StartupWMClass=zapfeedreader-client
+Terminal=false
 Categories=Network;News;
