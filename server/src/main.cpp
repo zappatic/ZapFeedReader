@@ -19,4 +19,4 @@
 #include "Daemon.h"
 #include "ServerGlobal.h"
 
-POCO_SERVER_MAIN(ZapFR::Server::Daemon);
+POCO_SERVER_MAIN(ZapFR::Server::Daemon)

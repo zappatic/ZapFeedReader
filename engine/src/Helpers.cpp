@@ -75,9 +75,14 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std
 {
     {
         std::lock_guard<std::mutex> lock(gsSSLContextMutex);
-        if (gsSSLContext == nullptr)
+        if (gsSSLContext.isNull())
         {
+#if POCO_VERSION < 0x010A0000
+            gsSSLContext = new Poco::Net::Context(Poco::Net::Context::TLSV1_2_CLIENT_USE, "", Poco::Net::Context::VERIFY_NONE);
+#else
             gsSSLContext = new Poco::Net::Context(Poco::Net::Context::TLS_CLIENT_USE, "", Poco::Net::Context::VERIFY_NONE);
+            gsSSLContext->requireMinimumProtocol(Poco::Net::Context::PROTO_TLSV1_2);
+#endif
         }
     }
 

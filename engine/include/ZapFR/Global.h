@@ -60,6 +60,7 @@
 #include <Poco/UUIDGenerator.h>
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/SystemConfiguration.h>
+#include <Poco/Version.h>
 #include <Poco/XML/XMLWriter.h>
 
 #include <cxxabi.h>

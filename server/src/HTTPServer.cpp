@@ -38,8 +38,12 @@ void ZapFR::Server::HTTPServer::start()
     }
     else
     {
+#if POCO_VERSION < 0x010A0000
+        mHTTPSContext = new Poco::Net::Context(Poco::Net::Context::TLSV1_3_SERVER_USE, mPrivKey, mPubCert, mPubCert, Poco::Net::Context::VERIFY_NONE);
+#else
         mHTTPSContext = new Poco::Net::Context(Poco::Net::Context::TLS_SERVER_USE, mPrivKey, mPubCert, mPubCert, Poco::Net::Context::VERIFY_NONE);
         mHTTPSContext->requireMinimumProtocol(Poco::Net::Context::PROTO_TLSV1_3);
+#endif
 
         Poco::Net::SecureServerSocket socket(socketAddress, 64, mHTTPSContext.get());
         mPocoHTTPServer = std::make_unique<Poco::Net::HTTPServer>(new APIRequestHandlerFactory(mDaemon), socket, serverParams);
