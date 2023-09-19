@@ -94,6 +94,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBoxSourceType</tabstop>
+  <tabstop>lineEditHostname</tabstop>
+  <tabstop>lineEditPort</tabstop>
+  <tabstop>lineEditLogin</tabstop>
+  <tabstop>lineEditPassword</tabstop>
+  <tabstop>checkBoxUseHTTPS</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

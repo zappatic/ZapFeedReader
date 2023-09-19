@@ -29,7 +29,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabAppearance">
       <attribute name="title">
@@ -334,6 +334,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>radioButtonThemeLight</tabstop>
+  <tabstop>radioButtonThemeDark</tabstop>
+  <tabstop>radioButtonThemeSystem</tabstop>
+  <tabstop>spinBoxUIFontSize</tabstop>
+  <tabstop>spinBoxPostFontSize</tabstop>
+  <tabstop>radioButtonRefreshBehaviourAsSelected</tabstop>
+  <tabstop>radioButtonradioButtonRefreshBehaviourForceSource</tabstop>
+  <tabstop>checkBoxAutoRefreshEnabled</tabstop>
+  <tabstop>spinBoxAutoRefreshInterval</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

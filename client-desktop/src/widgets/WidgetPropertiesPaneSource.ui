@@ -316,6 +316,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEditTitle</tabstop>
+  <tabstop>lineEditRemoteHost</tabstop>
+  <tabstop>lineEditRemotePort</tabstop>
+  <tabstop>lineEditRemoteLogin</tabstop>
+  <tabstop>lineEditRemotePassword</tabstop>
+  <tabstop>checkBoxRemoteUseHTTPS</tabstop>
+  <tabstop>pushButtonSave</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -1259,6 +1259,25 @@
    <header>widgets/TableViewPostEnclosures.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>treeViewSources</tabstop>
+  <tabstop>tableViewScriptFolders</tabstop>
+  <tabstop>tableViewPosts</tabstop>
+  <tabstop>pushButtonToggleShowUnread</tabstop>
+  <tabstop>pushButtonPostFirstPage</tabstop>
+  <tabstop>pushButtonPostPreviousPage</tabstop>
+  <tabstop>pushButtonPostPageNumber</tabstop>
+  <tabstop>pushButtonPostNextPage</tabstop>
+  <tabstop>pushButtonPostLastPage</tabstop>
+  <tabstop>tableViewPostEnclosures</tabstop>
+  <tabstop>tableViewLogs</tabstop>
+  <tabstop>pushButtonLogFirstPage</tabstop>
+  <tabstop>pushButtonLogPreviousPage</tabstop>
+  <tabstop>pushButtonLogPageNumber</tabstop>
+  <tabstop>pushButtonLogNextPage</tabstop>
+  <tabstop>pushButtonLogLastPage</tabstop>
+  <tabstop>tableViewScripts</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -201,6 +201,17 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <header>widgets/TreeViewEditScriptDialogSources.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>comboBoxType</tabstop>
+  <tabstop>lineEditTitle</tabstop>
+  <tabstop>checkBoxEnabled</tabstop>
+  <tabstop>checkBoxRunOnNewPost</tabstop>
+  <tabstop>checkBoxRunOnUpdatePost</tabstop>
+  <tabstop>checkBoxRunOnAllFeeds</tabstop>
+  <tabstop>treeViewRunOnFeedIDs</tabstop>
+  <tabstop>textEditScript</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
