@@ -222,10 +222,9 @@ void ZapFR::Client::MainWindow::markAsRead()
             case SOURCETREE_ENTRY_TYPE_FOLDER:
             {
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(
-                    sourceID, folderID,
-                    [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> feedIDs)
-                    { QMetaObject::invokeMethod(this, "folderMarkedRead", Qt::AutoConnection, affectedSourceID, feedIDs); });
+                ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID,
+                                                                         [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> feedIDs)
+                                                                         { QMetaObject::invokeMethod(this, [&]() { folderMarkedRead(affectedSourceID, feedIDs); }); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_SOURCE:
