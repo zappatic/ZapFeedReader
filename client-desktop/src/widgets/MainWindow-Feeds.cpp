@@ -122,7 +122,7 @@ void ZapFR::Client::MainWindow::refreshSourceEntryType(const QModelIndex& index,
                     auto iconHash = refreshedFeed->iconHash();
                     auto iconData = refreshedFeed->iconData();
                     QMetaObject::invokeMethod(this,
-                                              [&]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+                                              [=]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
                 });
             break;
         }
@@ -140,7 +140,7 @@ void ZapFR::Client::MainWindow::refreshSourceEntryType(const QModelIndex& index,
                     auto iconHash = refreshedFeed->iconHash();
                     auto iconData = refreshedFeed->iconData();
                     QMetaObject::invokeMethod(this,
-                                              [&]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+                                              [=]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
                 });
             break;
         }
@@ -157,7 +157,7 @@ void ZapFR::Client::MainWindow::refreshSourceEntryType(const QModelIndex& index,
                     auto iconHash = refreshedFeed->iconHash();
                     auto iconData = refreshedFeed->iconData();
                     QMetaObject::invokeMethod(this,
-                                              [&]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+                                              [=]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
                 });
 
             break;
