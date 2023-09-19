@@ -160,22 +160,12 @@ void ZapFR::Client::TableViewPosts::paintEvent(QPaintEvent* event)
 
     if (model() != nullptr && model()->rowCount() == 0)
     {
-        auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
-
-        // our value overrides the system, if it's explicitly light or dark
+        Theme theme{Theme::Light};
         if (mMainWindow != nullptr)
         {
-            auto preferenceTheme = mMainWindow->currentPreferenceTheme();
-            if (preferenceTheme == Theme::Light)
-            {
-                currentColorScheme = Qt::ColorScheme::Light;
-            }
-            else if (preferenceTheme == Theme::Dark)
-            {
-                currentColorScheme = Qt::ColorScheme::Dark;
-            }
+            theme = mMainWindow->getCurrentColorTheme();
         }
-        auto textPen = QPen(currentColorScheme == Qt::ColorScheme::Dark ? QColor(68, 68, 68) : QColor(170, 170, 170));
+        auto textPen = QPen(theme == Theme::Dark ? QColor(68, 68, 68) : QColor(170, 170, 170));
         auto vp = viewport();
         auto textRect = QRect(0, 50, vp->width(), 100);
         auto f = font();

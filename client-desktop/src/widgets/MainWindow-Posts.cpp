@@ -512,19 +512,7 @@ QString ZapFR::Client::MainWindow::postStyles() const
         QColor highlightColor = palette.color(QPalette::Active, QPalette::Highlight);
         QString bodyFontSize = QString::number(mPreferencePostFontSize);
 
-        auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
-
-        // our value overrides the system, if it's explicitly light or dark
-        if (mPreferenceTheme == Theme::Light)
-        {
-            currentColorScheme = Qt::ColorScheme::Light;
-        }
-        else if (mPreferenceTheme == Theme::Dark)
-        {
-            currentColorScheme = Qt::ColorScheme::Dark;
-        }
-
-        if (currentColorScheme == Qt::ColorScheme::Dark)
+        if (getCurrentColorTheme() == Theme::Dark)
         {
             overrideFilename = "posttheme.dark.css";
             backgroundColor = "#2a2a2a";

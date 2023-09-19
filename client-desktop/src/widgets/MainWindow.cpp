@@ -232,7 +232,7 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 {
                     auto value = root.value(SETTING_UI_THEME);
                     mPreferenceTheme = (value == "light" ? Theme::Light : Theme::Dark);
-                    applyColorScheme(Qt::ColorScheme::Unknown); // parameter doesn't matter
+                    applyColorScheme();
                 }
                 if (root.contains(SETTING_UI_FONTSIZE))
                 {
@@ -575,22 +575,13 @@ void ZapFR::Client::MainWindow::updatePreferredFontSize()
 
 void ZapFR::Client::MainWindow::configureIcons()
 {
-    auto currentColorScheme = QGuiApplication::styleHints()->colorScheme();
-    // our value overrides the system, if it's explicitly light or dark
-    if (mPreferenceTheme == Theme::Light)
-    {
-        currentColorScheme = Qt::ColorScheme::Light;
-    }
-    else if (mPreferenceTheme == Theme::Dark)
-    {
-        currentColorScheme = Qt::ColorScheme::Dark;
-    }
+    auto theme = getCurrentColorTheme();
 
     // the defaults are for the light theme
     auto color = QString("#000");
     auto colorDisabled = QString("#aaa");
     auto colorBorder = QString("#cacaca");
-    if (currentColorScheme == Qt::ColorScheme::Dark)
+    if (theme == Theme::Dark)
     {
         color = "#fff";
         colorDisabled = "#555";
@@ -660,10 +651,10 @@ void ZapFR::Client::MainWindow::configureIcons()
 
     ui->frameFlagFilters->setStyleSheet(QString("QFrame { border-top: 0px; border-left: 0px; border-right: 1px solid %1; border-bottom: 1px solid %1;}").arg(colorBorder));
 
-    mLineEditSearch->setSearchIconColor(currentColorScheme == Qt::ColorScheme::Dark ? "#eee" : "#333");
+    mLineEditSearch->setSearchIconColor(theme == Theme::Dark ? "#eee" : "#333");
 }
 
-void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
+void ZapFR::Client::MainWindow::applyColorScheme()
 {
     static std::optional<std::unique_ptr<QPalette>> cacheLightTheme{};
     static std::optional<std::unique_ptr<QPalette>> cacheDarkTheme{};
@@ -743,45 +734,32 @@ void ZapFR::Client::MainWindow::applyColorScheme(Qt::ColorScheme /*scheme*/)
         return palette;
     };
 
+    auto theme = getCurrentColorTheme();
+
     std::optional<QPalette*> paletteToEnforce{};
-    if (mPreferenceTheme == Theme::Light)
+    switch (theme)
     {
-        if (!cacheLightTheme.has_value())
+        case Theme::Light:
         {
-            cacheLightTheme = parseThemeValues("light");
-        }
-        paletteToEnforce = cacheLightTheme.value().get();
-    }
-    else if (mPreferenceTheme == Theme::Dark)
-    {
-        if (!cacheDarkTheme.has_value())
-        {
-            cacheDarkTheme = parseThemeValues("dark");
-        }
-        paletteToEnforce = cacheDarkTheme.value().get();
-    }
-    else if (mPreferenceTheme == Theme::UseSystem)
-    {
-        switch (QGuiApplication::styleHints()->colorScheme())
-        {
-            case Qt::ColorScheme::Dark:
+            if (!cacheLightTheme.has_value())
             {
-                if (!cacheDarkTheme.has_value())
-                {
-                    cacheDarkTheme = parseThemeValues("dark");
-                }
-                paletteToEnforce = cacheDarkTheme.value().get();
-                break;
+                cacheLightTheme = parseThemeValues("light");
             }
-            default:
+            paletteToEnforce = cacheLightTheme.value().get();
+            break;
+        }
+        case Theme::Dark:
+        {
+            if (!cacheDarkTheme.has_value())
             {
-                if (!cacheLightTheme.has_value())
-                {
-                    cacheLightTheme = parseThemeValues("light");
-                }
-                paletteToEnforce = cacheLightTheme.value().get();
-                break;
+                cacheDarkTheme = parseThemeValues("dark");
             }
+            paletteToEnforce = cacheDarkTheme.value().get();
+            break;
+        }
+        case Theme::UseSystem:
+        {
+            break;
         }
     }
 
@@ -1003,7 +981,7 @@ void ZapFR::Client::MainWindow::showPreferences()
                     if (result == QDialog::DialogCode::Accepted)
                     {
                         mPreferenceTheme = mDialogPreferences->chosenTheme();
-                        applyColorScheme(Qt::ColorScheme::Unknown); // parameter doesn't matter
+                        applyColorScheme();
 
                         mPreferenceUIFontSize = mDialogPreferences->chosenUIFontSize();
                         updatePreferredFontSize();
@@ -1043,6 +1021,38 @@ void ZapFR::Client::MainWindow::agentErrorOccurred(uint64_t sourceID, const std:
     }
 }
 
+ZapFR::Client::Theme ZapFR::Client::MainWindow::getCurrentColorTheme() const
+{
+    auto currentColorTheme = mPreferenceTheme;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    if (currentColorTheme == Theme::UseSystem)
+    {
+        switch (QGuiApplication::styleHints()->colorScheme())
+        {
+            case Qt::ColorScheme::Light:
+            case Qt::ColorScheme::Unknown:
+            {
+                currentColorTheme = Theme::Light;
+                break;
+            }
+            case Qt::ColorScheme::Dark:
+            {
+                currentColorTheme = Theme::Dark;
+                break;
+            }
+        }
+    }
+#endif
+
+    if (currentColorTheme == Theme::UseSystem) // this only happens when the pref is on useSystem and Qt < 6.5 (so no colorScheme function)
+    {
+        currentColorTheme = Theme::Light;
+    }
+
+    return currentColorTheme;
+}
+
 void ZapFR::Client::MainWindow::createContextMenus()
 {
     createSourceContextMenus();
@@ -1060,7 +1070,9 @@ void ZapFR::Client::MainWindow::configureConnects()
     connect(ui->action_Exit, &QAction::triggered, [&]() { QGuiApplication::quit(); });
     connect(ui->action_Show_preferences, &QAction::triggered, this, &MainWindow::showPreferences);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::applyColorScheme);
+#endif
 
     connect(mHamburgerMenuButton, &QPushButton::clicked,
             [&]()

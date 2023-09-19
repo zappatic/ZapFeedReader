@@ -85,6 +85,8 @@ namespace ZapFR
             uint16_t currentPreferencePostFontSize() const noexcept { return mPreferencePostFontSize; }
             RefreshBehaviour currentPreferenceRefreshBehaviour() const noexcept { return mPreferenceRefreshBehaviour; }
 
+            Theme getCurrentColorTheme() const;
+
           private slots:
             // actions
             void addSource();
@@ -123,7 +125,7 @@ namespace ZapFR
             void removeScriptFolder();
 
             void showPreferences();
-            void applyColorScheme(Qt::ColorScheme scheme);
+            void applyColorScheme();
 
             // events
             void postsTableViewSelectionChanged(const QModelIndexList& selected);

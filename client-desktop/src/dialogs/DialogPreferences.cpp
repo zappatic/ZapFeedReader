@@ -47,10 +47,18 @@ void ZapFR::Client::DialogPreferences::reset()
         }
         default:
         {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
             ui->radioButtonThemeSystem->setChecked(true);
+#else
+            ui->radioButtonThemeLight->setChecked(true);
+#endif
             break;
         }
     }
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+    ui->radioButtonThemeSystem->setVisible(false);
+#endif
+
     switch (mainWindow->currentPreferenceRefreshBehaviour())
     {
         case RefreshBehaviour::CurrentSelection:
@@ -86,7 +94,11 @@ ZapFR::Client::Theme ZapFR::Client::DialogPreferences::chosenTheme() const
     }
     else
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
         return Theme::UseSystem;
+#else
+        return Theme::Light;
+#endif
     }
 }
 
