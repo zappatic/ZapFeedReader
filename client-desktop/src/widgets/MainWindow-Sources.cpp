@@ -729,12 +729,23 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
     connect(mUpdateRemoteSourceBadgesTimer.get(), &QTimer::timeout,
             [&]()
             {
+                uint64_t currentlySelectedSourceID{0};
+                auto index = ui->treeViewSources->currentIndex();
+                if (index.isValid())
+                {
+                    currentlySelectedSourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                }
+
                 auto sources = ZapFR::Engine::Source::getSources(ZapFR::Engine::IdentifierRemoteServer);
                 for (const auto& source : sources)
                 {
                     ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(
                         source->id(), [&](uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
                         { QMetaObject::invokeMethod(this, [=]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
+                    if (source->id() == currentlySelectedSourceID)
+                    {
+                        reloadScriptFolders();
+                    }
                 }
             });
     mUpdateRemoteSourceBadgesTimer->start();
