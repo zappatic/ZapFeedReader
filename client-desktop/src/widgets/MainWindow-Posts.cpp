@@ -82,6 +82,18 @@ void ZapFR::Client::MainWindow::reloadPosts()
 
     auto searchFilter = mLineEditSearch->text().toStdString();
 
+    // preserve the current selection
+    mPreviouslySelectedPostIDs.clear();
+    auto sm = ui->tableViewPosts->selectionModel();
+    if (sm != nullptr)
+    {
+        auto selection = sm->selectedIndexes();
+        for (const auto& selectedIndex : selection)
+        {
+            mPreviouslySelectedPostIDs.insert(selectedIndex.data(PostIDRole).toULongLong());
+        }
+    }
+
     auto index = ui->tableViewScriptFolders->currentIndex();
     if (index.isValid())
     {
@@ -180,6 +192,24 @@ void ZapFR::Client::MainWindow::populatePosts(const QList<QList<QStandardItem*>>
 
     ui->pushButtonPostPageNumber->setText(QString("%1 %2 / %3").arg(tr("Page")).arg(mCurrentPostPage).arg(mCurrentPostPageCount));
     ui->labelTotalPostCount->setText(tr("%n post(s)", "", static_cast<int32_t>(mCurrentPostCount)));
+
+    // restore previous selection
+    if (mPreviouslySelectedPostIDs.size() > 0)
+    {
+        auto newSelection = QItemSelection();
+        auto selectionModel = ui->tableViewPosts->selectionModel();
+        for (auto i = 0; i < mItemModelPosts->rowCount(); ++i)
+        {
+            auto leftCell = mItemModelPosts->index(i, 0);
+            if (mPreviouslySelectedPostIDs.contains(leftCell.data(PostIDRole).toULongLong()))
+            {
+                auto rightCell = mItemModelPosts->index(i, mItemModelPosts->columnCount() - 1);
+                newSelection.select(leftCell, rightCell);
+            }
+        }
+        selectionModel->select(newSelection, QItemSelectionModel::SelectCurrent);
+        mPreviouslySelectedPostIDs.clear();
+    }
 }
 
 std::vector<std::tuple<uint64_t, uint64_t>> ZapFR::Client::MainWindow::selectedPostIDs() const

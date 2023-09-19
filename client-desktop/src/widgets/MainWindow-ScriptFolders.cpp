@@ -53,6 +53,12 @@ void ZapFR::Client::MainWindow::reloadScriptFolders(bool forceReload)
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
         if (forceReload || sourceID != mPreviouslySelectedSourceID)
         {
+            // store currently selected script folder
+            auto scriptFolderIndex = ui->tableViewScriptFolders->currentIndex();
+            if (scriptFolderIndex.isValid())
+            {
+                mPreviouslySelectedScriptFolderID = scriptFolderIndex.data(ScriptFolderIDRole).toULongLong();
+            }
             ZapFR::Engine::Agent::getInstance()->queueGetScriptFolders(sourceID, processScriptFolders);
         }
     }
@@ -71,6 +77,22 @@ void ZapFR::Client::MainWindow::populateScriptFolders(uint64_t sourceID, const Q
         mItemModelScriptFolders->appendRow(scriptFolder);
     }
     ui->tableViewScriptFolders->horizontalHeader()->setSectionResizeMode(ScriptFolderColumnTitle, QHeaderView::Stretch);
+
+    // restore previously selected script folder
+    if (mPreviouslySelectedScriptFolderID != 0)
+    {
+        for (auto i = 0; i < mItemModelScriptFolders->rowCount(); ++i)
+        {
+            auto row = mItemModelScriptFolders->index(i, 0);
+            if (row.isValid() && row.data(ScriptFolderIDRole).toULongLong() == mPreviouslySelectedScriptFolderID)
+            {
+                ui->tableViewScriptFolders->setCurrentIndex(row);
+                break;
+            }
+        }
+
+        mPreviouslySelectedScriptFolderID = 0;
+    }
 }
 
 void ZapFR::Client::MainWindow::addScriptFolder()

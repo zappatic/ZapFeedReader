@@ -228,6 +228,8 @@ namespace ZapFR
             uint64_t mCurrentLogCount{0};
             uint64_t mCurrentLogPageCount{1};
 
+            std::unordered_set<uint64_t> mPreviouslySelectedPostIDs{};
+            uint64_t mPreviouslySelectedScriptFolderID{0};
             uint64_t mPreviouslySelectedSourceID{0};
             uint64_t mInitialSourceCount{0};
 
