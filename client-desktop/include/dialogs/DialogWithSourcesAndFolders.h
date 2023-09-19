@@ -55,6 +55,7 @@ namespace ZapFR
             std::unique_ptr<QStandardItemModel> mSourcesModel{nullptr};
             std::unique_ptr<QStandardItemModel> mFoldersModel{nullptr};
             int64_t mFolderIDToPreselect{-1};
+            bool mIsPopulatingSourcesModel{false};
 
             static constexpr uint32_t SourceIDRole{Qt::ItemDataRole::UserRole + 1};
             static constexpr uint32_t FolderIDRole{Qt::ItemDataRole::UserRole + 2};

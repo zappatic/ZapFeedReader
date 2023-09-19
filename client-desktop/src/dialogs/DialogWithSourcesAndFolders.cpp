@@ -60,6 +60,8 @@ void ZapFR::Client::DialogWithSourcesAndFolders::setPreselectedSourceAndFolderID
 
     int32_t toSelect{-1};
     int32_t counter{0};
+
+    mIsPopulatingSourcesModel = true;
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)
     {
@@ -73,6 +75,10 @@ void ZapFR::Client::DialogWithSourcesAndFolders::setPreselectedSourceAndFolderID
         mSourcesModel->appendRow(item);
         counter++;
     }
+    // we have to force to -1 here, because if the folders for the first source have to be populated
+    // the current index would already be 0 and setCurrentIndex() wouldn't trigger a change event
+    mComboBoxSources->setCurrentIndex(-1);
+    mIsPopulatingSourcesModel = false;
 
     mFolderIDToPreselect = static_cast<int64_t>(selectedFolderID);
     mComboBoxSources->setCurrentIndex(toSelect);
@@ -80,7 +86,7 @@ void ZapFR::Client::DialogWithSourcesAndFolders::setPreselectedSourceAndFolderID
 
 void ZapFR::Client::DialogWithSourcesAndFolders::currentSourceChanged(int index)
 {
-    if (mComboBoxFolders == nullptr || mComboBoxSources == nullptr || index == -1)
+    if (mComboBoxFolders == nullptr || mComboBoxSources == nullptr || index == -1 || mIsPopulatingSourcesModel)
     {
         return;
     }
@@ -137,6 +143,7 @@ void ZapFR::Client::DialogWithSourcesAndFolders::populateFolders(const QList<QSt
         }
         currentIndex++;
     }
+
     if (indexToPreselect != -1)
     {
         mComboBoxFolders->setCurrentIndex(indexToPreselect);
