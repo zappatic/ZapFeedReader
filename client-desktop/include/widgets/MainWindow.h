@@ -87,6 +87,8 @@ namespace ZapFR
 
             Theme getCurrentColorTheme() const;
 
+            void reloadSources();
+
           private slots:
             // actions
             void addSource();
@@ -141,12 +143,10 @@ namespace ZapFR
                                const std::string& iconHash, const std::string& icon);
             void feedAdded(uint64_t sourceID, uint64_t feedID);
             void feedRemoved();
-            void feedMoved();
             void feedMarkedRead(uint64_t sourceID, uint64_t feedID);
             void feedPropertiesReceived(const QMap<QString, QVariant>& props);
 
             void folderRemoved();
-            void folderMoved();
             void folderAdded();
             void folderUpdated(uint64_t sourceID, uint64_t folderID, const std::string& newTitle);
             void folderMarkedRead(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs);
@@ -277,7 +277,6 @@ namespace ZapFR
             void expandSourceTreeItems(const QJsonArray& items) const;
             std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFolderID() const;
 
-            void reloadSources();
             void reloadCurrentPost();
             void reloadUsedFlagColors(bool forceReload = false);
             void reloadScriptFolders(bool forceReload = false);

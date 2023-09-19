@@ -102,12 +102,12 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
     if (data->hasFormat(MIMETYPE_DRAGGABLE_FEED))
     {
         ZapFR::Engine::Agent::getInstance()->queueMoveFeed(parentSourceID, childID, newFolder, newSortOrder,
-                                                           [&]() { QMetaObject::invokeMethod(mMainWindow, "feedMoved", Qt::AutoConnection); });
+                                                           [&]() { QMetaObject::invokeMethod(mMainWindow, [&]() { mMainWindow->reloadSources(); }); });
     }
     else if (data->hasFormat(MIMETYPE_DRAGGABLE_FOLDER))
     {
         ZapFR::Engine::Agent::getInstance()->queueMoveFolder(parentSourceID, childID, newFolder, newSortOrder,
-                                                             [&]() { QMetaObject::invokeMethod(mMainWindow, "folderMoved", Qt::AutoConnection); });
+                                                             [&]() { QMetaObject::invokeMethod(mMainWindow, [&]() { mMainWindow->reloadSources(); }); });
     }
     return true;
 }

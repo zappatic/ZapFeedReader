@@ -82,7 +82,7 @@ void ZapFR::Client::MainWindow::reloadLogs()
             rows << rowData;
         }
 
-        QMetaObject::invokeMethod(this, "populateLogs", Qt::AutoConnection, rows, page, totalRecordCount);
+        QMetaObject::invokeMethod(this, [&]() { populateLogs(rows, page, totalRecordCount); });
     };
 
     auto index = ui->treeViewSources->currentIndex();

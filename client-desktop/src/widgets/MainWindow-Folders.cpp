@@ -39,7 +39,7 @@ void ZapFR::Client::MainWindow::addFolder()
                         if (!title.empty())
                         {
                             ZapFR::Engine::Agent::getInstance()->queueAddFolder(sourceID, folderID, title,
-                                                                                [&]() { QMetaObject::invokeMethod(this, "folderAdded", Qt::AutoConnection); });
+                                                                                [&]() { QMetaObject::invokeMethod(this, [&]() { folderAdded(); }); });
                         }
                     }
                 });
@@ -67,8 +67,8 @@ void ZapFR::Client::MainWindow::editFolder()
                         {
                             ZapFR::Engine::Agent::getInstance()->queueUpdateFolder(
                                 sourceID, folderID, title,
-                                [&](uint64_t affectedSourceID, uint64_t affectedFolderID, const std::string& updatedTite)
-                                { QMetaObject::invokeMethod(this, "folderUpdated", Qt::AutoConnection, affectedSourceID, affectedFolderID, updatedTite); });
+                                [&](uint64_t affectedSourceID, uint64_t affectedFolderID, const std::string& updatedTitle)
+                                { QMetaObject::invokeMethod(this, [&]() { folderUpdated(affectedSourceID, affectedFolderID, updatedTitle); }); });
                         }
                     }
                 });
@@ -110,14 +110,9 @@ void ZapFR::Client::MainWindow::removeFolder()
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
             auto folder = index.data(SourceTreeEntryIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueRemoveFolder(sourceID, folder, [&]() { QMetaObject::invokeMethod(this, "folderRemoved", Qt::AutoConnection); });
+            ZapFR::Engine::Agent::getInstance()->queueRemoveFolder(sourceID, folder, [&]() { QMetaObject::invokeMethod(this, [&]() { folderRemoved(); }); });
         }
     }
-}
-
-void ZapFR::Client::MainWindow::folderMoved()
-{
-    reloadSources();
 }
 
 void ZapFR::Client::MainWindow::folderAdded()
