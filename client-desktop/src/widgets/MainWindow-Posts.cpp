@@ -77,7 +77,7 @@ void ZapFR::Client::MainWindow::reloadPosts()
             rows << rowData;
         }
 
-        QMetaObject::invokeMethod(this, [&]() { populatePosts(rows, pageNumber, totalPostCount); });
+        QMetaObject::invokeMethod(this, [=]() { populatePosts(rows, pageNumber, totalPostCount); });
     };
 
     auto searchFilter = mLineEditSearch->text().toStdString();
@@ -216,7 +216,7 @@ void ZapFR::Client::MainWindow::markAsRead()
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID,
                                                                        [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
-                                                                       { QMetaObject::invokeMethod(this, [&]() { feedMarkedRead(affectedSourceID, affectedFeedID); }); });
+                                                                       { QMetaObject::invokeMethod(this, [=]() { feedMarkedRead(affectedSourceID, affectedFeedID); }); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
@@ -224,13 +224,13 @@ void ZapFR::Client::MainWindow::markAsRead()
                 auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID,
                                                                          [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> feedIDs)
-                                                                         { QMetaObject::invokeMethod(this, [&]() { folderMarkedRead(affectedSourceID, feedIDs); }); });
+                                                                         { QMetaObject::invokeMethod(this, [=]() { folderMarkedRead(affectedSourceID, feedIDs); }); });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_SOURCE:
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkSourceRead(sourceID, [&](uint64_t affectedSourceID)
-                                                                         { QMetaObject::invokeMethod(this, [&]() { sourceMarkedRead(affectedSourceID); }); });
+                                                                         { QMetaObject::invokeMethod(this, [=]() { sourceMarkedRead(affectedSourceID); }); });
                 break;
             }
         }
@@ -245,7 +245,7 @@ void ZapFR::Client::MainWindow::markPostSelectionAsRead()
         auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(sourceID, feedAndPostIDs,
                                                                 [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
-                                                                { QMetaObject::invokeMethod(this, [&]() { postsMarkedRead(affectedSourceID, affectedFeedAndPostIDs); }); });
+                                                                { QMetaObject::invokeMethod(this, [=]() { postsMarkedRead(affectedSourceID, affectedFeedAndPostIDs); }); });
     }
 }
 
@@ -257,7 +257,7 @@ void ZapFR::Client::MainWindow::markPostSelectionAsUnread()
         auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(sourceID, feedAndPostIDs,
                                                                   [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs) {
-                                                                      QMetaObject::invokeMethod(this, [&]() { postsMarkedUnread(affectedSourceID, affectedFeedAndPostIDs); });
+                                                                      QMetaObject::invokeMethod(this, [=]() { postsMarkedUnread(affectedSourceID, affectedFeedAndPostIDs); });
                                                                   });
     }
 }
@@ -272,7 +272,7 @@ void ZapFR::Client::MainWindow::markPostSelectionFlagged()
     {
         auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsFlagged(sourceID, feedAndPostIDs, {flagColor},
-                                                                   [&]() { QMetaObject::invokeMethod(this, [&]() { postsMarkedFlagged(true); }); });
+                                                                   [&]() { QMetaObject::invokeMethod(this, [=]() { postsMarkedFlagged(true); }); });
     }
 }
 
@@ -295,7 +295,7 @@ void ZapFR::Client::MainWindow::markPostSelectionUnflagged()
     {
         auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, feedAndPostIDs, flagColors,
-                                                                     [&]() { QMetaObject::invokeMethod(this, [&]() { postsMarkedUnflagged(true); }); });
+                                                                     [&]() { QMetaObject::invokeMethod(this, [=]() { postsMarkedUnflagged(true); }); });
     }
 }
 
@@ -310,7 +310,7 @@ void ZapFR::Client::MainWindow::assignPostSelectionToScriptFolder()
         ZapFR::Engine::Agent::getInstance()->queueAssignPostsToScriptFolder(
             sourceID, scriptFolderID, feedAndPostIDs,
             [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
-            { QMetaObject::invokeMethod(this, [&]() { postsAssignedToScriptFolder(affectedSourceID, affectedScriptFolderID); }); });
+            { QMetaObject::invokeMethod(this, [=]() { postsAssignedToScriptFolder(affectedSourceID, affectedScriptFolderID); }); });
     }
 }
 
@@ -325,7 +325,7 @@ void ZapFR::Client::MainWindow::removePostSelectionFromScriptFolder()
         ZapFR::Engine::Agent::getInstance()->queueRemovePostsFromScriptFolder(
             sourceID, scriptFolderID, feedAndPostIDs,
             [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
-            { QMetaObject::invokeMethod(this, [&]() { postsRemovedFromScriptFolder(affectedSourceID, affectedScriptFolderID); }); });
+            { QMetaObject::invokeMethod(this, [=]() { postsRemovedFromScriptFolder(affectedSourceID, affectedScriptFolderID); }); });
     }
 }
 
@@ -349,7 +349,7 @@ void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndex
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(mCurrentPostSourceID, {{mCurrentPostFeedID, mCurrentPostID}},
                                                                         [&](uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs)
-                                                                        { QMetaObject::invokeMethod(this, [&]() { postsMarkedRead(sourceID, feedAndPostIDs); }); });
+                                                                        { QMetaObject::invokeMethod(this, [=]() { postsMarkedRead(sourceID, feedAndPostIDs); }); });
             }
             reloadCurrentPost();
         }
@@ -418,8 +418,9 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
 
                                                                   postHTML.replace(QString::fromUtf8(fmt::format("[{}]", key)), value);
                                                               }
+                                                              const auto& enclosures = post->enclosures();
 
-                                                              QMetaObject::invokeMethod(this, [&]() { postReadyToBeShown(postHTML, post->enclosures()); });
+                                                              QMetaObject::invokeMethod(this, [=]() { postReadyToBeShown(postHTML, enclosures); });
                                                           });
     }
     else
@@ -622,7 +623,7 @@ void ZapFR::Client::MainWindow::postsMarkedRead(uint64_t sourceID, const std::ve
                                                                          std::unordered_set<uint64_t> feedIDs;
                                                                          feedIDs.insert(affectedFeedID);
                                                                          QMetaObject::invokeMethod(
-                                                                             this, [&]() { updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
+                                                                             this, [=]() { updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
                                                                      });
     }
 
@@ -659,7 +660,7 @@ void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, const std::
                                                                          std::unordered_set<uint64_t> feedIDs;
                                                                          feedIDs.insert(affectedFeedID);
                                                                          QMetaObject::invokeMethod(
-                                                                             this, [&]() { updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
+                                                                             this, [=]() { updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
                                                                      });
     }
 
@@ -861,21 +862,21 @@ void ZapFR::Client::MainWindow::connectPostStuff()
             [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkPostsFlagged(sourceID, {{feedID, postID}}, {flagColor},
-                                                                           [&]() { QMetaObject::invokeMethod(this, [&]() { postsMarkedFlagged(false); }); });
+                                                                           [&]() { QMetaObject::invokeMethod(this, [=]() { postsMarkedFlagged(false); }); });
             });
 
     connect(ui->tableViewPosts, &TableViewPosts::postMarkedUnflagged,
             [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, {{feedID, postID}}, {flagColor},
-                                                                             [&]() { QMetaObject::invokeMethod(this, [&]() { postsMarkedUnflagged(false); }); });
+                                                                             [&]() { QMetaObject::invokeMethod(this, [=]() { postsMarkedUnflagged(false); }); });
             });
 
     connect(ui->tableViewPosts, &TableViewPosts::clearAllFlagsRequested,
             [&](uint64_t sourceID, uint64_t feedID, uint64_t postID)
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, {{feedID, postID}}, ZapFR::Engine::Flag::allFlagColors(),
-                                                                             [&]() { QMetaObject::invokeMethod(this, [&]() { postsMarkedUnflagged(false); }); });
+                                                                             [&]() { QMetaObject::invokeMethod(this, [=]() { postsMarkedUnflagged(false); }); });
             });
 
     connect(mLineEditSearch, &LineEditSearch::searchRequested,

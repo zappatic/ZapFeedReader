@@ -111,7 +111,7 @@ void ZapFR::Client::DialogWithSourcesAndFolders::currentSourceChanged(int index)
                                                              {
                                                                  createFolderItems(folder, 0);
                                                              }
-                                                             QMetaObject::invokeMethod(this, [&]() { populateFolders(items); });
+                                                             QMetaObject::invokeMethod(this, [=]() { populateFolders(items); });
                                                          });
 }
 

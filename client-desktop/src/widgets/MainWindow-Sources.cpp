@@ -135,7 +135,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                     }
                     parentItem->appendRow(feedItem);
                 }
-                QMetaObject::invokeMethod(this, [&]() { populateSources(retrievedSource->id(), sourceItem); });
+                QMetaObject::invokeMethod(this, [=]() { populateSources(retrievedSource->id(), sourceItem); });
             });
     }
 }
@@ -734,7 +734,7 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                 {
                     ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(
                         source->id(), [&](uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
-                        { QMetaObject::invokeMethod(this, [&]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
+                        { QMetaObject::invokeMethod(this, [=]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
                 }
             });
     mUpdateRemoteSourceBadgesTimer->start();
@@ -756,6 +756,8 @@ void ZapFR::Client::MainWindow::createSourceContextMenus()
 
     mSourceContextMenuSourceError = std::make_unique<QMenu>(nullptr);
     mSourceContextMenuSourceError->addAction(ui->action_Reconnect_to_source);
+    mSourceContextMenuSourceError->addSeparator();
+    mSourceContextMenuSourceError->addAction(ui->action_Remove_source);
     mSourceContextMenuSourceError->addSeparator();
     mSourceContextMenuSourceError->addAction(ui->action_View_properties);
 }

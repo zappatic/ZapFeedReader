@@ -66,7 +66,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
                                                        ZapFR::Engine::ApplicationType::Client);
 
     ZapFR::Engine::Agent::getInstance()->registerErrorCallback([&](uint64_t sourceID, const std::string& errorMessage)
-                                                               { QMetaObject::invokeMethod(this, [&]() { agentErrorOccurred(sourceID, errorMessage); }); });
+                                                               { QMetaObject::invokeMethod(this, [=]() { agentErrorOccurred(sourceID, errorMessage); }); });
 
     ZapFR::Engine::AutoRefresh::getInstance()->setFeedRefreshedCallback(
         [&](uint64_t sourceID, ZapFR::Engine::Feed* refreshedFeed)
@@ -77,7 +77,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
             auto title = refreshedFeed->title();
             auto iconHash = refreshedFeed->iconHash();
             auto iconData = refreshedFeed->iconData();
-            QMetaObject::invokeMethod(this, [&]() { feedRefreshed(sourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+            QMetaObject::invokeMethod(this, [=]() { feedRefreshed(sourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
         });
 
     ui->setupUi(this);
@@ -395,7 +395,7 @@ void ZapFR::Client::MainWindow::importOPML()
                     {
                         ZapFR::Engine::Agent::getInstance()->queueImportOPML(
                             mDialogImportOPML->selectedSourceID(), mDialogImportOPML->OPML(), mDialogImportOPML->selectedFolderID(),
-                            [&]() { QMetaObject::invokeMethod(this, [&]() { reloadSources(); }); },
+                            [&]() { QMetaObject::invokeMethod(this, [=]() { reloadSources(); }); },
                             [&](uint64_t affectedSourceID, ZapFR::Engine::Feed* refreshedFeed)
                             {
                                 auto id = refreshedFeed->id();
@@ -405,14 +405,14 @@ void ZapFR::Client::MainWindow::importOPML()
                                 auto iconHash = refreshedFeed->iconHash();
                                 auto iconData = refreshedFeed->iconData();
                                 QMetaObject::invokeMethod(
-                                    this, [&]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+                                    this, [=]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
                             });
 
                         // give it a bit of time to parse the OPML file, then start checking whether the refreshing has completed
                         QTimer::singleShot(2500,
                                            [&]() {
                                                ZapFR::Engine::Agent::getInstance()->queueMonitorFeedRefreshCompletion(
-                                                   [&]() { QMetaObject::invokeMethod(this, [&]() { reloadSources(); }); });
+                                                   [&]() { QMetaObject::invokeMethod(this, [=]() { reloadSources(); }); });
                                            });
                     }
                 });
@@ -836,6 +836,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
             {
                 showSearchField = false;
                 ui->action_Reconnect_to_source->setVisible(true);
+                ui->action_Remove_source->setVisible(true);
             }
             else
             {
