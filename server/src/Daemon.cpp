@@ -36,7 +36,7 @@ int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
     loadAccounts();
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     ar->setEnabled(mConfiguration->getBool("zapfr.autorefresh.enabled", true));
-    ar->setFeedRefreshInterval(mConfiguration->getBool("zapfr.autorefresh.interval", ZapFR::Engine::DefaultFeedAutoRefreshInterval));
+    ar->setFeedRefreshInterval(mConfiguration->getUInt64("zapfr.autorefresh.interval", ZapFR::Engine::DefaultFeedAutoRefreshInterval));
 
     auto bindAddress = mConfiguration->getString("zapfr.bind", "0.0.0.0");
     auto bindPort = static_cast<uint16_t>(mConfiguration->getUInt("zapfr.port", ZapFR::Engine::DefaultServerPort));
