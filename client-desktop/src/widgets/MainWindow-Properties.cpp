@@ -60,7 +60,7 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
                                                                         }
                                                                         props["statistics"] = QVariant::fromValue<QMap<uint64_t, QString>>(stats);
 
-                                                                        QMetaObject::invokeMethod(this, [=]() { sourcePropertiesReceived(props); });
+                                                                        QMetaObject::invokeMethod(this, [=, this]() { sourcePropertiesReceived(props); });
                                                                     });
                 break;
             }
@@ -84,7 +84,7 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
                                                                         }
                                                                         props["statistics"] = QVariant::fromValue<QMap<uint64_t, QString>>(stats);
 
-                                                                        QMetaObject::invokeMethod(this, [=]() { folderPropertiesReceived(props); });
+                                                                        QMetaObject::invokeMethod(this, [=, this]() { folderPropertiesReceived(props); });
                                                                     });
                 break;
             }
@@ -124,7 +124,7 @@ void ZapFR::Client::MainWindow::reloadPropertiesPane()
                                                                       }
                                                                       props["statistics"] = QVariant::fromValue<QMap<uint64_t, QString>>(stats);
 
-                                                                      QMetaObject::invokeMethod(this, [=]() { feedPropertiesReceived(props); });
+                                                                      QMetaObject::invokeMethod(this, [=, this]() { feedPropertiesReceived(props); });
                                                                   });
                 break;
             }

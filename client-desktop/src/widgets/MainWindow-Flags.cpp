@@ -31,7 +31,7 @@ void ZapFR::Client::MainWindow::reloadUsedFlagColors(bool forceReload)
             ZapFR::Engine::Agent::getInstance()->queueGetUsedFlagColors(sourceID,
                                                                         [&](uint64_t affectedSourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
                                                                         {
-                                                                            QMetaObject::invokeMethod(this, [=]() { populateUsedFlags(affectedSourceID, flagColors); });
+                                                                            QMetaObject::invokeMethod(this, [=, this]() { populateUsedFlags(affectedSourceID, flagColors); });
                                                                             mPreviouslySelectedSourceID = affectedSourceID;
                                                                         });
         }

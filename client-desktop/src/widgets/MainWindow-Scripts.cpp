@@ -111,7 +111,7 @@ void ZapFR::Client::MainWindow::reloadScripts(bool forceReload)
             rows << rowData;
         }
 
-        QMetaObject::invokeMethod(this, [=]() { populateScripts(rows); });
+        QMetaObject::invokeMethod(this, [=, this]() { populateScripts(rows); });
         mPreviouslySelectedSourceID = sourceID;
     };
 
@@ -175,7 +175,7 @@ ZapFR::Client::DialogEditScript* ZapFR::Client::MainWindow::editScriptDialog()
                         {
                             ZapFR::Engine::Agent::getInstance()->queueAddScript(scriptSourceID, type, title, enabled, selectedEvents, selectedFeedIDs, script,
                                                                                 [&](uint64_t addedSourceID)
-                                                                                { QMetaObject::invokeMethod(this, [=]() { scriptAdded(addedSourceID); }); });
+                                                                                { QMetaObject::invokeMethod(this, [=, this]() { scriptAdded(addedSourceID); }); });
                             break;
                         }
                         case DialogEditScript::DisplayMode::Edit:
@@ -183,7 +183,7 @@ ZapFR::Client::DialogEditScript* ZapFR::Client::MainWindow::editScriptDialog()
                             ZapFR::Engine::Agent::getInstance()->queueUpdateScript(
                                 scriptSourceID, scriptID, type, title, enabled, selectedEvents, selectedFeedIDs, script,
                                 [&](uint64_t updatedSourceID, uint64_t updatedScriptID)
-                                { QMetaObject::invokeMethod(this, [=]() { scriptUpdated(updatedSourceID, updatedScriptID); }); });
+                                { QMetaObject::invokeMethod(this, [=, this]() { scriptUpdated(updatedSourceID, updatedScriptID); }); });
                             break;
                         }
                     }
@@ -247,7 +247,7 @@ void ZapFR::Client::MainWindow::removeScript()
             auto scriptSourceID = index.data(ScriptSourceIDRole).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueRemoveScript(scriptSourceID, scriptID,
                                                                    [&](uint64_t removedSourceID, uint64_t removedScriptID)
-                                                                   { QMetaObject::invokeMethod(this, [=]() { scriptRemoved(removedSourceID, removedScriptID); }); });
+                                                                   { QMetaObject::invokeMethod(this, [=, this]() { scriptRemoved(removedSourceID, removedScriptID); }); });
         }
     }
 }

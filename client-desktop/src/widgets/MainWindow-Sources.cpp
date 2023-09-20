@@ -135,7 +135,7 @@ void ZapFR::Client::MainWindow::reloadSources()
                     }
                     parentItem->appendRow(feedItem);
                 }
-                QMetaObject::invokeMethod(this, [=]() { populateSources(retrievedSource->id(), sourceItem); });
+                QMetaObject::invokeMethod(this, [=, this]() { populateSources(retrievedSource->id(), sourceItem); });
             });
     }
 }
@@ -741,7 +741,7 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                 {
                     ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(
                         source->id(), [&](uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
-                        { QMetaObject::invokeMethod(this, [=]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
+                        { QMetaObject::invokeMethod(this, [=, this]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
                     if (source->id() == currentlySelectedSourceID)
                     {
                         reloadScriptFolders();

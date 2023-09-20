@@ -42,7 +42,7 @@ void ZapFR::Client::MainWindow::addFeed()
                         {
                             ZapFR::Engine::Agent::getInstance()->queueAddFeed(sourceID, url, folderID,
                                                                               [&](uint64_t affectedSourceID, uint64_t newFeedID)
-                                                                              { QMetaObject::invokeMethod(this, [=]() { feedAdded(affectedSourceID, newFeedID); }); });
+                                                                              { QMetaObject::invokeMethod(this, [=, this]() { feedAdded(affectedSourceID, newFeedID); }); });
                         }
                     }
                 });
@@ -73,7 +73,7 @@ void ZapFR::Client::MainWindow::removeFeed()
         {
             auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
             auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueRemoveFeed(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, [=]() { feedRemoved(); }); });
+            ZapFR::Engine::Agent::getInstance()->queueRemoveFeed(sourceID, feedID, [&]() { QMetaObject::invokeMethod(this, [=, this]() { feedRemoved(); }); });
         }
     }
 }
@@ -121,8 +121,8 @@ void ZapFR::Client::MainWindow::refreshSourceEntryType(const QModelIndex& index,
                     auto title = refreshedFeed->title();
                     auto iconHash = refreshedFeed->iconHash();
                     auto iconData = refreshedFeed->iconData();
-                    QMetaObject::invokeMethod(this,
-                                              [=]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+                    QMetaObject::invokeMethod(this, [=, this]()
+                                              { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
                 });
             break;
         }
@@ -139,8 +139,8 @@ void ZapFR::Client::MainWindow::refreshSourceEntryType(const QModelIndex& index,
                     auto title = refreshedFeed->title();
                     auto iconHash = refreshedFeed->iconHash();
                     auto iconData = refreshedFeed->iconData();
-                    QMetaObject::invokeMethod(this,
-                                              [=]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+                    QMetaObject::invokeMethod(this, [=, this]()
+                                              { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
                 });
             break;
         }
@@ -156,8 +156,8 @@ void ZapFR::Client::MainWindow::refreshSourceEntryType(const QModelIndex& index,
                     auto title = refreshedFeed->title();
                     auto iconHash = refreshedFeed->iconHash();
                     auto iconData = refreshedFeed->iconData();
-                    QMetaObject::invokeMethod(this,
-                                              [=]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+                    QMetaObject::invokeMethod(this, [=, this]()
+                                              { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
                 });
 
             break;
@@ -178,7 +178,8 @@ void ZapFR::Client::MainWindow::feedAdded(uint64_t sourceID, uint64_t feedID)
             auto title = refreshedFeed->title();
             auto iconHash = refreshedFeed->iconHash();
             auto iconData = refreshedFeed->iconData();
-            QMetaObject::invokeMethod(this, [=]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+            QMetaObject::invokeMethod(this,
+                                      [=, this]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
         });
 }
 
