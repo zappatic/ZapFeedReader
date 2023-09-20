@@ -74,6 +74,7 @@ void ZapFR::Client::DialogPreferences::reset()
     }
     ui->spinBoxUIFontSize->setValue(mainWindow->currentPreferenceUIFontSize());
     ui->spinBoxPostFontSize->setValue(mainWindow->currentPreferencePostFontSize());
+    ui->checkBoxDetectBrowsers->setChecked(mainWindow->currentPreferenceDetectBrowsers());
 
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     ui->spinBoxAutoRefreshInterval->setValue(static_cast<int32_t>(ar->feedRefreshInterval() / 60));
@@ -132,4 +133,9 @@ uint64_t ZapFR::Client::DialogPreferences::chosenAutoRefreshInterval() const
 bool ZapFR::Client::DialogPreferences::chosenAutoRefreshEnabled() const
 {
     return ui->checkBoxAutoRefreshEnabled->isChecked();
+}
+
+bool ZapFR::Client::DialogPreferences::chosenDetectBrowsersEnabled() const
+{
+    return ui->checkBoxDetectBrowsers->isChecked();
 }

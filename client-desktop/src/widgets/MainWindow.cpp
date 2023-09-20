@@ -132,6 +132,8 @@ void ZapFR::Client::MainWindow::initializeUI()
 
     ui->menubar->setVisible(false);
 
+    ui->webViewPost->setMainWindow(this);
+
     ui->stackedWidgetContentPanes->setCurrentIndex(StackedPanePosts);
 }
 
@@ -172,6 +174,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
     }
     root.insert(SETTING_UI_FONTSIZE, mPreferenceUIFontSize);
     root.insert(SETTING_POST_FONTSIZE, mPreferencePostFontSize);
+    root.insert(SETTING_POST_DETECTBROWSERS, mPreferenceDetectBrowsers);
     root.insert(SETTING_FEEDS_REFRESH_BEHAVIOUR, mPreferenceRefreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     root.insert(SETTING_FEEDS_AUTOREFRESH_INTERVAL, static_cast<int32_t>(ar->feedRefreshInterval()));
@@ -242,6 +245,10 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 if (root.contains(SETTING_POST_FONTSIZE))
                 {
                     mPreferencePostFontSize = static_cast<uint16_t>(root.value(SETTING_POST_FONTSIZE).toInt(11));
+                }
+                if (root.contains(SETTING_POST_DETECTBROWSERS))
+                {
+                    mPreferenceDetectBrowsers = root.value(SETTING_POST_DETECTBROWSERS).toBool();
                 }
                 if (root.contains(SETTING_FEEDS_REFRESH_BEHAVIOUR))
                 {
@@ -990,6 +997,8 @@ void ZapFR::Client::MainWindow::showPreferences()
 
                         mPreferencePostFontSize = mDialogPreferences->chosenPostFontSize();
                         reloadCurrentPost();
+
+                        mPreferenceDetectBrowsers = mDialogPreferences->chosenDetectBrowsersEnabled();
 
                         mPreferenceRefreshBehaviour = mDialogPreferences->chosenRefreshBehaviour();
                         updateToolbar();

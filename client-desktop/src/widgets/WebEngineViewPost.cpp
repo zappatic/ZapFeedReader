@@ -17,6 +17,7 @@
 */
 
 #include "widgets/WebEngineViewPost.h"
+#include "widgets/MainWindow.h"
 
 ZapFR::Client::WebEngineViewPost::WebEngineViewPost(QWidget* parent) : QWebEngineView(parent)
 {
@@ -35,6 +36,64 @@ void ZapFR::Client::WebEngineViewPost::contextMenuEvent(QContextMenuEvent* event
         auto openInBrowserAction = new QAction(tr("&Open in external browser"), mContextMenu.get());
         connect(openInBrowserAction, &QAction::triggered, [&]() { QDesktopServices::openUrl(mClickedURL); });
         mContextMenu->addAction(openInBrowserAction);
+
+        if (mMainWindow->currentPreferenceDetectBrowsers())
+        {
+
+            static bool browsersDetected{false};
+            static std::vector<DetectedBrowser> browsers;
+            if (!browsersDetected)
+            {
+                auto firefox = detectBrowser("Firefox", "firefox", {"--version"}, {"{url}"});
+                if (firefox.has_value())
+                {
+                    browsers.emplace_back(firefox.value());
+                }
+
+                auto chrome = detectBrowser("Chrome", "google-chrome-stable", {"--version"}, {"{url}"});
+                if (chrome.has_value())
+                {
+                    browsers.emplace_back(chrome.value());
+                }
+
+                auto chromium = detectBrowser("Chromium", "chromium", {"--version"}, {"{url}"});
+                if (chromium.has_value())
+                {
+                    browsers.emplace_back(chromium.value());
+                }
+
+                auto opera = detectBrowser("Opera", "opera", {"--version"}, {"{url}"});
+                if (opera.has_value())
+                {
+                    browsers.emplace_back(opera.value());
+                }
+
+                auto brave = detectBrowser("Brave", "brave", {"--version"}, {"{url}"});
+                if (brave.has_value())
+                {
+                    browsers.emplace_back(brave.value());
+                }
+                browsersDetected = true;
+            }
+
+            for (const auto& browser : browsers)
+            {
+                auto action = new QAction(tr("&Open in %1").arg(browser.title), mContextMenu.get());
+                connect(action, &QAction::triggered,
+                        [&]()
+                        {
+                            QStringList args;
+                            for (auto arg : browser.args)
+                            {
+                                args << arg.replace("{url}", mClickedURL.toString());
+                            }
+
+                            qint64 pid{0};
+                            QProcess::startDetached(browser.command, args, QString(), &pid);
+                        });
+                mContextMenu->addAction(action);
+            }
+        }
     }
 
     auto lcmrData = lastContextMenuRequest();
@@ -43,4 +102,25 @@ void ZapFR::Client::WebEngineViewPost::contextMenuEvent(QContextMenuEvent* event
     {
         mContextMenu->popup(event->globalPos());
     }
+}
+
+std::optional<ZapFR::Client::WebEngineViewPost::DetectedBrowser>
+ZapFR::Client::WebEngineViewPost::detectBrowser(const QString& title, const QString& command, const std::vector<QString>& versionArgs, const std::vector<QString>& runArgs)
+{
+    auto process = std::make_unique<QProcess>(this);
+    QStringList args;
+    for (const auto& a : versionArgs)
+    {
+        args << a;
+    }
+    process->start(command, args);
+    if (process->waitForFinished())
+    {
+        DetectedBrowser b;
+        b.title = title;
+        b.command = command;
+        b.args = runArgs;
+        return b;
+    }
+    return {};
 }

@@ -54,6 +54,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPalette>
+#include <QProcess>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSortFilterProxyModel>
@@ -89,6 +90,7 @@ namespace ZapFR
         static const QString SETTING_UI_THEME = "ui.theme";
         static const QString SETTING_UI_FONTSIZE = "ui.fontsize";
         static const QString SETTING_POST_FONTSIZE = "post.fontsize";
+        static const QString SETTING_POST_DETECTBROWSERS = "post.detectbrowsers";
         static const QString SETTING_FEEDS_REFRESH_BEHAVIOUR = "feeds.refreshbehaviour";
         static const QString SETTING_FEEDS_AUTOREFRESH_ENABLED = "feeds.autorefresh.enabled";
         static const QString SETTING_FEEDS_AUTOREFRESH_INTERVAL = "feeds.autorefresh.interval";

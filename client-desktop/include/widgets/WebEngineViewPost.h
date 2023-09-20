@@ -25,6 +25,7 @@ namespace ZapFR
 {
     namespace Client
     {
+        class MainWindow;
         class WebEngineViewPost : public QWebEngineView
         {
             Q_OBJECT
@@ -33,12 +34,27 @@ namespace ZapFR
             explicit WebEngineViewPost(QWidget* parent = nullptr);
             ~WebEngineViewPost() = default;
 
+            void setMainWindow(MainWindow* mainWindow) noexcept { mMainWindow = mainWindow; }
+
           protected:
             void contextMenuEvent(QContextMenuEvent* event) override;
 
           private:
             QUrl mClickedURL{};
             std::unique_ptr<QMenu> mContextMenu{nullptr};
+            MainWindow* mMainWindow{nullptr};
+
+            struct DetectedBrowser
+            {
+                DetectedBrowser() = default;
+                DetectedBrowser(const QString& bTitle, const QString& bCommand, const std::vector<QString>& bArgs) : title(bTitle), command(bCommand), args(bArgs) {}
+                QString title{""};
+                QString command{""};
+                std::vector<QString> args{};
+            };
+
+            std::optional<DetectedBrowser> detectBrowser(const QString& title, const QString& command, const std::vector<QString>& versionArgs,
+                                                         const std::vector<QString>& runArgs);
         };
     } // namespace Client
 } // namespace ZapFR

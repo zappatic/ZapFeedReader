@@ -50,6 +50,7 @@ namespace ZapFR
             RefreshBehaviour chosenRefreshBehaviour() const;
             uint64_t chosenAutoRefreshInterval() const;
             bool chosenAutoRefreshEnabled() const;
+            bool chosenDetectBrowsersEnabled() const;
 
           private:
             Ui::DialogPreferences* ui;
