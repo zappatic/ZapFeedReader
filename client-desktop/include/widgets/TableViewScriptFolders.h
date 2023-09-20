@@ -26,6 +26,9 @@ namespace ZapFR
 {
     namespace Client
     {
+        class MainWindow;
+        class DialogEditScriptFolder;
+
         class TableViewScriptFolders : public TableViewPaletteCorrected
         {
             Q_OBJECT
@@ -34,13 +37,35 @@ namespace ZapFR
             TableViewScriptFolders(QWidget* parent = nullptr);
             ~TableViewScriptFolders() = default;
 
-          signals:
-            void selectedScriptFolderChanged(const QModelIndex&);
-            void deletePressed();
+            void reload(bool forceReload = false);
+            QAction* actionAddScriptFolder() const noexcept { return mActionAddScriptFolder.get(); }
+            QAction* actionEditScriptFolder() const noexcept { return mActionEditScriptFolder.get(); }
+            QAction* actionRemoveScriptFolder() const noexcept { return mActionRemoveScriptFolder.get(); }
+            DialogEditScriptFolder* editScriptFolderDialog();
+
+            std::unordered_map<uint64_t, QString> getIDToTitleMapping() const;
 
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
             void keyPressEvent(QKeyEvent* event) override;
+
+          private slots:
+            void addScriptFolder();
+            void editScriptFolder();
+            void removeScriptFolder();
+
+          private:
+            uint64_t mPreviouslySelectedScriptFolderID{0};
+            MainWindow* mMainWindow{nullptr};
+            std::unique_ptr<QStandardItemModel> mItemModelScriptFolders{nullptr};
+            std::unique_ptr<QMenu> mScriptFolderContextMenu{nullptr};
+            std::unique_ptr<DialogEditScriptFolder> mDialogEditScriptFolder{nullptr};
+
+            std::unique_ptr<QAction> mActionAddScriptFolder{nullptr};
+            std::unique_ptr<QAction> mActionEditScriptFolder{nullptr};
+            std::unique_ptr<QAction> mActionRemoveScriptFolder{nullptr};
+
+            void populateScriptFolders(uint64_t sourceID, const QList<QList<QStandardItem*>>& scriptFolders);
         };
     } // namespace Client
 } // namespace ZapFR

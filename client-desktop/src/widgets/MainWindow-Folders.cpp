@@ -170,7 +170,7 @@ void ZapFR::Client::MainWindow::folderMarkedRead(uint64_t sourceID, std::unorder
     updateFeedUnreadCountBadge(sourceID, feedIDs, false, 0);
     mCurrentPostPage = 1;
     reloadPosts();
-    reloadScriptFolders(true);
+    ui->tableViewScriptFolders->reload(true);
     ui->statusbar->showMessage(tr("Folder marked as read"), StatusBarDefaultTimeout);
 }
 

@@ -50,9 +50,9 @@ namespace ZapFR
         class DialogImportOPML;
         class DialogJumpToPage;
         class DialogEditScript;
-        class DialogEditScriptFolder;
         class DialogPreferences;
         class LineEditSearch;
+        class TreeViewSources;
 
         enum class Theme
         {
@@ -88,7 +88,15 @@ namespace ZapFR
 
             Theme getCurrentColorTheme() const;
 
+            // TODO : move into respective widgets:
             void reloadSources();
+            void reloadPosts();
+
+            uint64_t previouslySelectedSourceID() const noexcept { return mPreviouslySelectedSourceID; }
+            void setPreviouslySelectedSourceID(uint64_t sID) noexcept { mPreviouslySelectedSourceID = sID; }
+            void setStatusBarMessage(const QString& message, int32_t timeout = StatusBarDefaultTimeout);
+            void updateActivePostFilter();
+            TreeViewSources* treeViewSources() const noexcept;
 
           private slots:
             // actions
@@ -108,7 +116,6 @@ namespace ZapFR
             void importOPML();
             void exportOPML();
 
-            void reloadPosts();
             void markAsRead();
             void markPostSelectionAsRead();
             void markPostSelectionAsUnread();
@@ -122,10 +129,6 @@ namespace ZapFR
             void editScript();
             void removeScript();
             void addScript();
-
-            void addScriptFolder();
-            void editScriptFolder();
-            void removeScriptFolder();
 
             void showPreferences();
             void applyColorScheme();
@@ -165,16 +168,11 @@ namespace ZapFR
             void scriptRemoved(uint64_t sourceID, uint64_t scriptID);
             void scriptAdded(uint64_t sourceID);
 
-            void scriptFolderAdded(uint64_t sourceID);
-            void scriptFolderUpdated(uint64_t sourceID, uint64_t scriptFolderID);
-            void scriptFolderRemoved(uint64_t sourceID, uint64_t scriptFolderID);
-
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
             void populateScripts(const QList<QList<QStandardItem*>>& scripts = {});
             void populateSources(uint64_t sourceID, QStandardItem* sourceItem);
             void populateUsedFlags(uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
-            void populateScriptFolders(uint64_t sourceID, const QList<QList<QStandardItem*>>& scriptFolders);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -186,7 +184,6 @@ namespace ZapFR
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPostEnclosures{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelLogs{nullptr};
-            std::unique_ptr<QStandardItemModel> mItemModelScriptFolders{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelScripts{nullptr};
 
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
@@ -198,7 +195,6 @@ namespace ZapFR
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
             std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
             std::unique_ptr<DialogEditScript> mDialogEditScript{nullptr};
-            std::unique_ptr<DialogEditScriptFolder> mDialogEditScriptFolder{nullptr};
             std::unique_ptr<DialogPreferences> mDialogPreferences{nullptr};
 
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
@@ -208,7 +204,6 @@ namespace ZapFR
             std::unique_ptr<QMenu> mSourceContextMenuFolder{nullptr};
             std::unique_ptr<QMenu> mPostContextMenu{nullptr};
             std::unique_ptr<QMenu> mScriptContextMenu{nullptr};
-            std::unique_ptr<QMenu> mScriptFolderContextMenu{nullptr};
 
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
@@ -223,14 +218,12 @@ namespace ZapFR
             std::unique_ptr<QTimer> mUpdateRemoteSourceBadgesTimer{nullptr};
             std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
             DialogEditScript* editScriptDialog();
-            DialogEditScriptFolder* editScriptFolderDialog();
 
             uint64_t mCurrentLogPage{1};
             uint64_t mCurrentLogCount{0};
             uint64_t mCurrentLogPageCount{1};
 
             std::unordered_set<uint64_t> mPreviouslySelectedPostIDs{};
-            uint64_t mPreviouslySelectedScriptFolderID{0};
             uint64_t mPreviouslySelectedSourceID{0};
             uint64_t mInitialSourceCount{0};
 
@@ -255,7 +248,6 @@ namespace ZapFR
             void connectLogsStuff();
             void connectFlagStuff();
             void connectScriptStuff();
-            void connectScriptFolderStuff();
             void connectPropertiesStuff();
 
             void createContextMenus();
@@ -264,14 +256,12 @@ namespace ZapFR
             void createFeedContextMenus();
             void createPostContextMenus();
             void createScriptContextMenus();
-            void createScriptFolderContextMenus();
 
             void initializeUI();
             void initializeUISources();
             void initializeUIPosts();
             void initializeUILogs();
             void initializeUIScripts();
-            void initializeUIScriptFolders();
 
             void saveSettings() const;
             void restoreSettings();
@@ -283,7 +273,6 @@ namespace ZapFR
 
             void reloadCurrentPost();
             void reloadUsedFlagColors(bool forceReload = false);
-            void reloadScriptFolders(bool forceReload = false);
             void reloadScripts(bool forceReload = false);
             void reloadPropertiesPane();
 
@@ -293,7 +282,6 @@ namespace ZapFR
             void setBlankPostPage() const;
             void configureIcons();
             void updateToolbar();
-            void updateActivePostFilter();
             void updatePreferredFontSize();
             void refreshSourceEntryType(const QModelIndex& index, uint64_t type);
             bool doesSourceHaveError(uint64_t sourceID);

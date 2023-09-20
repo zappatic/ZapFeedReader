@@ -487,7 +487,7 @@ void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
     updateFeedUnreadCountBadge(sourceID, {}, true, 0);
     mCurrentPostPage = 1;
     reloadPosts();
-    reloadScriptFolders(true);
+    ui->tableViewScriptFolders->reload(true);
     ui->statusbar->showMessage(tr("Source marked as read"), StatusBarDefaultTimeout);
 }
 
@@ -700,7 +700,7 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                             mCurrentPostPage = 1;
                             reloadPosts();
                             reloadUsedFlagColors();
-                            reloadScriptFolders();
+                            ui->tableViewScriptFolders->reload();
                             updateActivePostFilter();
                             break;
                         }
@@ -744,7 +744,7 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                         { QMetaObject::invokeMethod(this, [=, this]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
                     if (source->id() == currentlySelectedSourceID)
                     {
-                        reloadScriptFolders();
+                        ui->tableViewScriptFolders->reload();
                     }
                 }
             });

@@ -25,7 +25,6 @@ set(PROJECT_SOURCES
         src/widgets/MainWindow-Logs.cpp
         src/widgets/MainWindow-Flags.cpp
         src/widgets/MainWindow-Scripts.cpp
-        src/widgets/MainWindow-ScriptFolders.cpp
         src/widgets/MainWindow-Properties.cpp
         src/widgets/WebEnginePagePost.cpp
         src/widgets/WebEngineViewPost.cpp

@@ -195,7 +195,7 @@ void ZapFR::Client::MainWindow::feedMarkedRead(uint64_t sourceID, uint64_t feedI
     updateFeedUnreadCountBadge(sourceID, {feedID}, false, 0);
     mCurrentPostPage = 1;
     reloadPosts();
-    reloadScriptFolders(true);
+    ui->tableViewScriptFolders->reload(true);
     ui->statusbar->showMessage(tr("Feed marked as read"), StatusBarDefaultTimeout);
 }
 
@@ -245,7 +245,7 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
             }
         }
     }
-    reloadScriptFolders(true);
+    ui->tableViewScriptFolders->reload(true);
     reloadUsedFlagColors(true);
 }
 

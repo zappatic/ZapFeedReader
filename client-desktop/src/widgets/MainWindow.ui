@@ -1091,30 +1091,6 @@
     <string>Add script</string>
    </property>
   </action>
-  <action name="action_Add_script_folder">
-   <property name="text">
-    <string>Add script folder</string>
-   </property>
-   <property name="toolTip">
-    <string>Add script folder</string>
-   </property>
-  </action>
-  <action name="action_Edit_script_folder">
-   <property name="text">
-    <string>Edit script folder</string>
-   </property>
-   <property name="toolTip">
-    <string>Edit script folder</string>
-   </property>
-  </action>
-  <action name="action_Remove_script_folder">
-   <property name="text">
-    <string>Remove script folder</string>
-   </property>
-   <property name="toolTip">
-    <string>Remove script folder</string>
-   </property>
-  </action>
   <action name="action_Mark_selection_as_read">
    <property name="text">
     <string>Mark as read</string>

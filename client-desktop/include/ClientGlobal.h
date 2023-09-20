@@ -35,7 +35,9 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFontMetrics>
+#include <QGridLayout>
 #include <QGuiApplication>
+#include <QHeaderView>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -58,6 +60,7 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSortFilterProxyModel>
+#include <QSpacerItem>
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QStandardPaths>
@@ -162,8 +165,6 @@ namespace ZapFR
         static const uint32_t ScriptFolderShowUnreadRole{Qt::ItemDataRole::UserRole + 4};
         static const uint32_t ScriptFolderTotalPostCountRole{Qt::ItemDataRole::UserRole + 5};
         static const uint32_t ScriptFolderTotalUnreadCountRole{Qt::ItemDataRole::UserRole + 6};
-
-        static const uint32_t ScriptFolderColumnTitle = 0;
 
         static const uint32_t ScriptsColumnType = 0;
         static const uint32_t ScriptsColumnTitle = 1;

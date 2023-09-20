@@ -102,7 +102,6 @@ void ZapFR::Client::MainWindow::initializeUI()
     initializeUIPosts();
     initializeUILogs();
     initializeUIScripts();
-    initializeUIScriptFolders();
     updatePreferredFontSize();
 
     // add a spacer in the toolbar to separate the left from the right buttons
@@ -636,9 +635,9 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Edit_script->setIcon(configureIcon(":/edit.svg"));
     ui->action_Remove_script->setIcon(configureIcon(":/remove.svg"));
     ui->action_Add_script->setIcon(configureIcon(":/addFeed.svg"));
-    ui->action_Edit_script_folder->setIcon(configureIcon(":/edit.svg"));
-    ui->action_Remove_script_folder->setIcon(configureIcon(":/remove.svg"));
-    ui->action_Add_script_folder->setIcon(configureIcon(":/addFeed.svg"));
+    ui->tableViewScriptFolders->actionEditScriptFolder()->setIcon(configureIcon(":/edit.svg"));
+    ui->tableViewScriptFolders->actionRemoveScriptFolder()->setIcon(configureIcon(":/remove.svg"));
+    ui->tableViewScriptFolders->actionAddScriptFolder()->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_View_properties->setIcon(configureIcon(":/properties.svg"));
     ui->action_Remove_feed->setIcon(configureIcon(":/remove.svg"));
     ui->action_Remove_folder->setIcon(configureIcon(":/remove.svg"));
@@ -1071,7 +1070,6 @@ void ZapFR::Client::MainWindow::createContextMenus()
     createFeedContextMenus();
     createPostContextMenus();
     createScriptContextMenus();
-    createScriptFolderContextMenus();
 }
 
 void ZapFR::Client::MainWindow::configureConnects()
@@ -1192,6 +1190,15 @@ void ZapFR::Client::MainWindow::configureConnects()
     connectLogsStuff();
     connectFlagStuff();
     connectScriptStuff();
-    connectScriptFolderStuff();
     connectPropertiesStuff();
+}
+
+void ZapFR::Client::MainWindow::setStatusBarMessage(const QString& message, int32_t timeout)
+{
+    ui->statusbar->showMessage(message, timeout);
+}
+
+ZapFR::Client::TreeViewSources* ZapFR::Client::MainWindow::treeViewSources() const noexcept
+{
+    return ui->treeViewSources;
 }

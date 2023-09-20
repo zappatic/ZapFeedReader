@@ -245,8 +245,9 @@ void ZapFR::Client::MainWindow::markAsRead()
             {
                 auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID,
-                                                                       [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
-                                                                       { QMetaObject::invokeMethod(this, [=, this]() { feedMarkedRead(affectedSourceID, affectedFeedID); }); });
+                                                                       [&](uint64_t affectedSourceID, uint64_t affectedFeedID) {
+                                                                           QMetaObject::invokeMethod(this, [=, this]() { feedMarkedRead(affectedSourceID, affectedFeedID); });
+                                                                       });
                 break;
             }
             case SOURCETREE_ENTRY_TYPE_FOLDER:
@@ -273,9 +274,10 @@ void ZapFR::Client::MainWindow::markPostSelectionAsRead()
     if (feedAndPostIDs.size() > 0)
     {
         auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(sourceID, feedAndPostIDs,
-                                                                [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
-                                                                { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedRead(affectedSourceID, affectedFeedAndPostIDs); }); });
+        ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(
+            sourceID, feedAndPostIDs,
+            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
+            { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedRead(affectedSourceID, affectedFeedAndPostIDs); }); });
     }
 }
 
@@ -285,10 +287,10 @@ void ZapFR::Client::MainWindow::markPostSelectionAsUnread()
     if (feedAndPostIDs.size() > 0)
     {
         auto sourceID = ui->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(sourceID, feedAndPostIDs,
-                                                                  [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs) {
-                                                                      QMetaObject::invokeMethod(this, [=, this]() { postsMarkedUnread(affectedSourceID, affectedFeedAndPostIDs); });
-                                                                  });
+        ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(
+            sourceID, feedAndPostIDs,
+            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
+            { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedUnread(affectedSourceID, affectedFeedAndPostIDs); }); });
     }
 }
 
@@ -657,7 +659,7 @@ void ZapFR::Client::MainWindow::postsMarkedRead(uint64_t sourceID, const std::ve
                                                                      });
     }
 
-    reloadScriptFolders(true);
+    ui->tableViewScriptFolders->reload(true);
     // no statusbar update here, as it's called just for clicking/reading a post in the table, which would be distracting
 }
 
@@ -694,7 +696,7 @@ void ZapFR::Client::MainWindow::postsMarkedUnread(uint64_t sourceID, const std::
                                                                      });
     }
 
-    reloadScriptFolders(true);
+    ui->tableViewScriptFolders->reload(true);
     ui->statusbar->showMessage(tr("Post(s) marked as unread"), StatusBarDefaultTimeout);
 }
 
@@ -720,13 +722,13 @@ void ZapFR::Client::MainWindow::postsMarkedUnflagged(bool doReloadPosts)
 
 void ZapFR::Client::MainWindow::postsAssignedToScriptFolder(uint64_t /*sourceID*/, uint64_t /*scriptFolderID*/)
 {
-    reloadScriptFolders(true);
+    ui->tableViewScriptFolders->reload(true);
     ui->statusbar->showMessage(tr("Post(s) assigned to script folder"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::postsRemovedFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID)
 {
-    reloadScriptFolders(true);
+    ui->tableViewScriptFolders->reload(true);
     auto index = ui->tableViewScriptFolders->currentIndex();
     if (index.isValid())
     {
@@ -762,12 +764,9 @@ void ZapFR::Client::MainWindow::connectPostStuff()
             {
                 // gather the script folder title and IDs
                 std::vector<std::tuple<QVariant, QString>> scriptFolderData;
-                for (int32_t i = 0; i < mItemModelScriptFolders->rowCount(); ++i)
+                for (const auto& [scriptFolderID, scriptFolderTitle] : ui->tableViewScriptFolders->getIDToTitleMapping())
                 {
-                    auto child = mItemModelScriptFolders->index(i, 0);
-                    auto scriptFolderTitle = child.data(Qt::DisplayRole).toString();
-                    auto scriptFolderID = child.data(ScriptFolderIDRole);
-                    scriptFolderData.emplace_back(scriptFolderID, scriptFolderTitle);
+                    scriptFolderData.emplace_back(QVariant::fromValue<uint64_t>(scriptFolderID), scriptFolderTitle);
                 }
 
                 // dynamically add the script folder entries to the 'add to script folder' and 'remove from script folder' submenus
