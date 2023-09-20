@@ -26,6 +26,9 @@ namespace ZapFR
 {
     namespace Client
     {
+        class MainWindow;
+        class DialogEditScript;
+
         class TableViewScripts : public TableViewPaletteCorrected
         {
             Q_OBJECT
@@ -34,11 +37,58 @@ namespace ZapFR
             TableViewScripts(QWidget* parent = nullptr);
             ~TableViewScripts() = default;
 
+            void setMainWindow(MainWindow* mw) noexcept { mMainWindow = mw; }
+            void reload(bool forceReload = false);
+            QAction* actionViewScripts() const noexcept { return mActionViewScripts.get(); }
+            QAction* actionAddScript() const noexcept { return mActionAddScript.get(); }
+            QAction* actionEditScript() const noexcept { return mActionEditScript.get(); }
+            QAction* actionRemoveScript() const noexcept { return mActionRemoveScript.get(); }
+
+            enum Column
+            {
+                TypeCol = 0,
+                TitleCol = 1,
+                IsEnabledCol = 2,
+                RunOnEventsCol = 3,
+                RunOnFeedIDsCol = 4,
+            };
+
+            enum Role
+            {
+                ID = Qt::ItemDataRole::UserRole + 1,
+                IsEnabled = Qt::ItemDataRole::UserRole + 2,
+                SourceID = Qt::ItemDataRole::UserRole + 3,
+                RunOnEvents = Qt::ItemDataRole::UserRole + 5,
+                RunOnFeedIDs = Qt::ItemDataRole::UserRole + 6,
+                EventCount = Qt::ItemDataRole::UserRole + 7,
+                Title = Qt::ItemDataRole::UserRole + 8,
+                Script = Qt::ItemDataRole::UserRole + 9,
+            };
+
           signals:
             void deletePressed();
 
           protected:
             void keyPressEvent(QKeyEvent* event) override;
+
+          private slots:
+            void editScript();
+            void removeScript();
+            void addScript();
+
+          private:
+            MainWindow* mMainWindow{nullptr};
+            std::unique_ptr<QStandardItemModel> mItemModelScripts{nullptr};
+            std::unique_ptr<DialogEditScript> mDialogEditScript{nullptr};
+            std::unique_ptr<QMenu> mScriptContextMenu{nullptr};
+
+            std::unique_ptr<QAction> mActionViewScripts{nullptr};
+            std::unique_ptr<QAction> mActionAddScript{nullptr};
+            std::unique_ptr<QAction> mActionEditScript{nullptr};
+            std::unique_ptr<QAction> mActionRemoveScript{nullptr};
+
+            void populateScripts(const QList<QList<QStandardItem*>>& scripts = {});
+            DialogEditScript* editScriptDialog();
         };
     } // namespace Client
 } // namespace ZapFR

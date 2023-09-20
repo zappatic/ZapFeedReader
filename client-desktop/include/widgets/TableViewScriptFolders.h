@@ -37,6 +37,7 @@ namespace ZapFR
             TableViewScriptFolders(QWidget* parent = nullptr);
             ~TableViewScriptFolders() = default;
 
+            void setMainWindow(MainWindow* mw) noexcept { mMainWindow = mw; }
             void reload(bool forceReload = false);
             QAction* actionAddScriptFolder() const noexcept { return mActionAddScriptFolder.get(); }
             QAction* actionEditScriptFolder() const noexcept { return mActionEditScriptFolder.get(); }
@@ -44,6 +45,21 @@ namespace ZapFR
             DialogEditScriptFolder* editScriptFolderDialog();
 
             std::unordered_map<uint64_t, QString> getIDToTitleMapping() const;
+
+            enum Column
+            {
+                TitleCol = 0,
+            };
+
+            enum Role
+            {
+                ID = Qt::ItemDataRole::UserRole + 1,
+                SourceID = Qt::ItemDataRole::UserRole + 2,
+                ShowTotal = Qt::ItemDataRole::UserRole + 3,
+                ShowUnread = Qt::ItemDataRole::UserRole + 4,
+                TotalPostCount = Qt::ItemDataRole::UserRole + 5,
+                TotalUnreadCount = Qt::ItemDataRole::UserRole + 6,
+            };
 
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;

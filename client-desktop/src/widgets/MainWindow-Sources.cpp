@@ -712,7 +712,7 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                         }
                         case StackedPaneScripts:
                         {
-                            reloadScripts();
+                            ui->tableViewScripts->reload();
                             break;
                         }
                         case StackedPaneProperties:

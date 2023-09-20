@@ -24,15 +24,8 @@
 #include "widgets/MainWindow.h"
 #include "widgets/TreeViewSources.h"
 
-namespace
-{
-    static const uint32_t ScriptFolderColumnTitle = 0;
-}
-
 ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
-    mMainWindow = qobject_cast<MainWindow*>(window());
-
     setItemDelegate(new ItemDelegateScriptFolder(this));
 
     mActionAddScriptFolder = std::make_unique<QAction>(tr("Add script folder"), this);
@@ -57,7 +50,7 @@ void ZapFR::Client::TableViewScriptFolders::selectionChanged(const QItemSelectio
     QTableView::selectionChanged(selected, deselected);
     for (const auto& index : selectedIndexes())
     {
-        if (index.isValid() && index.column() == ScriptFolderColumnTitle)
+        if (index.isValid() && index.column() == Column::TitleCol)
         {
             mMainWindow->reloadPosts();
         }
@@ -86,12 +79,12 @@ void ZapFR::Client::TableViewScriptFolders::reload(bool forceReload)
         for (const auto& scriptFolder : scriptFolders)
         {
             auto titleItem = new QStandardItem(QString::fromUtf8(scriptFolder->title()));
-            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->id()), ScriptFolderIDRole);
-            titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), ScriptFolderSourceIDRole);
-            titleItem->setData(QVariant::fromValue<bool>(scriptFolder->showTotal()), ScriptFolderShowTotalRole);
-            titleItem->setData(QVariant::fromValue<bool>(scriptFolder->showUnread()), ScriptFolderShowUnreadRole);
-            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->totalPostCount()), ScriptFolderTotalPostCountRole);
-            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->totalUnreadCount()), ScriptFolderTotalUnreadCountRole);
+            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->id()), Role::ID);
+            titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), Role::SourceID);
+            titleItem->setData(QVariant::fromValue<bool>(scriptFolder->showTotal()), Role::ShowTotal);
+            titleItem->setData(QVariant::fromValue<bool>(scriptFolder->showUnread()), Role::ShowUnread);
+            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->totalPostCount()), Role::TotalPostCount);
+            titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->totalUnreadCount()), Role::TotalUnreadCount);
             titleItem->setData(QString("ID: %1").arg(scriptFolder->id()), Qt::ToolTipRole);
 
             QList<QStandardItem*> rowData;
@@ -111,7 +104,7 @@ void ZapFR::Client::TableViewScriptFolders::reload(bool forceReload)
             auto scriptFolderIndex = currentIndex();
             if (scriptFolderIndex.isValid())
             {
-                mPreviouslySelectedScriptFolderID = scriptFolderIndex.data(ScriptFolderIDRole).toULongLong();
+                mPreviouslySelectedScriptFolderID = scriptFolderIndex.data(Role::ID).toULongLong();
             }
             ZapFR::Engine::Agent::getInstance()->queueGetScriptFolders(sourceID, processScriptFolders);
         }
@@ -125,12 +118,12 @@ void ZapFR::Client::TableViewScriptFolders::populateScriptFolders(uint64_t sourc
     setModel(mItemModelScriptFolders.get());
     auto headerItem = new QStandardItem(tr("Script folders"));
     headerItem->setTextAlignment(Qt::AlignLeft);
-    mItemModelScriptFolders->setHorizontalHeaderItem(ScriptFolderColumnTitle, headerItem);
+    mItemModelScriptFolders->setHorizontalHeaderItem(Column::TitleCol, headerItem);
     for (const auto& scriptFolder : scriptFolders)
     {
         mItemModelScriptFolders->appendRow(scriptFolder);
     }
-    horizontalHeader()->setSectionResizeMode(ScriptFolderColumnTitle, QHeaderView::Stretch);
+    horizontalHeader()->setSectionResizeMode(Column::TitleCol, QHeaderView::Stretch);
 
     // restore previously selected script folder
     if (mPreviouslySelectedScriptFolderID != 0)
@@ -138,7 +131,7 @@ void ZapFR::Client::TableViewScriptFolders::populateScriptFolders(uint64_t sourc
         for (auto i = 0; i < mItemModelScriptFolders->rowCount(); ++i)
         {
             auto row = mItemModelScriptFolders->index(i, 0);
-            if (row.isValid() && row.data(ScriptFolderIDRole).toULongLong() == mPreviouslySelectedScriptFolderID)
+            if (row.isValid() && row.data(Role::ID).toULongLong() == mPreviouslySelectedScriptFolderID)
             {
                 setCurrentIndex(row);
                 break;
@@ -167,11 +160,11 @@ void ZapFR::Client::TableViewScriptFolders::editScriptFolder()
     auto index = currentIndex();
     if (index.isValid())
     {
-        auto sourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
-        auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
+        auto sourceID = index.data(Role::SourceID).toULongLong();
+        auto scriptFolderID = index.data(Role::ID).toULongLong();
         auto title = index.data(Qt::DisplayRole).toString();
-        auto showTotal = index.data(ScriptFolderShowTotalRole).toBool();
-        auto showUnread = index.data(ScriptFolderShowUnreadRole).toBool();
+        auto showTotal = index.data(Role::ShowTotal).toBool();
+        auto showUnread = index.data(Role::ShowUnread).toBool();
 
         auto dialog = editScriptFolderDialog();
         dialog->reset(DialogEditScriptFolder::DisplayMode::Edit, sourceID, scriptFolderID, title, showTotal, showUnread);
@@ -195,8 +188,8 @@ void ZapFR::Client::TableViewScriptFolders::removeScriptFolder()
         mb.exec();
         if (mb.clickedButton() == mb.button(QMessageBox::StandardButton::Ok))
         {
-            auto scriptSourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
-            auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
+            auto scriptSourceID = index.data(Role::SourceID).toULongLong();
+            auto scriptFolderID = index.data(Role::ID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueRemoveScriptFolder(scriptSourceID, scriptFolderID,
                                                                          [&](uint64_t /*removedSourceID*/, uint64_t /*removedScriptFolderID*/)
                                                                          {
@@ -217,7 +210,7 @@ ZapFR::Client::DialogEditScriptFolder* ZapFR::Client::TableViewScriptFolders::ed
 {
     if (mDialogEditScriptFolder == nullptr)
     {
-        mDialogEditScriptFolder = std::make_unique<DialogEditScriptFolder>(this);
+        mDialogEditScriptFolder = std::make_unique<DialogEditScriptFolder>(mMainWindow);
         connect(mDialogEditScriptFolder.get(), &DialogEditScriptFolder::accepted,
                 [&]()
                 {
@@ -258,7 +251,7 @@ std::unordered_map<uint64_t, QString> ZapFR::Client::TableViewScriptFolders::get
     {
         auto child = mItemModelScriptFolders->index(i, 0);
         auto scriptFolderTitle = child.data(Qt::DisplayRole).toString();
-        auto scriptFolderID = child.data(ScriptFolderIDRole).toULongLong();
+        auto scriptFolderID = child.data(Role::ID).toULongLong();
         map[scriptFolderID] = scriptFolderTitle;
     }
     return map;

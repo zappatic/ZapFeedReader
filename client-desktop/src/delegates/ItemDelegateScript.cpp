@@ -61,18 +61,18 @@ void ZapFR::Client::ItemDelegateScript::paint(QPainter* painter, const QStyleOpt
     }
 
     auto currentColumn = index.column();
-    if (currentColumn == ScriptsColumnRunOnEvents && index.data(ScriptEventCountRole).toULongLong() == 0)
+    if (currentColumn == TableViewScripts::Column::RunOnEventsCol && index.data(TableViewScripts::Role::EventCount).toULongLong() == 0)
     {
         brushText = Qt::darkRed;
     }
-    else if (currentColumn == ScriptsColumnTitle && index.data(ScriptScriptRole).toString().isEmpty())
+    else if (currentColumn == TableViewScripts::Column::TitleCol && index.data(TableViewScripts::Role::Script).toString().isEmpty())
     {
         brushText = Qt::darkRed;
     }
 
     switch (currentColumn)
     {
-        case ScriptsColumnIsEnabled:
+        case TableViewScripts::Column::IsEnabledCol:
         {
             auto r = option.rect;
             auto w = std::floor(static_cast<float>(r.height()) * 0.75f);
@@ -84,7 +84,7 @@ void ZapFR::Client::ItemDelegateScript::paint(QPainter* painter, const QStyleOpt
             checkbox.rect = cbRect.toRect();
             checkbox.text = "";
             checkbox.state |= QStyle::State_Enabled;
-            checkbox.state |= (index.data(ScriptIsEnabledRole).toBool() ? QStyle::State_On : QStyle::State_Off);
+            checkbox.state |= (index.data(TableViewScripts::Role::IsEnabled).toBool() ? QStyle::State_On : QStyle::State_Off);
             QApplication::style()->drawControl(QStyle::CE_CheckBox, &checkbox, painter);
             break;
         }

@@ -41,7 +41,6 @@ namespace ZapFR
     {
         class WebEnginePagePost;
         class StandardItemModelSources;
-        class StandardItemModelScripts;
         class SortFilterProxyModelSources;
         class DialogAddSource;
         class DialogAddFeed;
@@ -49,7 +48,6 @@ namespace ZapFR
         class DialogEditFolder;
         class DialogImportOPML;
         class DialogJumpToPage;
-        class DialogEditScript;
         class DialogPreferences;
         class LineEditSearch;
         class TreeViewSources;
@@ -95,6 +93,7 @@ namespace ZapFR
             uint64_t previouslySelectedSourceID() const noexcept { return mPreviouslySelectedSourceID; }
             void setPreviouslySelectedSourceID(uint64_t sID) noexcept { mPreviouslySelectedSourceID = sID; }
             void setStatusBarMessage(const QString& message, int32_t timeout = StatusBarDefaultTimeout);
+            void setContentPane(int32_t contentPaneID) const;
             void updateActivePostFilter();
             TreeViewSources* treeViewSources() const noexcept;
 
@@ -125,10 +124,6 @@ namespace ZapFR
             void removePostSelectionFromScriptFolder();
 
             void reloadLogs();
-
-            void editScript();
-            void removeScript();
-            void addScript();
 
             void showPreferences();
             void applyColorScheme();
@@ -164,13 +159,8 @@ namespace ZapFR
             void postsRemovedFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID);
             void postReadyToBeShown(const QString& html, const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures);
 
-            void scriptUpdated(uint64_t sourceID, uint64_t scriptID);
-            void scriptRemoved(uint64_t sourceID, uint64_t scriptID);
-            void scriptAdded(uint64_t sourceID);
-
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
-            void populateScripts(const QList<QList<QStandardItem*>>& scripts = {});
             void populateSources(uint64_t sourceID, QStandardItem* sourceItem);
             void populateUsedFlags(uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
 
@@ -184,7 +174,6 @@ namespace ZapFR
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPostEnclosures{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelLogs{nullptr};
-            std::unique_ptr<QStandardItemModel> mItemModelScripts{nullptr};
 
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
 
@@ -194,7 +183,6 @@ namespace ZapFR
             std::unique_ptr<DialogEditFolder> mDialogEditFolder{nullptr};
             std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
             std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
-            std::unique_ptr<DialogEditScript> mDialogEditScript{nullptr};
             std::unique_ptr<DialogPreferences> mDialogPreferences{nullptr};
 
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
@@ -203,7 +191,6 @@ namespace ZapFR
             std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
             std::unique_ptr<QMenu> mSourceContextMenuFolder{nullptr};
             std::unique_ptr<QMenu> mPostContextMenu{nullptr};
-            std::unique_ptr<QMenu> mScriptContextMenu{nullptr};
 
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
@@ -217,7 +204,6 @@ namespace ZapFR
 
             std::unique_ptr<QTimer> mUpdateRemoteSourceBadgesTimer{nullptr};
             std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
-            DialogEditScript* editScriptDialog();
 
             uint64_t mCurrentLogPage{1};
             uint64_t mCurrentLogCount{0};
@@ -247,7 +233,6 @@ namespace ZapFR
             void connectFolderStuff();
             void connectLogsStuff();
             void connectFlagStuff();
-            void connectScriptStuff();
             void connectPropertiesStuff();
 
             void createContextMenus();
@@ -255,13 +240,11 @@ namespace ZapFR
             void createFolderContextMenus();
             void createFeedContextMenus();
             void createPostContextMenus();
-            void createScriptContextMenus();
 
             void initializeUI();
             void initializeUISources();
             void initializeUIPosts();
             void initializeUILogs();
-            void initializeUIScripts();
 
             void saveSettings() const;
             void restoreSettings();
@@ -273,7 +256,6 @@ namespace ZapFR
 
             void reloadCurrentPost();
             void reloadUsedFlagColors(bool forceReload = false);
-            void reloadScripts(bool forceReload = false);
             void reloadPropertiesPane();
 
             QString postStyles() const;

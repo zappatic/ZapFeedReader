@@ -97,8 +97,8 @@ void ZapFR::Client::MainWindow::reloadPosts()
     auto index = ui->tableViewScriptFolders->currentIndex();
     if (index.isValid())
     {
-        auto sourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
-        auto scriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
+        auto sourceID = index.data(TableViewScriptFolders::Role::SourceID).toULongLong();
+        auto scriptFolderID = index.data(TableViewScriptFolders::Role::ID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
                                                                        mFlagFilter, processPosts);
     }
@@ -732,12 +732,12 @@ void ZapFR::Client::MainWindow::postsRemovedFromScriptFolder(uint64_t sourceID, 
     auto index = ui->tableViewScriptFolders->currentIndex();
     if (index.isValid())
     {
-        auto selectedSourceID = index.data(ScriptFolderSourceIDRole).toULongLong();
+        auto selectedSourceID = index.data(TableViewScriptFolders::Role::SourceID).toULongLong();
         if (sourceID != selectedSourceID)
         {
             return;
         }
-        auto selectedScriptFolderID = index.data(ScriptFolderIDRole).toULongLong();
+        auto selectedScriptFolderID = index.data(TableViewScriptFolders::Role::ID).toULongLong();
         if (scriptFolderID != selectedScriptFolderID)
         {
             return;

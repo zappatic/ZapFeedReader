@@ -101,14 +101,16 @@ void ZapFR::Client::MainWindow::initializeUI()
     initializeUISources();
     initializeUIPosts();
     initializeUILogs();
-    initializeUIScripts();
     updatePreferredFontSize();
 
+    ui->tableViewScriptFolders->setMainWindow(this);
+    ui->tableViewScripts->setMainWindow(this);
+
     // add a spacer in the toolbar to separate the left from the right buttons
-    auto spacerWidget = new QWidget();
-    spacerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    auto spacerAction = ui->toolBar->insertWidget(ui->action_View_logs, spacerWidget);
-    spacerAction->setProperty(gsPostPaneToolbarSpacerLeft, true);
+    auto spacerLeft = new QWidget();
+    spacerLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto actionSpacerLeft = ui->toolBar->insertWidget(ui->action_View_logs, spacerLeft);
+    actionSpacerLeft->setProperty(gsPostPaneToolbarSpacerLeft, true);
 
     // add the search widget to the toolbar
     mLineEditSearch = new LineEditSearch();
@@ -124,10 +126,16 @@ void ZapFR::Client::MainWindow::initializeUI()
     ui->toolBar->removeAction(ui->action_Dummy);
 
     // add a spacer in the toolbar before the hamburger menu to ensure it is always at the right
-    auto spacerWidget2 = new QWidget();
-    spacerWidget2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    auto spacerAction2 = ui->toolBar->insertWidget(actionHamburgerMenu, spacerWidget2);
-    spacerAction2->setProperty(gsPostPaneToolbarSpacerRight, true);
+    auto spacerRight = new QWidget();
+    spacerRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto actionSpacerRight = ui->toolBar->insertWidget(actionHamburgerMenu, spacerRight);
+    actionSpacerRight->setProperty(gsPostPaneToolbarSpacerRight, true);
+
+    // TODO: fix order (back to posts)
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionViewScripts());
+    ui->toolBar->insertAction(actionSearch, ui->tableViewScripts->actionAddScript());
+    ui->toolBar->insertAction(actionSearch, ui->tableViewScripts->actionEditScript());
+    ui->toolBar->insertAction(actionSearch, ui->tableViewScripts->actionRemoveScript());
 
     ui->menubar->setVisible(false);
 
@@ -630,11 +638,11 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Edit_folder->setIcon(configureIcon(":/edit.svg"));
     ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
     ui->action_Clear_logs->setIcon(configureIcon(":/remove.svg"));
-    ui->action_View_scripts->setIcon(configureIcon(":/script.svg"));
     ui->action_Back_to_posts->setIcon(configureIcon(":/back.svg"));
-    ui->action_Edit_script->setIcon(configureIcon(":/edit.svg"));
-    ui->action_Remove_script->setIcon(configureIcon(":/remove.svg"));
-    ui->action_Add_script->setIcon(configureIcon(":/addFeed.svg"));
+    ui->tableViewScripts->actionViewScripts()->setIcon(configureIcon(":/script.svg"));
+    ui->tableViewScripts->actionEditScript()->setIcon(configureIcon(":/edit.svg"));
+    ui->tableViewScripts->actionRemoveScript()->setIcon(configureIcon(":/remove.svg"));
+    ui->tableViewScripts->actionAddScript()->setIcon(configureIcon(":/addFeed.svg"));
     ui->tableViewScriptFolders->actionEditScriptFolder()->setIcon(configureIcon(":/edit.svg"));
     ui->tableViewScriptFolders->actionRemoveScriptFolder()->setIcon(configureIcon(":/remove.svg"));
     ui->tableViewScriptFolders->actionAddScriptFolder()->setIcon(configureIcon(":/addFeed.svg"));
@@ -853,7 +861,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
                 ui->action_Toolbar_refresh->setVisible(true);
                 ui->action_Mark_as_read->setVisible(true);
                 ui->action_View_logs->setVisible(true);
-                ui->action_View_scripts->setVisible(true);
+                ui->tableViewScripts->actionViewScripts()->setVisible(true);
                 ui->action_Add_source->setVisible(true);
                 ui->action_Remove_source->setVisible(true);
                 ui->action_Import_OPML->setVisible(true);
@@ -895,9 +903,9 @@ void ZapFR::Client::MainWindow::updateToolbar()
         case StackedPaneScripts:
         {
             ui->action_Back_to_posts->setVisible(true);
-            ui->action_Edit_script->setVisible(true);
-            ui->action_Remove_script->setVisible(true);
-            ui->action_Add_script->setVisible(true);
+            ui->tableViewScripts->actionEditScript()->setVisible(true);
+            ui->tableViewScripts->actionRemoveScript()->setVisible(true);
+            ui->tableViewScripts->actionAddScript()->setVisible(true);
             for (const auto& action : ui->toolBar->actions())
             {
                 if (action->property(gsPostPaneToolbarSpacerRight).isValid())
@@ -1069,7 +1077,6 @@ void ZapFR::Client::MainWindow::createContextMenus()
     createFolderContextMenus();
     createFeedContextMenus();
     createPostContextMenus();
-    createScriptContextMenus();
 }
 
 void ZapFR::Client::MainWindow::configureConnects()
@@ -1189,7 +1196,6 @@ void ZapFR::Client::MainWindow::configureConnects()
     connectFolderStuff();
     connectLogsStuff();
     connectFlagStuff();
-    connectScriptStuff();
     connectPropertiesStuff();
 }
 
@@ -1201,4 +1207,9 @@ void ZapFR::Client::MainWindow::setStatusBarMessage(const QString& message, int3
 ZapFR::Client::TreeViewSources* ZapFR::Client::MainWindow::treeViewSources() const noexcept
 {
     return ui->treeViewSources;
+}
+
+void ZapFR::Client::MainWindow::setContentPane(int32_t contentPaneID) const
+{
+    ui->stackedWidgetContentPanes->setCurrentIndex(contentPaneID);
 }

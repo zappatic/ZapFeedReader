@@ -984,12 +984,8 @@
    <addaction name="action_Toolbar_refresh"/>
    <addaction name="action_Mark_as_read"/>
    <addaction name="action_View_logs"/>
-   <addaction name="action_View_scripts"/>
    <addaction name="action_Back_to_posts"/>
    <addaction name="action_Clear_logs"/>
-   <addaction name="action_Remove_script"/>
-   <addaction name="action_Add_script"/>
-   <addaction name="action_Edit_script"/>
    <addaction name="action_Dummy"/>
   </widget>
   <action name="action_Add_source">
@@ -1057,38 +1053,6 @@
   <action name="action_Remove_feed">
    <property name="text">
     <string>Remove feed</string>
-   </property>
-  </action>
-  <action name="action_View_scripts">
-   <property name="text">
-    <string>View scripts</string>
-   </property>
-   <property name="toolTip">
-    <string>View scripts</string>
-   </property>
-  </action>
-  <action name="action_Edit_script">
-   <property name="text">
-    <string>Edit script</string>
-   </property>
-   <property name="toolTip">
-    <string>Edit script</string>
-   </property>
-  </action>
-  <action name="action_Remove_script">
-   <property name="text">
-    <string>Remove script</string>
-   </property>
-   <property name="toolTip">
-    <string>Remove script</string>
-   </property>
-  </action>
-  <action name="action_Add_script">
-   <property name="text">
-    <string>Add script</string>
-   </property>
-   <property name="toolTip">
-    <string>Add script</string>
    </property>
   </action>
   <action name="action_Mark_selection_as_read">

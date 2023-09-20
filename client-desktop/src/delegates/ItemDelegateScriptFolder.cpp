@@ -18,6 +18,7 @@
 
 #include "delegates/ItemDelegateScriptFolder.h"
 #include "FeedIconCache.h"
+#include "widgets/TableViewScriptFolders.h"
 #include "widgets/TreeViewSources.h"
 
 ZapFR::Client::ItemDelegateScriptFolder::ItemDelegateScriptFolder(QObject* parent) : QStyledItemDelegate(parent)
@@ -40,10 +41,10 @@ void ZapFR::Client::ItemDelegateScriptFolder::paint(QPainter* painter, const QSt
     auto fontMetrics = QFontMetrics(painter->font());
 
     // calculate the size of the badge
-    auto showTotal = index.data(ScriptFolderShowTotalRole).toBool();
-    auto showUnread = index.data(ScriptFolderShowUnreadRole).toBool();
-    auto postsTotal = index.data(ScriptFolderTotalPostCountRole).toUInt();
-    auto postsUnread = index.data(ScriptFolderTotalUnreadCountRole).toUInt();
+    auto showTotal = index.data(TableViewScriptFolders::Role::ShowTotal).toBool();
+    auto showUnread = index.data(TableViewScriptFolders::Role::ShowUnread).toBool();
+    auto postsTotal = index.data(TableViewScriptFolders::Role::TotalPostCount).toUInt();
+    auto postsUnread = index.data(TableViewScriptFolders::Role::TotalUnreadCount).toUInt();
 
     QString badgeCaption;
     if (showTotal && showUnread && postsTotal > 0 && postsUnread > 0)
