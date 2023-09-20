@@ -20,6 +20,7 @@
 #define ZAPFR_CLIENT_TABLEVIEWPOSTSENCLOSURES_H
 
 #include "ClientGlobal.h"
+#include "ZapFR/base/Post.h"
 #include "widgets/TableViewPaletteCorrected.h"
 
 namespace ZapFR
@@ -36,11 +37,16 @@ namespace ZapFR
             TableViewPostEnclosures(QWidget* parent = nullptr);
             ~TableViewPostEnclosures() = default;
 
+            void clear();
+            void loadEnclosures(const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures);
+
           private slots:
             void openEnclosureInExternalBrowser();
             void copyLink();
 
           private:
+            std::unique_ptr<QStandardItemModel> mItemModelPostEnclosures{nullptr};
+
             std::unique_ptr<QMenu> mContextMenu{nullptr};
             std::unique_ptr<QAction> mCopyLinkAction{nullptr};
             std::unique_ptr<QAction> mOpenInBrowserAction{nullptr};

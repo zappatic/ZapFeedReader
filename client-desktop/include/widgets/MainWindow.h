@@ -170,7 +170,6 @@ namespace ZapFR
             std::unique_ptr<StandardItemModelSources> mItemModelSources{nullptr};
             std::unique_ptr<SortFilterProxyModelSources> mProxyModelSources{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
-            std::unique_ptr<QStandardItemModel> mItemModelPostEnclosures{nullptr};
 
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
 

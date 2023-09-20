@@ -20,6 +20,9 @@
 
 ZapFR::Client::TableViewPostEnclosures::TableViewPostEnclosures(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
+    mItemModelPostEnclosures = std::make_unique<QStandardItemModel>(this);
+    setModel(mItemModelPostEnclosures.get());
+
     mContextMenu = std::make_unique<QMenu>(nullptr);
     mCopyLinkAction = std::make_unique<QAction>(tr("Copy link"));
     mOpenInBrowserAction = std::make_unique<QAction>(tr("Open in browser"));
@@ -55,5 +58,59 @@ void ZapFR::Client::TableViewPostEnclosures::copyLink()
         {
             QGuiApplication::clipboard()->setText(link);
         }
+    }
+}
+
+void ZapFR::Client::TableViewPostEnclosures::clear()
+{
+    mItemModelPostEnclosures->clear();
+    mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnIcon, new QStandardItem(""));
+    mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnURL, new QStandardItem(tr("URL")));
+    mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnMimetype, new QStandardItem(tr("Type")));
+    mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnFilesize, new QStandardItem(tr("Size")));
+    horizontalHeader()->setMinimumSectionSize(25);
+    horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    horizontalHeader()->setSectionResizeMode(PostEnclosuresColumnURL, QHeaderView::Stretch);
+    horizontalHeader()->resizeSection(PostEnclosuresColumnMimetype, 250);
+    horizontalHeader()->resizeSection(PostEnclosuresColumnIcon, 25);
+}
+
+void ZapFR::Client::TableViewPostEnclosures::loadEnclosures(const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures)
+{
+    QMimeDatabase mimeDB;
+    for (const auto& e : enclosures)
+    {
+        auto mimeType = mimeDB.mimeTypeForName(QString::fromUtf8(e.mimeType));
+        auto url = QString::fromUtf8(e.url);
+
+        auto icon = mimeType.iconName();
+        if (icon.isEmpty())
+        {
+            icon = mimeType.genericIconName();
+        }
+
+        auto iconItem = new QStandardItem("");
+        iconItem->setData(QIcon::fromTheme(icon), Qt::DecorationRole);
+        iconItem->setData(url, PostEnclosureLinkRole);
+
+        auto urlItem = new QStandardItem(url);
+        urlItem->setData(url, Qt::ToolTipRole);
+        urlItem->setData(url, PostEnclosureLinkRole);
+
+        auto mimeTypeItem = new QStandardItem(mimeType.name());
+        mimeTypeItem->setData(url, PostEnclosureLinkRole);
+
+        auto sizeCaption = tr("Unknown");
+        if (e.size > 0)
+        {
+            sizeCaption = locale().formattedDataSize(static_cast<int64_t>(e.size));
+        }
+        auto sizeItem = new QStandardItem(sizeCaption);
+        sizeItem->setData(url, PostEnclosureLinkRole);
+
+        QList<QStandardItem*> rowData;
+        rowData << iconItem << urlItem << mimeTypeItem << sizeItem;
+
+        mItemModelPostEnclosures->appendRow(rowData);
     }
 }

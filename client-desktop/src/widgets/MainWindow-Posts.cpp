@@ -402,19 +402,7 @@ void ZapFR::Client::MainWindow::postsTableViewSelectionChanged(const QModelIndex
 
 void ZapFR::Client::MainWindow::reloadCurrentPost()
 {
-    if (mItemModelPostEnclosures != nullptr)
-    {
-        mItemModelPostEnclosures->clear();
-        mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnIcon, new QStandardItem(""));
-        mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnURL, new QStandardItem(tr("URL")));
-        mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnMimetype, new QStandardItem(tr("Type")));
-        mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnFilesize, new QStandardItem(tr("Size")));
-        ui->tableViewPostEnclosures->horizontalHeader()->setMinimumSectionSize(25);
-        ui->tableViewPostEnclosures->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-        ui->tableViewPostEnclosures->horizontalHeader()->setSectionResizeMode(PostEnclosuresColumnURL, QHeaderView::Stretch);
-        ui->tableViewPostEnclosures->horizontalHeader()->resizeSection(PostEnclosuresColumnMimetype, 250);
-        ui->tableViewPostEnclosures->horizontalHeader()->resizeSection(PostEnclosuresColumnIcon, 25);
-    }
+    ui->tableViewPostEnclosures->clear();
 
     if (mCurrentPostSourceID > 0 && mCurrentPostFeedID > 0 && mCurrentPostID > 0)
     {
@@ -466,46 +454,7 @@ void ZapFR::Client::MainWindow::reloadCurrentPost()
 void ZapFR::Client::MainWindow::postReadyToBeShown(const QString& html, const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures)
 {
     setPostHTML(html);
-    QMimeDatabase mimeDB;
-
-    if (mItemModelPostEnclosures != nullptr)
-    {
-        for (const auto& e : enclosures)
-        {
-            auto mimeType = mimeDB.mimeTypeForName(QString::fromUtf8(e.mimeType));
-            auto url = QString::fromUtf8(e.url);
-
-            auto icon = mimeType.iconName();
-            if (icon.isEmpty())
-            {
-                icon = mimeType.genericIconName();
-            }
-
-            auto iconItem = new QStandardItem("");
-            iconItem->setData(QIcon::fromTheme(icon), Qt::DecorationRole);
-            iconItem->setData(url, PostEnclosureLinkRole);
-
-            auto urlItem = new QStandardItem(url);
-            urlItem->setData(url, Qt::ToolTipRole);
-            urlItem->setData(url, PostEnclosureLinkRole);
-
-            auto mimeTypeItem = new QStandardItem(mimeType.name());
-            mimeTypeItem->setData(url, PostEnclosureLinkRole);
-
-            auto sizeCaption = tr("Unknown");
-            if (e.size > 0)
-            {
-                sizeCaption = locale().formattedDataSize(static_cast<int64_t>(e.size));
-            }
-            auto sizeItem = new QStandardItem(sizeCaption);
-            sizeItem->setData(url, PostEnclosureLinkRole);
-
-            QList<QStandardItem*> rowData;
-            rowData << iconItem << urlItem << mimeTypeItem << sizeItem;
-
-            mItemModelPostEnclosures->appendRow(rowData);
-        }
-    }
+    ui->tableViewPostEnclosures->loadEnclosures(enclosures);
 
     // hide/show the enclosures table at an appropriate size
     if (enclosures.empty())
@@ -1026,9 +975,6 @@ void ZapFR::Client::MainWindow::initializeUIPosts()
     ui->tableViewPosts->setItemDelegate(new ItemDelegatePost(ui->tableViewPosts));
 
     ui->stackedWidgetPost->setCurrentIndex(StackedPanePost);
-
-    mItemModelPostEnclosures = std::make_unique<QStandardItemModel>(this);
-    ui->tableViewPostEnclosures->setModel(mItemModelPostEnclosures.get());
 
     ui->tableViewPosts->setMainWindow(this);
 }
