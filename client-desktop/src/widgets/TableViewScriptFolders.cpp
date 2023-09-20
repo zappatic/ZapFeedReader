@@ -17,6 +17,7 @@
 */
 
 #include "widgets/TableViewScriptFolders.h"
+#include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/ScriptFolder.h"
 #include "delegates/ItemDelegateScriptFolder.h"
@@ -94,7 +95,7 @@ void ZapFR::Client::TableViewScriptFolders::reload(bool forceReload)
         QMetaObject::invokeMethod(this, [=, this]() { populateScriptFolders(sourceID, rows); });
     };
 
-    auto index = mMainWindow->treeViewSources()->currentIndex();
+    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
     if (index.isValid())
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
@@ -144,7 +145,7 @@ void ZapFR::Client::TableViewScriptFolders::populateScriptFolders(uint64_t sourc
 
 void ZapFR::Client::TableViewScriptFolders::addScriptFolder()
 {
-    auto index = mMainWindow->treeViewSources()->currentIndex();
+    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
     if (index.isValid())
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();

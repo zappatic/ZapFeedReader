@@ -100,48 +100,56 @@ void ZapFR::Client::MainWindow::initializeUI()
 {
     initializeUISources();
     initializeUIPosts();
-    initializeUILogs();
     updatePreferredFontSize();
 
+    ui->tableViewLogs->setMainWindow(this);
     ui->tableViewScriptFolders->setMainWindow(this);
     ui->tableViewScripts->setMainWindow(this);
+    ui->webViewPost->setMainWindow(this);
+    ui->menubar->setVisible(false);
 
-    // add a spacer in the toolbar to separate the left from the right buttons
-    auto spacerLeft = new QWidget();
-    spacerLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    auto actionSpacerLeft = ui->toolBar->insertWidget(ui->action_View_logs, spacerLeft);
-    actionSpacerLeft->setProperty(gsPostPaneToolbarSpacerLeft, true);
-
-    // add the search widget to the toolbar
-    mLineEditSearch = new LineEditSearch();
-    auto actionSearch = ui->toolBar->insertWidget(ui->action_View_logs, mLineEditSearch);
-    actionSearch->setProperty(gsPostPaneLineEditSearch, true);
+    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPanePosts);
 
     // add the hamburger menu button to the toolbar
     mHamburgerMenuButton = new QPushButton();
     mHamburgerMenuButton->setFlat(true);
     mHamburgerMenuButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    auto actionHamburgerMenu = ui->toolBar->insertWidget(ui->action_Dummy, mHamburgerMenuButton);
+    auto actionHamburgerMenu = ui->toolBar->insertWidget(nullptr, mHamburgerMenuButton);
     actionHamburgerMenu->setProperty(gsHamburgerMenuButton, true);
     ui->toolBar->removeAction(ui->action_Dummy);
+
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Add_feed);
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Add_folder);
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Toolbar_refresh);
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Mark_as_read);
+
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Back_to_posts);
+
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionAddScript());
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionEditScript());
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionRemoveScript());
+
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewLogs->actionClearLogs());
+
+    // add a spacer in the toolbar to separate the left from the right buttons
+    auto spacerLeft = new QWidget();
+    spacerLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto actionSpacerLeft = ui->toolBar->insertWidget(actionHamburgerMenu, spacerLeft);
+    actionSpacerLeft->setProperty(gsPostPaneToolbarSpacerLeft, true);
+
+    // add the search widget to the toolbar
+    mLineEditSearch = new LineEditSearch();
+    auto actionSearch = ui->toolBar->insertWidget(actionHamburgerMenu, mLineEditSearch);
+    actionSearch->setProperty(gsPostPaneLineEditSearch, true);
+
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewLogs->actionViewLogs());
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionViewScripts());
 
     // add a spacer in the toolbar before the hamburger menu to ensure it is always at the right
     auto spacerRight = new QWidget();
     spacerRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     auto actionSpacerRight = ui->toolBar->insertWidget(actionHamburgerMenu, spacerRight);
     actionSpacerRight->setProperty(gsPostPaneToolbarSpacerRight, true);
-
-    // TODO: fix order (back to posts)
-    ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionViewScripts());
-    ui->toolBar->insertAction(actionSearch, ui->tableViewScripts->actionAddScript());
-    ui->toolBar->insertAction(actionSearch, ui->tableViewScripts->actionEditScript());
-    ui->toolBar->insertAction(actionSearch, ui->tableViewScripts->actionRemoveScript());
-
-    ui->menubar->setVisible(false);
-
-    ui->webViewPost->setMainWindow(this);
-
-    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPanePosts);
 }
 
 void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
@@ -636,9 +644,9 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->action_Add_source->setIcon(configureIcon(":/addFeed.svg"));
     ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
     ui->action_Edit_folder->setIcon(configureIcon(":/edit.svg"));
-    ui->action_View_logs->setIcon(configureIcon(":/viewLogs.svg"));
-    ui->action_Clear_logs->setIcon(configureIcon(":/remove.svg"));
     ui->action_Back_to_posts->setIcon(configureIcon(":/back.svg"));
+    ui->tableViewLogs->actionViewLogs()->setIcon(configureIcon(":/viewLogs.svg"));
+    ui->tableViewLogs->actionClearLogs()->setIcon(configureIcon(":/remove.svg"));
     ui->tableViewScripts->actionViewScripts()->setIcon(configureIcon(":/script.svg"));
     ui->tableViewScripts->actionEditScript()->setIcon(configureIcon(":/edit.svg"));
     ui->tableViewScripts->actionRemoveScript()->setIcon(configureIcon(":/remove.svg"));
@@ -860,7 +868,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
                 ui->action_Refresh->setVisible(true);
                 ui->action_Toolbar_refresh->setVisible(true);
                 ui->action_Mark_as_read->setVisible(true);
-                ui->action_View_logs->setVisible(true);
+                ui->tableViewLogs->actionViewLogs()->setVisible(true);
                 ui->tableViewScripts->actionViewScripts()->setVisible(true);
                 ui->action_Add_source->setVisible(true);
                 ui->action_Remove_source->setVisible(true);
@@ -871,7 +879,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
                 ui->action_Add_folder->setEnabled(anythingSelected);
                 ui->action_Mark_as_read->setEnabled(anythingSelected);
                 ui->action_Mark_as_read->setText(markAsReadCaption);
-                ui->action_View_logs->setEnabled(anythingSelected);
+                ui->tableViewLogs->actionViewLogs()->setEnabled(anythingSelected);
                 ui->action_Refresh->setEnabled(anythingSelected);
                 ui->action_Refresh->setText(refreshCaption);
                 ui->action_Toolbar_refresh->setEnabled(anythingSelected);
@@ -890,7 +898,7 @@ void ZapFR::Client::MainWindow::updateToolbar()
         case StackedPaneLogs:
         {
             ui->action_Back_to_posts->setVisible(true);
-            ui->action_Clear_logs->setVisible(true);
+            ui->tableViewLogs->actionClearLogs()->setVisible(true);
             for (const auto& action : ui->toolBar->actions())
             {
                 if (action->property(gsPostPaneToolbarSpacerRight).isValid())
@@ -1190,11 +1198,12 @@ void ZapFR::Client::MainWindow::configureConnects()
                 }
             });
 
+    ui->tableViewLogs->connectStuff();
+
     connectSourceStuff();
     connectPostStuff();
     connectFeedStuff();
     connectFolderStuff();
-    connectLogsStuff();
     connectFlagStuff();
     connectPropertiesStuff();
 }
@@ -1204,12 +1213,12 @@ void ZapFR::Client::MainWindow::setStatusBarMessage(const QString& message, int3
     ui->statusbar->showMessage(message, timeout);
 }
 
-ZapFR::Client::TreeViewSources* ZapFR::Client::MainWindow::treeViewSources() const noexcept
-{
-    return ui->treeViewSources;
-}
-
 void ZapFR::Client::MainWindow::setContentPane(int32_t contentPaneID) const
 {
     ui->stackedWidgetContentPanes->setCurrentIndex(contentPaneID);
+}
+
+Ui::MainWindow* ZapFR::Client::MainWindow::getUI() const noexcept
+{
+    return ui;
 }

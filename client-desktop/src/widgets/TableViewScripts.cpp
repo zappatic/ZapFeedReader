@@ -17,6 +17,7 @@
 */
 
 #include "widgets/TableViewScripts.h"
+#include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/Script.h"
 #include "delegates/ItemDelegateScript.h"
@@ -153,7 +154,7 @@ void ZapFR::Client::TableViewScripts::reload(bool forceReload)
         mMainWindow->setPreviouslySelectedSourceID(sourceID);
     };
 
-    auto index = mMainWindow->treeViewSources()->currentIndex();
+    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
     if (index.isValid())
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
@@ -298,7 +299,7 @@ void ZapFR::Client::TableViewScripts::removeScript()
 
 void ZapFR::Client::TableViewScripts::addScript()
 {
-    auto index = mMainWindow->treeViewSources()->currentIndex();
+    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
     if (index.isValid())
     {
         auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();

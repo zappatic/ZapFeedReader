@@ -95,7 +95,8 @@ namespace ZapFR
             void setStatusBarMessage(const QString& message, int32_t timeout = StatusBarDefaultTimeout);
             void setContentPane(int32_t contentPaneID) const;
             void updateActivePostFilter();
-            TreeViewSources* treeViewSources() const noexcept;
+            Ui::MainWindow* getUI() const noexcept;
+            void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
 
           private slots:
             // actions
@@ -122,8 +123,6 @@ namespace ZapFR
             void markPostSelectionUnflagged();
             void assignPostSelectionToScriptFolder();
             void removePostSelectionFromScriptFolder();
-
-            void reloadLogs();
 
             void showPreferences();
             void applyColorScheme();
@@ -160,7 +159,6 @@ namespace ZapFR
             void postReadyToBeShown(const QString& html, const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures);
 
             void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
-            void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
             void populateSources(uint64_t sourceID, QStandardItem* sourceItem);
             void populateUsedFlags(uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
 
@@ -173,7 +171,6 @@ namespace ZapFR
             std::unique_ptr<SortFilterProxyModelSources> mProxyModelSources{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPosts{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPostEnclosures{nullptr};
-            std::unique_ptr<QStandardItemModel> mItemModelLogs{nullptr};
 
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
 
@@ -205,10 +202,6 @@ namespace ZapFR
             std::unique_ptr<QTimer> mUpdateRemoteSourceBadgesTimer{nullptr};
             std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
 
-            uint64_t mCurrentLogPage{1};
-            uint64_t mCurrentLogCount{0};
-            uint64_t mCurrentLogPageCount{1};
-
             std::unordered_set<uint64_t> mPreviouslySelectedPostIDs{};
             uint64_t mPreviouslySelectedSourceID{0};
             uint64_t mInitialSourceCount{0};
@@ -231,7 +224,6 @@ namespace ZapFR
             void connectPostStuff();
             void connectFeedStuff();
             void connectFolderStuff();
-            void connectLogsStuff();
             void connectFlagStuff();
             void connectPropertiesStuff();
 
@@ -244,7 +236,6 @@ namespace ZapFR
             void initializeUI();
             void initializeUISources();
             void initializeUIPosts();
-            void initializeUILogs();
 
             void saveSettings() const;
             void restoreSettings();
@@ -267,13 +258,11 @@ namespace ZapFR
             void updatePreferredFontSize();
             void refreshSourceEntryType(const QModelIndex& index, uint64_t type);
             bool doesSourceHaveError(uint64_t sourceID);
-            void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
             std::vector<std::tuple<uint64_t, uint64_t>> selectedPostIDs() const;
             QStandardItem* findSourceStandardItem(uint64_t sourceID);
             std::unordered_set<QStandardItem*> findFeedStandardItems(QStandardItem* sourceItem, const std::optional<std::unordered_set<uint64_t>>& feedIDs);
 
             static constexpr uint64_t msPostsPerPage{100};
-            static constexpr uint64_t msLogsPerPage{100};
 
 #ifdef ZFR_DUMP_PALETTE
             void dumpPalette();

@@ -26,6 +26,8 @@ namespace ZapFR
 {
     namespace Client
     {
+        class MainWindow;
+
         class TableViewLogs : public TableViewPaletteCorrected
         {
             Q_OBJECT
@@ -33,6 +35,45 @@ namespace ZapFR
           public:
             TableViewLogs(QWidget* parent = nullptr);
             ~TableViewLogs() = default;
+
+            void setMainWindow(MainWindow* mw) noexcept { mMainWindow = mw; }
+            void connectStuff();
+
+            void reload();
+            void setCurrentLogPage(uint64_t page) noexcept { mCurrentLogPage = page; }
+            QAction* actionViewLogs() const noexcept { return mActionViewLogs.get(); }
+            QAction* actionClearLogs() const noexcept { return mActionClearLogs.get(); }
+
+            enum Column
+            {
+                LogLevelCol = 0,
+                FeedCol = 1,
+                TimestampCol = 2,
+                MessageCol = 3,
+            };
+
+            enum Role
+            {
+                ID = Qt::ItemDataRole::UserRole + 1,
+                FeedID = Qt::ItemDataRole::UserRole + 2,
+                Level = Qt::ItemDataRole::UserRole + 3,
+                ParentSourceID = Qt::ItemDataRole::UserRole + 4,
+            };
+
+          private:
+            MainWindow* mMainWindow{nullptr};
+            std::unique_ptr<QStandardItemModel> mItemModelLogs{nullptr};
+
+            std::unique_ptr<QAction> mActionViewLogs{nullptr};
+            std::unique_ptr<QAction> mActionClearLogs{nullptr};
+
+            uint64_t mCurrentLogPage{1};
+            uint64_t mCurrentLogCount{0};
+            uint64_t mCurrentLogPageCount{1};
+
+            void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
+
+            static constexpr uint64_t msLogsPerPage{100};
         };
     } // namespace Client
 } // namespace ZapFR

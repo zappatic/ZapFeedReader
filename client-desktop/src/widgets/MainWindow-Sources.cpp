@@ -706,8 +706,8 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                         }
                         case StackedPaneLogs:
                         {
-                            mCurrentLogPage = 1;
-                            reloadLogs();
+                            ui->tableViewLogs->setCurrentLogPage(1);
+                            ui->tableViewLogs->reload();
                             break;
                         }
                         case StackedPaneScripts:
@@ -762,7 +762,7 @@ void ZapFR::Client::MainWindow::createSourceContextMenus()
     mSourceContextMenuSource->addSeparator();
     mSourceContextMenuSource->addAction(ui->action_Remove_source);
     mSourceContextMenuSource->addSeparator();
-    mSourceContextMenuSource->addAction(ui->action_View_logs);
+    mSourceContextMenuSource->addAction(ui->tableViewLogs->actionViewLogs());
     mSourceContextMenuSource->addAction(ui->action_View_properties);
 
     mSourceContextMenuSourceError = std::make_unique<QMenu>(nullptr);

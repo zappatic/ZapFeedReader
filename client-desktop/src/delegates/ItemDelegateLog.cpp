@@ -64,12 +64,12 @@ void ZapFR::Client::ItemDelegateLog::paint(QPainter* painter, const QStyleOption
     auto currentColumn = index.column();
     switch (currentColumn)
     {
-        case LogsColumnFeed:
+        case TableViewLogs::Column::FeedCol:
         {
-            auto feedIDVariant = index.data(LogFeedIDRole);
+            auto feedIDVariant = index.data(TableViewLogs::Role::FeedID);
             if (!feedIDVariant.isNull() && feedIDVariant.isValid())
             {
-                auto sourceID = index.data(LogParentSourceIDRole).toULongLong();
+                auto sourceID = index.data(TableViewLogs::Role::ParentSourceID).toULongLong();
                 auto pixmap = FeedIconCache::icon(sourceID, feedIDVariant.toULongLong());
                 if (!pixmap.isNull())
                 {
@@ -78,7 +78,7 @@ void ZapFR::Client::ItemDelegateLog::paint(QPainter* painter, const QStyleOption
             }
             break;
         }
-        case LogsColumnLogLevel:
+        case TableViewLogs::Column::LogLevelCol:
         {
             static std::unique_ptr<QPixmap> pixmapDebug{nullptr};
             static std::unique_ptr<QPixmap> pixmapInfo{nullptr};
@@ -103,7 +103,7 @@ void ZapFR::Client::ItemDelegateLog::paint(QPainter* painter, const QStyleOption
 
             QPixmap* pixmap{nullptr};
 
-            auto logLevel = index.data(LogLevelRole).toULongLong();
+            auto logLevel = index.data(TableViewLogs::Role::Level).toULongLong();
             switch (logLevel)
             {
                 case ZapFR::Engine::LogLevel::Debug:

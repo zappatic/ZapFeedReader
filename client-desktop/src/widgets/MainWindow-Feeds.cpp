@@ -332,6 +332,6 @@ void ZapFR::Client::MainWindow::createFeedContextMenus()
     mSourceContextMenuFeed->addSeparator();
     mSourceContextMenuFeed->addAction(ui->action_Remove_feed);
     mSourceContextMenuFeed->addSeparator();
-    mSourceContextMenuFeed->addAction(ui->action_View_logs);
+    mSourceContextMenuFeed->addAction(ui->tableViewLogs->actionViewLogs());
     mSourceContextMenuFeed->addAction(ui->action_View_properties);
 }
