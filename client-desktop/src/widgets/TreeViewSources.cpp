@@ -78,7 +78,32 @@ void ZapFR::Client::TreeViewSources::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
     {
-        emit deletePressed();
+        if (mMainWindow->currentContentPane() == ContentPane::Posts)
+        {
+            auto index = currentIndex();
+            if (index.isValid())
+            {
+                auto type = index.data(Role::Type).toULongLong();
+                switch (type)
+                {
+                    case TreeViewSources::EntryType::Folder:
+                    {
+                        removeFolder();
+                        break;
+                    }
+                    case TreeViewSources::EntryType::Feed:
+                    {
+                        removeFeed();
+                        break;
+                    }
+                    case TreeViewSources::EntryType::Source:
+                    {
+                        removeSource();
+                        break;
+                    }
+                }
+            }
+        }
     }
     else
     {
@@ -94,7 +119,7 @@ void ZapFR::Client::TreeViewSources::mouseDoubleClickEvent(QMouseEvent* event)
         auto type = index.data(Role::Type).toULongLong();
         if (type == TreeViewSources::EntryType::Folder)
         {
-            emit folderDoubleClicked();
+            editFolder();
             return;
         }
     }
@@ -110,7 +135,12 @@ void ZapFR::Client::TreeViewSources::reload()
     mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
 
     // get the trees of all the sources
-    auto sources = ZapFR::Engine::Source::getSources({});
+    std::optional<std::string> typeFilter;
+    if (mMainWindow->preferences()->hideLocalSource)
+    {
+        typeFilter = ZapFR::Engine::IdentifierRemoteServer;
+    }
+    auto sources = ZapFR::Engine::Source::getSources(typeFilter);
     mInitialSourceCount = sources.size();
     for (const auto& source : sources)
     {
@@ -222,7 +252,9 @@ void ZapFR::Client::TreeViewSources::populateSources(uint64_t /*sourceID*/, QSta
 
 void ZapFR::Client::TreeViewSources::preserveExpansionSelectionState()
 {
-    if (mDisplayMode == DisplayMode::ShowAll)
+    // we skip the first expansion preservation to make sure the initial expansion data (loaded from the settings)
+    // are not overwritten on the first reload() call, when the sources aren't populated yet
+    if (!isFirstExpansionPreservation && mDisplayMode == DisplayMode::ShowAll)
     {
         mReloadExpansionSelectionState = std::make_unique<QJsonObject>();
         mReloadExpansionSelectionState->insert("expanded", expandedItems());
@@ -240,6 +272,7 @@ void ZapFR::Client::TreeViewSources::preserveExpansionSelectionState()
         mReloadExpansionSelectionState->insert("selectedID", static_cast<qint64>(selectedID));
         mReloadExpansionSelectionState->insert("selectedType", static_cast<int32_t>(selectedType));
     }
+    isFirstExpansionPreservation = false;
 }
 
 void ZapFR::Client::TreeViewSources::restoreExpansionSelectionState(QStandardItem* /*sourceItem*/)
@@ -491,12 +524,14 @@ void ZapFR::Client::TreeViewSources::setAllowDragAndDrop(bool b)
 
 void ZapFR::Client::TreeViewSources::setDisplayMode(DisplayMode dm)
 {
-    mDisplayMode = dm;
-    mProxyModelSources->setDisplayMode(dm);
     switch (dm)
     {
         case DisplayMode::ShowAll:
         {
+            // we have to update the displaymode and proxy model *BEFORE* restoring the expansion state
+            // so that the entire tree is populated
+            mProxyModelSources->setDisplayMode(dm);
+            mDisplayMode = dm;
             restoreExpansionSelectionState(nullptr);
             mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
             break;
@@ -528,6 +563,11 @@ void ZapFR::Client::TreeViewSources::setDisplayMode(DisplayMode dm)
                     }
                 }
             }
+
+            // we have to update the displaymode and proxy model *AFTER* preserving the expansion state
+            // because the tree needed to be fully populated before preserving
+            mDisplayMode = dm;
+            mProxyModelSources->setDisplayMode(dm);
             break;
         }
     }
@@ -1465,7 +1505,6 @@ void ZapFR::Client::TreeViewSources::connectStuff()
     connect(mActionAddFolder.get(), &QAction::triggered, this, &TreeViewSources::addFolder);
     connect(mActionRemoveFolder.get(), &QAction::triggered, this, &TreeViewSources::removeFolder);
     connect(mActionEditFolder.get(), &QAction::triggered, this, &TreeViewSources::editFolder);
-    connect(ui->treeViewSources, &TreeViewSources::folderDoubleClicked, this, &TreeViewSources::editFolder);
     connect(mActionAddFeed.get(), &QAction::triggered, this, &TreeViewSources::addFeed);
     connect(mActionRefresh.get(), &QAction::triggered, this, &TreeViewSources::refreshViaContextMenu);
     connect(mActionToolbarRefresh.get(), &QAction::triggered, this, &TreeViewSources::refreshViaToolbarButton);
@@ -1514,37 +1553,6 @@ void ZapFR::Client::TreeViewSources::connectStuff()
                 if ((QGuiApplication::keyboardModifiers() & Qt::ControlModifier) == Qt::ControlModifier)
                 {
                     expandRecursively(index);
-                }
-            });
-
-    connect(this, &TreeViewSources::deletePressed,
-            [&]()
-            {
-                if (mMainWindow->currentContentPane() == ContentPane::Posts)
-                {
-                    auto index = currentIndex();
-                    if (index.isValid())
-                    {
-                        auto type = index.data(Role::Type).toULongLong();
-                        switch (type)
-                        {
-                            case TreeViewSources::EntryType::Folder:
-                            {
-                                removeFolder();
-                                break;
-                            }
-                            case TreeViewSources::EntryType::Feed:
-                            {
-                                removeFeed();
-                                break;
-                            }
-                            case TreeViewSources::EntryType::Source:
-                            {
-                                removeSource();
-                                break;
-                            }
-                        }
-                    }
                 }
             });
 

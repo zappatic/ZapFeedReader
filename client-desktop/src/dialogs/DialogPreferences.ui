@@ -188,6 +188,32 @@
            </item>
           </layout>
          </item>
+         <item row="4" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="checkBoxHideLocalSource">
+             <property name="text">
+              <string>Hide 'On this computer' source</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="font">
+              <font>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>If you put all your feeds in a remote source, you can check this to hide the local source</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </item>
        <item>

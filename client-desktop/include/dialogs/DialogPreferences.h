@@ -44,13 +44,14 @@ namespace ZapFR
             DialogPreferences& operator=(DialogPreferences&&) = delete;
 
             void reset();
-            Theme chosenTheme() const;
-            uint16_t chosenUIFontSize() const;
-            uint16_t chosenPostFontSize() const;
-            RefreshBehaviour chosenRefreshBehaviour() const;
-            uint64_t chosenAutoRefreshInterval() const;
-            bool chosenAutoRefreshEnabled() const;
-            bool chosenDetectBrowsersEnabled() const;
+            Theme theme() const;
+            uint16_t uiFontSize() const;
+            uint16_t postFontSize() const;
+            RefreshBehaviour refreshBehaviour() const;
+            uint64_t autoRefreshInterval() const;
+            bool autoRefreshEnabled() const;
+            bool detectBrowsersEnabled() const;
+            bool hideLocalSource() const;
 
           private:
             Ui::DialogPreferences* ui;

@@ -75,6 +75,7 @@ void ZapFR::Client::DialogPreferences::reset()
     ui->spinBoxUIFontSize->setValue(mainWindow->preferences()->uiFontSize);
     ui->spinBoxPostFontSize->setValue(mainWindow->preferences()->postFontSize);
     ui->checkBoxDetectBrowsers->setChecked(mainWindow->preferences()->detectBrowsers);
+    ui->checkBoxHideLocalSource->setChecked(mainWindow->preferences()->hideLocalSource);
 
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     ui->spinBoxAutoRefreshInterval->setValue(static_cast<int32_t>(ar->feedRefreshInterval() / 60));
@@ -83,7 +84,7 @@ void ZapFR::Client::DialogPreferences::reset()
     ui->tabWidget->setCurrentIndex(0);
 }
 
-ZapFR::Client::Theme ZapFR::Client::DialogPreferences::chosenTheme() const
+ZapFR::Client::Theme ZapFR::Client::DialogPreferences::theme() const
 {
     if (ui->radioButtonThemeDark->isChecked())
     {
@@ -103,17 +104,17 @@ ZapFR::Client::Theme ZapFR::Client::DialogPreferences::chosenTheme() const
     }
 }
 
-uint16_t ZapFR::Client::DialogPreferences::chosenUIFontSize() const
+uint16_t ZapFR::Client::DialogPreferences::uiFontSize() const
 {
     return static_cast<uint16_t>(ui->spinBoxUIFontSize->value());
 }
 
-uint16_t ZapFR::Client::DialogPreferences::chosenPostFontSize() const
+uint16_t ZapFR::Client::DialogPreferences::postFontSize() const
 {
     return static_cast<uint16_t>(ui->spinBoxPostFontSize->value());
 }
 
-ZapFR::Client::RefreshBehaviour ZapFR::Client::DialogPreferences::chosenRefreshBehaviour() const
+ZapFR::Client::RefreshBehaviour ZapFR::Client::DialogPreferences::refreshBehaviour() const
 {
     if (ui->radioButtonradioButtonRefreshBehaviourForceSource->isChecked())
     {
@@ -125,17 +126,22 @@ ZapFR::Client::RefreshBehaviour ZapFR::Client::DialogPreferences::chosenRefreshB
     }
 }
 
-uint64_t ZapFR::Client::DialogPreferences::chosenAutoRefreshInterval() const
+uint64_t ZapFR::Client::DialogPreferences::autoRefreshInterval() const
 {
     return static_cast<uint64_t>(ui->spinBoxAutoRefreshInterval->value() * 60);
 }
 
-bool ZapFR::Client::DialogPreferences::chosenAutoRefreshEnabled() const
+bool ZapFR::Client::DialogPreferences::autoRefreshEnabled() const
 {
     return ui->checkBoxAutoRefreshEnabled->isChecked();
 }
 
-bool ZapFR::Client::DialogPreferences::chosenDetectBrowsersEnabled() const
+bool ZapFR::Client::DialogPreferences::detectBrowsersEnabled() const
 {
     return ui->checkBoxDetectBrowsers->isChecked();
+}
+
+bool ZapFR::Client::DialogPreferences::hideLocalSource() const
+{
+    return ui->checkBoxHideLocalSource->isChecked();
 }

@@ -176,6 +176,7 @@ namespace ZapFR
             void populateSources(uint64_t sourceID, QStandardItem* sourceItem);
             void preserveExpansionSelectionState();
             void restoreExpansionSelectionState(QStandardItem* sourceItem);
+            bool isFirstExpansionPreservation{true};
             QJsonArray expandedItems() const;
             void expandItems(const QJsonArray& items);
             void remoteSourceUnreadCountsReceived(uint64_t sourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts);

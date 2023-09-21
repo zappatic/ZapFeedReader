@@ -83,8 +83,8 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     initializeUI();
     connectStuff();
     configureIcons();
-    ui->treeViewSources->reload();
     restoreSettings();
+    ui->treeViewSources->reload();
     ui->tableViewPosts->reloadCurrentPost();
     ui->tableViewPosts->updateActivePostFilter();
 }
@@ -189,6 +189,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(SETTING_UI_FONTSIZE, mPreferences->uiFontSize);
     root.insert(SETTING_POST_FONTSIZE, mPreferences->postFontSize);
     root.insert(SETTING_POST_DETECTBROWSERS, mPreferences->detectBrowsers);
+    root.insert(SETTING_UI_HIDE_LOCAL_SOURCE, mPreferences->hideLocalSource);
     root.insert(SETTING_FEEDS_REFRESH_BEHAVIOUR, mPreferences->refreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     root.insert(SETTING_FEEDS_AUTOREFRESH_INTERVAL, static_cast<int32_t>(ar->feedRefreshInterval()));
@@ -256,6 +257,10 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 if (root.contains(SETTING_POST_DETECTBROWSERS))
                 {
                     mPreferences->detectBrowsers = root.value(SETTING_POST_DETECTBROWSERS).toBool();
+                }
+                if (root.contains(SETTING_UI_HIDE_LOCAL_SOURCE))
+                {
+                    mPreferences->hideLocalSource = root.value(SETTING_UI_HIDE_LOCAL_SOURCE).toBool();
                 }
                 if (root.contains(SETTING_FEEDS_REFRESH_BEHAVIOUR))
                 {
@@ -832,23 +837,26 @@ void ZapFR::Client::MainWindow::showPreferences()
                 {
                     if (result == QDialog::DialogCode::Accepted)
                     {
-                        mPreferences->theme = mDialogPreferences->chosenTheme();
+                        mPreferences->theme = mDialogPreferences->theme();
                         applyColorScheme();
 
-                        mPreferences->uiFontSize = mDialogPreferences->chosenUIFontSize();
+                        mPreferences->uiFontSize = mDialogPreferences->uiFontSize();
                         updatePreferredFontSize();
 
-                        mPreferences->postFontSize = mDialogPreferences->chosenPostFontSize();
+                        mPreferences->postFontSize = mDialogPreferences->postFontSize();
                         ui->tableViewPosts->reloadCurrentPost();
 
-                        mPreferences->detectBrowsers = mDialogPreferences->chosenDetectBrowsersEnabled();
+                        mPreferences->detectBrowsers = mDialogPreferences->detectBrowsersEnabled();
 
-                        mPreferences->refreshBehaviour = mDialogPreferences->chosenRefreshBehaviour();
+                        mPreferences->hideLocalSource = mDialogPreferences->hideLocalSource();
+                        ui->treeViewSources->reload();
+
+                        mPreferences->refreshBehaviour = mDialogPreferences->refreshBehaviour();
                         updateToolbar();
 
                         auto ar = ZapFR::Engine::AutoRefresh::getInstance();
-                        ar->setEnabled(mDialogPreferences->chosenAutoRefreshEnabled());
-                        ar->setFeedRefreshInterval(mDialogPreferences->chosenAutoRefreshInterval());
+                        ar->setEnabled(mDialogPreferences->autoRefreshEnabled());
+                        ar->setFeedRefreshInterval(mDialogPreferences->autoRefreshInterval());
 
                         saveSettings();
                     }
