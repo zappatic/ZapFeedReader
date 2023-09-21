@@ -132,6 +132,15 @@ namespace ZapFR
             EntireSource,
         };
 
+        struct Preferences
+        {
+            Theme theme{Theme::UseSystem};
+            uint16_t uiFontSize{11};
+            uint16_t postFontSize{16};
+            RefreshBehaviour refreshBehaviour{RefreshBehaviour::CurrentSelection};
+            bool detectBrowsers{false};
+        };
+
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";
 

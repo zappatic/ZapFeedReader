@@ -56,26 +56,19 @@ namespace ZapFR
             MainWindow(MainWindow&&) = delete;
             MainWindow& operator=(MainWindow&&) = delete;
 
-            Theme currentPreferenceTheme() const noexcept { return mPreferenceTheme; }
-            uint16_t currentPreferenceUIFontSize() const noexcept { return mPreferenceUIFontSize; }
-            uint16_t currentPreferencePostFontSize() const noexcept { return mPreferencePostFontSize; }
-            bool currentPreferenceDetectBrowsers() const noexcept { return mPreferenceDetectBrowsers; }
-            RefreshBehaviour currentPreferenceRefreshBehaviour() const noexcept { return mPreferenceRefreshBehaviour; }
-
-            Theme getCurrentColorTheme() const;
+            const Preferences* preferences() const noexcept { return mPreferences.get(); }
 
             Ui::MainWindow* getUI() const noexcept;
             TreeViewSources* treeViewSources() const noexcept;
-            void setStatusBarMessage(const QString& message, int32_t timeout = StatusBarDefaultTimeout);
-            void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
+            Theme getCurrentColorTheme() const;
             QString searchQuery() const;
-            void updateToolbar();
-
-            void setContentPane(int32_t contentPaneID) const;
             int32_t currentContentPane() const noexcept;
-
             QString configDir() const;
 
+            void setStatusBarMessage(const QString& message, int32_t timeout = StatusBarDefaultTimeout);
+            void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
+            void updateToolbar();
+            void setContentPane(int32_t contentPaneID) const;
             void cloneSourceTreeContents(uint64_t sourceID, QStandardItemModel* destination, const std::optional<std::unordered_set<uint64_t>>& feedIDsToCheck);
 
           private slots:
@@ -96,13 +89,7 @@ namespace ZapFR
             std::unique_ptr<QPushButton> mHamburgerMenuButton{nullptr};
             std::unique_ptr<QWidget> mToolbarSpacerLeft{nullptr};
             std::unique_ptr<QWidget> mToolbarSpacerRight{nullptr};
-
-            Theme mPreferenceTheme{Theme::UseSystem};
-            uint16_t mPreferenceUIFontSize{11};
-            uint16_t mPreferencePostFontSize{16};
-            RefreshBehaviour mPreferenceRefreshBehaviour{RefreshBehaviour::CurrentSelection};
-            bool mPreferenceDetectBrowsers{false};
-
+            std::unique_ptr<Preferences> mPreferences{nullptr};
             std::unique_ptr<QAction> mActionShowPreferences{nullptr};
             std::unique_ptr<QAction> mActionExit{nullptr};
             std::unique_ptr<QAction> mActionBackToPosts{nullptr};

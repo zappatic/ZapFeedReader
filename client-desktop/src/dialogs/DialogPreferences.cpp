@@ -33,7 +33,7 @@ ZapFR::Client::DialogPreferences::~DialogPreferences()
 void ZapFR::Client::DialogPreferences::reset()
 {
     auto mainWindow = qobject_cast<MainWindow*>(parent());
-    switch (mainWindow->currentPreferenceTheme())
+    switch (mainWindow->preferences()->theme)
     {
         case Theme::Dark:
         {
@@ -59,7 +59,7 @@ void ZapFR::Client::DialogPreferences::reset()
     ui->radioButtonThemeSystem->setVisible(false);
 #endif
 
-    switch (mainWindow->currentPreferenceRefreshBehaviour())
+    switch (mainWindow->preferences()->refreshBehaviour)
     {
         case RefreshBehaviour::CurrentSelection:
         {
@@ -72,9 +72,9 @@ void ZapFR::Client::DialogPreferences::reset()
             break;
         }
     }
-    ui->spinBoxUIFontSize->setValue(mainWindow->currentPreferenceUIFontSize());
-    ui->spinBoxPostFontSize->setValue(mainWindow->currentPreferencePostFontSize());
-    ui->checkBoxDetectBrowsers->setChecked(mainWindow->currentPreferenceDetectBrowsers());
+    ui->spinBoxUIFontSize->setValue(mainWindow->preferences()->uiFontSize);
+    ui->spinBoxPostFontSize->setValue(mainWindow->preferences()->postFontSize);
+    ui->checkBoxDetectBrowsers->setChecked(mainWindow->preferences()->detectBrowsers);
 
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     ui->spinBoxAutoRefreshInterval->setValue(static_cast<int32_t>(ar->feedRefreshInterval() / 60));

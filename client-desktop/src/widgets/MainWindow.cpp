@@ -79,6 +79,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
                                       { ui->treeViewSources->feedRefreshed(sourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
         });
 
+    mPreferences = std::make_unique<Preferences>();
     initializeUI();
     connectStuff();
     configureIcons();
@@ -181,14 +182,14 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE, QString::fromUtf8(ui->splitterSourcesAndScriptFolders->saveState().toBase64()));
     root.insert(SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE, QString::fromUtf8(ui->splitterPostsTableAndPostView->saveState().toBase64()));
     ui->treeViewSources->saveSettings(root);
-    if (mPreferenceTheme != Theme::UseSystem)
+    if (mPreferences->theme != Theme::UseSystem)
     {
-        root.insert(SETTING_UI_THEME, mPreferenceTheme == Theme::Light ? "light" : "dark");
+        root.insert(SETTING_UI_THEME, mPreferences->theme == Theme::Light ? "light" : "dark");
     }
-    root.insert(SETTING_UI_FONTSIZE, mPreferenceUIFontSize);
-    root.insert(SETTING_POST_FONTSIZE, mPreferencePostFontSize);
-    root.insert(SETTING_POST_DETECTBROWSERS, mPreferenceDetectBrowsers);
-    root.insert(SETTING_FEEDS_REFRESH_BEHAVIOUR, mPreferenceRefreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
+    root.insert(SETTING_UI_FONTSIZE, mPreferences->uiFontSize);
+    root.insert(SETTING_POST_FONTSIZE, mPreferences->postFontSize);
+    root.insert(SETTING_POST_DETECTBROWSERS, mPreferences->detectBrowsers);
+    root.insert(SETTING_FEEDS_REFRESH_BEHAVIOUR, mPreferences->refreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     root.insert(SETTING_FEEDS_AUTOREFRESH_INTERVAL, static_cast<int32_t>(ar->feedRefreshInterval()));
     root.insert(SETTING_FEEDS_AUTOREFRESH_ENABLED, ar->isEnabled());
@@ -240,25 +241,25 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 if (root.contains(SETTING_UI_THEME))
                 {
                     auto value = root.value(SETTING_UI_THEME);
-                    mPreferenceTheme = (value == "light" ? Theme::Light : Theme::Dark);
+                    mPreferences->theme = (value == "light" ? Theme::Light : Theme::Dark);
                     applyColorScheme();
                 }
                 if (root.contains(SETTING_UI_FONTSIZE))
                 {
-                    mPreferenceUIFontSize = static_cast<uint16_t>(root.value(SETTING_UI_FONTSIZE).toInt(11));
+                    mPreferences->uiFontSize = static_cast<uint16_t>(root.value(SETTING_UI_FONTSIZE).toInt(11));
                     updatePreferredFontSize();
                 }
                 if (root.contains(SETTING_POST_FONTSIZE))
                 {
-                    mPreferencePostFontSize = static_cast<uint16_t>(root.value(SETTING_POST_FONTSIZE).toInt(11));
+                    mPreferences->postFontSize = static_cast<uint16_t>(root.value(SETTING_POST_FONTSIZE).toInt(11));
                 }
                 if (root.contains(SETTING_POST_DETECTBROWSERS))
                 {
-                    mPreferenceDetectBrowsers = root.value(SETTING_POST_DETECTBROWSERS).toBool();
+                    mPreferences->detectBrowsers = root.value(SETTING_POST_DETECTBROWSERS).toBool();
                 }
                 if (root.contains(SETTING_FEEDS_REFRESH_BEHAVIOUR))
                 {
-                    mPreferenceRefreshBehaviour =
+                    mPreferences->refreshBehaviour =
                         (root.value(SETTING_FEEDS_REFRESH_BEHAVIOUR).toString() == "entiresource" ? RefreshBehaviour::EntireSource : RefreshBehaviour::CurrentSelection);
                 }
 
@@ -428,33 +429,33 @@ QString ZapFR::Client::MainWindow::settingsFile() const
 void ZapFR::Client::MainWindow::updatePreferredFontSize()
 {
     auto font = ui->treeViewSources->font();
-    font.setPointSizeF(mPreferenceUIFontSize);
+    font.setPointSizeF(mPreferences->uiFontSize);
     ui->treeViewSources->setFont(font);
 
-    auto tableViewRowHeight = static_cast<int32_t>(std::ceil(static_cast<float>(mPreferenceUIFontSize) * 1.333f) + 8);
+    auto tableViewRowHeight = static_cast<int32_t>(std::ceil(static_cast<float>(mPreferences->uiFontSize) * 1.333f) + 8);
 
     font = ui->tableViewPosts->font();
-    font.setPointSizeF(mPreferenceUIFontSize);
+    font.setPointSizeF(mPreferences->uiFontSize);
     ui->tableViewPosts->setFont(font);
     ui->tableViewPosts->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
     font = ui->tableViewPostEnclosures->font();
-    font.setPointSizeF(mPreferenceUIFontSize);
+    font.setPointSizeF(mPreferences->uiFontSize);
     ui->tableViewPostEnclosures->setFont(font);
     ui->tableViewPostEnclosures->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
     font = ui->tableViewScriptFolders->font();
-    font.setPointSizeF(mPreferenceUIFontSize);
+    font.setPointSizeF(mPreferences->uiFontSize);
     ui->tableViewScriptFolders->setFont(font);
     ui->tableViewScriptFolders->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
     font = ui->tableViewLogs->font();
-    font.setPointSizeF(mPreferenceUIFontSize);
+    font.setPointSizeF(mPreferences->uiFontSize);
     ui->tableViewLogs->setFont(font);
     ui->tableViewLogs->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
     font = ui->tableViewScripts->font();
-    font.setPointSizeF(mPreferenceUIFontSize);
+    font.setPointSizeF(mPreferences->uiFontSize);
     ui->tableViewScripts->setFont(font);
     ui->tableViewScripts->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
@@ -699,14 +700,14 @@ void ZapFR::Client::MainWindow::updateToolbar()
                     case TreeViewSources::EntryType::Feed:
                     {
                         markAsReadCaption = tr("Mark feed as read");
-                        refreshToolbarCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh feed") : tr("Refresh source"));
+                        refreshToolbarCaption = (mPreferences->refreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh feed") : tr("Refresh source"));
                         refreshCaption = tr("Refresh feed");
                         break;
                     }
                     case TreeViewSources::EntryType::Folder:
                     {
                         markAsReadCaption = tr("Mark folder as read");
-                        refreshToolbarCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh folder") : tr("Refresh source"));
+                        refreshToolbarCaption = (mPreferences->refreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh folder") : tr("Refresh source"));
                         refreshCaption = tr("Refresh folder");
                         break;
                     }
@@ -831,18 +832,18 @@ void ZapFR::Client::MainWindow::showPreferences()
                 {
                     if (result == QDialog::DialogCode::Accepted)
                     {
-                        mPreferenceTheme = mDialogPreferences->chosenTheme();
+                        mPreferences->theme = mDialogPreferences->chosenTheme();
                         applyColorScheme();
 
-                        mPreferenceUIFontSize = mDialogPreferences->chosenUIFontSize();
+                        mPreferences->uiFontSize = mDialogPreferences->chosenUIFontSize();
                         updatePreferredFontSize();
 
-                        mPreferencePostFontSize = mDialogPreferences->chosenPostFontSize();
+                        mPreferences->postFontSize = mDialogPreferences->chosenPostFontSize();
                         ui->tableViewPosts->reloadCurrentPost();
 
-                        mPreferenceDetectBrowsers = mDialogPreferences->chosenDetectBrowsersEnabled();
+                        mPreferences->detectBrowsers = mDialogPreferences->chosenDetectBrowsersEnabled();
 
-                        mPreferenceRefreshBehaviour = mDialogPreferences->chosenRefreshBehaviour();
+                        mPreferences->refreshBehaviour = mDialogPreferences->chosenRefreshBehaviour();
                         updateToolbar();
 
                         auto ar = ZapFR::Engine::AutoRefresh::getInstance();
@@ -859,7 +860,7 @@ void ZapFR::Client::MainWindow::showPreferences()
 
 ZapFR::Client::Theme ZapFR::Client::MainWindow::getCurrentColorTheme() const
 {
-    auto currentColorTheme = mPreferenceTheme;
+    auto currentColorTheme = mPreferences->theme;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     if (currentColorTheme == Theme::UseSystem)

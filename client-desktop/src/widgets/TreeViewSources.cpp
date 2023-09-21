@@ -1057,7 +1057,7 @@ void ZapFR::Client::TreeViewSources::refreshViaToolbarButton()
     if (index.isValid())
     {
         auto type = index.data(Role::Type).toULongLong();
-        if (mMainWindow->currentPreferenceRefreshBehaviour() == RefreshBehaviour::EntireSource)
+        if (mMainWindow->preferences()->refreshBehaviour == RefreshBehaviour::EntireSource)
         {
             type = TreeViewSources::EntryType::Source;
         }

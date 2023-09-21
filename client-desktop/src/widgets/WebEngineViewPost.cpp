@@ -38,7 +38,7 @@ void ZapFR::Client::WebEngineViewPost::contextMenuEvent(QContextMenuEvent* event
         connect(openInBrowserAction, &QAction::triggered, [&]() { QDesktopServices::openUrl(mClickedURL); });
         mContextMenu->addAction(openInBrowserAction);
 
-        if (mMainWindow->currentPreferenceDetectBrowsers())
+        if (mMainWindow->preferences()->detectBrowsers)
         {
 
             static bool browsersDetected{false};
@@ -154,7 +154,7 @@ QString ZapFR::Client::WebEngineViewPost::postStyles() const
         QString backgroundColor;
         QString textColor;
         QColor highlightColor = palette.color(QPalette::Active, QPalette::Highlight);
-        QString bodyFontSize = QString::number(mMainWindow->currentPreferencePostFontSize());
+        QString bodyFontSize = QString::number(mMainWindow->preferences()->postFontSize);
 
         if (mMainWindow->getCurrentColorTheme() == Theme::Dark)
         {
