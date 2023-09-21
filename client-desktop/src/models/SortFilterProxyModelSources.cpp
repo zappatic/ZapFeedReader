@@ -17,6 +17,7 @@
 */
 
 #include "models/SortFilterProxyModelSources.h"
+#include "widgets/TreeViewSources.h"
 
 ZapFR::Client::SortFilterProxyModelSources::SortFilterProxyModelSources(QObject* parent) : QSortFilterProxyModel(parent)
 {
@@ -24,7 +25,7 @@ ZapFR::Client::SortFilterProxyModelSources::SortFilterProxyModelSources(QObject*
 
 bool ZapFR::Client::SortFilterProxyModelSources::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
-    if (mSourceTreeDisplayMode == SourceTreeDisplayMode::ShowAll)
+    if (mDisplayMode == TreeViewSources::DisplayMode::ShowAll)
     {
         return true;
     }
@@ -33,38 +34,33 @@ bool ZapFR::Client::SortFilterProxyModelSources::filterAcceptsRow(int sourceRow,
         auto ix = sourceModel()->index(sourceRow, 0, sourceParent);
         if (ix.isValid())
         {
-            auto type = ix.data(SourceTreeEntryTypeRole).toULongLong();
-            return (type == SOURCETREE_ENTRY_TYPE_SOURCE);
+            auto type = ix.data(TreeViewSources::Role::Type).toULongLong();
+            return (type == TreeViewSources::EntryType::Source);
         }
     }
     return true;
 }
 
-void ZapFR::Client::SortFilterProxyModelSources::setDisplayMode(SourceTreeDisplayMode mode)
+void ZapFR::Client::SortFilterProxyModelSources::setDisplayMode(TreeViewSources::DisplayMode mode)
 {
-    mSourceTreeDisplayMode = mode;
+    mDisplayMode = mode;
     invalidate();
-}
-
-ZapFR::Client::SortFilterProxyModelSources::SourceTreeDisplayMode ZapFR::Client::SortFilterProxyModelSources::displayMode() const noexcept
-{
-    return mSourceTreeDisplayMode;
 }
 
 bool ZapFR::Client::SortFilterProxyModelSources::lessThan(const QModelIndex& left, const QModelIndex& right) const
 {
-    auto leftType = left.data(SourceTreeEntryTypeRole).toULongLong();
-    auto rightType = right.data(SourceTreeEntryTypeRole).toULongLong();
+    auto leftType = left.data(TreeViewSources::Role::Type).toULongLong();
+    auto rightType = right.data(TreeViewSources::Role::Type).toULongLong();
 
     // make sure folders and feeds are sorted separately within a folder, and folders go at the top
-    if (leftType == SOURCETREE_ENTRY_TYPE_FOLDER && rightType == SOURCETREE_ENTRY_TYPE_FEED)
+    if (leftType == TreeViewSources::EntryType::Folder && rightType == TreeViewSources::EntryType::Feed)
     {
         return true;
     }
-    else if (leftType == SOURCETREE_ENTRY_TYPE_FEED && rightType == SOURCETREE_ENTRY_TYPE_FOLDER)
+    else if (leftType == TreeViewSources::EntryType::Feed && rightType == TreeViewSources::EntryType::Folder)
     {
         return false;
     }
 
-    return left.data(SourceTreeEntrySortOrderRole).toULongLong() < right.data(SourceTreeEntrySortOrderRole).toULongLong();
+    return left.data(TreeViewSources::Role::SortOrder).toULongLong() < right.data(TreeViewSources::Role::SortOrder).toULongLong();
 }

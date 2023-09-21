@@ -20,6 +20,7 @@
 #define ZAPFR_CLIENT_SORTFILTERPROXYMODELSOURCES_H
 
 #include "ClientGlobal.h"
+#include "widgets/TreeViewSources.h"
 
 namespace ZapFR
 {
@@ -33,21 +34,14 @@ namespace ZapFR
             SortFilterProxyModelSources(QObject* parent = nullptr);
             ~SortFilterProxyModelSources() = default;
 
-            enum class SourceTreeDisplayMode
-            {
-                ShowSourcesOnly,
-                ShowAll
-            };
-
-            void setDisplayMode(SourceTreeDisplayMode mode);
-            SourceTreeDisplayMode displayMode() const noexcept;
+            void setDisplayMode(TreeViewSources::DisplayMode mode);
 
           protected:
             bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
             bool lessThan(const QModelIndex& sourceLeft, const QModelIndex& sourceRight) const override;
 
           private:
-            SourceTreeDisplayMode mSourceTreeDisplayMode{SourceTreeDisplayMode::ShowAll};
+            TreeViewSources::DisplayMode mDisplayMode{TreeViewSources::DisplayMode::ShowAll};
         };
     } // namespace Client
 } // namespace ZapFR

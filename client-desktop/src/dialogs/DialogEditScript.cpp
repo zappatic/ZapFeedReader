@@ -22,6 +22,7 @@
 #include "models/StandardItemModelSources.h"
 #include "ui_DialogEditScript.h"
 #include "widgets/MainWindow.h"
+#include "widgets/TreeViewSources.h"
 
 ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(parent), ui(new Ui::DialogEditScript)
 {
@@ -119,37 +120,7 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
 
     // clone the feeds and folders from the sources tree view, so we don't have to requery
     mFeedsModel->clear();
-    auto parentModel = qobject_cast<MainWindow*>(parent())->sourcesItemModel();
-
-    std::function<void(const QModelIndex&, QStandardItem*)> cloneItemAndChildren;
-    cloneItemAndChildren = [&](const QModelIndex& parent, QStandardItem* feedsModelParentItem)
-    {
-        for (int32_t i = 0; i < parentModel->rowCount(parent); ++i)
-        {
-            auto child = parentModel->index(i, 0, parent);
-            if (child.data(SourceTreeEntryParentSourceIDRole).toULongLong() == sourceID)
-            {
-                auto clone = parentModel->itemFromIndex(child)->clone();
-
-                if (runOnFeedIDs.has_value() && clone->data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED &&
-                    runOnFeedIDs.value().contains(clone->data(SourceTreeEntryIDRole).toULongLong()))
-                {
-                    clone->setData(Qt::Checked, Qt::CheckStateRole);
-                }
-                else
-                {
-                    clone->setData(Qt::Unchecked, Qt::CheckStateRole);
-                }
-                feedsModelParentItem->appendRow(clone);
-                cloneItemAndChildren(child, clone);
-            }
-        }
-    };
-    for (int32_t j = 0; j < parentModel->invisibleRootItem()->rowCount(); ++j)
-    {
-        auto index = parentModel->index(j, 0);
-        cloneItemAndChildren(index, mFeedsModel->invisibleRootItem());
-    }
+    qobject_cast<MainWindow*>(parent())->cloneSourceTreeContents(mCurrentSourceID, mFeedsModel.get(), runOnFeedIDs);
 
     // auto expand all the folders
     std::function<void(QStandardItem*)> expandChildren;
@@ -225,17 +196,17 @@ std::unordered_set<uint64_t> ZapFR::Client::DialogEditScript::runOnFeedIDs() con
         {
             auto child = parent->child(i, 0);
             auto index = mFeedsModel->indexFromItem(child);
-            switch (index.data(SourceTreeEntryTypeRole).toULongLong())
+            switch (index.data(TreeViewSources::Role::Type).toULongLong())
             {
-                case SOURCETREE_ENTRY_TYPE_FEED:
+                case TreeViewSources::EntryType::Feed:
                 {
                     if (index.data(Qt::CheckStateRole) == Qt::Checked)
                     {
-                        feedIDs.insert(index.data(SourceTreeEntryIDRole).toULongLong());
+                        feedIDs.insert(index.data(TreeViewSources::Role::ID).toULongLong());
                     }
                     break;
                 }
-                case SOURCETREE_ENTRY_TYPE_FOLDER:
+                case TreeViewSources::EntryType::Folder:
                 {
                     findCheckedFeedIDs(child);
                     break;

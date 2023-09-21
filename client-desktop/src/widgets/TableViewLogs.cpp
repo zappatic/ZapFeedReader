@@ -104,24 +104,24 @@ void ZapFR::Client::TableViewLogs::reload()
         QMetaObject::invokeMethod(this, [=, this]() { populateLogs(rows, page, totalRecordCount); });
     };
 
-    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
+    auto index = mMainWindow->treeViewSources()->currentIndex();
     if (index.isValid())
     {
-        if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+        if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Feed)
         {
-            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+            auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+            auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueGetFeedLogs(sourceID, feedID, msLogsPerPage, mCurrentLogPage, processLogs);
         }
-        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+        else if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Folder)
         {
-            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-            auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+            auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+            auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueGetFolderLogs(sourceID, folderID, msLogsPerPage, mCurrentLogPage, processLogs);
         }
-        else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+        else if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Source)
         {
-            auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+            auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueGetSourceLogs(sourceID, msLogsPerPage, mCurrentLogPage, processLogs);
         }
         else
@@ -133,7 +133,7 @@ void ZapFR::Client::TableViewLogs::reload()
 
 void ZapFR::Client::TableViewLogs::populateLogs(const QList<QList<QStandardItem*>>& logs, uint64_t pageNumber, uint64_t totalLogCount)
 {
-    mMainWindow->setContentPane(StackedPaneLogs);
+    mMainWindow->setContentPane(ContentPane::Logs);
 
     mItemModelLogs->clear();
     mItemModelLogs->setHorizontalHeaderItem(Column::LogLevelCol, new QStandardItem(tr("Level")));
@@ -177,27 +177,27 @@ void ZapFR::Client::TableViewLogs::connectStuff()
                     return;
                 }
 
-                auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
+                auto index = mMainWindow->treeViewSources()->currentIndex();
                 if (index.isValid())
                 {
-                    auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
-                    auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                    auto type = index.data(TreeViewSources::Role::Type).toULongLong();
+                    auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
                     switch (type)
                     {
-                        case SOURCETREE_ENTRY_TYPE_SOURCE:
+                        case TreeViewSources::EntryType::Source:
                         {
                             ZapFR::Engine::Agent::getInstance()->queueClearSourceLogs(sourceID, [&]() { reload(); });
                             break;
                         }
-                        case SOURCETREE_ENTRY_TYPE_FOLDER:
+                        case TreeViewSources::EntryType::Folder:
                         {
-                            auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+                            auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
                             ZapFR::Engine::Agent::getInstance()->queueClearFolderLogs(sourceID, folderID, [&]() { reload(); });
                             break;
                         }
-                        case SOURCETREE_ENTRY_TYPE_FEED:
+                        case TreeViewSources::EntryType::Feed:
                         {
-                            auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+                            auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
                             ZapFR::Engine::Agent::getInstance()->queueClearFeedLogs(sourceID, feedID, [&]() { reload(); });
                             break;
                         }

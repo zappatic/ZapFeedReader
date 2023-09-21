@@ -129,7 +129,7 @@ ZapFR::Client::WebEngineViewPost::detectBrowser(const QString& title, const QStr
 void ZapFR::Client::WebEngineViewPost::setPostHTML(const QString& html)
 {
     setHtml(html);
-    mMainWindow->getUI()->stackedWidgetPost->setCurrentIndex(StackedPanePost);
+    mMainWindow->getUI()->stackedWidgetPost->setCurrentIndex(PostPane::Post);
 }
 
 void ZapFR::Client::WebEngineViewPost::setBlankPostPage()
@@ -146,7 +146,7 @@ QString ZapFR::Client::WebEngineViewPost::postStyles() const
 
     if (!mPostStylesCacheValid)
     {
-        auto tvs = mMainWindow->getUI()->treeViewSources;
+        auto tvs = mMainWindow->treeViewSources();
         auto font = tvs->font();
         auto palette = QPalette(tvs->palette());
 

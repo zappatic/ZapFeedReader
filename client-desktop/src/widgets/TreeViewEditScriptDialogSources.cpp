@@ -17,6 +17,7 @@
 */
 
 #include "widgets/TreeViewEditScriptDialogSources.h"
+#include "widgets/TreeViewSources.h"
 
 ZapFR::Client::TreeViewEditScriptDialogSources::TreeViewEditScriptDialogSources(QWidget* parent) : TreeViewPaletteCorrected(parent)
 {
@@ -25,7 +26,7 @@ ZapFR::Client::TreeViewEditScriptDialogSources::TreeViewEditScriptDialogSources(
 void ZapFR::Client::TreeViewEditScriptDialogSources::mousePressEvent(QMouseEvent* event)
 {
     auto index = indexAt(event->pos());
-    if (index.isValid() && index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
+    if (index.isValid() && index.data(TreeViewSources::Role::Type).toULongLong() == TreeViewSources::EntryType::Feed)
     {
         emit feedClicked(index);
     }

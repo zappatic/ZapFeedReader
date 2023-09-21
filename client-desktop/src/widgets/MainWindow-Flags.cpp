@@ -26,14 +26,14 @@ void ZapFR::Client::MainWindow::reloadUsedFlagColors(bool forceReload)
     auto index = ui->treeViewSources->currentIndex();
     if (index.isValid())
     {
-        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        if (forceReload || sourceID != mPreviouslySelectedSourceID)
+        auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+        if (forceReload || sourceID != ui->treeViewSources->previouslySelectedSourceID())
         {
             ZapFR::Engine::Agent::getInstance()->queueGetUsedFlagColors(sourceID,
                                                                         [&](uint64_t affectedSourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
                                                                         {
                                                                             QMetaObject::invokeMethod(this, [=, this]() { populateUsedFlags(affectedSourceID, flagColors); });
-                                                                            mPreviouslySelectedSourceID = affectedSourceID;
+                                                                            ui->treeViewSources->setPreviouslySelectedSourceID(affectedSourceID);
                                                                         });
         }
     }

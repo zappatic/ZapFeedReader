@@ -39,13 +39,6 @@ namespace ZapFR
 
     namespace Client
     {
-        class StandardItemModelSources;
-        class SortFilterProxyModelSources;
-        class DialogAddSource;
-        class DialogAddFeed;
-        class DialogAddFolder;
-        class DialogEditFolder;
-        class DialogImportOPML;
         class DialogJumpToPage;
         class DialogPreferences;
         class LineEditSearch;
@@ -76,7 +69,6 @@ namespace ZapFR
             MainWindow(MainWindow&&) = delete;
             MainWindow& operator=(MainWindow&&) = delete;
 
-            StandardItemModelSources* sourcesItemModel() const noexcept { return mItemModelSources.get(); }
             Theme currentPreferenceTheme() const noexcept { return mPreferenceTheme; }
             uint16_t currentPreferenceUIFontSize() const noexcept { return mPreferenceUIFontSize; }
             uint16_t currentPreferencePostFontSize() const noexcept { return mPreferencePostFontSize; }
@@ -86,58 +78,28 @@ namespace ZapFR
             Theme getCurrentColorTheme() const;
 
             // TODO : move into respective widgets:
-            void reloadSources();
             void reloadUsedFlagColors(bool forceReload = false);
 
-            uint64_t previouslySelectedSourceID() const noexcept { return mPreviouslySelectedSourceID; }
-            void setPreviouslySelectedSourceID(uint64_t sID) noexcept { mPreviouslySelectedSourceID = sID; }
-            void setStatusBarMessage(const QString& message, int32_t timeout = StatusBarDefaultTimeout);
-            void setContentPane(int32_t contentPaneID) const;
             Ui::MainWindow* getUI() const noexcept;
+            TreeViewSources* treeViewSources() const noexcept;
+            void setStatusBarMessage(const QString& message, int32_t timeout = StatusBarDefaultTimeout);
             void showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback);
             QString searchQuery() const;
             void updateToolbar();
+
+            void setContentPane(int32_t contentPaneID) const;
+            int32_t currentContentPane() const noexcept;
+
             QString configDir() const;
-            void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
+
+            void cloneSourceTreeContents(uint64_t sourceID, QStandardItemModel* destination, const std::optional<std::unordered_set<uint64_t>>& feedIDsToCheck);
 
           private slots:
             // actions
-            void addSource();
-            void removeSource();
-            void setUnreadBadgesShown(bool b);
-
-            void addFeed();
-            void refreshViaToolbarButton();
-            void refreshViaContextMenu();
-            void removeFeed();
-
-            void addFolder();
-            void editFolder();
-            void removeFolder();
-
-            void importOPML();
-            void exportOPML();
-
             void showPreferences();
             void applyColorScheme();
 
             // callbacks
-            void agentErrorOccurred(uint64_t sourceID, const std::string& errorMessage);
-            void sourcePropertiesReceived(const QMap<QString, QVariant>& props);
-            void remoteSourceUnreadCountsReceived(uint64_t sourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts);
-
-            void feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::string& error, const std::string& feedTitle,
-                               const std::string& iconHash, const std::string& icon);
-            void feedAdded(uint64_t sourceID, uint64_t feedID);
-            void feedRemoved();
-            void feedPropertiesReceived(const QMap<QString, QVariant>& props);
-
-            void folderRemoved();
-            void folderAdded();
-            void folderUpdated(uint64_t sourceID, uint64_t folderID, const std::string& newTitle);
-            void folderPropertiesReceived(const QMap<QString, QVariant>& props);
-
-            void populateSources(uint64_t sourceID, QStandardItem* sourceItem);
             void populateUsedFlags(uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
 
           protected:
@@ -145,29 +107,11 @@ namespace ZapFR
 
           private:
             Ui::MainWindow* ui;
-            std::unique_ptr<StandardItemModelSources> mItemModelSources{nullptr};
-            std::unique_ptr<SortFilterProxyModelSources> mProxyModelSources{nullptr};
 
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
 
-            std::unique_ptr<DialogAddSource> mDialogAddSource{nullptr};
-            std::unique_ptr<DialogAddFeed> mDialogAddFeed{nullptr};
-            std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};
-            std::unique_ptr<DialogEditFolder> mDialogEditFolder{nullptr};
-            std::unique_ptr<DialogImportOPML> mDialogImportOPML{nullptr};
             std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
             std::unique_ptr<DialogPreferences> mDialogPreferences{nullptr};
-
-            std::unique_ptr<QMenu> mSourceContextMenuSource{nullptr};
-            std::unique_ptr<QMenu> mSourceContextMenuSourceError{nullptr};
-            std::unique_ptr<QMenu> mSourceContextMenuFeed{nullptr};
-            std::unique_ptr<QMenu> mSourceContextMenuFolder{nullptr};
-
-            std::unique_ptr<QTimer> mUpdateRemoteSourceBadgesTimer{nullptr};
-            std::unique_ptr<QJsonObject> mReloadSourcesExpansionSelectionState{nullptr};
-
-            uint64_t mPreviouslySelectedSourceID{0};
-            uint64_t mInitialSourceCount{0};
 
             std::unique_ptr<LineEditSearch> mLineEditSearch{nullptr};
             std::unique_ptr<QPushButton> mHamburgerMenuButton{nullptr};
@@ -180,40 +124,23 @@ namespace ZapFR
             RefreshBehaviour mPreferenceRefreshBehaviour{RefreshBehaviour::CurrentSelection};
             bool mPreferenceDetectBrowsers{false};
 
+            std::unique_ptr<QAction> mActionShowPreferences{nullptr};
+            std::unique_ptr<QAction> mActionExit{nullptr};
+            std::unique_ptr<QAction> mActionBackToPosts{nullptr};
+
             QString dataDir() const;
             QString settingsFile() const;
 
             void configureConnects();
-            void connectSourceStuff();
-            void connectFeedStuff();
-            void connectFolderStuff();
             void connectFlagStuff();
-            void connectPropertiesStuff();
-
-            void createContextMenus();
-            void createSourceContextMenus();
-            void createFolderContextMenus();
-            void createFeedContextMenus();
 
             void initializeUI();
-            void initializeUISources();
 
             void saveSettings() const;
             void restoreSettings();
-            QJsonArray expandedSourceTreeItems() const;
-            void preserveSourceTreeExpansionSelectionState();
-            void restoreSourceTreeExpansionSelectionState(QStandardItem* sourceItem);
-            void expandSourceTreeItems(const QJsonArray& items) const;
-            std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFolderID() const;
-
-            void reloadPropertiesPane();
 
             void configureIcons();
             void updatePreferredFontSize();
-            void refreshSourceEntryType(const QModelIndex& index, uint64_t type);
-            bool doesSourceHaveError(uint64_t sourceID);
-            QStandardItem* findSourceStandardItem(uint64_t sourceID);
-            std::unordered_set<QStandardItem*> findFeedStandardItems(QStandardItem* sourceItem, const std::optional<std::unordered_set<uint64_t>>& feedIDs);
 
 #ifdef ZFR_DUMP_PALETTE
             void dumpPalette();

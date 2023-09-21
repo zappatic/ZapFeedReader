@@ -935,14 +935,8 @@
     <property name="title">
      <string notr="true">Hamburger</string>
     </property>
-    <addaction name="action_Add_source"/>
-    <addaction name="action_Remove_source"/>
     <addaction name="separator"/>
-    <addaction name="action_Import_OPML"/>
-    <addaction name="action_Export_OPML"/>
     <addaction name="separator"/>
-    <addaction name="action_Show_preferences"/>
-    <addaction name="action_Exit"/>
    </widget>
    <addaction name="menu_Hamburger"/>
   </widget>
@@ -979,135 +973,6 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <action name="action_Add_source">
-   <property name="text">
-    <string>Add source</string>
-   </property>
-  </action>
-  <action name="action_Add_feed">
-   <property name="text">
-    <string>Add feed</string>
-   </property>
-  </action>
-  <action name="action_Import_OPML">
-   <property name="text">
-    <string>Import OPML</string>
-   </property>
-  </action>
-  <action name="action_Mark_as_read">
-   <property name="toolTip">
-    <string>Mark as read</string>
-   </property>
-  </action>
-  <action name="action_Refresh">
-   <property name="text">
-    <string>Refresh</string>
-   </property>
-   <property name="toolTip">
-    <string>Refresh</string>
-   </property>
-  </action>
-  <action name="action_Add_folder">
-   <property name="text">
-    <string>Add folder</string>
-   </property>
-   <property name="toolTip">
-    <string>Add folder</string>
-   </property>
-  </action>
-  <action name="action_Back_to_posts">
-   <property name="text">
-    <string>Back to posts</string>
-   </property>
-   <property name="toolTip">
-    <string>Back to posts</string>
-   </property>
-  </action>
-  <action name="action_Mark_selection_as_unread">
-   <property name="text">
-    <string>Mark as unread</string>
-   </property>
-  </action>
-  <action name="action_Remove_folder">
-   <property name="text">
-    <string>Remove folder</string>
-   </property>
-  </action>
-  <action name="action_Remove_feed">
-   <property name="text">
-    <string>Remove feed</string>
-   </property>
-  </action>
-  <action name="action_Mark_selection_as_read">
-   <property name="text">
-    <string>Mark as read</string>
-   </property>
-   <property name="toolTip">
-    <string>Mark as read</string>
-   </property>
-  </action>
-  <action name="action_Export_OPML">
-   <property name="text">
-    <string>Export OPML</string>
-   </property>
-   <property name="toolTip">
-    <string>Export OPML</string>
-   </property>
-  </action>
-  <action name="action_Dummy"/>
-  <action name="action_Exit">
-   <property name="text">
-    <string>Exit</string>
-   </property>
-   <property name="toolTip">
-    <string>Exit</string>
-   </property>
-  </action>
-  <action name="action_View_properties">
-   <property name="text">
-    <string>View properties</string>
-   </property>
-   <property name="toolTip">
-    <string>View properties</string>
-   </property>
-  </action>
-  <action name="action_Remove_source">
-   <property name="text">
-    <string>Remove source</string>
-   </property>
-   <property name="toolTip">
-    <string>Remove source</string>
-   </property>
-  </action>
-  <action name="action_Edit_folder">
-   <property name="text">
-    <string>Edit folder</string>
-   </property>
-   <property name="toolTip">
-    <string>Edit folder</string>
-   </property>
-  </action>
-  <action name="action_Show_preferences">
-   <property name="text">
-    <string>Preferences</string>
-   </property>
-   <property name="toolTip">
-    <string>Preferences</string>
-   </property>
-  </action>
-  <action name="action_Toolbar_refresh">
-   <property name="text">
-    <string>Refresh</string>
-   </property>
-   <property name="toolTip">
-    <string>Refresh</string>
-   </property>
-  </action>
-  <action name="action_Reconnect_to_source">
-   <property name="text">
-    <string>Reconnect to source</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>

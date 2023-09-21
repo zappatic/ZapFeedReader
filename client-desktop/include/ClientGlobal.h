@@ -98,35 +98,26 @@ namespace ZapFR
         static const QString SETTING_FEEDS_AUTOREFRESH_ENABLED = "feeds.autorefresh.enabled";
         static const QString SETTING_FEEDS_AUTOREFRESH_INTERVAL = "feeds.autorefresh.interval";
 
-        static const uint32_t SOURCETREE_ENTRY_TYPE_SOURCE = 0;
-        static const uint32_t SOURCETREE_ENTRY_TYPE_FEED = 1;
-        static const uint32_t SOURCETREE_ENTRY_TYPE_FOLDER = 2;
+        enum ContentPane
+        {
+            Posts = 0,
+            Logs = 1,
+            Scripts = 2,
+            Properties = 3,
+        };
 
-        static const uint32_t SourceTreeEntryTypeRole{Qt::ItemDataRole::UserRole + 1};
-        static const uint32_t SourceTreeEntryIDRole{Qt::ItemDataRole::UserRole + 2};
-        static const uint32_t SourceTreeEntryParentSourceIDRole{Qt::ItemDataRole::UserRole + 3};
-        static const uint32_t SourceTreeEntryUnreadCount{Qt::ItemDataRole::UserRole + 4};
-        static const uint32_t SourceTreeEntryDisplayUnreadCountBadge{Qt::ItemDataRole::UserRole + 5};
-        static const uint32_t SourceTreeEntryParentFolderIDRole{Qt::ItemDataRole::UserRole + 6};
-        static const uint32_t SourceTreeEntryErrorRole{Qt::ItemDataRole::UserRole + 7};
-        static const uint32_t SourceTreeEntryFeedURLRole{Qt::ItemDataRole::UserRole + 8};
-        static const uint32_t SourceTreeEntrySortOrderRole{Qt::ItemDataRole::UserRole + 9};
-        static const uint32_t SourceTreeEntrySourceTypeRole{Qt::ItemDataRole::UserRole + 10};
+        enum PostPane
+        {
+            Post = 0,
+            PostCaption = 1,
+        };
 
-        // ui->stackedWidgetContentPanes's panes
-        static const uint32_t StackedPanePosts = 0;
-        static const uint32_t StackedPaneLogs = 1;
-        static const uint32_t StackedPaneScripts = 2;
-        static const uint32_t StackedPaneProperties = 3;
-
-        // ui->stackedWidgetPost's panes
-        static const uint32_t StackedPanePost = 0;
-        static const uint32_t StackedPanePostCaption = 1;
-
-        // ui->stackedWidgetProperties's panes
-        static const uint32_t StackedPanePropertiesSource = 0;
-        static const uint32_t StackedPanePropertiesFolder = 1;
-        static const uint32_t StackedPanePropertiesFeed = 2;
+        enum PropertiesPane
+        {
+            SourceProps = 0,
+            FolderProps = 1,
+            FeedProps = 2,
+        };
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";

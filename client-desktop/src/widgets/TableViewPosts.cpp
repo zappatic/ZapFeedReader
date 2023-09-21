@@ -39,6 +39,10 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPalett
     mPopupFlagChooser = std::make_unique<PopupFlagChooser>(this);
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
 
+    mActionMarkAsRead = std::make_unique<QAction>(tr("Mark as read"), this);
+    mActionMarkSelectionAsRead = std::make_unique<QAction>(tr("Mark as read"), this);
+    mActionMarkSelectionAsUnread = std::make_unique<QAction>(tr("Mark as unread"), this);
+
     viewport()->setAttribute(Qt::WA_Hover);
     setMouseTracking(true);
 }
@@ -49,7 +53,7 @@ void ZapFR::Client::TableViewPosts::setMainWindow(MainWindow* mainWindow) noexce
 
     auto ui = mMainWindow->getUI();
     ui->webViewPost->setPage(mPostWebEnginePage.get());
-    ui->stackedWidgetPost->setCurrentIndex(StackedPanePost);
+    ui->stackedWidgetPost->setCurrentIndex(PostPane::Post);
     connectStuff();
     createContextMenus();
 }
@@ -128,26 +132,26 @@ void ZapFR::Client::TableViewPosts::reload()
     }
     else
     {
-        index = mMainWindow->getUI()->treeViewSources->currentIndex();
+        index = mMainWindow->treeViewSources()->currentIndex();
         if (index.isValid())
         {
-            if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+            if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Feed)
             {
-                auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+                auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+                auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
                                                                        processPosts);
             }
-            else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+            else if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Folder)
             {
-                auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+                auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+                auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
                                                                          processPosts);
             }
-            else if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_SOURCE)
+            else if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Source)
             {
-                auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+                auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
                                                                          processPosts);
             }
@@ -162,7 +166,7 @@ void ZapFR::Client::TableViewPosts::reload()
 
 void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardItem*>>& posts, uint64_t pageNumber, uint64_t totalPostCount)
 {
-    mMainWindow->setContentPane(StackedPanePosts);
+    mMainWindow->setContentPane(ContentPane::Posts);
 
     int32_t columnWidthUnread = 50;
     int32_t columnWidthFlag = 40;
@@ -199,9 +203,9 @@ void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardIte
     // in case we have just 1 feed selected, hide the feed column in the posts table
     // if we have a script folder selected, always show the feed column
     setColumnHidden(Column::FeedCol, false);
-    auto treeViewSourcesIndex = mMainWindow->getUI()->treeViewSources->currentIndex();
+    auto treeViewSourcesIndex = mMainWindow->treeViewSources()->currentIndex();
     auto tableViewScriptFoldersIndex = mMainWindow->getUI()->tableViewScriptFolders->currentIndex();
-    if (!tableViewScriptFoldersIndex.isValid() && treeViewSourcesIndex.isValid() && treeViewSourcesIndex.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+    if (!tableViewScriptFoldersIndex.isValid() && treeViewSourcesIndex.isValid() && treeViewSourcesIndex.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Feed)
     {
         setColumnHidden(Column::FeedCol, true);
     }
@@ -266,13 +270,13 @@ void ZapFR::Client::TableViewPosts::handleSelectionChanged(const QModelIndexList
     {
         ui->webViewPost->setBlankPostPage();
         ui->widgetPostCaption->setCaption(tr("No post selected"), mMainWindow);
-        ui->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
+        ui->stackedWidgetPost->setCurrentIndex(PostPane::PostCaption);
     }
     else
     {
         ui->webViewPost->setBlankPostPage();
         ui->widgetPostCaption->setCaption(tr("%1 posts selected").arg(selected.count()), mMainWindow);
-        ui->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
+        ui->stackedWidgetPost->setCurrentIndex(PostPane::PostCaption);
     }
 }
 
@@ -293,7 +297,8 @@ void ZapFR::Client::TableViewPosts::selectionChanged(const QItemSelection& selec
 
 void ZapFR::Client::TableViewPosts::reloadCurrentPost()
 {
-    mMainWindow->getUI()->tableViewPostEnclosures->clear();
+    auto ui = mMainWindow->getUI();
+    ui->tableViewPostEnclosures->clear();
 
     if (mCurrentPostSourceID > 0 && mCurrentPostFeedID > 0 && mCurrentPostID > 0)
     {
@@ -308,16 +313,16 @@ void ZapFR::Client::TableViewPosts::reloadCurrentPost()
     }
     else
     {
-        mMainWindow->getUI()->webViewPost->setBlankPostPage();
-        mMainWindow->getUI()->widgetPostCaption->setCaption(tr("No post selected"), mMainWindow);
-        mMainWindow->getUI()->stackedWidgetPost->setCurrentIndex(StackedPanePostCaption);
+        ui->webViewPost->setBlankPostPage();
+        ui->widgetPostCaption->setCaption(tr("No post selected"), mMainWindow);
+        ui->stackedWidgetPost->setCurrentIndex(PostPane::PostCaption);
     }
 }
 
 void ZapFR::Client::TableViewPosts::postReadyToBeShown(const QString& html, const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures)
 {
     auto ui = mMainWindow->getUI();
-    mMainWindow->getUI()->webViewPost->setPostHTML(html);
+    ui->webViewPost->setPostHTML(html);
     ui->tableViewPostEnclosures->loadEnclosures(enclosures);
 
     // hide/show the enclosures table at an appropriate size
@@ -521,7 +526,7 @@ void ZapFR::Client::TableViewPosts::postsMarkedRead(uint64_t sourceID, const std
             {
                 std::unordered_set<uint64_t> feedIDs;
                 feedIDs.insert(affectedFeedID);
-                QMetaObject::invokeMethod(this, [=, this]() { mMainWindow->updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
+                QMetaObject::invokeMethod(this, [=, this]() { mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
             });
     }
 
@@ -558,7 +563,7 @@ void ZapFR::Client::TableViewPosts::postsMarkedUnread(uint64_t sourceID, const s
             {
                 std::unordered_set<uint64_t> feedIDs;
                 feedIDs.insert(affectedFeedID);
-                QMetaObject::invokeMethod(this, [=, this]() { mMainWindow->updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
+                QMetaObject::invokeMethod(this, [=, this]() { mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
             });
     }
 
@@ -588,24 +593,24 @@ void ZapFR::Client::TableViewPosts::postsMarkedUnflagged(bool doReloadPosts)
 
 void ZapFR::Client::TableViewPosts::markAsRead()
 {
-    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
+    auto index = mMainWindow->treeViewSources()->currentIndex();
     if (index.isValid())
     {
-        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
+        auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+        auto type = index.data(TreeViewSources::Role::Type).toULongLong();
         switch (type)
         {
-            case SOURCETREE_ENTRY_TYPE_FEED:
+            case TreeViewSources::EntryType::Feed:
             {
-                auto feedID = index.data(SourceTreeEntryIDRole).toULongLong();
+                auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID,
                                                                        [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
                                                                        {
                                                                            QMetaObject::invokeMethod(this,
                                                                                                      [=, this]()
                                                                                                      {
-                                                                                                         mMainWindow->updateFeedUnreadCountBadge(affectedSourceID,
-                                                                                                                                                 {affectedFeedID}, false, 0);
+                                                                                                         mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
+                                                                                                             affectedSourceID, {affectedFeedID}, false, 0);
                                                                                                          mCurrentPostPage = 1;
                                                                                                          reload();
                                                                                                          mMainWindow->getUI()->tableViewScriptFolders->reload(true);
@@ -614,17 +619,17 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                        });
                 break;
             }
-            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            case TreeViewSources::EntryType::Folder:
             {
-                auto folderID = index.data(SourceTreeEntryIDRole).toULongLong();
+                auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID,
                                                                          [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> affectedFeedIDs)
                                                                          {
                                                                              QMetaObject::invokeMethod(this,
                                                                                                        [=, this]()
                                                                                                        {
-                                                                                                           mMainWindow->updateFeedUnreadCountBadge(affectedSourceID,
-                                                                                                                                                   affectedFeedIDs, false, 0);
+                                                                                                           mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
+                                                                                                               affectedSourceID, affectedFeedIDs, false, 0);
                                                                                                            mCurrentPostPage = 1;
                                                                                                            reload();
                                                                                                            mMainWindow->getUI()->tableViewScriptFolders->reload(true);
@@ -633,7 +638,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                          });
                 break;
             }
-            case SOURCETREE_ENTRY_TYPE_SOURCE:
+            case TreeViewSources::EntryType::Source:
             {
                 ZapFR::Engine::Agent::getInstance()->queueMarkSourceRead(sourceID,
                                                                          [&](uint64_t affectedSourceID)
@@ -641,8 +646,8 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                              QMetaObject::invokeMethod(this,
                                                                                                        [=, this]()
                                                                                                        {
-                                                                                                           mMainWindow->updateFeedUnreadCountBadge(affectedSourceID, {}, true,
-                                                                                                                                                   0);
+                                                                                                           mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
+                                                                                                               affectedSourceID, {}, true, 0);
                                                                                                            mCurrentPostPage = 1;
                                                                                                            reload();
                                                                                                            mMainWindow->getUI()->tableViewScriptFolders->reload(true);
@@ -660,7 +665,7 @@ void ZapFR::Client::TableViewPosts::markPostSelectionAsRead()
     auto feedAndPostIDs = selectedPostIDs();
     if (feedAndPostIDs.size() > 0)
     {
-        auto sourceID = mMainWindow->getUI()->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(
             sourceID, feedAndPostIDs,
             [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
@@ -673,7 +678,7 @@ void ZapFR::Client::TableViewPosts::markPostSelectionAsUnread()
     auto feedAndPostIDs = selectedPostIDs();
     if (feedAndPostIDs.size() > 0)
     {
-        auto sourceID = mMainWindow->getUI()->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(
             sourceID, feedAndPostIDs,
             [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
@@ -689,7 +694,7 @@ void ZapFR::Client::TableViewPosts::markPostSelectionFlagged()
     auto feedAndPostIDs = selectedPostIDs();
     if (feedAndPostIDs.size() > 0)
     {
-        auto sourceID = mMainWindow->getUI()->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsFlagged(sourceID, feedAndPostIDs, {flagColor},
                                                                    [&]() { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedFlagged(true); }); });
     }
@@ -712,7 +717,7 @@ void ZapFR::Client::TableViewPosts::markPostSelectionUnflagged()
     auto feedAndPostIDs = selectedPostIDs();
     if (feedAndPostIDs.size() > 0)
     {
-        auto sourceID = mMainWindow->getUI()->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, feedAndPostIDs, flagColors,
                                                                      [&]() { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedUnflagged(true); }); });
     }
@@ -725,7 +730,7 @@ void ZapFR::Client::TableViewPosts::assignPostSelectionToScriptFolder()
     auto feedAndPostIDs = selectedPostIDs();
     if (feedAndPostIDs.size() > 0)
     {
-        auto sourceID = mMainWindow->getUI()->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueAssignPostsToScriptFolder(
             sourceID, scriptFolderID, feedAndPostIDs,
             [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
@@ -740,7 +745,7 @@ void ZapFR::Client::TableViewPosts::removePostSelectionFromScriptFolder()
     auto feedAndPostIDs = selectedPostIDs();
     if (feedAndPostIDs.size() > 0)
     {
-        auto sourceID = mMainWindow->getUI()->treeViewSources->currentIndex().data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueRemovePostsFromScriptFolder(
             sourceID, scriptFolderID, feedAndPostIDs,
             [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
@@ -823,11 +828,9 @@ void ZapFR::Client::TableViewPosts::connectStuff()
     connect(this, &QTableView::doubleClicked, this, &TableViewPosts::openPostInExternalBrowser);
     connect(mPopupFlagChooser.get(), &PopupFlagChooser::flagToggled, this, &TableViewPosts::processFlagToggle);
 
-    connect(ui->action_Mark_as_read, &QAction::triggered, this, &TableViewPosts::markAsRead);
-    connect(ui->action_Mark_selection_as_unread, &QAction::triggered, this, &TableViewPosts::markPostSelectionAsUnread);
-    connect(ui->action_Mark_selection_as_read, &QAction::triggered, this, &TableViewPosts::markPostSelectionAsRead);
-
-    connect(ui->action_Back_to_posts, &QAction::triggered, [&]() { mMainWindow->setContentPane(StackedPanePosts); });
+    connect(mActionMarkAsRead.get(), &QAction::triggered, this, &TableViewPosts::markAsRead);
+    connect(mActionMarkSelectionAsUnread.get(), &QAction::triggered, this, &TableViewPosts::markPostSelectionAsUnread);
+    connect(mActionMarkSelectionAsRead.get(), &QAction::triggered, this, &TableViewPosts::markPostSelectionAsRead);
 
     connect(this, &TableViewPosts::customContextMenuRequested,
             [&](const QPoint& p)
@@ -944,7 +947,7 @@ void ZapFR::Client::TableViewPosts::connectStuff()
     connect(mPostWebEnginePage.get(), &QWebEnginePage::linkHovered,
             [&](const QString& url)
             {
-                if (mMainWindow->getUI()->stackedWidgetPost->currentIndex() == StackedPanePost)
+                if (mMainWindow->getUI()->stackedWidgetPost->currentIndex() == PostPane::Post)
                 {
                     if (!url.isEmpty())
                     {
@@ -981,10 +984,9 @@ void ZapFR::Client::TableViewPosts::connectStuff()
 
 void ZapFR::Client::TableViewPosts::createContextMenus()
 {
-    auto ui = mMainWindow->getUI(); // TODO: create actions and refer to them locally
     mPostContextMenu = std::make_unique<QMenu>(nullptr);
-    mPostContextMenu->addAction(ui->action_Mark_selection_as_read);
-    mPostContextMenu->addAction(ui->action_Mark_selection_as_unread);
+    mPostContextMenu->addAction(mActionMarkSelectionAsRead.get());
+    mPostContextMenu->addAction(mActionMarkSelectionAsUnread.get());
     mPostContextMenu->addSeparator();
 
     // flag submenu

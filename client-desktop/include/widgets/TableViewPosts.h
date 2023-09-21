@@ -56,6 +56,10 @@ namespace ZapFR
             ZapFR::Engine::FlagColor flagFilter() const noexcept { return mFlagFilter; }
             void setFlagFilter(ZapFR::Engine::FlagColor f) noexcept { mFlagFilter = f; }
 
+            QAction* actionMarkAsRead() const noexcept { return mActionMarkAsRead.get(); }
+            QAction* actionMarkSelectionAsRead() const noexcept { return mActionMarkSelectionAsRead.get(); }
+            QAction* actionMarkSelectionAsUnread() const noexcept { return mActionMarkSelectionAsUnread.get(); }
+
             enum Column
             {
                 UnreadCol = 0,
@@ -99,6 +103,10 @@ namespace ZapFR
             std::unordered_set<uint64_t> mPreviouslySelectedPostIDs{};
             std::unique_ptr<QMenu> mPostContextMenu{nullptr};
             std::unique_ptr<WebEnginePagePost> mPostWebEnginePage{nullptr};
+
+            std::unique_ptr<QAction> mActionMarkAsRead{nullptr};
+            std::unique_ptr<QAction> mActionMarkSelectionAsRead{nullptr};
+            std::unique_ptr<QAction> mActionMarkSelectionAsUnread{nullptr};
 
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};

@@ -48,15 +48,17 @@ ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) :
 
 void ZapFR::Client::TableViewScriptFolders::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
+    auto ui = mMainWindow->getUI();
+
     QTableView::selectionChanged(selected, deselected);
     for (const auto& index : selectedIndexes())
     {
         if (index.isValid() && index.column() == Column::TitleCol)
         {
-            mMainWindow->getUI()->tableViewPosts->reload();
+            ui->tableViewPosts->reload();
         }
     }
-    mMainWindow->getUI()->tableViewPosts->updateActivePostFilter();
+    ui->tableViewPosts->updateActivePostFilter();
 }
 
 void ZapFR::Client::TableViewScriptFolders::keyPressEvent(QKeyEvent* event)
@@ -95,11 +97,11 @@ void ZapFR::Client::TableViewScriptFolders::reload(bool forceReload)
         QMetaObject::invokeMethod(this, [=, this]() { populateScriptFolders(sourceID, rows); });
     };
 
-    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
+    auto index = mMainWindow->treeViewSources()->currentIndex();
     if (index.isValid())
     {
-        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        if (forceReload || sourceID != mMainWindow->previouslySelectedSourceID())
+        auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+        if (forceReload || sourceID != mMainWindow->treeViewSources()->previouslySelectedSourceID())
         {
             // store currently selected script folder
             auto scriptFolderIndex = currentIndex();
@@ -114,7 +116,7 @@ void ZapFR::Client::TableViewScriptFolders::reload(bool forceReload)
 
 void ZapFR::Client::TableViewScriptFolders::populateScriptFolders(uint64_t sourceID, const QList<QList<QStandardItem*>>& scriptFolders)
 {
-    mMainWindow->setPreviouslySelectedSourceID(sourceID);
+    mMainWindow->treeViewSources()->setPreviouslySelectedSourceID(sourceID);
     mItemModelScriptFolders = std::make_unique<QStandardItemModel>(this);
     setModel(mItemModelScriptFolders.get());
     auto headerItem = new QStandardItem(tr("Script folders"));
@@ -145,10 +147,10 @@ void ZapFR::Client::TableViewScriptFolders::populateScriptFolders(uint64_t sourc
 
 void ZapFR::Client::TableViewScriptFolders::addScriptFolder()
 {
-    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
+    auto index = mMainWindow->treeViewSources()->currentIndex();
     if (index.isValid())
     {
-        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
 
         auto dialog = editScriptFolderDialog();
         dialog->reset(DialogEditScriptFolder::DisplayMode::Add, sourceID, 0, "", false, false);

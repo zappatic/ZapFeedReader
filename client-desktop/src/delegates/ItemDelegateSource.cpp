@@ -71,13 +71,13 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         painter->fillRect(option.rect, brushBackground);
     }
 
-    auto entryType = index.data(SourceTreeEntryTypeRole).toULongLong();
+    auto entryType = index.data(TreeViewSources::Role::Type).toULongLong();
 
     // draw the icon
-    if (entryType == SOURCETREE_ENTRY_TYPE_FEED)
+    if (entryType == TreeViewSources::EntryType::Feed)
     {
         QPixmap icon;
-        auto feedError = index.data(SourceTreeEntryErrorRole);
+        auto feedError = index.data(TreeViewSources::Role::Error);
         if (!feedError.isNull() && feedError.isValid() && !feedError.toString().isEmpty())
         {
             icon = QPixmap(":/feedError.svg");
@@ -85,16 +85,16 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
         }
         else
         {
-            icon = FeedIconCache::icon(index.data(SourceTreeEntryParentSourceIDRole).toULongLong(), index.data(SourceTreeEntryIDRole).toULongLong());
+            icon = FeedIconCache::icon(index.data(TreeViewSources::Role::ParentSourceID).toULongLong(), index.data(TreeViewSources::Role::ID).toULongLong());
         }
         auto iconSize = titleRect.height() * .75;
         auto iconTargetRect = QRectF(titleRect.left(), titleRect.top() + ((titleRect.height() - iconSize) / 2.0), iconSize, iconSize);
         painter->drawPixmap(iconTargetRect, icon, icon.rect());
         titleRect.adjust(static_cast<int32_t>(iconSize) + 9, 0, 0, 0);
     }
-    else if (entryType == SOURCETREE_ENTRY_TYPE_SOURCE)
+    else if (entryType == TreeViewSources::EntryType::Source)
     {
-        auto sourceError = index.data(SourceTreeEntryErrorRole);
+        auto sourceError = index.data(TreeViewSources::Role::Error);
         if (!sourceError.isNull() && sourceError.isValid() && !sourceError.toString().isEmpty())
         {
             brushText = QBrush(Qt::darkRed);
@@ -109,9 +109,9 @@ void ZapFR::Client::ItemDelegateSource::paint(QPainter* painter, const QStyleOpt
     painter->drawText(titleRect, elidedTitle, titleTextOptions);
 
     // draw the unread amount badge
-    if (entryType == SOURCETREE_ENTRY_TYPE_FEED && index.data(SourceTreeEntryDisplayUnreadCountBadge).toBool() == true)
+    if (entryType == TreeViewSources::EntryType::Feed && index.data(TreeViewSources::Role::DisplayUnreadCountBadge).toBool() == true)
     {
-        auto unreadCount = index.data(SourceTreeEntryUnreadCount).toULongLong();
+        auto unreadCount = index.data(TreeViewSources::Role::UnreadCount).toULongLong();
         if (unreadCount > 0)
         {
             auto unreadCountString = QString::number(unreadCount);

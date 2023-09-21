@@ -150,14 +150,14 @@ void ZapFR::Client::TableViewScripts::reload(bool forceReload)
         }
 
         QMetaObject::invokeMethod(this, [=, this]() { populateScripts(rows); });
-        mMainWindow->setPreviouslySelectedSourceID(sourceID);
+        mMainWindow->treeViewSources()->setPreviouslySelectedSourceID(sourceID);
     };
 
-    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
+    auto index = mMainWindow->treeViewSources()->currentIndex();
     if (index.isValid())
     {
-        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-        if (forceReload || sourceID != mMainWindow->previouslySelectedSourceID())
+        auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+        if (forceReload || sourceID != mMainWindow->treeViewSources()->previouslySelectedSourceID())
         {
             ZapFR::Engine::Agent::getInstance()->queueGetScripts(sourceID, processScripts);
         }
@@ -166,7 +166,7 @@ void ZapFR::Client::TableViewScripts::reload(bool forceReload)
 
 void ZapFR::Client::TableViewScripts::populateScripts(const QList<QList<QStandardItem*>>& scripts)
 {
-    mMainWindow->setContentPane(StackedPaneScripts);
+    mMainWindow->setContentPane(ContentPane::Scripts);
 
     mItemModelScripts = std::make_unique<QStandardItemModel>(this);
     setModel(mItemModelScripts.get());
@@ -298,10 +298,10 @@ void ZapFR::Client::TableViewScripts::removeScript()
 
 void ZapFR::Client::TableViewScripts::addScript()
 {
-    auto index = mMainWindow->getUI()->treeViewSources->currentIndex();
+    auto index = mMainWindow->treeViewSources()->currentIndex();
     if (index.isValid())
     {
-        auto sourceID = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+        auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
 
         auto dialog = editScriptDialog();
         dialog->reset(DialogEditScript::DisplayMode::Add, sourceID, 0, "", true, {ZapFR::Engine::Script::Event::NewPost, ZapFR::Engine::Script::Event::UpdatePost}, {}, "");

@@ -19,6 +19,7 @@
 #include "models/StandardItemModelSources.h"
 #include "ZapFR/Agent.h"
 #include "widgets/MainWindow.h"
+#include "widgets/TreeViewSources.h"
 
 ZapFR::Client::StandardItemModelSources::StandardItemModelSources(MainWindow* mainWindow, QObject* parent) : QStandardItemModel(parent), mMainWindow(mainWindow)
 {
@@ -37,13 +38,13 @@ Qt::ItemFlags ZapFR::Client::StandardItemModelSources::flags(const QModelIndex& 
 
     if (index.isValid())
     {
-        auto type = index.data(SourceTreeEntryTypeRole);
-        if (type == SOURCETREE_ENTRY_TYPE_FEED) // feeds should be drag enabled but not drop enabled
+        auto type = index.data(TreeViewSources::Role::Type);
+        if (type == TreeViewSources::EntryType::Feed) // feeds should be drag enabled but not drop enabled
         {
             flags = flags | Qt::ItemIsDragEnabled;
             flags = flags & ~(Qt::ItemIsDropEnabled);
         }
-        else if (type == SOURCETREE_ENTRY_TYPE_FOLDER) // folders should be drag and drop enabled
+        else if (type == TreeViewSources::EntryType::Folder) // folders should be drag and drop enabled
         {
             flags = flags | Qt::ItemIsDragEnabled;
             flags = flags | Qt::ItemIsDropEnabled;
@@ -85,7 +86,7 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
     auto childID = o.value("id").toVariant().toULongLong();
 
     // can only move around feeds and folders within the same source
-    auto parentSourceID = parent.data(SourceTreeEntryParentSourceIDRole).toULongLong();
+    auto parentSourceID = parent.data(TreeViewSources::Role::ParentSourceID).toULongLong();
     if (parentSourceID != childSourceID)
     {
         QMessageBox::warning(mMainWindow, tr("Can't drop here"), tr("Feeds and folders can't be dragged and dropped across sources."));
@@ -94,20 +95,20 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
 
     uint64_t newSortOrder = static_cast<uint64_t>(std::max(0, (row * 10) + 5));
     uint64_t newFolder{0};
-    if (parent.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FOLDER)
+    if (parent.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Folder)
     {
-        newFolder = parent.data(SourceTreeEntryIDRole).toULongLong();
+        newFolder = parent.data(TreeViewSources::Role::ID).toULongLong();
     }
 
     if (data->hasFormat(MIMETYPE_DRAGGABLE_FEED))
     {
         ZapFR::Engine::Agent::getInstance()->queueMoveFeed(parentSourceID, childID, newFolder, newSortOrder,
-                                                           [&]() { QMetaObject::invokeMethod(mMainWindow, [this]() { mMainWindow->reloadSources(); }); });
+                                                           [&]() { QMetaObject::invokeMethod(mMainWindow, [this]() { mMainWindow->treeViewSources()->reload(); }); });
     }
     else if (data->hasFormat(MIMETYPE_DRAGGABLE_FOLDER))
     {
         ZapFR::Engine::Agent::getInstance()->queueMoveFolder(parentSourceID, childID, newFolder, newSortOrder,
-                                                             [&]() { QMetaObject::invokeMethod(mMainWindow, [this]() { mMainWindow->reloadSources(); }); });
+                                                             [&]() { QMetaObject::invokeMethod(mMainWindow, [this]() { mMainWindow->treeViewSources()->reload(); }); });
     }
     return true;
 }
@@ -129,20 +130,20 @@ QMimeData* ZapFR::Client::StandardItemModelSources::mimeData(const QModelIndexLi
     if (indexes.count() == 1)
     {
         auto index = indexes.at(0);
-        auto type = index.data(SourceTreeEntryTypeRole).toUInt();
+        auto type = index.data(TreeViewSources::Role::Type).toUInt();
 
         QJsonObject o;
-        o.insert("source", QJsonValue::fromVariant(index.data(SourceTreeEntryParentSourceIDRole)));
-        o.insert("id", QJsonValue::fromVariant(index.data(SourceTreeEntryIDRole)));
+        o.insert("source", QJsonValue::fromVariant(index.data(TreeViewSources::Role::ParentSourceID)));
+        o.insert("id", QJsonValue::fromVariant(index.data(TreeViewSources::Role::ID)));
 
         switch (type)
         {
-            case SOURCETREE_ENTRY_TYPE_FEED:
+            case TreeViewSources::EntryType::Feed:
             {
                 mimeData->setData(MIMETYPE_DRAGGABLE_FEED, QJsonDocument(o).toJson());
                 break;
             }
-            case SOURCETREE_ENTRY_TYPE_FOLDER:
+            case TreeViewSources::EntryType::Folder:
             {
                 mimeData->setData(MIMETYPE_DRAGGABLE_FOLDER, QJsonDocument(o).toJson());
                 break;

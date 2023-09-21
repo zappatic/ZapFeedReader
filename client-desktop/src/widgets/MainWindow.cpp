@@ -28,13 +28,9 @@
 #include "ZapFR/base/Post.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/ScriptLocal.h"
-#include "dialogs/DialogAddFeed.h"
-#include "dialogs/DialogAddFolder.h"
 #include "dialogs/DialogAddSource.h"
-#include "dialogs/DialogEditFolder.h"
 #include "dialogs/DialogEditScript.h"
 #include "dialogs/DialogEditScriptFolder.h"
-#include "dialogs/DialogImportOPML.h"
 #include "dialogs/DialogJumpToPage.h"
 #include "dialogs/DialogPreferences.h"
 #include "models/SortFilterProxyModelSources.h"
@@ -56,6 +52,8 @@ namespace
 
 ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    ui->setupUi(this);
+
 #ifdef ZFR_DUMP_PALETTE
     dumpPalette();
 #endif
@@ -64,8 +62,9 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     ZapFR::Engine::Database::getInstance()->initialize(QDir::cleanPath(dataDir() + QDir::separator() + "zapfeedreader.db").toStdString(),
                                                        ZapFR::Engine::ApplicationType::Client);
 
-    ZapFR::Engine::Agent::getInstance()->registerErrorCallback([&](uint64_t sourceID, const std::string& errorMessage)
-                                                               { QMetaObject::invokeMethod(this, [=, this]() { agentErrorOccurred(sourceID, errorMessage); }); });
+    ZapFR::Engine::Agent::getInstance()->registerErrorCallback(
+        [&](uint64_t sourceID, const std::string& errorMessage)
+        { QMetaObject::invokeMethod(this, [=, this]() { ui->treeViewSources->agentErrorOccurred(sourceID, errorMessage); }); });
 
     ZapFR::Engine::AutoRefresh::getInstance()->setFeedRefreshedCallback(
         [&](uint64_t sourceID, ZapFR::Engine::Feed* refreshedFeed)
@@ -76,15 +75,14 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
             auto title = refreshedFeed->title();
             auto iconHash = refreshedFeed->iconHash();
             auto iconData = refreshedFeed->iconData();
-            QMetaObject::invokeMethod(this, [=, this]() { feedRefreshed(sourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+            QMetaObject::invokeMethod(this, [=, this]()
+                                      { ui->treeViewSources->feedRefreshed(sourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
         });
 
-    ui->setupUi(this);
     initializeUI();
     configureConnects();
-    createContextMenus();
     configureIcons();
-    reloadSources();
+    ui->treeViewSources->reload();
     restoreSettings();
     ui->tableViewPosts->reloadCurrentPost();
     ui->tableViewPosts->updateActivePostFilter();
@@ -97,17 +95,24 @@ ZapFR::Client::MainWindow::~MainWindow()
 
 void ZapFR::Client::MainWindow::initializeUI()
 {
-    initializeUISources();
     updatePreferredFontSize();
 
+    ui->treeViewSources->setMainWindow(this);
     ui->tableViewPosts->setMainWindow(this);
     ui->tableViewLogs->setMainWindow(this);
     ui->tableViewScriptFolders->setMainWindow(this);
     ui->tableViewScripts->setMainWindow(this);
     ui->webViewPost->setMainWindow(this);
-    ui->menubar->setVisible(false);
 
-    ui->stackedWidgetContentPanes->setCurrentIndex(StackedPanePosts);
+    mActionShowPreferences = std::make_unique<QAction>(tr("Preferences"), this);
+    mActionExit = std::make_unique<QAction>(tr("Exit"), this);
+    mActionBackToPosts = std::make_unique<QAction>(tr("Back to posts"), this);
+
+    ui->menubar->setVisible(false);
+    ui->stackedWidgetContentPanes->setCurrentIndex(ContentPane::Posts);
+
+    // prevent the left splitter from resizing while the window resizes
+    ui->splitterSourcesAndContentPanes->setStretchFactor(1, 100);
 
     // add the hamburger menu button to the toolbar
     mHamburgerMenuButton = std::make_unique<QPushButton>();
@@ -115,14 +120,13 @@ void ZapFR::Client::MainWindow::initializeUI()
     mHamburgerMenuButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     auto actionHamburgerMenu = ui->toolBar->insertWidget(nullptr, mHamburgerMenuButton.get());
     actionHamburgerMenu->setProperty(gsHamburgerMenuButton, true);
-    ui->toolBar->removeAction(ui->action_Dummy);
 
-    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Add_feed);
-    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Add_folder);
-    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Toolbar_refresh);
-    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Mark_as_read);
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->treeViewSources->actionAddFeed());
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->treeViewSources->actionAddFolder());
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->treeViewSources->actionToolbarRefresh());
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewPosts->actionMarkAsRead());
 
-    ui->toolBar->insertAction(actionHamburgerMenu, ui->action_Back_to_posts);
+    ui->toolBar->insertAction(actionHamburgerMenu, mActionBackToPosts.get());
 
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionAddScript());
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionEditScript());
@@ -149,6 +153,16 @@ void ZapFR::Client::MainWindow::initializeUI()
     mToobarSpacerRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     auto actionSpacerRight = ui->toolBar->insertWidget(actionHamburgerMenu, mToobarSpacerRight.get());
     actionSpacerRight->setProperty(gsPostPaneToolbarSpacerRight, true);
+
+    // create the hamburger menu
+    ui->menu_Hamburger->addAction(ui->treeViewSources->actionAddSource());
+    ui->menu_Hamburger->addAction(ui->treeViewSources->actionRemoveSource());
+    ui->menu_Hamburger->addSeparator();
+    ui->menu_Hamburger->addAction(ui->treeViewSources->actionImportOPML());
+    ui->menu_Hamburger->addAction(ui->treeViewSources->actionExportOPML());
+    ui->menu_Hamburger->addSeparator();
+    ui->menu_Hamburger->addAction(mActionShowPreferences.get());
+    ui->menu_Hamburger->addAction(mActionExit.get());
 }
 
 void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
@@ -165,23 +179,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(SETTING_SPLITTERSOURCESANDCONTENTPANES_STATE, QString::fromUtf8(ui->splitterSourcesAndContentPanes->saveState().toBase64()));
     root.insert(SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE, QString::fromUtf8(ui->splitterSourcesAndScriptFolders->saveState().toBase64()));
     root.insert(SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE, QString::fromUtf8(ui->splitterPostsTableAndPostView->saveState().toBase64()));
-    switch (mProxyModelSources->displayMode())
-    {
-        case SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll:
-        {
-            root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedSourceTreeItems());
-            break;
-        }
-        case SortFilterProxyModelSources::SourceTreeDisplayMode::ShowSourcesOnly:
-        {
-            if (mReloadSourcesExpansionSelectionState != nullptr)
-            {
-                auto expandedItems = mReloadSourcesExpansionSelectionState->value("expanded").toArray();
-                root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedItems);
-            }
-            break;
-        }
-    }
+    ui->treeViewSources->saveSettings(root);
     if (mPreferenceTheme != Theme::UseSystem)
     {
         root.insert(SETTING_UI_THEME, mPreferenceTheme == Theme::Light ? "light" : "dark");
@@ -235,16 +233,9 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 {
                     ui->splitterPostsTableAndPostView->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE).toVariant().toByteArray()));
                 }
-                if (root.contains(SETTING_SOURCETREEVIEW_EXPANSION))
-                {
-                    // instead of doing this immediately, write the array to mReloadSourcesExpansionSelectionState
-                    // so that it will get picked up by reloadSources(), which happens after restoring the settings
-                    mReloadSourcesExpansionSelectionState = std::make_unique<QJsonObject>();
-                    mReloadSourcesExpansionSelectionState->insert("expanded", root.value(SETTING_SOURCETREEVIEW_EXPANSION).toArray());
-                    mReloadSourcesExpansionSelectionState->insert("selectedSourceID", 0);
-                    mReloadSourcesExpansionSelectionState->insert("selectedID", 0);
-                    mReloadSourcesExpansionSelectionState->insert("selectedType", 0);
-                }
+
+                ui->treeViewSources->restoreSettings(root);
+
                 if (root.contains(SETTING_UI_THEME))
                 {
                     auto value = root.value(SETTING_UI_THEME);
@@ -404,132 +395,6 @@ void ZapFR::Client::MainWindow::dumpPalette()
 }
 #endif
 
-void ZapFR::Client::MainWindow::importOPML()
-{
-    if (mDialogImportOPML == nullptr)
-    {
-        mDialogImportOPML = std::make_unique<DialogImportOPML>(this);
-        connect(mDialogImportOPML.get(), &QDialog::finished,
-                [&](int result)
-                {
-                    if (result == QDialog::DialogCode::Accepted)
-                    {
-                        ZapFR::Engine::Agent::getInstance()->queueImportOPML(
-                            mDialogImportOPML->selectedSourceID(), mDialogImportOPML->OPML(), mDialogImportOPML->selectedFolderID(),
-                            [&]() { QMetaObject::invokeMethod(this, [=, this]() { reloadSources(); }); },
-                            [&](uint64_t affectedSourceID, ZapFR::Engine::Feed* refreshedFeed)
-                            {
-                                auto id = refreshedFeed->id();
-                                auto unreadCount = refreshedFeed->unreadCount();
-                                auto error = refreshedFeed->lastRefreshError();
-                                auto title = refreshedFeed->title();
-                                auto iconHash = refreshedFeed->iconHash();
-                                auto iconData = refreshedFeed->iconData();
-                                QMetaObject::invokeMethod(
-                                    this,
-                                    [=, this]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
-                            });
-
-                        // give it a bit of time to parse the OPML file, then start checking whether the refreshing has completed
-                        QTimer::singleShot(2500,
-                                           [&]() {
-                                               ZapFR::Engine::Agent::getInstance()->queueMonitorFeedRefreshCompletion(
-                                                   [&]() { QMetaObject::invokeMethod(this, [=, this]() { reloadSources(); }); });
-                                           });
-                    }
-                });
-    }
-
-    auto [sourceID, folderID] = getCurrentlySelectedSourceAndFolderID();
-    mDialogImportOPML->reset(sourceID, folderID);
-    mDialogImportOPML->open();
-}
-
-void ZapFR::Client::MainWindow::exportOPML()
-{
-    auto index = ui->treeViewSources->currentIndex();
-    if (!index.isValid())
-    {
-        return;
-    }
-
-    auto sourceItem = findSourceStandardItem(index.data(SourceTreeEntryParentSourceIDRole).toULongLong());
-    if (sourceItem == nullptr)
-    {
-        return;
-    }
-
-    auto opmlFilePath = QFileDialog::getSaveFileName(this, tr("Export source '%1'").arg(sourceItem->data(Qt::DisplayRole).toString()), QString(), tr("OPML files (*.opml)"));
-    if (opmlFilePath.isEmpty())
-    {
-        return;
-    }
-
-    QDomDocument xml;
-
-    // QDomProcessingInstruction documentation specifically states to not use createProcessingInstruction to create
-    // the XML declaration, but doesn't bother explaining what should be done instead...
-    xml.appendChild(xml.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\""));
-
-    auto root = xml.createElement("opml");
-    root.setAttribute("version", "2.0");
-    xml.appendChild(root);
-
-    auto head = xml.createElement("head");
-    root.appendChild(head);
-
-    auto title = xml.createElement("title");
-    title.appendChild(xml.createTextNode(tr("ZapFeedReader export of source '%1'").arg(sourceItem->data(Qt::DisplayRole).toString())));
-    head.appendChild(title);
-
-    auto dateCreated = xml.createElement("dateCreated");
-    dateCreated.appendChild(xml.createTextNode(QDateTime::currentDateTime().toString(Qt::RFC2822Date)));
-    head.appendChild(dateCreated);
-
-    auto body = xml.createElement("body");
-    root.appendChild(body);
-
-    // lambda to recursively add outlines
-    std::function<void(QStandardItem*, QDomElement&)> addOutlines;
-    addOutlines = [&](QStandardItem* parentItem, QDomElement& parentElement)
-    {
-        for (int32_t i = 0; i < parentItem->rowCount(); ++i)
-        {
-            auto child = parentItem->child(i);
-            auto childType = child->data(SourceTreeEntryTypeRole).toULongLong();
-            switch (childType)
-            {
-                case SOURCETREE_ENTRY_TYPE_FOLDER:
-                {
-                    auto outline = xml.createElement("outline");
-                    outline.setAttribute("text", child->data(Qt::DisplayRole).toString());
-                    parentElement.appendChild(outline);
-                    addOutlines(child, outline);
-                    break;
-                }
-                case SOURCETREE_ENTRY_TYPE_FEED:
-                {
-                    auto outline = xml.createElement("outline");
-                    outline.setAttribute("type", "rss");
-                    outline.setAttribute("text", child->data(Qt::DisplayRole).toString());
-                    outline.setAttribute("xmlUrl", child->data(SourceTreeEntryFeedURLRole).toString());
-                    parentElement.appendChild(outline);
-                    break;
-                }
-            }
-        }
-    };
-    addOutlines(sourceItem, body);
-
-    QFile opmlFile(opmlFilePath);
-    if (opmlFile.open(QIODevice::WriteOnly | QIODeviceBase::Text))
-    {
-        QTextStream s(&opmlFile);
-        s << xml.toString();
-        opmlFile.close();
-    }
-}
-
 QString ZapFR::Client::MainWindow::dataDir() const
 {
     auto dataLocation = QStandardPaths::locate(QStandardPaths::StandardLocation::GenericDataLocation, "", QStandardPaths::LocateDirectory);
@@ -635,15 +500,18 @@ void ZapFR::Client::MainWindow::configureIcons()
         return icon;
     };
 
-    ui->action_Refresh->setIcon(configureIcon(":/refreshFeed.svg"));
-    ui->action_Toolbar_refresh->setIcon(configureIcon(":/refreshFeed.svg"));
-    ui->action_Reconnect_to_source->setIcon(configureIcon(":/refreshFeed.svg"));
-    ui->action_Mark_as_read->setIcon(configureIcon(":/markAsRead.svg"));
-    ui->action_Add_feed->setIcon(configureIcon(":/addFeed.svg"));
-    ui->action_Add_source->setIcon(configureIcon(":/addFeed.svg"));
-    ui->action_Add_folder->setIcon(configureIcon(":/addFolder.svg"));
-    ui->action_Edit_folder->setIcon(configureIcon(":/edit.svg"));
-    ui->action_Back_to_posts->setIcon(configureIcon(":/back.svg"));
+    ui->treeViewSources->actionRefresh()->setIcon(configureIcon(":/refreshFeed.svg"));
+    ui->treeViewSources->actionToolbarRefresh()->setIcon(configureIcon(":/refreshFeed.svg"));
+    ui->treeViewSources->actionReconnectToSource()->setIcon(configureIcon(":/refreshFeed.svg"));
+    ui->treeViewSources->actionAddFeed()->setIcon(configureIcon(":/addFeed.svg"));
+    ui->treeViewSources->actionAddSource()->setIcon(configureIcon(":/addFeed.svg"));
+    ui->treeViewSources->actionAddFolder()->setIcon(configureIcon(":/addFolder.svg"));
+    ui->treeViewSources->actionEditFolder()->setIcon(configureIcon(":/edit.svg"));
+    ui->treeViewSources->actionRemoveFeed()->setIcon(configureIcon(":/remove.svg"));
+    ui->treeViewSources->actionRemoveFolder()->setIcon(configureIcon(":/remove.svg"));
+    ui->treeViewSources->actionRemoveSource()->setIcon(configureIcon(":/remove.svg"));
+    ui->treeViewSources->actionViewProperties()->setIcon(configureIcon(":/properties.svg"));
+    ui->tableViewPosts->actionMarkAsRead()->setIcon(configureIcon(":/markAsRead.svg"));
     ui->tableViewLogs->actionViewLogs()->setIcon(configureIcon(":/viewLogs.svg"));
     ui->tableViewLogs->actionClearLogs()->setIcon(configureIcon(":/remove.svg"));
     ui->tableViewScripts->actionViewScripts()->setIcon(configureIcon(":/script.svg"));
@@ -653,10 +521,6 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->tableViewScriptFolders->actionEditScriptFolder()->setIcon(configureIcon(":/edit.svg"));
     ui->tableViewScriptFolders->actionRemoveScriptFolder()->setIcon(configureIcon(":/remove.svg"));
     ui->tableViewScriptFolders->actionAddScriptFolder()->setIcon(configureIcon(":/addFeed.svg"));
-    ui->action_View_properties->setIcon(configureIcon(":/properties.svg"));
-    ui->action_Remove_feed->setIcon(configureIcon(":/remove.svg"));
-    ui->action_Remove_folder->setIcon(configureIcon(":/remove.svg"));
-    ui->action_Remove_source->setIcon(configureIcon(":/remove.svg"));
     ui->pushButtonPostPreviousPage->setIcon(configureIcon(":/previousPage.svg"));
     ui->pushButtonPostFirstPage->setIcon(configureIcon(":/firstPage.svg"));
     ui->pushButtonPostNextPage->setIcon(configureIcon(":/nextPage.svg"));
@@ -665,6 +529,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->pushButtonLogFirstPage->setIcon(configureIcon(":/firstPage.svg"));
     ui->pushButtonLogNextPage->setIcon(configureIcon(":/nextPage.svg"));
     ui->pushButtonLogLastPage->setIcon(configureIcon(":/lastPage.svg"));
+    mActionBackToPosts->setIcon(configureIcon(":/back.svg"));
     mHamburgerMenuButton->setIcon(configureIcon(":/hamburger.svg"));
 
     ui->toolBar->setStyleSheet(QString("QToolBar { border-bottom-style: none; }\n"
@@ -805,14 +670,14 @@ void ZapFR::Client::MainWindow::updateToolbar()
             action->setVisible(false);
         }
     }
-    ui->action_Add_source->setVisible(false);
-    ui->action_Remove_source->setVisible(false);
-    ui->action_Import_OPML->setVisible(false);
-    ui->action_Export_OPML->setVisible(false);
+    ui->treeViewSources->actionAddSource()->setVisible(false);
+    ui->treeViewSources->actionRemoveSource()->setVisible(false);
+    ui->treeViewSources->actionImportOPML()->setVisible(false);
+    ui->treeViewSources->actionExportOPML()->setVisible(false);
 
     switch (ui->stackedWidgetContentPanes->currentIndex())
     {
-        case StackedPanePosts:
+        case ContentPane::Posts:
         {
             bool anythingSelected{false};
             QString markAsReadCaption;
@@ -826,25 +691,25 @@ void ZapFR::Client::MainWindow::updateToolbar()
             {
                 anythingSelected = true;
 
-                auto type = index.data(SourceTreeEntryTypeRole).toULongLong();
-                parentSourceHasError = doesSourceHaveError(index.data(SourceTreeEntryParentSourceIDRole).toULongLong());
+                auto type = index.data(TreeViewSources::Role::Type).toULongLong();
+                parentSourceHasError = ui->treeViewSources->doesSourceHaveError(index.data(TreeViewSources::Role::ParentSourceID).toULongLong());
                 switch (type)
                 {
-                    case SOURCETREE_ENTRY_TYPE_FEED:
+                    case TreeViewSources::EntryType::Feed:
                     {
                         markAsReadCaption = tr("Mark feed as read");
                         refreshToolbarCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh feed") : tr("Refresh source"));
                         refreshCaption = tr("Refresh feed");
                         break;
                     }
-                    case SOURCETREE_ENTRY_TYPE_FOLDER:
+                    case TreeViewSources::EntryType::Folder:
                     {
                         markAsReadCaption = tr("Mark folder as read");
                         refreshToolbarCaption = (mPreferenceRefreshBehaviour == RefreshBehaviour::CurrentSelection ? tr("Refresh folder") : tr("Refresh source"));
                         refreshCaption = tr("Refresh folder");
                         break;
                     }
-                    case SOURCETREE_ENTRY_TYPE_SOURCE:
+                    case TreeViewSources::EntryType::Source:
                     {
                         markAsReadCaption = tr("Mark source as read");
                         refreshToolbarCaption = tr("Refresh source");
@@ -857,32 +722,32 @@ void ZapFR::Client::MainWindow::updateToolbar()
             if (parentSourceHasError)
             {
                 showSearchField = false;
-                ui->action_Reconnect_to_source->setVisible(true);
-                ui->action_Remove_source->setVisible(true);
+                ui->treeViewSources->actionReconnectToSource()->setVisible(true);
+                ui->treeViewSources->actionRemoveSource()->setVisible(true);
             }
             else
             {
-                ui->action_Add_feed->setVisible(true);
-                ui->action_Add_folder->setVisible(true);
-                ui->action_Refresh->setVisible(true);
-                ui->action_Toolbar_refresh->setVisible(true);
-                ui->action_Mark_as_read->setVisible(true);
+                ui->treeViewSources->actionAddFeed()->setVisible(true);
+                ui->treeViewSources->actionAddFolder()->setVisible(true);
+                ui->treeViewSources->actionRefresh()->setVisible(true);
+                ui->treeViewSources->actionToolbarRefresh()->setVisible(true);
+                ui->tableViewPosts->actionMarkAsRead()->setVisible(true);
                 ui->tableViewLogs->actionViewLogs()->setVisible(true);
                 ui->tableViewScripts->actionViewScripts()->setVisible(true);
-                ui->action_Add_source->setVisible(true);
-                ui->action_Remove_source->setVisible(true);
-                ui->action_Import_OPML->setVisible(true);
-                ui->action_Export_OPML->setVisible(true);
+                ui->treeViewSources->actionAddSource()->setVisible(true);
+                ui->treeViewSources->actionRemoveSource()->setVisible(true);
+                ui->treeViewSources->actionImportOPML()->setVisible(true);
+                ui->treeViewSources->actionExportOPML()->setVisible(true);
 
-                ui->action_Add_feed->setEnabled(anythingSelected);
-                ui->action_Add_folder->setEnabled(anythingSelected);
-                ui->action_Mark_as_read->setEnabled(anythingSelected);
-                ui->action_Mark_as_read->setText(markAsReadCaption);
+                ui->treeViewSources->actionAddFeed()->setEnabled(anythingSelected);
+                ui->treeViewSources->actionAddFolder()->setEnabled(anythingSelected);
+                ui->tableViewPosts->actionMarkAsRead()->setEnabled(anythingSelected);
+                ui->tableViewPosts->actionMarkAsRead()->setText(markAsReadCaption);
                 ui->tableViewLogs->actionViewLogs()->setEnabled(anythingSelected);
-                ui->action_Refresh->setEnabled(anythingSelected);
-                ui->action_Refresh->setText(refreshCaption);
-                ui->action_Toolbar_refresh->setEnabled(anythingSelected);
-                ui->action_Toolbar_refresh->setText(refreshToolbarCaption);
+                ui->treeViewSources->actionRefresh()->setEnabled(anythingSelected);
+                ui->treeViewSources->actionRefresh()->setText(refreshCaption);
+                ui->treeViewSources->actionToolbarRefresh()->setEnabled(anythingSelected);
+                ui->treeViewSources->actionToolbarRefresh()->setText(refreshToolbarCaption);
             }
 
             for (const auto& action : ui->toolBar->actions())
@@ -894,9 +759,9 @@ void ZapFR::Client::MainWindow::updateToolbar()
             }
             break;
         }
-        case StackedPaneLogs:
+        case ContentPane::Logs:
         {
-            ui->action_Back_to_posts->setVisible(true);
+            mActionBackToPosts->setVisible(true);
             ui->tableViewLogs->actionClearLogs()->setVisible(true);
             for (const auto& action : ui->toolBar->actions())
             {
@@ -907,9 +772,9 @@ void ZapFR::Client::MainWindow::updateToolbar()
             }
             break;
         }
-        case StackedPaneScripts:
+        case ContentPane::Scripts:
         {
-            ui->action_Back_to_posts->setVisible(true);
+            mActionBackToPosts->setVisible(true);
             ui->tableViewScripts->actionEditScript()->setVisible(true);
             ui->tableViewScripts->actionRemoveScript()->setVisible(true);
             ui->tableViewScripts->actionAddScript()->setVisible(true);
@@ -922,9 +787,9 @@ void ZapFR::Client::MainWindow::updateToolbar()
             }
             break;
         }
-        case StackedPaneProperties:
+        case ContentPane::Properties:
         {
-            ui->action_Back_to_posts->setVisible(true);
+            mActionBackToPosts->setVisible(true);
             for (const auto& action : ui->toolBar->actions())
             {
                 if (action->property(gsPostPaneToolbarSpacerRight).isValid())
@@ -991,23 +856,6 @@ void ZapFR::Client::MainWindow::showPreferences()
     mDialogPreferences->open();
 }
 
-void ZapFR::Client::MainWindow::agentErrorOccurred(uint64_t sourceID, const std::string& errorMessage)
-{
-    auto rootItem = mItemModelSources->invisibleRootItem();
-    for (auto i = 0; i < rootItem->rowCount(); ++i)
-    {
-        auto child = rootItem->child(i);
-        auto type = child->data(SourceTreeEntryTypeRole).toULongLong();
-        auto id = child->data(SourceTreeEntryIDRole).toULongLong();
-        if (type == SOURCETREE_ENTRY_TYPE_SOURCE && id == sourceID)
-        {
-            child->setData(QString::fromUtf8(errorMessage), SourceTreeEntryErrorRole);
-            child->setData(QString::fromUtf8(errorMessage), Qt::ToolTipRole);
-            break;
-        }
-    }
-}
-
 ZapFR::Client::Theme ZapFR::Client::MainWindow::getCurrentColorTheme() const
 {
     auto currentColorTheme = mPreferenceTheme;
@@ -1040,19 +888,11 @@ ZapFR::Client::Theme ZapFR::Client::MainWindow::getCurrentColorTheme() const
     return currentColorTheme;
 }
 
-void ZapFR::Client::MainWindow::createContextMenus()
-{
-    createSourceContextMenus();
-    createFolderContextMenus();
-    createFeedContextMenus();
-}
-
 void ZapFR::Client::MainWindow::configureConnects()
 {
-    connect(ui->action_Import_OPML, &QAction::triggered, this, &MainWindow::importOPML);
-    connect(ui->action_Export_OPML, &QAction::triggered, this, &MainWindow::exportOPML);
-    connect(ui->action_Exit, &QAction::triggered, [&]() { QGuiApplication::quit(); });
-    connect(ui->action_Show_preferences, &QAction::triggered, this, &MainWindow::showPreferences);
+    connect(mActionExit.get(), &QAction::triggered, [&]() { QGuiApplication::quit(); });
+    connect(mActionShowPreferences.get(), &QAction::triggered, this, &MainWindow::showPreferences);
+    connect(mActionBackToPosts.get(), &QAction::triggered, [&]() { setContentPane(ContentPane::Posts); });
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::applyColorScheme);
@@ -1079,97 +919,50 @@ void ZapFR::Client::MainWindow::configureConnects()
                 updateToolbar();
                 switch (ui->stackedWidgetContentPanes->currentIndex())
                 {
-                    case StackedPanePosts:
+                    case ContentPane::Posts:
                     {
                         ui->frameFlagFilters->setVisible(true);
                         ui->tableViewScriptFolders->setVisible(true);
-                        mItemModelSources->setAllowDragAndDrop(true);
-                        setUnreadBadgesShown(true);
+                        ui->treeViewSources->setAllowDragAndDrop(true);
+                        ui->treeViewSources->setUnreadBadgesShown(true);
                         ui->tableViewPosts->setPage(1);
                         ui->tableViewPosts->reload();
-                        mPreviouslySelectedSourceID = 0;
+                        ui->treeViewSources->setPreviouslySelectedSourceID(0);
                         reloadUsedFlagColors();
-                        if (mProxyModelSources != nullptr)
-                        {
-                            mProxyModelSources->setDisplayMode(SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll);
-                            restoreSourceTreeExpansionSelectionState(nullptr);
-                            mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
-                        }
+                        ui->treeViewSources->setDisplayMode(TreeViewSources::DisplayMode::ShowAll);
                         break;
                     }
-                    case StackedPaneLogs:
+                    case ContentPane::Logs:
                     {
                         ui->frameFlagFilters->setVisible(false);
                         ui->tableViewScriptFolders->setVisible(false);
-                        mItemModelSources->setAllowDragAndDrop(false);
-                        setUnreadBadgesShown(false);
-                        if (mProxyModelSources != nullptr)
-                        {
-                            mProxyModelSources->setDisplayMode(SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll);
-                            restoreSourceTreeExpansionSelectionState(nullptr);
-                            mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
-                        }
+                        ui->treeViewSources->setAllowDragAndDrop(false);
+                        ui->treeViewSources->setUnreadBadgesShown(false);
+                        ui->treeViewSources->setDisplayMode(TreeViewSources::DisplayMode::ShowAll);
                         break;
                     }
-                    case StackedPaneScripts:
+                    case ContentPane::Scripts:
                     {
                         ui->frameFlagFilters->setVisible(false);
                         ui->tableViewScriptFolders->setVisible(false);
-                        mItemModelSources->setAllowDragAndDrop(false);
-                        setUnreadBadgesShown(false);
-                        if (mProxyModelSources != nullptr)
-                        {
-                            preserveSourceTreeExpansionSelectionState();
-                            uint64_t currentParentSource{0};
-                            auto index = ui->treeViewSources->currentIndex();
-                            if (index.isValid())
-                            {
-                                currentParentSource = index.data(SourceTreeEntryParentSourceIDRole).toULongLong();
-                            }
-
-                            mProxyModelSources->setDisplayMode(SortFilterProxyModelSources::SourceTreeDisplayMode::ShowSourcesOnly);
-                            mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources")));
-
-                            // auto select the source for the item that was currently selected, so the selection isn't empty after
-                            // only showing sources
-                            if (currentParentSource != 0)
-                            {
-                                auto rootItem = mItemModelSources->invisibleRootItem();
-                                for (int32_t i = 0; i < rootItem->rowCount(); ++i)
-                                {
-                                    auto child = rootItem->child(i);
-                                    if (child->data(SourceTreeEntryParentSourceIDRole).toULongLong() == currentParentSource)
-                                    {
-                                        ui->treeViewSources->setCurrentIndex(mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(child)));
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                        ui->treeViewSources->setAllowDragAndDrop(false);
+                        ui->treeViewSources->setUnreadBadgesShown(false);
+                        ui->treeViewSources->setDisplayMode(TreeViewSources::DisplayMode::ShowSourcesOnly);
                         break;
                     }
-                    case StackedPaneProperties:
+                    case ContentPane::Properties:
                     {
                         ui->frameFlagFilters->setVisible(false);
                         ui->tableViewScriptFolders->setVisible(false);
-                        mItemModelSources->setAllowDragAndDrop(false);
-                        setUnreadBadgesShown(false);
-                        if (mProxyModelSources != nullptr)
-                        {
-                            mProxyModelSources->setDisplayMode(SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll);
-                            restoreSourceTreeExpansionSelectionState(nullptr);
-                            mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
-                        }
+                        ui->treeViewSources->setAllowDragAndDrop(false);
+                        ui->treeViewSources->setUnreadBadgesShown(false);
+                        ui->treeViewSources->setDisplayMode(TreeViewSources::DisplayMode::ShowAll);
                         break;
                     }
                 }
             });
 
-    connectSourceStuff();
-    connectFeedStuff();
-    connectFolderStuff();
     connectFlagStuff();
-    connectPropertiesStuff();
 }
 
 void ZapFR::Client::MainWindow::setStatusBarMessage(const QString& message, int32_t timeout)
@@ -1182,12 +975,27 @@ void ZapFR::Client::MainWindow::setContentPane(int32_t contentPaneID) const
     ui->stackedWidgetContentPanes->setCurrentIndex(contentPaneID);
 }
 
+int32_t ZapFR::Client::MainWindow::currentContentPane() const noexcept
+{
+    return ui->stackedWidgetContentPanes->currentIndex();
+}
+
 Ui::MainWindow* ZapFR::Client::MainWindow::getUI() const noexcept
 {
     return ui;
 }
 
+ZapFR::Client::TreeViewSources* ZapFR::Client::MainWindow::treeViewSources() const noexcept
+{
+    return ui->treeViewSources;
+}
+
 QString ZapFR::Client::MainWindow::searchQuery() const
 {
     return mLineEditSearch->text();
+}
+
+void ZapFR::Client::MainWindow::cloneSourceTreeContents(uint64_t sourceID, QStandardItemModel* destination, const std::optional<std::unordered_set<uint64_t>>& feedIDsToCheck)
+{
+    ui->treeViewSources->cloneSourceTreeContents(sourceID, destination, feedIDsToCheck);
 }

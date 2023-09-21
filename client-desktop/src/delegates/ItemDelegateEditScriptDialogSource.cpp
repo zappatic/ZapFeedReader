@@ -18,6 +18,7 @@
 
 #include "delegates/ItemDelegateEditScriptDialogSource.h"
 #include "FeedIconCache.h"
+#include "widgets/TreeViewSources.h"
 
 ZapFR::Client::ItemDelegateEditScriptDialogSource::ItemDelegateEditScriptDialogSource(QObject* parent) : QStyledItemDelegate(parent)
 {
@@ -52,7 +53,7 @@ void ZapFR::Client::ItemDelegateEditScriptDialogSource::paint(QPainter* painter,
     }
 
     // draw the checkbox
-    if (index.data(SourceTreeEntryTypeRole).toULongLong() == SOURCETREE_ENTRY_TYPE_FEED)
+    if (index.data(TreeViewSources::Role::Type).toULongLong() == TreeViewSources::EntryType::Feed)
     {
         auto r = option.rect;
         auto w = std::floor(static_cast<float>(r.height()) * 0.75f);
@@ -70,16 +71,16 @@ void ZapFR::Client::ItemDelegateEditScriptDialogSource::paint(QPainter* painter,
     }
 
     // draw the icon
-    if (index.data(SourceTreeEntryTypeRole) == SOURCETREE_ENTRY_TYPE_FEED)
+    if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Feed)
     {
         QPixmap icon;
         if (parentTreeView->isEnabled())
         {
-            icon = FeedIconCache::icon(index.data(SourceTreeEntryParentSourceIDRole).toULongLong(), index.data(SourceTreeEntryIDRole).toULongLong());
+            icon = FeedIconCache::icon(index.data(TreeViewSources::Role::ParentSourceID).toULongLong(), index.data(TreeViewSources::Role::ID).toULongLong());
         }
         else
         {
-            icon = FeedIconCache::iconGrayscale(index.data(SourceTreeEntryParentSourceIDRole).toULongLong(), index.data(SourceTreeEntryIDRole).toULongLong());
+            icon = FeedIconCache::iconGrayscale(index.data(TreeViewSources::Role::ParentSourceID).toULongLong(), index.data(TreeViewSources::Role::ID).toULongLong());
         }
         auto iconSize = option.rect.height() * .75;
         auto iconTargetRect = QRectF(titleRect.left(), option.rect.top() + ((option.rect.height() - iconSize) / 2.0), iconSize, iconSize);
