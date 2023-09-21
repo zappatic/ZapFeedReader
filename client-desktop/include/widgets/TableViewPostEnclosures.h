@@ -40,6 +40,19 @@ namespace ZapFR
             void clear();
             void loadEnclosures(const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures);
 
+            enum Column
+            {
+                IconCol = 0,
+                URLCol = 1,
+                MimetypeCol = 2,
+                FilesizeCol = 3,
+            };
+
+            enum Role
+            {
+                Link = Qt::ItemDataRole::UserRole + 1,
+            };
+
           private slots:
             void openEnclosureInExternalBrowser();
             void copyLink();

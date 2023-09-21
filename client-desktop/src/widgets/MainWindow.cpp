@@ -40,7 +40,6 @@
 #include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
 #include "widgets/LineEditSearch.h"
-#include "widgets/WebEnginePagePost.h"
 
 namespace
 {
@@ -87,8 +86,8 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
     configureIcons();
     reloadSources();
     restoreSettings();
-    reloadCurrentPost();
-    updateActivePostFilter();
+    ui->tableViewPosts->reloadCurrentPost();
+    ui->tableViewPosts->updateActivePostFilter();
 }
 
 ZapFR::Client::MainWindow::~MainWindow()
@@ -99,9 +98,9 @@ ZapFR::Client::MainWindow::~MainWindow()
 void ZapFR::Client::MainWindow::initializeUI()
 {
     initializeUISources();
-    initializeUIPosts();
     updatePreferredFontSize();
 
+    ui->tableViewPosts->setMainWindow(this);
     ui->tableViewLogs->setMainWindow(this);
     ui->tableViewScriptFolders->setMainWindow(this);
     ui->tableViewScripts->setMainWindow(this);
@@ -111,10 +110,10 @@ void ZapFR::Client::MainWindow::initializeUI()
     ui->stackedWidgetContentPanes->setCurrentIndex(StackedPanePosts);
 
     // add the hamburger menu button to the toolbar
-    mHamburgerMenuButton = new QPushButton();
+    mHamburgerMenuButton = std::make_unique<QPushButton>();
     mHamburgerMenuButton->setFlat(true);
     mHamburgerMenuButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    auto actionHamburgerMenu = ui->toolBar->insertWidget(nullptr, mHamburgerMenuButton);
+    auto actionHamburgerMenu = ui->toolBar->insertWidget(nullptr, mHamburgerMenuButton.get());
     actionHamburgerMenu->setProperty(gsHamburgerMenuButton, true);
     ui->toolBar->removeAction(ui->action_Dummy);
 
@@ -132,23 +131,23 @@ void ZapFR::Client::MainWindow::initializeUI()
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewLogs->actionClearLogs());
 
     // add a spacer in the toolbar to separate the left from the right buttons
-    auto spacerLeft = new QWidget();
-    spacerLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    auto actionSpacerLeft = ui->toolBar->insertWidget(actionHamburgerMenu, spacerLeft);
+    mToobarSpacerLeft = std::make_unique<QWidget>();
+    mToobarSpacerLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto actionSpacerLeft = ui->toolBar->insertWidget(actionHamburgerMenu, mToobarSpacerLeft.get());
     actionSpacerLeft->setProperty(gsPostPaneToolbarSpacerLeft, true);
 
     // add the search widget to the toolbar
-    mLineEditSearch = new LineEditSearch();
-    auto actionSearch = ui->toolBar->insertWidget(actionHamburgerMenu, mLineEditSearch);
+    mLineEditSearch = std::make_unique<LineEditSearch>();
+    auto actionSearch = ui->toolBar->insertWidget(actionHamburgerMenu, mLineEditSearch.get());
     actionSearch->setProperty(gsPostPaneLineEditSearch, true);
 
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewLogs->actionViewLogs());
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionViewScripts());
 
     // add a spacer in the toolbar before the hamburger menu to ensure it is always at the right
-    auto spacerRight = new QWidget();
-    spacerRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    auto actionSpacerRight = ui->toolBar->insertWidget(actionHamburgerMenu, spacerRight);
+    mToobarSpacerRight = std::make_unique<QWidget>();
+    mToobarSpacerRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto actionSpacerRight = ui->toolBar->insertWidget(actionHamburgerMenu, mToobarSpacerRight.get());
     actionSpacerRight->setProperty(gsPostPaneToolbarSpacerRight, true);
 }
 
@@ -593,7 +592,7 @@ void ZapFR::Client::MainWindow::updatePreferredFontSize()
     ui->tableViewScripts->setFont(font);
     ui->tableViewScripts->verticalHeader()->setDefaultSectionSize(tableViewRowHeight);
 
-    mPostStylesCacheValid = false;
+    ui->webViewPost->invalidatePostStylesCache();
 }
 
 void ZapFR::Client::MainWindow::configureIcons()
@@ -791,8 +790,8 @@ void ZapFR::Client::MainWindow::applyColorScheme()
         QGuiApplication::setPalette(*(paletteToEnforce.value()));
     }
 
-    mPostStylesCacheValid = false;
-    reloadCurrentPost();
+    ui->webViewPost->invalidatePostStylesCache();
+    ui->tableViewPosts->reloadCurrentPost();
     configureIcons();
 }
 
@@ -938,44 +937,6 @@ void ZapFR::Client::MainWindow::updateToolbar()
     }
 }
 
-void ZapFR::Client::MainWindow::updateActivePostFilter()
-{
-    auto selectedScriptFolder = ui->tableViewScriptFolders->currentIndex();
-
-    auto isScriptFolderFilterActive{selectedScriptFolder.isValid()};
-    auto isFlagFilterActive{mFlagFilter != ZapFR::Engine::FlagColor::Gray};
-    auto isOnlyUnreadFilterActive{mShowOnlyUnreadPosts};
-    auto isTextSearchFilterActive{!mLineEditSearch->text().isEmpty()};
-    auto isOtherFilterActive{isScriptFolderFilterActive || isOnlyUnreadFilterActive || isTextSearchFilterActive};
-
-    ui->labelActiveFilter->setVisible(isFlagFilterActive || isOtherFilterActive);
-    ui->labelActiveFilterFlag->setVisible(isFlagFilterActive);
-    ui->labelActiveFilterOther->setVisible(isOtherFilterActive);
-
-    if (isFlagFilterActive)
-    {
-        ui->labelActiveFilterFlag->setPixmap(Utilities::flag(mFlagFilter, Utilities::FlagStyle::Filled));
-    }
-    QStringList otherFilters;
-    if (isScriptFolderFilterActive)
-    {
-        otherFilters << tr("Script folder '%1'").arg(selectedScriptFolder.data(Qt::DisplayRole).toString());
-    }
-    if (isOnlyUnreadFilterActive)
-    {
-        otherFilters << tr("Only unread");
-    }
-    if (isTextSearchFilterActive)
-    {
-        otherFilters << tr("Search '%1'").arg(mLineEditSearch->text());
-    }
-
-    if (isOtherFilterActive)
-    {
-        ui->labelActiveFilterOther->setText(otherFilters.join(", "));
-    }
-}
-
 void ZapFR::Client::MainWindow::showJumpToPageDialog(uint64_t currentPage, uint64_t pageCount, std::function<void(uint64_t)> callback)
 {
     if (mDialogJumpToPage == nullptr)
@@ -1011,7 +972,7 @@ void ZapFR::Client::MainWindow::showPreferences()
                         updatePreferredFontSize();
 
                         mPreferencePostFontSize = mDialogPreferences->chosenPostFontSize();
-                        reloadCurrentPost();
+                        ui->tableViewPosts->reloadCurrentPost();
 
                         mPreferenceDetectBrowsers = mDialogPreferences->chosenDetectBrowsersEnabled();
 
@@ -1084,7 +1045,6 @@ void ZapFR::Client::MainWindow::createContextMenus()
     createSourceContextMenus();
     createFolderContextMenus();
     createFeedContextMenus();
-    createPostContextMenus();
 }
 
 void ZapFR::Client::MainWindow::configureConnects()
@@ -1098,12 +1058,19 @@ void ZapFR::Client::MainWindow::configureConnects()
     connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, this, &MainWindow::applyColorScheme);
 #endif
 
-    connect(mHamburgerMenuButton, &QPushButton::clicked,
+    connect(mHamburgerMenuButton.get(), &QPushButton::clicked,
             [&]()
             {
                 auto p = qobject_cast<QWidget*>(ui->toolBar->parent())->mapToGlobal(ui->toolBar->geometry().bottomRight());
                 p.setX(p.x() - ui->menu_Hamburger->sizeHint().width());
                 ui->menu_Hamburger->popup(p);
+            });
+
+    connect(mLineEditSearch.get(), &LineEditSearch::searchRequested,
+            [&]()
+            {
+                ui->tableViewPosts->updateActivePostFilter();
+                ui->tableViewPosts->reload();
             });
 
     connect(ui->stackedWidgetContentPanes, &QStackedWidget::currentChanged,
@@ -1118,10 +1085,10 @@ void ZapFR::Client::MainWindow::configureConnects()
                         ui->tableViewScriptFolders->setVisible(true);
                         mItemModelSources->setAllowDragAndDrop(true);
                         setUnreadBadgesShown(true);
-                        mCurrentPostPage = 1;
+                        ui->tableViewPosts->setPage(1);
+                        ui->tableViewPosts->reload();
                         mPreviouslySelectedSourceID = 0;
                         reloadUsedFlagColors();
-                        reloadPosts();
                         if (mProxyModelSources != nullptr)
                         {
                             mProxyModelSources->setDisplayMode(SortFilterProxyModelSources::SourceTreeDisplayMode::ShowAll);
@@ -1198,10 +1165,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                 }
             });
 
-    ui->tableViewLogs->connectStuff();
-
     connectSourceStuff();
-    connectPostStuff();
     connectFeedStuff();
     connectFolderStuff();
     connectFlagStuff();
@@ -1221,4 +1185,9 @@ void ZapFR::Client::MainWindow::setContentPane(int32_t contentPaneID) const
 Ui::MainWindow* ZapFR::Client::MainWindow::getUI() const noexcept
 {
     return ui;
+}
+
+QString ZapFR::Client::MainWindow::searchQuery() const
+{
+    return mLineEditSearch->text();
 }

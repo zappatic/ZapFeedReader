@@ -65,9 +65,6 @@ namespace ZapFR
                 Script = Qt::ItemDataRole::UserRole + 9,
             };
 
-          signals:
-            void deletePressed();
-
           protected:
             void keyPressEvent(QKeyEvent* event) override;
 

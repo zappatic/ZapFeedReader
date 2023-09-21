@@ -113,27 +113,6 @@ namespace ZapFR
         static const uint32_t SourceTreeEntrySortOrderRole{Qt::ItemDataRole::UserRole + 9};
         static const uint32_t SourceTreeEntrySourceTypeRole{Qt::ItemDataRole::UserRole + 10};
 
-        static const uint32_t PostIDRole{Qt::ItemDataRole::UserRole + 1};
-        static const uint32_t PostSourceIDRole{Qt::ItemDataRole::UserRole + 2};
-        static const uint32_t PostFeedIDRole{Qt::ItemDataRole::UserRole + 3};
-        static const uint32_t PostISODateRole{Qt::ItemDataRole::UserRole + 4};
-        static const uint32_t PostIsReadRole{Qt::ItemDataRole::UserRole + 5};
-        static const uint32_t PostLinkRole{Qt::ItemDataRole::UserRole + 6};
-        static const uint32_t PostAppliedFlagsRole{Qt::ItemDataRole::UserRole + 7};
-
-        static const uint32_t PostColumnUnread = 0;
-        static const uint32_t PostColumnFlag = 1;
-        static const uint32_t PostColumnFeed = 2;
-        static const uint32_t PostColumnTitle = 3;
-        static const uint32_t PostColumnDate = 4;
-
-        static const uint32_t PostEnclosureLinkRole{Qt::ItemDataRole::UserRole + 1};
-
-        static const uint32_t PostEnclosuresColumnIcon = 0;
-        static const uint32_t PostEnclosuresColumnURL = 1;
-        static const uint32_t PostEnclosuresColumnMimetype = 2;
-        static const uint32_t PostEnclosuresColumnFilesize = 3;
-
         // ui->stackedWidgetContentPanes's panes
         static const uint32_t StackedPanePosts = 0;
         static const uint32_t StackedPaneLogs = 1;

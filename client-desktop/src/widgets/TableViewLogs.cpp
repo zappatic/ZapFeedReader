@@ -35,6 +35,12 @@ ZapFR::Client::TableViewLogs::TableViewLogs(QWidget* parent) : TableViewPaletteC
     mActionClearLogs = std::make_unique<QAction>(tr("Clear logs"), this);
 }
 
+void ZapFR::Client::TableViewLogs::setMainWindow(MainWindow* mw) noexcept
+{
+    mMainWindow = mw;
+    connectStuff();
+}
+
 void ZapFR::Client::TableViewLogs::reload()
 {
     // lambda for the callback, retrieving the logs

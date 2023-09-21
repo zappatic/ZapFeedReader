@@ -186,17 +186,8 @@ void ZapFR::Client::MainWindow::feedAdded(uint64_t sourceID, uint64_t feedID)
 void ZapFR::Client::MainWindow::feedRemoved()
 {
     reloadSources();
-    populatePosts();
+    ui->tableViewPosts->clearPosts();
     ui->statusbar->showMessage(tr("Feed removed"), StatusBarDefaultTimeout);
-}
-
-void ZapFR::Client::MainWindow::feedMarkedRead(uint64_t sourceID, uint64_t feedID)
-{
-    updateFeedUnreadCountBadge(sourceID, {feedID}, false, 0);
-    mCurrentPostPage = 1;
-    reloadPosts();
-    ui->tableViewScriptFolders->reload(true);
-    ui->statusbar->showMessage(tr("Feed marked as read"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::string& error, const std::string& feedTitle,
@@ -239,8 +230,8 @@ void ZapFR::Client::MainWindow::feedRefreshed(uint64_t sourceID, uint64_t feedID
                 auto currentIndex = ui->treeViewSources->currentIndex();
                 if (currentIndex.isValid() && mItemModelSources->itemFromIndex(mProxyModelSources->mapToSource(currentIndex)) == feedItem)
                 {
-                    mCurrentPostPage = 1;
-                    reloadPosts();
+                    ui->tableViewPosts->setPage(1);
+                    ui->tableViewPosts->reload();
                 }
             }
         }

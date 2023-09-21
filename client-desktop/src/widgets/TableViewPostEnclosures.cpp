@@ -40,7 +40,7 @@ void ZapFR::Client::TableViewPostEnclosures::openEnclosureInExternalBrowser()
     auto index = currentIndex();
     if (index.isValid())
     {
-        auto link = index.data(PostEnclosureLinkRole).toString();
+        auto link = index.data(Role::Link).toString();
         if (!link.isEmpty() && link.startsWith("http"))
         {
             QDesktopServices::openUrl(link);
@@ -53,7 +53,7 @@ void ZapFR::Client::TableViewPostEnclosures::copyLink()
     auto index = currentIndex();
     if (index.isValid())
     {
-        auto link = index.data(PostEnclosureLinkRole).toString();
+        auto link = index.data(Role::Link).toString();
         if (!link.isEmpty())
         {
             QGuiApplication::clipboard()->setText(link);
@@ -64,15 +64,15 @@ void ZapFR::Client::TableViewPostEnclosures::copyLink()
 void ZapFR::Client::TableViewPostEnclosures::clear()
 {
     mItemModelPostEnclosures->clear();
-    mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnIcon, new QStandardItem(""));
-    mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnURL, new QStandardItem(tr("URL")));
-    mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnMimetype, new QStandardItem(tr("Type")));
-    mItemModelPostEnclosures->setHorizontalHeaderItem(PostEnclosuresColumnFilesize, new QStandardItem(tr("Size")));
+    mItemModelPostEnclosures->setHorizontalHeaderItem(Column::IconCol, new QStandardItem(""));
+    mItemModelPostEnclosures->setHorizontalHeaderItem(Column::URLCol, new QStandardItem(tr("URL")));
+    mItemModelPostEnclosures->setHorizontalHeaderItem(Column::MimetypeCol, new QStandardItem(tr("Type")));
+    mItemModelPostEnclosures->setHorizontalHeaderItem(Column::FilesizeCol, new QStandardItem(tr("Size")));
     horizontalHeader()->setMinimumSectionSize(25);
     horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    horizontalHeader()->setSectionResizeMode(PostEnclosuresColumnURL, QHeaderView::Stretch);
-    horizontalHeader()->resizeSection(PostEnclosuresColumnMimetype, 250);
-    horizontalHeader()->resizeSection(PostEnclosuresColumnIcon, 25);
+    horizontalHeader()->setSectionResizeMode(Column::URLCol, QHeaderView::Stretch);
+    horizontalHeader()->resizeSection(Column::MimetypeCol, 250);
+    horizontalHeader()->resizeSection(Column::IconCol, 25);
 }
 
 void ZapFR::Client::TableViewPostEnclosures::loadEnclosures(const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures)
@@ -91,14 +91,14 @@ void ZapFR::Client::TableViewPostEnclosures::loadEnclosures(const std::vector<Za
 
         auto iconItem = new QStandardItem("");
         iconItem->setData(QIcon::fromTheme(icon), Qt::DecorationRole);
-        iconItem->setData(url, PostEnclosureLinkRole);
+        iconItem->setData(url, Role::Link);
 
         auto urlItem = new QStandardItem(url);
         urlItem->setData(url, Qt::ToolTipRole);
-        urlItem->setData(url, PostEnclosureLinkRole);
+        urlItem->setData(url, Role::Link);
 
         auto mimeTypeItem = new QStandardItem(mimeType.name());
-        mimeTypeItem->setData(url, PostEnclosureLinkRole);
+        mimeTypeItem->setData(url, Role::Link);
 
         auto sizeCaption = tr("Unknown");
         if (e.size > 0)
@@ -106,7 +106,7 @@ void ZapFR::Client::TableViewPostEnclosures::loadEnclosures(const std::vector<Za
             sizeCaption = locale().formattedDataSize(static_cast<int64_t>(e.size));
         }
         auto sizeItem = new QStandardItem(sizeCaption);
-        sizeItem->setData(url, PostEnclosureLinkRole);
+        sizeItem->setData(url, Role::Link);
 
         QList<QStandardItem*> rowData;
         rowData << iconItem << urlItem << mimeTypeItem << sizeItem;

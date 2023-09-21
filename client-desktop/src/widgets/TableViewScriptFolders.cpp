@@ -53,10 +53,10 @@ void ZapFR::Client::TableViewScriptFolders::selectionChanged(const QItemSelectio
     {
         if (index.isValid() && index.column() == Column::TitleCol)
         {
-            mMainWindow->reloadPosts();
+            mMainWindow->getUI()->tableViewPosts->reload();
         }
     }
-    mMainWindow->updateActivePostFilter();
+    mMainWindow->getUI()->tableViewPosts->updateActivePostFilter();
 }
 
 void ZapFR::Client::TableViewScriptFolders::keyPressEvent(QKeyEvent* event)
@@ -199,7 +199,7 @@ void ZapFR::Client::TableViewScriptFolders::removeScriptFolder()
                                                                                                        {
                                                                                                            reload(true);
                                                                                                            setCurrentIndex(QModelIndex());
-                                                                                                           mMainWindow->reloadPosts();
+                                                                                                           mMainWindow->getUI()->tableViewPosts->reload();
                                                                                                            mMainWindow->setStatusBarMessage(tr("Scriptfolder removed"));
                                                                                                        });
                                                                          });

@@ -19,6 +19,7 @@
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "widgets/MainWindow.h"
+#include "widgets/TableViewPosts.h"
 
 void ZapFR::Client::MainWindow::reloadUsedFlagColors(bool forceReload)
 {
@@ -47,9 +48,9 @@ void ZapFR::Client::MainWindow::populateUsedFlags(uint64_t /*sourceID*/, const s
     ui->widgetFilterFlagRed->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Red));
     ui->widgetFilterFlagPurple->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Purple));
 
-    if (!flagColors.contains(mFlagFilter))
+    if (!flagColors.contains(ui->tableViewPosts->flagFilter()))
     {
-        mFlagFilter = ZapFR::Engine::FlagColor::Gray;
+        ui->tableViewPosts->setFlagFilter(ZapFR::Engine::FlagColor::Gray);
     }
 }
 
@@ -83,19 +84,19 @@ void ZapFR::Client::MainWindow::connectFlagStuff()
                         case Utilities::FlagStyle::Filled:
                         {
                             clickedFlag->setFlagStyle(Utilities::FlagStyle::Unfilled);
-                            mFlagFilter = ZapFR::Engine::FlagColor::Gray;
+                            ui->tableViewPosts->setFlagFilter(ZapFR::Engine::FlagColor::Gray);
                             break;
                         }
                         case Utilities::FlagStyle::Unfilled:
                         {
                             clickedFlag->setFlagStyle(Utilities::FlagStyle::Filled);
-                            mFlagFilter = clickedFlag->flagColor();
+                            ui->tableViewPosts->setFlagFilter(clickedFlag->flagColor());
                             break;
                         }
                     }
-                    mCurrentPostPage = 1;
-                    reloadPosts();
-                    updateActivePostFilter();
+                    ui->tableViewPosts->setPage(1);
+                    ui->tableViewPosts->reload();
+                    ui->tableViewPosts->updateActivePostFilter();
                 });
     }
 }

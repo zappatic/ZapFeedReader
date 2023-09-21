@@ -482,15 +482,6 @@ void ZapFR::Client::MainWindow::removeSource()
     }
 }
 
-void ZapFR::Client::MainWindow::sourceMarkedRead(uint64_t sourceID)
-{
-    updateFeedUnreadCountBadge(sourceID, {}, true, 0);
-    mCurrentPostPage = 1;
-    reloadPosts();
-    ui->tableViewScriptFolders->reload(true);
-    ui->statusbar->showMessage(tr("Source marked as read"), StatusBarDefaultTimeout);
-}
-
 bool ZapFR::Client::MainWindow::doesSourceHaveError(uint64_t sourceID)
 {
     auto root = mItemModelSources->invisibleRootItem();
@@ -697,11 +688,11 @@ void ZapFR::Client::MainWindow::connectSourceStuff()
                         case StackedPanePosts:
                         {
                             ui->tableViewScriptFolders->setCurrentIndex(QModelIndex());
-                            mCurrentPostPage = 1;
-                            reloadPosts();
+                            ui->tableViewPosts->setPage(1);
+                            ui->tableViewPosts->reload();
                             reloadUsedFlagColors();
                             ui->tableViewScriptFolders->reload();
-                            updateActivePostFilter();
+                            ui->tableViewPosts->updateActivePostFilter();
                             break;
                         }
                         case StackedPaneLogs:

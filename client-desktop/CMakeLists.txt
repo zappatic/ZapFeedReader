@@ -18,7 +18,6 @@ set(PROJECT_SOURCES
         src/FeedIconCache.cpp
         src/SyntaxHighlighterLua.cpp
         src/widgets/MainWindow.cpp
-        src/widgets/MainWindow-Posts.cpp
         src/widgets/MainWindow-Sources.cpp
         src/widgets/MainWindow-Feeds.cpp
         src/widgets/MainWindow-Folders.cpp

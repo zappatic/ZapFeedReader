@@ -68,9 +68,9 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
     auto currentColumn = index.column();
     switch (currentColumn)
     {
-        case PostColumnUnread:
+        case TableViewPosts::Column::UnreadCol:
         {
-            if (!index.data(PostIsReadRole).toBool())
+            if (!index.data(TableViewPosts::Role::IsRead).toBool())
             {
                 QPainterPath p;
                 p.addEllipse(Utilities::centeredSquareInRectangle(option.rect, 0.4f));
@@ -80,19 +80,19 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
             }
             break;
         }
-        case PostColumnFeed:
+        case TableViewPosts::Column::FeedCol:
         {
-            auto pixmap = FeedIconCache::icon(index.data(PostSourceIDRole).toULongLong(), index.data(PostFeedIDRole).toULongLong());
+            auto pixmap = FeedIconCache::icon(index.data(TableViewPosts::Role::SourceID).toULongLong(), index.data(TableViewPosts::Role::FeedID).toULongLong());
             if (!pixmap.isNull())
             {
                 painter->drawPixmap(Utilities::centeredSquareInRectangle(option.rect, 0.6f), pixmap, pixmap.rect());
             }
             break;
         }
-        case PostColumnFlag:
+        case TableViewPosts::Column::FlagCol:
         {
             auto isHovering = ((option.state & QStyle::State_MouseOver) == QStyle::State_MouseOver);
-            auto flagColors = index.data(PostAppliedFlagsRole).toList();
+            auto flagColors = index.data(TableViewPosts::Role::AppliedFlags).toList();
             renderFlags(painter, isHovering, flagColors, option.rect);
             break;
         }
@@ -100,7 +100,7 @@ void ZapFR::Client::ItemDelegatePost::paint(QPainter* painter, const QStyleOptio
         {
             auto titleRect = option.rect.adjusted(5, 0, -5, 0);
             auto title = index.data(Qt::DisplayRole).toString();
-            auto isRead = index.data(PostIsReadRole).toBool();
+            auto isRead = index.data(TableViewPosts::Role::IsRead).toBool();
             static auto whitespaceRe = QRegularExpression(R"(\s+)");
             title.replace(whitespaceRe, " ");
             painter->setPen(QPen(brushText, 1.0));

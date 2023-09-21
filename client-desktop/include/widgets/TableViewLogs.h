@@ -36,8 +36,7 @@ namespace ZapFR
             TableViewLogs(QWidget* parent = nullptr);
             ~TableViewLogs() = default;
 
-            void setMainWindow(MainWindow* mw) noexcept { mMainWindow = mw; }
-            void connectStuff();
+            void setMainWindow(MainWindow* mw) noexcept;
 
             void reload();
             void setCurrentLogPage(uint64_t page) noexcept { mCurrentLogPage = page; }
@@ -72,6 +71,7 @@ namespace ZapFR
             uint64_t mCurrentLogPageCount{1};
 
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
+            void connectStuff();
 
             static constexpr uint64_t msLogsPerPage{100};
         };

@@ -23,6 +23,11 @@
 
 namespace ZapFR
 {
+    namespace Engine
+    {
+        class Post;
+    }
+
     namespace Client
     {
         class MainWindow;
@@ -35,6 +40,12 @@ namespace ZapFR
             ~WebEngineViewPost() = default;
 
             void setMainWindow(MainWindow* mainWindow) noexcept { mMainWindow = mainWindow; }
+            void setPostHTML(const QString& html);
+            void setBlankPostPage();
+            QString postStyles() const;
+            QString postHTMLTemplate() const;
+            void invalidatePostStylesCache() { mPostStylesCacheValid = false; }
+            QString getHTMLForPost(ZapFR::Engine::Post* post) const;
 
           protected:
             void contextMenuEvent(QContextMenuEvent* event) override;
@@ -43,6 +54,8 @@ namespace ZapFR
             QUrl mClickedURL{};
             std::unique_ptr<QMenu> mContextMenu{nullptr};
             MainWindow* mMainWindow{nullptr};
+
+            mutable bool mPostStylesCacheValid{false};
 
             struct DetectedBrowser
             {

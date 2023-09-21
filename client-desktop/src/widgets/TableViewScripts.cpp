@@ -40,7 +40,6 @@ ZapFR::Client::TableViewScripts::TableViewScripts(QWidget* parent) : TableViewPa
     connect(mActionRemoveScript.get(), &QAction::triggered, this, &TableViewScripts::removeScript);
 
     connect(this, &TableViewScripts::customContextMenuRequested, [&](const QPoint& p) { mScriptContextMenu->popup(viewport()->mapToGlobal(p)); });
-    connect(this, &TableViewScripts::deletePressed, [&]() { removeScript(); });
     connect(this, &QTableView::doubleClicked, this, &TableViewScripts::editScript);
 
     mScriptContextMenu = std::make_unique<QMenu>(nullptr);
@@ -54,7 +53,7 @@ void ZapFR::Client::TableViewScripts::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace)
     {
-        emit deletePressed();
+        removeScript();
     }
     else
     {

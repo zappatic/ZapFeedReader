@@ -161,17 +161,8 @@ void ZapFR::Client::MainWindow::folderUpdated(uint64_t sourceID, uint64_t folder
 void ZapFR::Client::MainWindow::folderRemoved()
 {
     reloadSources();
-    populatePosts();
+    ui->tableViewPosts->clearPosts();
     ui->statusbar->showMessage(tr("Folder removed"), StatusBarDefaultTimeout);
-}
-
-void ZapFR::Client::MainWindow::folderMarkedRead(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs)
-{
-    updateFeedUnreadCountBadge(sourceID, feedIDs, false, 0);
-    mCurrentPostPage = 1;
-    reloadPosts();
-    ui->tableViewScriptFolders->reload(true);
-    ui->statusbar->showMessage(tr("Folder marked as read"), StatusBarDefaultTimeout);
 }
 
 void ZapFR::Client::MainWindow::connectFolderStuff()
