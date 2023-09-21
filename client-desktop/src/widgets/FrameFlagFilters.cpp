@@ -46,6 +46,7 @@ void ZapFR::Client::FrameFlagFilters::setMainWindow(MainWindow* mw) noexcept
         connect(flag, &PopupFlag::flagClicked,
                 [&](PopupFlag* clickedFlag)
                 {
+                    auto localUI = mMainWindow->getUI();
                     for (const auto& f : flags)
                     {
                         if (f != clickedFlag)
@@ -59,19 +60,19 @@ void ZapFR::Client::FrameFlagFilters::setMainWindow(MainWindow* mw) noexcept
                         case Utilities::FlagStyle::Filled:
                         {
                             clickedFlag->setFlagStyle(Utilities::FlagStyle::Unfilled);
-                            ui->tableViewPosts->setFlagFilter(ZapFR::Engine::FlagColor::Gray);
+                            localUI->tableViewPosts->setFlagFilter(ZapFR::Engine::FlagColor::Gray);
                             break;
                         }
                         case Utilities::FlagStyle::Unfilled:
                         {
                             clickedFlag->setFlagStyle(Utilities::FlagStyle::Filled);
-                            ui->tableViewPosts->setFlagFilter(clickedFlag->flagColor());
+                            localUI->tableViewPosts->setFlagFilter(clickedFlag->flagColor());
                             break;
                         }
                     }
-                    ui->tableViewPosts->setPage(1);
-                    ui->tableViewPosts->reload();
-                    ui->tableViewPosts->updateActivePostFilter();
+                    localUI->tableViewPosts->setPage(1);
+                    localUI->tableViewPosts->reload();
+                    localUI->tableViewPosts->updateActivePostFilter();
                 });
     }
 }

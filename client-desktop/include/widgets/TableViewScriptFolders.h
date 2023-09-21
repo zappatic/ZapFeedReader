@@ -36,6 +36,10 @@ namespace ZapFR
           public:
             TableViewScriptFolders(QWidget* parent = nullptr);
             ~TableViewScriptFolders() = default;
+            TableViewScriptFolders(const TableViewScriptFolders& e) = delete;
+            TableViewScriptFolders& operator=(const TableViewScriptFolders&) = delete;
+            TableViewScriptFolders(TableViewScriptFolders&&) = delete;
+            TableViewScriptFolders& operator=(TableViewScriptFolders&&) = delete;
 
             void setMainWindow(MainWindow* mw) noexcept { mMainWindow = mw; }
             void reload(bool forceReload = false);

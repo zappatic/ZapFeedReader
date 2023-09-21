@@ -1600,28 +1600,28 @@ void ZapFR::Client::TreeViewSources::connectStuff()
             {
                 if (index.isValid())
                 {
-                    auto ui = mMainWindow->getUI();
+                    auto localUI = mMainWindow->getUI();
                     switch (mMainWindow->currentContentPane())
                     {
                         case ContentPane::Posts:
                         {
-                            ui->tableViewScriptFolders->setCurrentIndex(QModelIndex());
-                            ui->tableViewPosts->setPage(1);
-                            ui->tableViewPosts->reload();
-                            ui->frameFlagFilters->reload();
-                            ui->tableViewScriptFolders->reload();
-                            ui->tableViewPosts->updateActivePostFilter();
+                            localUI->tableViewScriptFolders->setCurrentIndex(QModelIndex());
+                            localUI->tableViewPosts->setPage(1);
+                            localUI->tableViewPosts->reload();
+                            localUI->frameFlagFilters->reload();
+                            localUI->tableViewScriptFolders->reload();
+                            localUI->tableViewPosts->updateActivePostFilter();
                             break;
                         }
                         case ContentPane::Logs:
                         {
-                            ui->tableViewLogs->setCurrentLogPage(1);
-                            ui->tableViewLogs->reload();
+                            localUI->tableViewLogs->setCurrentLogPage(1);
+                            localUI->tableViewLogs->reload();
                             break;
                         }
                         case ContentPane::Scripts:
                         {
-                            ui->tableViewScripts->reload();
+                            localUI->tableViewScripts->reload();
                             break;
                         }
                         case ContentPane::Properties:

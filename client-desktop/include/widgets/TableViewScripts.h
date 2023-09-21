@@ -36,6 +36,10 @@ namespace ZapFR
           public:
             TableViewScripts(QWidget* parent = nullptr);
             ~TableViewScripts() = default;
+            TableViewScripts(const TableViewScripts& e) = delete;
+            TableViewScripts& operator=(const TableViewScripts&) = delete;
+            TableViewScripts(TableViewScripts&&) = delete;
+            TableViewScripts& operator=(TableViewScripts&&) = delete;
 
             void setMainWindow(MainWindow* mw) noexcept { mMainWindow = mw; }
             void reload(bool forceReload = false);

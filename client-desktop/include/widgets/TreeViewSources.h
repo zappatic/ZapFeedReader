@@ -42,6 +42,10 @@ namespace ZapFR
           public:
             TreeViewSources(QWidget* parent = nullptr);
             ~TreeViewSources() = default;
+            TreeViewSources(const TreeViewSources& e) = delete;
+            TreeViewSources& operator=(const TreeViewSources&) = delete;
+            TreeViewSources(TreeViewSources&&) = delete;
+            TreeViewSources& operator=(TreeViewSources&&) = delete;
 
             void reload();
             void setMainWindow(MainWindow* mw) noexcept;

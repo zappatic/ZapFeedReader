@@ -38,6 +38,10 @@ namespace ZapFR
           public:
             explicit WebEngineViewPost(QWidget* parent = nullptr);
             ~WebEngineViewPost() = default;
+            WebEngineViewPost(const WebEngineViewPost& e) = delete;
+            WebEngineViewPost& operator=(const WebEngineViewPost&) = delete;
+            WebEngineViewPost(WebEngineViewPost&&) = delete;
+            WebEngineViewPost& operator=(WebEngineViewPost&&) = delete;
 
             void setMainWindow(MainWindow* mainWindow) noexcept { mMainWindow = mainWindow; }
             void setPostHTML(const QString& html);

@@ -35,6 +35,10 @@ namespace ZapFR
           public:
             TableViewLogs(QWidget* parent = nullptr);
             ~TableViewLogs() = default;
+            TableViewLogs(const TableViewLogs& e) = delete;
+            TableViewLogs& operator=(const TableViewLogs&) = delete;
+            TableViewLogs(TableViewLogs&&) = delete;
+            TableViewLogs& operator=(TableViewLogs&&) = delete;
 
             void setMainWindow(MainWindow* mw) noexcept;
 
