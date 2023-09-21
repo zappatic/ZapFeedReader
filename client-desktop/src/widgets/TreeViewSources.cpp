@@ -1185,7 +1185,7 @@ void ZapFR::Client::TreeViewSources::feedRefreshed(uint64_t sourceID, uint64_t f
         }
     }
     mMainWindow->getUI()->tableViewScriptFolders->reload(true);
-    mMainWindow->reloadUsedFlagColors(true);
+    mMainWindow->getUI()->frameFlagFilters->reload(true);
 }
 
 void ZapFR::Client::TreeViewSources::updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount)
@@ -1600,7 +1600,7 @@ void ZapFR::Client::TreeViewSources::connectStuff()
                             ui->tableViewScriptFolders->setCurrentIndex(QModelIndex());
                             ui->tableViewPosts->setPage(1);
                             ui->tableViewPosts->reload();
-                            mMainWindow->reloadUsedFlagColors();
+                            ui->frameFlagFilters->reload();
                             ui->tableViewScriptFolders->reload();
                             ui->tableViewPosts->updateActivePostFilter();
                             break;

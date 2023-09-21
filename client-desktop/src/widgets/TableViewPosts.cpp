@@ -573,7 +573,7 @@ void ZapFR::Client::TableViewPosts::postsMarkedUnread(uint64_t sourceID, const s
 
 void ZapFR::Client::TableViewPosts::postsMarkedFlagged(bool doReloadPosts)
 {
-    mMainWindow->reloadUsedFlagColors(true);
+    mMainWindow->getUI()->frameFlagFilters->reload(true);
     if (doReloadPosts)
     {
         reload();
@@ -583,7 +583,7 @@ void ZapFR::Client::TableViewPosts::postsMarkedFlagged(bool doReloadPosts)
 
 void ZapFR::Client::TableViewPosts::postsMarkedUnflagged(bool doReloadPosts)
 {
-    mMainWindow->reloadUsedFlagColors(true);
+    mMainWindow->getUI()->frameFlagFilters->reload(true);
     if (doReloadPosts)
     {
         reload();

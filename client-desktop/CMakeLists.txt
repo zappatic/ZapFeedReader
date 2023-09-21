@@ -17,8 +17,8 @@ set(PROJECT_SOURCES
         src/Utilities.cpp
         src/FeedIconCache.cpp
         src/SyntaxHighlighterLua.cpp
+        src/widgets/FrameFlagFilters.cpp
         src/widgets/MainWindow.cpp
-        src/widgets/MainWindow-Flags.cpp
         src/widgets/WebEnginePagePost.cpp
         src/widgets/WebEngineViewPost.cpp
         src/widgets/TableViewPaletteCorrected.cpp
@@ -58,6 +58,7 @@ set(PROJECT_SOURCES
         include/FeedIconCache.h
         include/SyntaxHighlighterLua.h
         include/Utilities.h
+        include/widgets/FrameFlagFilters.h
         include/widgets/MainWindow.h
         include/widgets/WebEnginePagePost.h
         include/widgets/WebEngineViewPost.h

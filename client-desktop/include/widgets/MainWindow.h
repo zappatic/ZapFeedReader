@@ -44,19 +44,6 @@ namespace ZapFR
         class LineEditSearch;
         class TreeViewSources;
 
-        enum class Theme
-        {
-            Light,
-            Dark,
-            UseSystem
-        };
-
-        enum class RefreshBehaviour
-        {
-            CurrentSelection,
-            EntireSource,
-        };
-
         class MainWindow : public QMainWindow
         {
             Q_OBJECT
@@ -77,9 +64,6 @@ namespace ZapFR
 
             Theme getCurrentColorTheme() const;
 
-            // TODO : move into respective widgets:
-            void reloadUsedFlagColors(bool forceReload = false);
-
             Ui::MainWindow* getUI() const noexcept;
             TreeViewSources* treeViewSources() const noexcept;
             void setStatusBarMessage(const QString& message, int32_t timeout = StatusBarDefaultTimeout);
@@ -95,12 +79,8 @@ namespace ZapFR
             void cloneSourceTreeContents(uint64_t sourceID, QStandardItemModel* destination, const std::optional<std::unordered_set<uint64_t>>& feedIDsToCheck);
 
           private slots:
-            // actions
             void showPreferences();
             void applyColorScheme();
-
-            // callbacks
-            void populateUsedFlags(uint64_t sourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
 
           protected:
             void closeEvent(QCloseEvent* event) override;
@@ -112,11 +92,10 @@ namespace ZapFR
 
             std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
             std::unique_ptr<DialogPreferences> mDialogPreferences{nullptr};
-
             std::unique_ptr<LineEditSearch> mLineEditSearch{nullptr};
             std::unique_ptr<QPushButton> mHamburgerMenuButton{nullptr};
-            std::unique_ptr<QWidget> mToobarSpacerLeft{nullptr};
-            std::unique_ptr<QWidget> mToobarSpacerRight{nullptr};
+            std::unique_ptr<QWidget> mToolbarSpacerLeft{nullptr};
+            std::unique_ptr<QWidget> mToolbarSpacerRight{nullptr};
 
             Theme mPreferenceTheme{Theme::UseSystem};
             uint16_t mPreferenceUIFontSize{11};
@@ -131,16 +110,13 @@ namespace ZapFR
             QString dataDir() const;
             QString settingsFile() const;
 
-            void configureConnects();
-            void connectFlagStuff();
-
             void initializeUI();
+            void connectStuff();
+            void configureIcons();
+            void updatePreferredFontSize();
 
             void saveSettings() const;
             void restoreSettings();
-
-            void configureIcons();
-            void updatePreferredFontSize();
 
 #ifdef ZFR_DUMP_PALETTE
             void dumpPalette();

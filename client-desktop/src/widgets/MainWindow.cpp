@@ -80,7 +80,7 @@ ZapFR::Client::MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui
         });
 
     initializeUI();
-    configureConnects();
+    connectStuff();
     configureIcons();
     ui->treeViewSources->reload();
     restoreSettings();
@@ -102,6 +102,7 @@ void ZapFR::Client::MainWindow::initializeUI()
     ui->tableViewLogs->setMainWindow(this);
     ui->tableViewScriptFolders->setMainWindow(this);
     ui->tableViewScripts->setMainWindow(this);
+    ui->frameFlagFilters->setMainWindow(this);
     ui->webViewPost->setMainWindow(this);
 
     mActionShowPreferences = std::make_unique<QAction>(tr("Preferences"), this);
@@ -135,9 +136,9 @@ void ZapFR::Client::MainWindow::initializeUI()
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewLogs->actionClearLogs());
 
     // add a spacer in the toolbar to separate the left from the right buttons
-    mToobarSpacerLeft = std::make_unique<QWidget>();
-    mToobarSpacerLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    auto actionSpacerLeft = ui->toolBar->insertWidget(actionHamburgerMenu, mToobarSpacerLeft.get());
+    mToolbarSpacerLeft = std::make_unique<QWidget>();
+    mToolbarSpacerLeft->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto actionSpacerLeft = ui->toolBar->insertWidget(actionHamburgerMenu, mToolbarSpacerLeft.get());
     actionSpacerLeft->setProperty(gsPostPaneToolbarSpacerLeft, true);
 
     // add the search widget to the toolbar
@@ -149,9 +150,9 @@ void ZapFR::Client::MainWindow::initializeUI()
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionViewScripts());
 
     // add a spacer in the toolbar before the hamburger menu to ensure it is always at the right
-    mToobarSpacerRight = std::make_unique<QWidget>();
-    mToobarSpacerRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    auto actionSpacerRight = ui->toolBar->insertWidget(actionHamburgerMenu, mToobarSpacerRight.get());
+    mToolbarSpacerRight = std::make_unique<QWidget>();
+    mToolbarSpacerRight->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    auto actionSpacerRight = ui->toolBar->insertWidget(actionHamburgerMenu, mToolbarSpacerRight.get());
     actionSpacerRight->setProperty(gsPostPaneToolbarSpacerRight, true);
 
     // create the hamburger menu
@@ -888,7 +889,7 @@ ZapFR::Client::Theme ZapFR::Client::MainWindow::getCurrentColorTheme() const
     return currentColorTheme;
 }
 
-void ZapFR::Client::MainWindow::configureConnects()
+void ZapFR::Client::MainWindow::connectStuff()
 {
     connect(mActionExit.get(), &QAction::triggered, [&]() { QGuiApplication::quit(); });
     connect(mActionShowPreferences.get(), &QAction::triggered, this, &MainWindow::showPreferences);
@@ -928,7 +929,7 @@ void ZapFR::Client::MainWindow::configureConnects()
                         ui->tableViewPosts->setPage(1);
                         ui->tableViewPosts->reload();
                         ui->treeViewSources->setPreviouslySelectedSourceID(0);
-                        reloadUsedFlagColors();
+                        ui->frameFlagFilters->reload();
                         ui->treeViewSources->setDisplayMode(TreeViewSources::DisplayMode::ShowAll);
                         break;
                     }
@@ -961,8 +962,6 @@ void ZapFR::Client::MainWindow::configureConnects()
                     }
                 }
             });
-
-    connectFlagStuff();
 }
 
 void ZapFR::Client::MainWindow::setStatusBarMessage(const QString& message, int32_t timeout)

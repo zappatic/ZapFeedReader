@@ -16,46 +16,21 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "widgets/FrameFlagFilters.h"
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "widgets/MainWindow.h"
-#include "widgets/TableViewPosts.h"
+#include "widgets/TreeViewSources.h"
 
-void ZapFR::Client::MainWindow::reloadUsedFlagColors(bool forceReload)
+ZapFR::Client::FrameFlagFilters::FrameFlagFilters(QWidget* parent) : QFrame(parent)
 {
-    auto index = ui->treeViewSources->currentIndex();
-    if (index.isValid())
-    {
-        auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
-        if (forceReload || sourceID != ui->treeViewSources->previouslySelectedSourceID())
-        {
-            ZapFR::Engine::Agent::getInstance()->queueGetUsedFlagColors(sourceID,
-                                                                        [&](uint64_t affectedSourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
-                                                                        {
-                                                                            QMetaObject::invokeMethod(this, [=, this]() { populateUsedFlags(affectedSourceID, flagColors); });
-                                                                            ui->treeViewSources->setPreviouslySelectedSourceID(affectedSourceID);
-                                                                        });
-        }
-    }
 }
 
-void ZapFR::Client::MainWindow::populateUsedFlags(uint64_t /*sourceID*/, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
+void ZapFR::Client::FrameFlagFilters::setMainWindow(MainWindow* mw) noexcept
 {
-    ui->widgetFilterFlagBlue->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Blue));
-    ui->widgetFilterFlagGreen->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Green));
-    ui->widgetFilterFlagYellow->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Yellow));
-    ui->widgetFilterFlagOrange->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Orange));
-    ui->widgetFilterFlagRed->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Red));
-    ui->widgetFilterFlagPurple->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Purple));
+    mMainWindow = mw;
 
-    if (!flagColors.contains(ui->tableViewPosts->flagFilter()))
-    {
-        ui->tableViewPosts->setFlagFilter(ZapFR::Engine::FlagColor::Gray);
-    }
-}
-
-void ZapFR::Client::MainWindow::connectFlagStuff()
-{
+    auto ui = mMainWindow->getUI();
     ui->widgetFilterFlagBlue->setFlagColor(ZapFR::Engine::FlagColor::Blue);
     ui->widgetFilterFlagGreen->setFlagColor(ZapFR::Engine::FlagColor::Green);
     ui->widgetFilterFlagYellow->setFlagColor(ZapFR::Engine::FlagColor::Yellow);
@@ -98,5 +73,39 @@ void ZapFR::Client::MainWindow::connectFlagStuff()
                     ui->tableViewPosts->reload();
                     ui->tableViewPosts->updateActivePostFilter();
                 });
+    }
+}
+
+void ZapFR::Client::FrameFlagFilters::reload(bool forceReload)
+{
+    auto index = mMainWindow->treeViewSources()->currentIndex();
+    if (index.isValid())
+    {
+        auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+        if (forceReload || sourceID != mMainWindow->treeViewSources()->previouslySelectedSourceID())
+        {
+            ZapFR::Engine::Agent::getInstance()->queueGetUsedFlagColors(sourceID,
+                                                                        [&](uint64_t affectedSourceID, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
+                                                                        {
+                                                                            QMetaObject::invokeMethod(this, [=, this]() { populateUsedFlags(affectedSourceID, flagColors); });
+                                                                            mMainWindow->treeViewSources()->setPreviouslySelectedSourceID(affectedSourceID);
+                                                                        });
+        }
+    }
+}
+
+void ZapFR::Client::FrameFlagFilters::populateUsedFlags(uint64_t /*sourceID*/, const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
+{
+    auto ui = mMainWindow->getUI();
+    ui->widgetFilterFlagBlue->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Blue));
+    ui->widgetFilterFlagGreen->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Green));
+    ui->widgetFilterFlagYellow->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Yellow));
+    ui->widgetFilterFlagOrange->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Orange));
+    ui->widgetFilterFlagRed->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Red));
+    ui->widgetFilterFlagPurple->setHidden(!flagColors.contains(ZapFR::Engine::FlagColor::Purple));
+
+    if (!flagColors.contains(ui->tableViewPosts->flagFilter()))
+    {
+        ui->tableViewPosts->setFlagFilter(ZapFR::Engine::FlagColor::Gray);
     }
 }

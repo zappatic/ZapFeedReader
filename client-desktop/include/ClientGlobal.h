@@ -119,6 +119,19 @@ namespace ZapFR
             FeedProps = 2,
         };
 
+        enum class Theme
+        {
+            Light,
+            Dark,
+            UseSystem
+        };
+
+        enum class RefreshBehaviour
+        {
+            CurrentSelection,
+            EntireSource,
+        };
+
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";
 

@@ -121,7 +121,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="frameFlagFilters">
+         <widget class="ZapFR::Client::FrameFlagFilters" name="frameFlagFilters">
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <property name="spacing">
             <number>0</number>
@@ -1040,6 +1040,12 @@
    <class>ZapFR::Client::TableViewPostEnclosures</class>
    <extends>QTableView</extends>
    <header>widgets/TableViewPostEnclosures.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::FrameFlagFilters</class>
+   <extends>QFrame</extends>
+   <header>widgets/FrameFlagFilters.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>
