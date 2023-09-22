@@ -86,17 +86,17 @@ void ZapFR::Client::TreeViewSources::keyPressEvent(QKeyEvent* event)
                 auto type = index.data(Role::Type).toULongLong();
                 switch (type)
                 {
-                    case TreeViewSources::EntryType::Folder:
+                    case EntryType::Folder:
                     {
                         removeFolder();
                         break;
                     }
-                    case TreeViewSources::EntryType::Feed:
+                    case EntryType::Feed:
                     {
                         removeFeed();
                         break;
                     }
-                    case TreeViewSources::EntryType::Source:
+                    case EntryType::Source:
                     {
                         removeSource();
                         break;
@@ -117,7 +117,7 @@ void ZapFR::Client::TreeViewSources::mouseDoubleClickEvent(QMouseEvent* event)
     if (index.isValid())
     {
         auto type = index.data(Role::Type).toULongLong();
-        if (type == TreeViewSources::EntryType::Folder)
+        if (type == EntryType::Folder)
         {
             editFolder();
             return;
@@ -154,7 +154,7 @@ void ZapFR::Client::TreeViewSources::reload()
                 createFolderItems = [&](ZapFR::Engine::Folder* folder, uint64_t currentSourceID, QStandardItem* parentItem)
                 {
                     auto folderItem = new QStandardItem(QString::fromUtf8(folder->title()));
-                    folderItem->setData(TreeViewSources::EntryType::Folder, Role::Type);
+                    folderItem->setData(EntryType::Folder, Role::Type);
                     folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), Role::ID);
                     folderItem->setData(QVariant::fromValue<uint64_t>(folder->parentID()), Role::ParentFolderID);
                     folderItem->setData(QVariant::fromValue<uint64_t>(currentSourceID), Role::ParentSourceID);
@@ -169,7 +169,7 @@ void ZapFR::Client::TreeViewSources::reload()
                 };
                 // create the parent source item
                 auto sourceItem = new QStandardItem(QString::fromUtf8(retrievedSource->title()));
-                sourceItem->setData(TreeViewSources::EntryType::Source, Role::Type);
+                sourceItem->setData(EntryType::Source, Role::Type);
                 sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), Role::ID);
                 sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), Role::ParentSourceID);
                 sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->sortOrder()), Role::SortOrder);
@@ -201,7 +201,7 @@ void ZapFR::Client::TreeViewSources::reload()
 
                     // create the feed item
                     auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
-                    feedItem->setData(TreeViewSources::EntryType::Feed, Role::Type);
+                    feedItem->setData(EntryType::Feed, Role::Type);
                     feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), Role::ID);
                     feedItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), Role::ParentSourceID);
                     feedItem->setData(QVariant::fromValue<uint64_t>(folderID), Role::ParentFolderID);
@@ -322,7 +322,7 @@ void ZapFR::Client::TreeViewSources::restoreExpansionSelectionState(QStandardIte
             for (auto i = 0; i < mItemModelSources->invisibleRootItem()->rowCount(); ++i)
             {
                 auto child = mItemModelSources->invisibleRootItem()->child(i);
-                if (child->data(Role::Type).toULongLong() == TreeViewSources::EntryType::Source)
+                if (child->data(Role::Type).toULongLong() == EntryType::Source)
                 {
                     if (child->data(Role::SourceType).toString().toStdString() == ZapFR::Engine::IdentifierLocalServer)
                     {
@@ -370,14 +370,14 @@ QJsonArray ZapFR::Client::TreeViewSources::expandedItems() const
             {
                 if (isExpanded(index))
                 {
-                    if (parent->data(Role::Type) == TreeViewSources::EntryType::Source)
+                    if (parent->data(Role::Type) == EntryType::Source)
                     {
                         QJsonObject o;
                         o.insert("type", "source");
                         o.insert("id", QJsonValue::fromVariant(parent->data(Role::ID)));
                         expandedSourceTreeItems.append(o);
                     }
-                    else if (parent->data(Role::Type) == TreeViewSources::EntryType::Folder)
+                    else if (parent->data(Role::Type) == EntryType::Folder)
                     {
                         QJsonObject o;
                         o.insert("type", "folder");
@@ -413,11 +413,11 @@ void ZapFR::Client::TreeViewSources::expandItems(const QJsonArray& items)
                 auto sourceIDToMatch = parent->data(Role::ParentSourceID).toULongLong();
                 uint64_t folderIDToMatch = 0;
                 auto typeToMatch = QString("");
-                if (parent->data(Role::Type).toULongLong() == TreeViewSources::EntryType::Source)
+                if (parent->data(Role::Type).toULongLong() == EntryType::Source)
                 {
                     typeToMatch = "source";
                 }
-                else if (parent->data(Role::Type).toULongLong() == TreeViewSources::EntryType::Folder)
+                else if (parent->data(Role::Type).toULongLong() == EntryType::Folder)
                 {
                     typeToMatch = "folder";
                     folderIDToMatch = parent->data(Role::ID).toULongLong();
@@ -469,16 +469,33 @@ std::tuple<uint64_t, uint64_t> ZapFR::Client::TreeViewSources::getCurrentlySelec
     {
         sourceID = index.data(Role::ParentSourceID).toULongLong();
         auto type = index.data(Role::Type);
-        if (type == TreeViewSources::EntryType::Folder)
+        if (type == EntryType::Folder)
         {
             folderID = index.data(Role::ID).toULongLong();
         }
-        else if (type == TreeViewSources::EntryType::Feed)
+        else if (type == EntryType::Feed)
         {
             folderID = index.data(Role::ParentFolderID).toULongLong();
         }
     }
     return std::make_tuple(sourceID, folderID);
+}
+
+std::tuple<uint64_t, uint64_t> ZapFR::Client::TreeViewSources::getCurrentlySelectedSourceAndFeedID() const
+{
+    uint64_t sourceID{0};
+    uint64_t feedID{0};
+    auto index = currentIndex();
+    if (index.isValid())
+    {
+        sourceID = index.data(Role::ParentSourceID).toULongLong();
+        auto type = index.data(Role::Type);
+        if (type == EntryType::Feed)
+        {
+            feedID = index.data(Role::ID).toULongLong();
+        }
+    }
+    return std::make_tuple(sourceID, feedID);
 }
 
 void ZapFR::Client::TreeViewSources::setUnreadBadgesShown(bool b)
@@ -489,13 +506,13 @@ void ZapFR::Client::TreeViewSources::setUnreadBadgesShown(bool b)
         auto index = mItemModelSources->indexFromItem(parent);
         switch (index.data(Role::Type).toULongLong())
         {
-            case TreeViewSources::EntryType::Feed:
+            case EntryType::Feed:
             {
                 parent->setData(b, Role::DisplayUnreadCountBadge);
                 break;
             }
-            case TreeViewSources::EntryType::Folder:
-            case TreeViewSources::EntryType::Source:
+            case EntryType::Folder:
+            case EntryType::Source:
             {
                 for (int32_t i = 0; i < parent->rowCount(); ++i)
                 {
@@ -581,7 +598,7 @@ void ZapFR::Client::TreeViewSources::agentErrorOccurred(uint64_t sourceID, const
         auto child = rootItem->child(i);
         auto type = child->data(Role::Type).toULongLong();
         auto id = child->data(Role::ID).toULongLong();
-        if (type == TreeViewSources::EntryType::Source && id == sourceID)
+        if (type == EntryType::Source && id == sourceID)
         {
             child->setData(QString::fromUtf8(errorMessage), Role::Error);
             child->setData(QString::fromUtf8(errorMessage), Qt::ToolTipRole);
@@ -702,7 +719,7 @@ bool ZapFR::Client::TreeViewSources::doesSourceHaveError(uint64_t sourceID)
     for (int32_t i = 0; i < root->rowCount(); ++i)
     {
         auto child = root->child(i);
-        if (child->data(Role::Type).toULongLong() == TreeViewSources::EntryType::Source && child->data(Role::ID).toULongLong() == sourceID)
+        if (child->data(Role::Type).toULongLong() == EntryType::Source && child->data(Role::ID).toULongLong() == sourceID)
         {
             auto error = child->data(Role::Error);
             return (!error.isNull() && error.isValid() && !error.toString().isEmpty());
@@ -713,6 +730,8 @@ bool ZapFR::Client::TreeViewSources::doesSourceHaveError(uint64_t sourceID)
 
 void ZapFR::Client::TreeViewSources::remoteSourceUnreadCountsReceived(uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
 {
+    auto [currentlySelectedSourceID, currentlySelectedFeedID] = getCurrentlySelectedSourceAndFeedID();
+
     std::function<void(QStandardItem*)> updateBadges;
     updateBadges = [&](QStandardItem* parent)
     {
@@ -722,7 +741,7 @@ void ZapFR::Client::TreeViewSources::remoteSourceUnreadCountsReceived(uint64_t a
         {
             switch (type)
             {
-                case TreeViewSources::EntryType::Feed:
+                case EntryType::Feed:
                 {
                     auto parentFeedID = parent->data(Role::ID).toULongLong();
                     for (const auto& [feedID, unreadCount] : unreadCounts)
@@ -730,13 +749,17 @@ void ZapFR::Client::TreeViewSources::remoteSourceUnreadCountsReceived(uint64_t a
                         if (feedID == parentFeedID)
                         {
                             parent->setData(QVariant::fromValue<uint64_t>(unreadCount), Role::UnreadCount);
+                            if (parentSourceID == currentlySelectedSourceID && feedID == currentlySelectedFeedID)
+                            {
+                                mMainWindow->getUI()->tableViewPosts->reload();
+                            }
                             break;
                         }
                     }
                     break;
                 }
-                case TreeViewSources::EntryType::Folder:
-                case TreeViewSources::EntryType::Source:
+                case EntryType::Folder:
+                case EntryType::Source:
                 {
                     for (int32_t i = 0; i < parent->rowCount(); ++i)
                     {
@@ -770,7 +793,7 @@ QStandardItem* ZapFR::Client::TreeViewSources::findSourceStandardItem(uint64_t s
             if (index.isValid())
             {
                 auto type = index.data(Role::Type).toULongLong();
-                if (type == TreeViewSources::EntryType::Source)
+                if (type == EntryType::Source)
                 {
                     auto id = index.data(Role::ID).toULongLong();
                     if (sourceID == id)
@@ -795,8 +818,8 @@ std::unordered_set<QStandardItem*> ZapFR::Client::TreeViewSources::findFeedStand
         auto type = parent->data(Role::Type).toULongLong();
         switch (type)
         {
-            case TreeViewSources::EntryType::Source:
-            case TreeViewSources::EntryType::Folder:
+            case EntryType::Source:
+            case EntryType::Folder:
             {
                 for (int32_t i = 0; i < parent->rowCount(); ++i)
                 {
@@ -804,7 +827,7 @@ std::unordered_set<QStandardItem*> ZapFR::Client::TreeViewSources::findFeedStand
                 }
                 break;
             }
-            case TreeViewSources::EntryType::Feed:
+            case EntryType::Feed:
             {
                 auto id = parent->data(Role::ID).toULongLong();
                 if (feedIDs.has_value())
@@ -841,7 +864,7 @@ void ZapFR::Client::TreeViewSources::cloneSourceTreeContents(uint64_t sourceID, 
             {
                 auto clone = mItemModelSources->itemFromIndex(child)->clone();
 
-                if (feedIDsToCheck.has_value() && clone->data(Role::Type).toULongLong() == TreeViewSources::EntryType::Feed &&
+                if (feedIDsToCheck.has_value() && clone->data(Role::Type).toULongLong() == EntryType::Feed &&
                     feedIDsToCheck.value().contains(clone->data(Role::ID).toULongLong()))
                 {
                     clone->setData(Qt::Checked, Qt::CheckStateRole);
@@ -932,7 +955,7 @@ void ZapFR::Client::TreeViewSources::editFolder()
                                                                           }
 
                                                                           auto childType = child->data(Role::Type).toULongLong();
-                                                                          if (childType == TreeViewSources::EntryType::Folder)
+                                                                          if (childType == EntryType::Folder)
                                                                           {
                                                                               auto childFolderID = child->data(Role::ID).toULongLong();
                                                                               if (childFolderID == affectedFolderID)
@@ -945,7 +968,7 @@ void ZapFR::Client::TreeViewSources::editFolder()
                                                                                   updateFolderTitle(child);
                                                                               }
                                                                           }
-                                                                          else if (childType == TreeViewSources::EntryType::Source)
+                                                                          else if (childType == EntryType::Source)
                                                                           {
                                                                               updateFolderTitle(child);
                                                                           }
@@ -963,7 +986,7 @@ void ZapFR::Client::TreeViewSources::editFolder()
     if (index.isValid())
     {
         auto type = index.data(Role::Type);
-        if (type == TreeViewSources::EntryType::Folder)
+        if (type == EntryType::Folder)
         {
             auto sourceID = index.data(Role::ParentSourceID).toULongLong();
             auto folderID = index.data(Role::ID).toULongLong();
@@ -1099,7 +1122,7 @@ void ZapFR::Client::TreeViewSources::refreshViaToolbarButton()
         auto type = index.data(Role::Type).toULongLong();
         if (mMainWindow->preferences()->refreshBehaviour == RefreshBehaviour::EntireSource)
         {
-            type = TreeViewSources::EntryType::Source;
+            type = EntryType::Source;
         }
         refreshSourceEntryType(index, type);
     }
@@ -1121,7 +1144,7 @@ void ZapFR::Client::TreeViewSources::refreshSourceEntryType(const QModelIndex& i
     mMainWindow->setStatusBarMessage(tr("Refreshing '%1'").arg(index.data(Qt::DisplayRole).toString()));
     switch (type)
     {
-        case TreeViewSources::EntryType::Feed:
+        case EntryType::Feed:
         {
             auto feedID = index.data(Role::ID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
@@ -1139,7 +1162,7 @@ void ZapFR::Client::TreeViewSources::refreshSourceEntryType(const QModelIndex& i
                 });
             break;
         }
-        case TreeViewSources::EntryType::Folder:
+        case EntryType::Folder:
         {
             auto folderID = index.data(Role::ID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueRefreshFolder(
@@ -1157,7 +1180,7 @@ void ZapFR::Client::TreeViewSources::refreshSourceEntryType(const QModelIndex& i
                 });
             break;
         }
-        case TreeViewSources::EntryType::Source:
+        case EntryType::Source:
         {
             ZapFR::Engine::Agent::getInstance()->queueRefreshSource(
                 sourceID,
@@ -1345,7 +1368,7 @@ void ZapFR::Client::TreeViewSources::exportOPML()
             auto childType = child->data(TreeViewSources::Role::Type).toULongLong();
             switch (childType)
             {
-                case TreeViewSources::EntryType::Folder:
+                case EntryType::Folder:
                 {
                     auto outline = xml.createElement("outline");
                     outline.setAttribute("text", child->data(Qt::DisplayRole).toString());
@@ -1353,7 +1376,7 @@ void ZapFR::Client::TreeViewSources::exportOPML()
                     addOutlines(child, outline);
                     break;
                 }
-                case TreeViewSources::EntryType::Feed:
+                case EntryType::Feed:
                 {
                     auto outline = xml.createElement("outline");
                     outline.setAttribute("type", "rss");
@@ -1574,17 +1597,17 @@ void ZapFR::Client::TreeViewSources::connectStuff()
                             auto type = index.data(Role::Type).toULongLong();
                             switch (type)
                             {
-                                case TreeViewSources::EntryType::Feed:
+                                case EntryType::Feed:
                                 {
                                     mContextMenuFeed->popup(viewport()->mapToGlobal(p));
                                     break;
                                 }
-                                case TreeViewSources::EntryType::Folder:
+                                case EntryType::Folder:
                                 {
                                     mContextMenuFolder->popup(viewport()->mapToGlobal(p));
                                     break;
                                 }
-                                case TreeViewSources::EntryType::Source:
+                                case EntryType::Source:
                                 {
                                     mContextMenuSource->popup(viewport()->mapToGlobal(p));
                                     break;

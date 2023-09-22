@@ -54,6 +54,7 @@ namespace ZapFR
             void setPreviouslySelectedSourceID(uint64_t sID) noexcept { mPreviouslySelectedSourceID = sID; }
 
             std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFolderID() const;
+            std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFeedID() const;
             bool doesSourceHaveError(uint64_t sourceID);
 
             QStandardItem* findSourceStandardItem(uint64_t sourceID);
