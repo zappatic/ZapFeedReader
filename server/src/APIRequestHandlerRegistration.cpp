@@ -47,6 +47,26 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Dummy feed)", R"(Adds a dummy post to the dummy feed)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/dummy-feed/add-post$)", R"(/dummy-feed/add-post)");
+				entry->setRequiresCredentials(false);
+				entry->setContentType(R"(text/plain)");
+				entry->setHandler(ZapFR::Server::APIHandler_dummyfeed_createpost);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Dummy feed)", R"(Retrieves the RSS 2.0 dummy feed)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/dummy-feed/rss20$)", R"(/dummy-feed/rss20)");
+				entry->setRequiresCredentials(false);
+				entry->setContentType(R"(application/rss+xml)");
+				entry->setHandler(ZapFR::Server::APIHandler_dummyfeed_get_rss20);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Adds a feed)");
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/feed$)", R"(/feed)");

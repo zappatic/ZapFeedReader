@@ -1,6 +1,7 @@
 target_sources(zapfeedreader-server PRIVATE
     main.cpp
     Daemon.cpp
+	DummyFeed.cpp
     HTTPServer.cpp
     APIRequestHandlerFactory.cpp
     APIRequestHandler.cpp

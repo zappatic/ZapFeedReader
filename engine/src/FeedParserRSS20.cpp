@@ -142,9 +142,23 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
 
         item.datePublished = fetchNodeValue(itemNode, "pubDate");
         int tzDiff;
-        auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::RFC1123_FORMAT, item.datePublished, tzDiff);
-        parsedDate.makeUTC(tzDiff);
-        item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+
+        Poco::DateTime parsedDate;
+        auto dateParseSuccess = Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::RFC822_FORMAT, item.datePublished, parsedDate, tzDiff);
+        if (!dateParseSuccess)
+        {
+            dateParseSuccess = Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::RFC1123_FORMAT, item.datePublished, parsedDate, tzDiff);
+        }
+
+        if (dateParseSuccess)
+        {
+            parsedDate.makeUTC(tzDiff);
+            item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+        }
+        else
+        {
+            item.datePublished = "";
+        }
 
         items.emplace_back(item);
     }

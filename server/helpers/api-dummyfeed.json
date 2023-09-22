@@ -1,0 +1,24 @@
+{
+  "dummyfeed-get-rss20": {
+    "section": "Dummy feed",
+    "description": "Retrieves the RSS 2.0 dummy feed",
+    "method": "GET",
+    "path": "^\\/dummy-feed/rss20$",
+    "prettyPath": "/dummy-feed/rss20",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": false,
+    "contentType": "application/rss+xml"
+  },
+  "dummyfeed-createpost": {
+    "section": "Dummy feed",
+    "description": "Adds a dummy post to the dummy feed",
+    "method": "GET",
+    "path": "^\\/dummy-feed/add-post$",
+    "prettyPath": "/dummy-feed/add-post",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": false,
+    "contentType": "text/plain"
+  }
+}
