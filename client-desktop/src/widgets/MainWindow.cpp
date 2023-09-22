@@ -195,6 +195,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     root.insert(SETTING_FEEDS_AUTOREFRESH_INTERVAL, static_cast<int32_t>(ar->feedRefreshInterval()));
     root.insert(SETTING_FEEDS_AUTOREFRESH_ENABLED, ar->isEnabled());
+    root.insert(SETTING_FEEDS_LOGLEVEL, ZapFR::Engine::Log::logLevel());
 
     auto sf = QFile(settingsFile());
     sf.open(QIODeviceBase::WriteOnly);
@@ -280,6 +281,11 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 if (root.contains(SETTING_FEEDS_AUTOREFRESH_INTERVAL))
                 {
                     autoRefreshInterval = static_cast<uint64_t>(root.value(SETTING_FEEDS_AUTOREFRESH_INTERVAL).toInt(ZapFR::Engine::DefaultFeedAutoRefreshInterval));
+                }
+
+                if (root.contains(SETTING_FEEDS_LOGLEVEL))
+                {
+                    ZapFR::Engine::Log::setLogLevel(static_cast<ZapFR::Engine::LogLevel>(root.value(SETTING_FEEDS_LOGLEVEL).toInt(ZapFR::Engine::LogLevel::Warning)));
                 }
                 ZapFR::Engine::AutoRefresh::getInstance()->setFeedRefreshInterval(autoRefreshInterval);
             }
@@ -858,6 +864,8 @@ void ZapFR::Client::MainWindow::showPreferences()
                         auto ar = ZapFR::Engine::AutoRefresh::getInstance();
                         ar->setEnabled(mDialogPreferences->autoRefreshEnabled());
                         ar->setFeedRefreshInterval(mDialogPreferences->autoRefreshInterval());
+
+                        ZapFR::Engine::Log::setLogLevel(mDialogPreferences->logLevel());
 
                         saveSettings();
                     }

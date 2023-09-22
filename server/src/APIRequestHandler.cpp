@@ -45,7 +45,7 @@ void ZapFR::Server::APIRequestHandler::handleRequest(Poco::Net::HTTPServerReques
         jsonErrObj.set("success", false);
         jsonErrObj.set("error", e.what());
         Poco::JSON::Stringifier::stringify(jsonErrObj, response.send());
-        std::cerr << e.what() << "\n";
+        std::cerr << "API error: " << e.what() << "\n";
     }
     catch (const UnauthorizedError& e)
     {
@@ -79,7 +79,7 @@ void ZapFR::Server::APIRequestHandler::handleRequest(Poco::Net::HTTPServerReques
         response.setContentType("application/json");
         auto jsonErrObj = Poco::JSON::Object();
         jsonErrObj.set("error", exceptionMessage);
-        std::cerr << exceptionMessage << "\n";
+        std::cerr << "Unknown error: " << exceptionMessage << "\n";
         Poco::JSON::Stringifier::stringify(jsonErrObj, response.send());
     }
 }

@@ -98,6 +98,7 @@ namespace ZapFR
         static const QString SETTING_FEEDS_REFRESH_BEHAVIOUR = "feeds.refreshbehaviour";
         static const QString SETTING_FEEDS_AUTOREFRESH_ENABLED = "feeds.autorefresh.enabled";
         static const QString SETTING_FEEDS_AUTOREFRESH_INTERVAL = "feeds.autorefresh.interval";
+        static const QString SETTING_FEEDS_LOGLEVEL = "feeds.loglevel";
 
         enum ContentPane
         {

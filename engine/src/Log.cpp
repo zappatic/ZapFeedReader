@@ -22,10 +22,24 @@
 
 using namespace Poco::Data::Keywords;
 
+namespace
+{
+    ZapFR::Engine::LogLevel gsLogLevel{ZapFR::Engine::LogLevel::Info};
+}
+
+ZapFR::Engine::LogLevel ZapFR::Engine::Log::logLevel()
+{
+    return gsLogLevel;
+}
+
+void ZapFR::Engine::Log::setLogLevel(LogLevel l)
+{
+    gsLogLevel = l;
+}
+
 void ZapFR::Engine::Log::log(LogLevel level, const std::string& message, std::optional<uint64_t> feedID)
 {
-    // TODO: filter out logging in case the level is not high enough
-    if (message.empty())
+    if (message.empty() || level < gsLogLevel)
     {
         return;
     }

@@ -20,6 +20,7 @@
 #define ZAPFR_CLIENT_DIALOGPREFERENCES_H
 
 #include "../ClientGlobal.h"
+#include "ZapFR/Log.h"
 #include "widgets/MainWindow.h"
 
 namespace Ui
@@ -52,6 +53,12 @@ namespace ZapFR
             bool autoRefreshEnabled() const;
             bool detectBrowsersEnabled() const;
             bool hideLocalSource() const;
+            ZapFR::Engine::LogLevel logLevel() const;
+
+            enum Role
+            {
+                LogLevel = Qt::ItemDataRole::UserRole + 1,
+            };
 
           private:
             Ui::DialogPreferences* ui;

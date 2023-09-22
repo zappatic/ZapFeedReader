@@ -52,6 +52,8 @@ namespace ZapFR
             void setFeedID(uint64_t feedID) { mFeedID = feedID; }
             void setFeedTitle(std::string feedTitle) { mFeedTitle = feedTitle; }
 
+            static LogLevel logLevel();
+            static void setLogLevel(LogLevel l);
             static void log(LogLevel level, const std::string& message, std::optional<uint64_t> feedID = {});
 
             static std::vector<std::unique_ptr<Log>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause, const std::string& limitClause,

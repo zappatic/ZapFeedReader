@@ -20,6 +20,7 @@
 #include "HTTPServer.h"
 #include "ZapFR/AutoRefresh.h"
 #include "ZapFR/Database.h"
+#include "ZapFR/Log.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/ScriptLocal.h"
 
@@ -37,6 +38,24 @@ int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     ar->setEnabled(mConfiguration->getBool("zapfr.autorefresh.enabled", true));
     ar->setFeedRefreshInterval(mConfiguration->getUInt64("zapfr.autorefresh.interval", ZapFR::Engine::DefaultFeedAutoRefreshInterval));
+
+    auto logLevel = mConfiguration->getString("loglevel", "info");
+    if (logLevel == "debug")
+    {
+        ZapFR::Engine::Log::setLogLevel(ZapFR::Engine::LogLevel::Debug);
+    }
+    else if (logLevel == "info")
+    {
+        ZapFR::Engine::Log::setLogLevel(ZapFR::Engine::LogLevel::Info);
+    }
+    else if (logLevel == "warning")
+    {
+        ZapFR::Engine::Log::setLogLevel(ZapFR::Engine::LogLevel::Warning);
+    }
+    else if (logLevel == "error")
+    {
+        ZapFR::Engine::Log::setLogLevel(ZapFR::Engine::LogLevel::Error);
+    }
 
     auto bindAddress = mConfiguration->getString("zapfr.bind", "0.0.0.0");
     auto bindPort = static_cast<uint16_t>(mConfiguration->getUInt("zapfr.port", ZapFR::Engine::DefaultServerPort));

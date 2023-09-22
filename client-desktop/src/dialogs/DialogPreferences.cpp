@@ -23,6 +23,16 @@
 ZapFR::Client::DialogPreferences::DialogPreferences(QWidget* parent) : QDialog(parent), ui(new Ui::DialogPreferences)
 {
     ui->setupUi(this);
+
+    auto cb = ui->comboBoxLogLevel;
+    cb->addItem(tr("Debug"));
+    cb->setItemData(0, QVariant::fromValue<uint64_t>(static_cast<uint64_t>(ZapFR::Engine::LogLevel::Debug)), Role::LogLevel);
+    cb->addItem(tr("Info"));
+    cb->setItemData(1, QVariant::fromValue<uint64_t>(static_cast<uint64_t>(ZapFR::Engine::LogLevel::Info)), Role::LogLevel);
+    cb->addItem(tr("Warning"));
+    cb->setItemData(2, QVariant::fromValue<uint64_t>(static_cast<uint64_t>(ZapFR::Engine::LogLevel::Warning)), Role::LogLevel);
+    cb->addItem(tr("Error"));
+    cb->setItemData(3, QVariant::fromValue<uint64_t>(static_cast<uint64_t>(ZapFR::Engine::LogLevel::Error)), Role::LogLevel);
 }
 
 ZapFR::Client::DialogPreferences::~DialogPreferences()
@@ -80,6 +90,30 @@ void ZapFR::Client::DialogPreferences::reset()
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     ui->spinBoxAutoRefreshInterval->setValue(static_cast<int32_t>(ar->feedRefreshInterval() / 60));
     ui->checkBoxAutoRefreshEnabled->setChecked(ar->isEnabled());
+
+    switch (ZapFR::Engine::Log::logLevel())
+    {
+        case ZapFR::Engine::LogLevel::Debug:
+        {
+            ui->comboBoxLogLevel->setCurrentIndex(0);
+            break;
+        }
+        case ZapFR::Engine::LogLevel::Info:
+        {
+            ui->comboBoxLogLevel->setCurrentIndex(1);
+            break;
+        }
+        case ZapFR::Engine::LogLevel::Warning:
+        {
+            ui->comboBoxLogLevel->setCurrentIndex(2);
+            break;
+        }
+        case ZapFR::Engine::LogLevel::Error:
+        {
+            ui->comboBoxLogLevel->setCurrentIndex(3);
+            break;
+        }
+    }
 
     ui->tabWidget->setCurrentIndex(0);
 }
@@ -144,4 +178,9 @@ bool ZapFR::Client::DialogPreferences::detectBrowsersEnabled() const
 bool ZapFR::Client::DialogPreferences::hideLocalSource() const
 {
     return ui->checkBoxHideLocalSource->isChecked();
+}
+
+ZapFR::Engine::LogLevel ZapFR::Client::DialogPreferences::logLevel() const
+{
+    return static_cast<ZapFR::Engine::LogLevel>(ui->comboBoxLogLevel->currentData(LogLevel).toULongLong());
 }
