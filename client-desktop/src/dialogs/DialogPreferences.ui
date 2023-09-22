@@ -355,7 +355,7 @@
               </font>
              </property>
              <property name="text">
-              <string>These auto refresh settings apply only to the local 'On my computer' source. The refresh interval of remote sources can be configured in their respective configuration files.</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These auto refresh settings apply only to the local 'On this computer' source. The refresh interval of remote sources can be configured in their respective configuration files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>

@@ -744,12 +744,15 @@ void ZapFR::Client::TreeViewSources::remoteSourceUnreadCountsReceived(uint64_t a
                 case EntryType::Feed:
                 {
                     auto parentFeedID = parent->data(Role::ID).toULongLong();
+                    auto previousUnreadCount = parent->data(Role::UnreadCount).toULongLong();
+                    parent->setData(QVariant::fromValue<uint64_t>(0), Role::UnreadCount);
                     for (const auto& [feedID, unreadCount] : unreadCounts)
                     {
                         if (feedID == parentFeedID)
                         {
                             parent->setData(QVariant::fromValue<uint64_t>(unreadCount), Role::UnreadCount);
-                            if (parentSourceID == currentlySelectedSourceID && feedID == currentlySelectedFeedID)
+
+                            if (parentSourceID == currentlySelectedSourceID && feedID == currentlySelectedFeedID && previousUnreadCount != unreadCount)
                             {
                                 mMainWindow->getUI()->tableViewPosts->reload();
                             }
