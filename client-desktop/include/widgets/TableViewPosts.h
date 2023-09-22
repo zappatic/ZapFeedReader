@@ -107,6 +107,7 @@ namespace ZapFR
             std::unique_ptr<QAction> mActionMarkAsRead{nullptr};
             std::unique_ptr<QAction> mActionMarkSelectionAsRead{nullptr};
             std::unique_ptr<QAction> mActionMarkSelectionAsUnread{nullptr};
+            std::unique_ptr<QAction> mActionOpenInExternalBrowser{nullptr};
 
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};

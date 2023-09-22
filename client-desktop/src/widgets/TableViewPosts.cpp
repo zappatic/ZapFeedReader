@@ -42,6 +42,7 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPalett
     mActionMarkAsRead = std::make_unique<QAction>(tr("Mark as read"), this);
     mActionMarkSelectionAsRead = std::make_unique<QAction>(tr("Mark as read"), this);
     mActionMarkSelectionAsUnread = std::make_unique<QAction>(tr("Mark as unread"), this);
+    mActionOpenInExternalBrowser = std::make_unique<QAction>(tr("Open in external browser"), this);
 
     viewport()->setAttribute(Qt::WA_Hover);
     setMouseTracking(true);
@@ -831,6 +832,19 @@ void ZapFR::Client::TableViewPosts::connectStuff()
     connect(mActionMarkAsRead.get(), &QAction::triggered, this, &TableViewPosts::markAsRead);
     connect(mActionMarkSelectionAsUnread.get(), &QAction::triggered, this, &TableViewPosts::markPostSelectionAsUnread);
     connect(mActionMarkSelectionAsRead.get(), &QAction::triggered, this, &TableViewPosts::markPostSelectionAsRead);
+    connect(mActionOpenInExternalBrowser.get(), &QAction::triggered,
+            [this]()
+            {
+                auto index = currentIndex();
+                if (index.isValid())
+                {
+                    auto link = index.data(Role::Link).toString();
+                    if (!link.isEmpty() && link.startsWith("http"))
+                    {
+                        QDesktopServices::openUrl(link);
+                    }
+                }
+            });
 
     connect(this, &TableViewPosts::customContextMenuRequested,
             [&](const QPoint& p)
@@ -886,6 +900,39 @@ void ZapFR::Client::TableViewPosts::connectStuff()
                         }
                     }
                 }
+
+                // add the detected browsers
+                if (mMainWindow->preferences()->detectBrowsers)
+                {
+                    auto browsers = WebEngineViewPost::detectBrowsers();
+                    static bool browsersAdded{false};
+                    if (!browsersAdded)
+                    {
+                        for (const auto& browser : browsers)
+                        {
+                            auto action = new QAction(tr("&Open in %1").arg(browser.title), mPostContextMenu.get());
+                            connect(action, &QAction::triggered,
+                                    [=, this]()
+                                    {
+                                        auto index = currentIndex();
+                                        if (index.isValid())
+                                        {
+                                            auto url = index.data(Role::Link).toString();
+                                            QStringList args;
+                                            for (auto arg : browser.args)
+                                            {
+                                                args << arg.replace("{url}", url);
+                                            }
+                                            qint64 pid{0};
+                                            QProcess::startDetached(browser.command, args, QString(), &pid);
+                                        }
+                                    });
+                            mPostContextMenu->addAction(action);
+                        }
+                        browsersAdded = true;
+                    }
+                }
+
                 mPostContextMenu->popup(mMainWindow->getUI()->tableViewPosts->viewport()->mapToGlobal(p));
             });
 
@@ -1082,4 +1129,7 @@ void ZapFR::Client::TableViewPosts::createContextMenus()
 
     auto removeFromScriptFolderMenu = mPostContextMenu->addMenu(tr("Remove from script folder"));
     removeFromScriptFolderMenu->setProperty(gsRemoveFromScriptFolderMenuProperty, true);
+
+    mPostContextMenu->addSeparator();
+    mPostContextMenu->addAction(mActionOpenInExternalBrowser.get());
 }

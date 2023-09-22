@@ -28,6 +28,7 @@ namespace ZapFR
     namespace Client
     {
         class PopupFlagChooser;
+        class MainWindow;
 
         class TableViewPostEnclosures : public TableViewPaletteCorrected
         {
@@ -36,7 +37,12 @@ namespace ZapFR
           public:
             TableViewPostEnclosures(QWidget* parent = nullptr);
             ~TableViewPostEnclosures() = default;
+            TableViewPostEnclosures(const TableViewPostEnclosures& e) = delete;
+            TableViewPostEnclosures& operator=(const TableViewPostEnclosures&) = delete;
+            TableViewPostEnclosures(TableViewPostEnclosures&&) = delete;
+            TableViewPostEnclosures& operator=(TableViewPostEnclosures&&) = delete;
 
+            void setMainWindow(MainWindow* mw) noexcept { mMainWindow = mw; }
             void clear();
             void loadEnclosures(const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures);
 
@@ -56,8 +62,10 @@ namespace ZapFR
           private slots:
             void openEnclosureInExternalBrowser();
             void copyLink();
+            void showContextMenu(const QPoint& p);
 
           private:
+            MainWindow* mMainWindow{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPostEnclosures{nullptr};
 
             std::unique_ptr<QMenu> mContextMenu{nullptr};

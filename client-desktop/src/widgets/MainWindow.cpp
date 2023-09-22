@@ -105,6 +105,7 @@ void ZapFR::Client::MainWindow::initializeUI()
     ui->tableViewScripts->setMainWindow(this);
     ui->frameFlagFilters->setMainWindow(this);
     ui->webViewPost->setMainWindow(this);
+    ui->tableViewPostEnclosures->setMainWindow(this);
 
     mActionShowPreferences = std::make_unique<QAction>(tr("Preferences"), this);
     mActionExit = std::make_unique<QAction>(tr("Exit"), this);

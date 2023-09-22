@@ -182,7 +182,7 @@
               </font>
              </property>
              <property name="text">
-              <string>The context menu of a link in a post will show 'Open in &lt;browser&gt;' for each detected browser</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The post-related context menus will show 'Open in &amp;lt;browser&amp;gt;' for each detected browser&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>

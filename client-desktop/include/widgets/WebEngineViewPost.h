@@ -31,6 +31,16 @@ namespace ZapFR
     namespace Client
     {
         class MainWindow;
+
+        struct DetectedBrowser
+        {
+            DetectedBrowser() = default;
+            DetectedBrowser(const QString& bTitle, const QString& bCommand, const std::vector<QString>& bArgs) : title(bTitle), command(bCommand), args(bArgs) {}
+            QString title{""};
+            QString command{""};
+            std::vector<QString> args{};
+        };
+
         class WebEngineViewPost : public QWebEngineView
         {
             Q_OBJECT
@@ -50,6 +60,7 @@ namespace ZapFR
             QString postHTMLTemplate() const;
             void invalidatePostStylesCache() { mPostStylesCacheValid = false; }
             QString getHTMLForPost(ZapFR::Engine::Post* post) const;
+            static const std::vector<DetectedBrowser>& detectBrowsers();
 
           protected:
             void contextMenuEvent(QContextMenuEvent* event) override;
@@ -61,17 +72,8 @@ namespace ZapFR
 
             mutable bool mPostStylesCacheValid{false};
 
-            struct DetectedBrowser
-            {
-                DetectedBrowser() = default;
-                DetectedBrowser(const QString& bTitle, const QString& bCommand, const std::vector<QString>& bArgs) : title(bTitle), command(bCommand), args(bArgs) {}
-                QString title{""};
-                QString command{""};
-                std::vector<QString> args{};
-            };
-
-            std::optional<DetectedBrowser> detectBrowser(const QString& title, const QString& command, const std::vector<QString>& versionArgs,
-                                                         const std::vector<QString>& runArgs);
+            static std::optional<DetectedBrowser> detectBrowser(const QString& title, const QString& command, const std::vector<QString>& versionArgs,
+                                                                const std::vector<QString>& runArgs);
         };
     } // namespace Client
 } // namespace ZapFR

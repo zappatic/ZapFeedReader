@@ -17,6 +17,8 @@
 */
 
 #include "widgets/TableViewPostEnclosures.h"
+#include "widgets/MainWindow.h"
+#include "widgets/WebEngineViewPost.h"
 
 ZapFR::Client::TableViewPostEnclosures::TableViewPostEnclosures(QWidget* parent) : TableViewPaletteCorrected(parent)
 {
@@ -25,12 +27,12 @@ ZapFR::Client::TableViewPostEnclosures::TableViewPostEnclosures(QWidget* parent)
 
     mContextMenu = std::make_unique<QMenu>(nullptr);
     mCopyLinkAction = std::make_unique<QAction>(tr("Copy link"));
-    mOpenInBrowserAction = std::make_unique<QAction>(tr("Open in browser"));
-    mContextMenu->addAction(mOpenInBrowserAction.get());
+    mOpenInBrowserAction = std::make_unique<QAction>(tr("Open in external browser"));
     mContextMenu->addAction(mCopyLinkAction.get());
+    mContextMenu->addAction(mOpenInBrowserAction.get());
 
     connect(this, &QTableView::doubleClicked, this, &TableViewPostEnclosures::openEnclosureInExternalBrowser);
-    connect(this, &QTableView::customContextMenuRequested, [&](const QPoint& p) { mContextMenu->popup(viewport()->mapToGlobal(p)); });
+    connect(this, &QTableView::customContextMenuRequested, this, &TableViewPostEnclosures::showContextMenu);
     connect(mCopyLinkAction.get(), &QAction::triggered, this, &TableViewPostEnclosures::copyLink);
     connect(mOpenInBrowserAction.get(), &QAction::triggered, this, &TableViewPostEnclosures::openEnclosureInExternalBrowser);
 }
@@ -113,4 +115,40 @@ void ZapFR::Client::TableViewPostEnclosures::loadEnclosures(const std::vector<Za
 
         mItemModelPostEnclosures->appendRow(rowData);
     }
+}
+
+void ZapFR::Client::TableViewPostEnclosures::showContextMenu(const QPoint& p)
+{
+    if (mMainWindow->preferences()->detectBrowsers)
+    {
+        auto browsers = WebEngineViewPost::detectBrowsers();
+        static bool browsersAdded{false};
+        if (!browsersAdded)
+        {
+            for (const auto& browser : browsers)
+            {
+                auto action = new QAction(tr("&Open in %1").arg(browser.title), mContextMenu.get());
+                connect(action, &QAction::triggered,
+                        [=, this]()
+                        {
+                            auto index = currentIndex();
+                            if (index.isValid())
+                            {
+                                auto url = index.data(Role::Link).toString();
+                                QStringList args;
+                                for (auto arg : browser.args)
+                                {
+                                    args << arg.replace("{url}", url);
+                                }
+                                qint64 pid{0};
+                                QProcess::startDetached(browser.command, args, QString(), &pid);
+                            }
+                        });
+                mContextMenu->addAction(action);
+            }
+            browsersAdded = true;
+        }
+    }
+
+    mContextMenu->popup(viewport()->mapToGlobal(p));
 }
