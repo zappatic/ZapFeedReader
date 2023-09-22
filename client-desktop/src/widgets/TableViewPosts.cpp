@@ -236,7 +236,15 @@ void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardIte
                 newSelection.select(leftCell, rightCell);
             }
         }
+
         selectionModel->select(newSelection, QItemSelectionModel::SelectCurrent);
+
+        auto indexes = newSelection.indexes();
+        if (indexes.size() == 1)
+        {
+            scrollTo(indexes.at(0));
+        }
+
         mPreviouslySelectedPostIDs.clear();
     }
 }
