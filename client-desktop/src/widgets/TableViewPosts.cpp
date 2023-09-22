@@ -226,7 +226,6 @@ void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardIte
     if (mPreviouslySelectedPostIDs.size() > 0)
     {
         auto newSelection = QItemSelection();
-        auto selectionModel = this->selectionModel();
         for (auto i = 0; i < mItemModelPosts->rowCount(); ++i)
         {
             auto leftCell = mItemModelPosts->index(i, 0);
@@ -237,10 +236,10 @@ void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardIte
             }
         }
 
-        selectionModel->select(newSelection, QItemSelectionModel::SelectCurrent);
+        selectionModel()->select(newSelection, QItemSelectionModel::SelectCurrent);
 
         auto indexes = newSelection.indexes();
-        if (indexes.size() == 1)
+        if (mPreviouslySelectedPostIDs.size() == 1 && indexes.size() > 0)
         {
             scrollTo(indexes.at(0));
         }
