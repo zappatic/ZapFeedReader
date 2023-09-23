@@ -201,7 +201,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(count, std::move(posts));
 }
 
-void ZapFR::Engine::SourceLocal::markAllAsRead()
+void ZapFR::Engine::SourceLocal::markAsRead()
 {
     PostLocal::updateIsRead(true, {}, {});
 }
@@ -213,16 +213,20 @@ void ZapFR::Engine::SourceLocal::setPostsReadStatus(bool markAsRead, const std::
         auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
         if (feed.has_value())
         {
-            auto localFeed = dynamic_cast<FeedLocal*>(feed.value().get());
             for (const auto& postID : posts)
             {
-                if (markAsRead)
+                auto post = feed.value()->getPost(postID);
+                if (post.has_value())
                 {
-                    localFeed->markAsRead(postID);
-                }
-                else
-                {
-                    localFeed->markAsUnread(postID);
+                    auto localPost = dynamic_cast<PostLocal*>(post.value().get());
+                    if (markAsRead)
+                    {
+                        localPost->markAsRead();
+                    }
+                    else
+                    {
+                        localPost->markAsUnread();
+                    }
                 }
             }
         }
@@ -235,21 +239,24 @@ void ZapFR::Engine::SourceLocal::setPostsFlagStatus(bool markFlagged, const std:
     for (const auto& [feedID, posts] : remapFeedPostTuplesToMap(feedsAndPostIDs))
     {
         auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
-        for (const auto& postID : posts)
+        if (feed.has_value())
         {
-            auto post = feed.value()->getPost(postID);
-            if (post.has_value())
+            for (const auto& postID : posts)
             {
-                for (const auto& fc : flagColors)
+                auto post = feed.value()->getPost(postID);
+                if (post.has_value())
                 {
-                    auto localPost = dynamic_cast<PostLocal*>(post.value().get());
-                    if (markFlagged)
+                    for (const auto& fc : flagColors)
                     {
-                        localPost->markFlagged(fc);
-                    }
-                    else
-                    {
-                        localPost->markUnflagged(fc);
+                        auto localPost = dynamic_cast<PostLocal*>(post.value().get());
+                        if (markFlagged)
+                        {
+                            localPost->markFlagged(fc);
+                        }
+                        else
+                        {
+                            localPost->markUnflagged(fc);
+                        }
                     }
                 }
             }

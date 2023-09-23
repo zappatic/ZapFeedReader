@@ -33,7 +33,7 @@ void ZapFR::Engine::AgentFolderMarkRead::payload(Source* source)
     auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
     if (folder.has_value())
     {
-        feedIDs = folder.value()->markAllAsRead();
+        feedIDs = folder.value()->markAsRead();
     }
     mFinishedCallback(mSourceID, feedIDs);
 }

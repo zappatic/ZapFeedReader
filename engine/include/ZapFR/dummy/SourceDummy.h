@@ -16,20 +16,21 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_SOURCEREMOTE_H
-#define ZAPFR_ENGINE_SOURCEREMOTE_H
+#ifndef ZAPFR_ENGINE_SOURCEDUMMY_H
+#define ZAPFR_ENGINE_SOURCEDUMMY_H
 
 #include "ZapFR/base/Source.h"
+#include "ZapFR/dummy/FeedDummy.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class SourceRemote : public Source
+        class SourceDummy : public Source
         {
           public:
-            explicit SourceRemote(uint64_t id);
-            ~SourceRemote() = default;
+            explicit SourceDummy(uint64_t id);
+            ~SourceDummy() = default;
 
             // source stuff
             void fetchStatistics() override;
@@ -79,18 +80,13 @@ namespace ZapFR
             void addScript(Script::Type type, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
                            const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script) override;
 
-            Poco::URI remoteURL() const;
-            bool remoteURLIsValid() const noexcept { return mRemoteURLIsValid; }
-            std::string remoteLogin() const noexcept { return mRemoteLogin; }
-            std::string remotePassword() const noexcept { return mRemotePassword; }
+            // dummy stuff
+            void addDummyFeed(FeedDummy* feed);
 
           private:
-            mutable Poco::URI mRemoteURL{};
-            mutable std::string mRemoteLogin{""};
-            mutable std::string mRemotePassword{""};
-            mutable bool mRemoteURLIsValid{false};
+            std::unordered_map<uint64_t, FeedDummy*> mFeeds{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_SOURCEREMOTE_H
+#endif // ZAPFR_ENGINE_SOURCEDUMMY_H

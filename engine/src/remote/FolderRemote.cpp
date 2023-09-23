@@ -78,7 +78,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(postCount, std::move(posts));
 }
 
-std::unordered_set<uint64_t> ZapFR::Engine::FolderRemote::markAllAsRead()
+std::unordered_set<uint64_t> ZapFR::Engine::FolderRemote::markAsRead()
 {
     std::unordered_set<uint64_t> affectedFeedIDs;
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);

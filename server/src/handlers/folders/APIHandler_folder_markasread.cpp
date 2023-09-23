@@ -52,7 +52,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_markasread(
             auto folder = source.value()->getFolder(folderID, ZapFR::Engine::Source::FetchInfo::None);
             if (folder.has_value())
             {
-                auto feedIDs = folder.value()->markAllAsRead();
+                auto feedIDs = folder.value()->markAsRead();
                 for (const auto& feedID : feedIDs)
                 {
                     arr.add(feedID);

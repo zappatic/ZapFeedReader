@@ -28,6 +28,6 @@ ZapFR::Engine::AgentSourceMarkRead::AgentSourceMarkRead(uint64_t sourceID, std::
 
 void ZapFR::Engine::AgentSourceMarkRead::payload(Source* source)
 {
-    source->markAllAsRead();
+    source->markAsRead();
     mFinishedCallback(mSourceID);
 }

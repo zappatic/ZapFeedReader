@@ -16,20 +16,21 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FEEDREMOTE_H
-#define ZAPFR_ENGINE_FEEDREMOTE_H
+#ifndef ZAPFR_ENGINE_FEEDDUMMY_H
+#define ZAPFR_ENGINE_FEEDDUMMY_H
 
 #include "ZapFR/base/Feed.h"
+#include "ZapFR/dummy/PostDummy.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class FeedRemote : public Feed
+        class FeedDummy : public Feed
         {
           public:
-            FeedRemote(uint64_t id, Source* parentSource);
-            virtual ~FeedRemote() = default;
+            FeedDummy(uint64_t id, Source* parentSource);
+            virtual ~FeedDummy() = default;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                               FlagColor flagColor) override;
@@ -42,11 +43,14 @@ namespace ZapFR
             void markAsRead() override;
 
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
-            void fromJSON(const Poco::JSON::Object::Ptr o);
 
-            static std::unique_ptr<Feed> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
+            // dummy stuff
+            void addPost(PostDummy* post);
+
+          private:
+            std::unordered_map<uint64_t, PostDummy*> mPosts{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FEEDREMOTE_H
+#endif // ZAPFR_ENGINE_FEEDDUMMY_H

@@ -50,7 +50,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_markasread([[
             auto feed = source.value()->getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
             if (feed.has_value())
             {
-                feed.value()->markAllAsRead();
+                feed.value()->markAsRead();
             }
         }
     }

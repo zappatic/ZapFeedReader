@@ -54,7 +54,7 @@ namespace ZapFR
             // post stuff
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                               FlagColor flagColor) override;
-            void markAllAsRead() override;
+            void markAsRead() override;
             void setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) override;
             void setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,
                                     const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) override;

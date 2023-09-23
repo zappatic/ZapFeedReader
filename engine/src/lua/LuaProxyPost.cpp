@@ -18,13 +18,13 @@
 
 #include "ZapFR/lua/LuaProxyPost.h"
 #include "ZapFR/Flag.h"
-#include "ZapFR/local/FeedLocal.h"
-#include "ZapFR/local/PostLocal.h"
-#include "ZapFR/local/SourceLocal.h"
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/Source.h"
 
-void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, SourceLocal* source, FeedLocal* feed, PostLocal* post)
+void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Source* source, Feed* feed, Post* post)
 {
-    lua_createtable(L, 0, 10);
+    lua_createtable(L, 0, 15);
 
     lua_pushlightuserdata(L, static_cast<void*>(source));
     lua_setfield(L, -2, "_source_ptr");
@@ -55,6 +55,96 @@ void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, SourceLocal* 
 
     lua_pushcfunction(L, unassignFromScriptFolder);
     lua_setfield(L, -2, "unassignFromScriptFolder");
+
+    lua_pushcfunction(L, setTitle);
+    lua_setfield(L, -2, "setTitle");
+
+    lua_pushcfunction(L, setLink);
+    lua_setfield(L, -2, "setLink");
+
+    lua_pushcfunction(L, setContent);
+    lua_setfield(L, -2, "setContent");
+
+    lua_pushcfunction(L, setAuthor);
+    lua_setfield(L, -2, "setAuthor");
+
+    lua_pushcfunction(L, setCommentsURL);
+    lua_setfield(L, -2, "setCommentsURL");
+}
+
+int ZapFR::Engine::LuaProxyPost::setTitle(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TSTRING);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        auto newTitle = std::string(lua_tostring(L, 2));
+        post->setTitle(newTitle);
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::setLink(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TSTRING);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        auto newLink = std::string(lua_tostring(L, 2));
+        post->setLink(newLink);
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::setContent(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TSTRING);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        auto newContent = std::string(lua_tostring(L, 2));
+        post->setContent(newContent);
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::setAuthor(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TSTRING);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        auto newAuthor = std::string(lua_tostring(L, 2));
+        post->setAuthor(newAuthor);
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::setCommentsURL(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TSTRING);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        auto newCommentsURL = std::string(lua_tostring(L, 2));
+        post->setCommentsURL(newCommentsURL);
+    }
+
+    return 0;
 }
 
 int ZapFR::Engine::LuaProxyPost::markAsRead(lua_State* L)
@@ -62,9 +152,9 @@ int ZapFR::Engine::LuaProxyPost::markAsRead(lua_State* L)
     luaL_checktype(L, 1, LUA_TTABLE);
 
     auto [source, feed, post] = lookupPostPointer(L);
-    if (post != nullptr)
+    if (source != nullptr)
     {
-        post->markAsRead();
+        source->setPostsReadStatus(true, {{post->feedID(), post->id()}});
     }
 
     return 0;
@@ -75,9 +165,9 @@ int ZapFR::Engine::LuaProxyPost::markAsUnread(lua_State* L)
     luaL_checktype(L, 1, LUA_TTABLE);
 
     auto [source, feed, post] = lookupPostPointer(L);
-    if (post != nullptr)
+    if (source != nullptr)
     {
-        post->markAsUnread();
+        source->setPostsReadStatus(false, {{post->feedID(), post->id()}});
     }
 
     return 0;
@@ -89,7 +179,7 @@ int ZapFR::Engine::LuaProxyPost::flag(lua_State* L)
     luaL_checktype(L, 2, LUA_TSTRING);
 
     auto [source, feed, post] = lookupPostPointer(L);
-    if (post != nullptr)
+    if (source != nullptr)
     {
         FlagColor flagColor;
         auto flagColorStr = std::string(lua_tostring(L, 2));
@@ -101,7 +191,7 @@ int ZapFR::Engine::LuaProxyPost::flag(lua_State* L)
         {
             return luaL_error(L, "Invalid flag color specified");
         }
-        post->markFlagged(flagColor);
+        source->setPostsFlagStatus(true, {flagColor}, {{post->feedID(), post->id()}});
     }
 
     return 0;
@@ -113,7 +203,7 @@ int ZapFR::Engine::LuaProxyPost::unflag(lua_State* L)
     luaL_checktype(L, 2, LUA_TSTRING);
 
     auto [source, feed, post] = lookupPostPointer(L);
-    if (post != nullptr)
+    if (source != nullptr)
     {
         FlagColor flagColor;
         auto flagColorStr = std::string(lua_tostring(L, 2));
@@ -125,7 +215,7 @@ int ZapFR::Engine::LuaProxyPost::unflag(lua_State* L)
         {
             return luaL_error(L, "Invalid flag color specified");
         }
-        post->markUnflagged(flagColor);
+        source->setPostsFlagStatus(false, {flagColor}, {{post->feedID(), post->id()}});
     }
 
     return 0;
@@ -137,13 +227,13 @@ int ZapFR::Engine::LuaProxyPost::assignToScriptFolder(lua_State* L)
     luaL_checktype(L, 2, LUA_TNUMBER);
 
     auto [source, feed, post] = lookupPostPointer(L);
-    if (post != nullptr)
+    if (source != nullptr)
     {
         int success;
         auto scriptFolderID = static_cast<uint64_t>(lua_tointegerx(L, 2, &success));
         if (success != 0)
         {
-            post->assignToScriptFolder(scriptFolderID);
+            source->assignPostsToScriptFolder(scriptFolderID, true, {{post->feedID(), post->id()}});
         }
     }
 
@@ -156,24 +246,24 @@ int ZapFR::Engine::LuaProxyPost::unassignFromScriptFolder(lua_State* L)
     luaL_checktype(L, 2, LUA_TNUMBER);
 
     auto [source, feed, post] = lookupPostPointer(L);
-    if (post != nullptr)
+    if (source != nullptr)
     {
         int success;
         auto scriptFolderID = static_cast<uint64_t>(lua_tointegerx(L, 2, &success));
         if (success != 0)
         {
-            post->unassignFromScriptFolder(scriptFolderID);
+            source->assignPostsToScriptFolder(scriptFolderID, false, {{post->feedID(), post->id()}});
         }
     }
 
     return 0;
 }
 
-std::tuple<ZapFR::Engine::SourceLocal*, ZapFR::Engine::FeedLocal*, ZapFR::Engine::PostLocal*> ZapFR::Engine::LuaProxyPost::lookupPostPointer(lua_State* L)
+std::tuple<ZapFR::Engine::Source*, ZapFR::Engine::Feed*, ZapFR::Engine::Post*> ZapFR::Engine::LuaProxyPost::lookupPostPointer(lua_State* L)
 {
-    SourceLocal* source{nullptr};
-    FeedLocal* feed{nullptr};
-    PostLocal* post{nullptr};
+    Source* source{nullptr};
+    Feed* feed{nullptr};
+    Post* post{nullptr};
 
     lua_pushvalue(L, 1);
     lua_pushnil(L);
@@ -183,15 +273,15 @@ std::tuple<ZapFR::Engine::SourceLocal*, ZapFR::Engine::FeedLocal*, ZapFR::Engine
         auto key = std::string(lua_tostring(L, -1));
         if (key == "_source_ptr")
         {
-            source = static_cast<SourceLocal*>(lua_touserdata(L, -2));
+            source = static_cast<Source*>(lua_touserdata(L, -2));
         }
         else if (key == "_feed_ptr")
         {
-            feed = static_cast<FeedLocal*>(lua_touserdata(L, -2));
+            feed = static_cast<Feed*>(lua_touserdata(L, -2));
         }
         else if (key == "_post_ptr")
         {
-            post = static_cast<PostLocal*>(lua_touserdata(L, -2));
+            post = static_cast<Post*>(lua_touserdata(L, -2));
         }
 
         lua_pop(L, 2); // pop the table value and the cloned key

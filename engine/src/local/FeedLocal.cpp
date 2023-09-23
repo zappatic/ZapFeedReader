@@ -240,8 +240,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
                     {
                         for (const auto& script : scriptsRanOnUpdatePost)
                         {
-                            ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, dynamic_cast<SourceLocal*>(mParentSource), this,
-                                                                                   dynamic_cast<PostLocal*>(updatedPost.value().get()));
+                            ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, mParentSource, this, updatedPost.value().get());
                         }
                     }
                 }
@@ -255,26 +254,16 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
             {
                 for (const auto& script : scriptsRanOnNewPost)
                 {
-                    ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, dynamic_cast<SourceLocal*>(mParentSource), this, dynamic_cast<PostLocal*>(post.get()));
+                    ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, mParentSource, this, post.get());
                 }
             }
         }
     }
 }
 
-void ZapFR::Engine::FeedLocal::markAllAsRead()
+void ZapFR::Engine::FeedLocal::markAsRead()
 {
     PostLocal::updateIsRead(true, {"posts.feedID=?"}, {use(mID, "feedID")});
-}
-
-void ZapFR::Engine::FeedLocal::markAsRead(uint64_t postID)
-{
-    PostLocal::updateIsRead(true, {"posts.feedID=?", "posts.id=?"}, {use(mID, "feedID"), use(postID, "id")});
-}
-
-void ZapFR::Engine::FeedLocal::markAsUnread(uint64_t postID)
-{
-    PostLocal::updateIsRead(false, {"posts.feedID=?", "posts.id=?"}, {use(mID, "feedID"), use(postID, "id")});
 }
 
 void ZapFR::Engine::FeedLocal::refreshIcon()

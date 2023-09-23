@@ -23,7 +23,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tabDetails">
       <attribute name="title">
@@ -177,6 +177,110 @@ li.checked::marker { content: &quot;\2612&quot;; }
           <bool>false</bool>
          </property>
         </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabTest">
+      <attribute name="title">
+       <string>Test</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QGroupBox" name="groupBoxPost">
+         <property name="title">
+          <string>Post details</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QFormLayout" name="formLayout_2">
+            <property name="labelAlignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelTestPostTitle">
+              <property name="text">
+               <string>Title :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="lineEditTestPostTitle"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelTestPostLink">
+              <property name="text">
+               <string>Link :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="lineEditTestPostLink"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelTestPostContent">
+              <property name="text">
+               <string>Content :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QPlainTextEdit" name="plainTextEditTestPostContent"/>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="labelTestPostAuthor">
+              <property name="text">
+               <string>Author :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="lineEditTestPostAuthor"/>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="labelTestPostCommentsURL">
+              <property name="text">
+               <string>Comments URL :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLineEdit" name="lineEditTestPostCommentsURL"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="pushButtonRunScript">
+           <property name="text">
+            <string>Run script</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonResetTestValues">
+           <property name="text">
+            <string>Reset values</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

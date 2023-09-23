@@ -16,22 +16,31 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/feed/AgentFeedMarkRead.h"
-#include "ZapFR/Agent.h"
-#include "ZapFR/base/Feed.h"
-#include "ZapFR/base/Source.h"
+#ifndef ZAPFR_ENGINE_POSTDUMMY_H
+#define ZAPFR_ENGINE_POSTDUMMY_H
 
-ZapFR::Engine::AgentFeedMarkRead::AgentFeedMarkRead(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
-{
-}
+#include "ZapFR/base/Post.h"
 
-void ZapFR::Engine::AgentFeedMarkRead::payload(Source* source)
+namespace ZapFR
 {
-    auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
-    if (feed.has_value())
+    namespace Engine
     {
-        feed.value()->markAsRead();
-    }
-    mFinishedCallback(mSourceID, mFeedID);
-}
+        class PostDummy : public Post
+        {
+          public:
+            explicit PostDummy(uint64_t id);
+            ~PostDummy() = default;
+
+            void markFlagged(FlagColor flagColor);
+            void markUnflagged(FlagColor flagColor);
+
+            void markAsRead();
+            void markAsUnread();
+
+            void assignToScriptFolder(uint64_t scriptFolderID);
+            void unassignFromScriptFolder(uint64_t scriptFolderID);
+        };
+    } // namespace Engine
+} // namespace ZapFR
+
+#endif // ZAPFR_ENGINE_POSTDUMMY_H

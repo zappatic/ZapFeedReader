@@ -115,7 +115,7 @@ void ZapFR::Engine::FeedRemote::refresh()
     }
 }
 
-void ZapFR::Engine::FeedRemote::markAllAsRead()
+void ZapFR::Engine::FeedRemote::markAsRead()
 {
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
     auto uri = remoteSource->remoteURL();

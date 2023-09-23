@@ -21,6 +21,9 @@
 
 #include "../ClientGlobal.h"
 #include "ZapFR/base/Script.h"
+#include "ZapFR/dummy/FeedDummy.h"
+#include "ZapFR/dummy/PostDummy.h"
+#include "ZapFR/dummy/SourceDummy.h"
 
 namespace Ui
 {
@@ -69,6 +72,8 @@ namespace ZapFR
 
           private slots:
             void markDirty();
+            void runTestScript();
+            void resetTestValues();
 
           private:
             Ui::DialogEditScript* ui;
@@ -78,6 +83,12 @@ namespace ZapFR
             std::unique_ptr<QStandardItemModel> mFeedsModel{nullptr};
             std::unique_ptr<SyntaxHighlighterLua> mSyntaxHighlighterLua{nullptr};
             bool mIsDirty{false};
+
+            std::unique_ptr<ZapFR::Engine::SourceDummy> mDummySource{nullptr};
+            std::unique_ptr<ZapFR::Engine::FeedDummy> mDummyFeed{nullptr};
+            std::unique_ptr<ZapFR::Engine::PostDummy> mDummyPost{nullptr};
+            void initializeTestEnvironment();
+            void updateTestUI();
         };
     } // namespace Client
 } // namespace ZapFR

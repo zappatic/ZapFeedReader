@@ -25,9 +25,9 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class SourceLocal;
-        class FeedLocal;
-        class PostLocal;
+        class Source;
+        class Feed;
+        class Post;
 
         class ScriptLua
         {
@@ -38,7 +38,7 @@ namespace ZapFR
 
             static ScriptLua* getInstance();
 
-            static void runPostScript(const std::string& script, SourceLocal* source, FeedLocal* feed, PostLocal* post);
+            static void runPostScript(const std::string& script, Source* source, Feed* feed, Post* post);
 
           private:
             explicit ScriptLua();

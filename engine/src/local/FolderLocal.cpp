@@ -149,7 +149,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(count, std::move(posts));
 }
 
-std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAllAsRead()
+std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAsRead()
 {
     auto feedIDs = feedIDsInFoldersAndSubfolders();
     auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDs, ",");

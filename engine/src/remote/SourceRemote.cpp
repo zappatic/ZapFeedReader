@@ -344,7 +344,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(postCount, std::move(posts));
 }
 
-void ZapFR::Engine::SourceRemote::markAllAsRead()
+void ZapFR::Engine::SourceRemote::markAsRead()
 {
     auto uri = remoteURL();
     if (mRemoteURLIsValid)

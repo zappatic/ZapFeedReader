@@ -36,7 +36,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_markasread(
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        source.value()->markAllAsRead();
+        source.value()->markAsRead();
     }
 
     Poco::JSON::Object o;
