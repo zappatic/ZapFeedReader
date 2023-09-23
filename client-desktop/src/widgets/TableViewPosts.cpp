@@ -19,6 +19,7 @@
 #include "widgets/TableViewPosts.h"
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
+#include "ZapFR/base/ScriptFolder.h"
 #include "delegates/ItemDelegatePost.h"
 #include "widgets/MainWindow.h"
 #include "widgets/PopupFlagChooser.h"
@@ -575,7 +576,19 @@ void ZapFR::Client::TableViewPosts::postsMarkedUnread(uint64_t sourceID, const s
             });
     }
 
-    mMainWindow->getUI()->tableViewScriptFolders->reload(true);
+    ZapFR::Engine::Agent::getInstance()->queueGetScriptFolders(
+        sourceID,
+        [&](uint64_t affectedSourceID, const std::vector<ZapFR::Engine::ScriptFolder*>& updatedScriptFolders)
+        {
+            std::unordered_map<uint64_t, std::tuple<uint64_t, uint64_t>> counts;
+            for (const auto& scriptFolder : updatedScriptFolders)
+            {
+                counts[scriptFolder->id()] = std::make_tuple(scriptFolder->totalPostCount(), scriptFolder->totalUnreadCount());
+            }
+
+            QMetaObject::invokeMethod(this, [=, this]() { mMainWindow->getUI()->tableViewScriptFolders->updateBadges(affectedSourceID, counts); });
+        });
+
     mMainWindow->setStatusBarMessage(tr("Post(s) marked as unread"));
 }
 

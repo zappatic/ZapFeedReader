@@ -145,6 +145,37 @@ void ZapFR::Client::TableViewScriptFolders::populateScriptFolders(uint64_t sourc
     }
 }
 
+void ZapFR::Client::TableViewScriptFolders::updateBadges(uint64_t sourceID, const std::unordered_map<uint64_t, std::tuple<uint64_t, uint64_t>>& totalAndUnreadCounts)
+{
+    for (int32_t i = 0; i < mItemModelScriptFolders->rowCount(); ++i)
+    {
+        auto index = mItemModelScriptFolders->index(i, 0);
+        if (index.isValid())
+        {
+            auto item = mItemModelScriptFolders->itemFromIndex(index);
+            if (sourceID == item->data(Role::SourceID).toULongLong())
+            {
+                if (item->data(Role::ShowTotal).toBool())
+                {
+                    item->setData(QVariant::fromValue<uint64_t>(0), Role::TotalPostCount);
+                }
+                if (item->data(Role::ShowUnread).toBool())
+                {
+                    item->setData(QVariant::fromValue<uint64_t>(0), Role::TotalUnreadCount);
+                }
+
+                auto currentScriptFolderID = item->data(Role::ID).toULongLong();
+                if (totalAndUnreadCounts.contains(currentScriptFolderID))
+                {
+                    auto [newTotalCount, newUnreadCount] = totalAndUnreadCounts.at(currentScriptFolderID);
+                    item->setData(QVariant::fromValue<uint64_t>(newTotalCount), Role::TotalPostCount);
+                    item->setData(QVariant::fromValue<uint64_t>(newUnreadCount), Role::TotalUnreadCount);
+                }
+            }
+        }
+    }
+}
+
 void ZapFR::Client::TableViewScriptFolders::addScriptFolder()
 {
     auto index = mMainWindow->treeViewSources()->currentIndex();
