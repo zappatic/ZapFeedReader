@@ -171,6 +171,10 @@ void ZapFR::Client::MainWindow::initializeUI()
 void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
 {
     saveSettings();
+    if (mStartupDetectBrowsersThread != nullptr && mStartupDetectBrowsersThread->joinable())
+    {
+        mStartupDetectBrowsersThread->join();
+    }
     ZapFR::Engine::Agent::getInstance()->joinAll();
 }
 
@@ -259,6 +263,10 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 if (root.contains(SETTING_POST_DETECTBROWSERS))
                 {
                     mPreferences->detectBrowsers = root.value(SETTING_POST_DETECTBROWSERS).toBool();
+                    if (mPreferences->detectBrowsers)
+                    {
+                        mStartupDetectBrowsersThread = std::make_unique<std::thread>([this]() { ui->webViewPost->detectBrowsers(); });
+                    }
                 }
                 if (root.contains(SETTING_UI_HIDE_LOCAL_SOURCE))
                 {

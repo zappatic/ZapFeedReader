@@ -20,6 +20,10 @@
 #include "./ui_MainWindow.h"
 #include "widgets/MainWindow.h"
 
+bool ZapFR::Client::WebEngineViewPost::msBrowsersDetected{false};
+std::vector<ZapFR::Client::DetectedBrowser> ZapFR::Client::WebEngineViewPost::msDetectedBrowsers{};
+std::mutex ZapFR::Client::WebEngineViewPost::msDetectBrowsersMutex{};
+
 ZapFR::Client::WebEngineViewPost::WebEngineViewPost(QWidget* parent) : QWebEngineView(parent)
 {
 }
@@ -220,42 +224,41 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForPost(ZapFR::Engine::Post* po
 
 const std::vector<ZapFR::Client::DetectedBrowser>& ZapFR::Client::WebEngineViewPost::detectBrowsers()
 {
-    static bool browsersDetected{false};
-    static std::vector<DetectedBrowser> browsers;
-    if (!browsersDetected)
+    std::lock_guard<std::mutex> lock(msDetectBrowsersMutex);
+    if (!msBrowsersDetected)
     {
         auto firefox = detectBrowser("Firefox", "firefox", {"--version"}, {"{url}"});
         if (firefox.has_value())
         {
-            browsers.emplace_back(firefox.value());
+            msDetectedBrowsers.emplace_back(firefox.value());
         }
 
         auto chrome = detectBrowser("Chrome", "google-chrome-stable", {"--version"}, {"{url}"});
         if (chrome.has_value())
         {
-            browsers.emplace_back(chrome.value());
+            msDetectedBrowsers.emplace_back(chrome.value());
         }
 
         auto chromium = detectBrowser("Chromium", "chromium", {"--version"}, {"{url}"});
         if (chromium.has_value())
         {
-            browsers.emplace_back(chromium.value());
+            msDetectedBrowsers.emplace_back(chromium.value());
         }
 
         auto opera = detectBrowser("Opera", "opera", {"--version"}, {"{url}"});
         if (opera.has_value())
         {
-            browsers.emplace_back(opera.value());
+            msDetectedBrowsers.emplace_back(opera.value());
         }
 
         auto brave = detectBrowser("Brave", "brave", {"--version"}, {"{url}"});
         if (brave.has_value())
         {
-            browsers.emplace_back(brave.value());
+            msDetectedBrowsers.emplace_back(brave.value());
         }
-        browsersDetected = true;
+        msBrowsersDetected = true;
     }
-    return browsers;
+    return msDetectedBrowsers;
 }
 
 std::optional<ZapFR::Client::DetectedBrowser> ZapFR::Client::WebEngineViewPost::detectBrowser(const QString& title, const QString& command,

@@ -82,6 +82,7 @@ namespace ZapFR
             Ui::MainWindow* ui;
 
             std::unique_ptr<ZapFR::Engine::Database> mDatabase{nullptr};
+            std::unique_ptr<std::thread> mStartupDetectBrowsersThread{nullptr};
 
             std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
             std::unique_ptr<DialogPreferences> mDialogPreferences{nullptr};

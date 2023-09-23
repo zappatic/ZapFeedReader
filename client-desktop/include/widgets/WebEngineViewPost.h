@@ -74,6 +74,10 @@ namespace ZapFR
 
             static std::optional<DetectedBrowser> detectBrowser(const QString& title, const QString& command, const std::vector<QString>& versionArgs,
                                                                 const std::vector<QString>& runArgs);
+
+            static bool msBrowsersDetected;
+            static std::vector<DetectedBrowser> msDetectedBrowsers;
+            static std::mutex msDetectBrowsersMutex;
         };
     } // namespace Client
 } // namespace ZapFR
