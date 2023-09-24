@@ -730,7 +730,9 @@ bool ZapFR::Client::TreeViewSources::doesSourceHaveError(uint64_t sourceID)
 
 void ZapFR::Client::TreeViewSources::remoteSourceUnreadCountsReceived(uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
 {
-    auto [currentlySelectedSourceID, currentlySelectedFeedID] = getCurrentlySelectedSourceAndFeedID();
+    // clang complains about directly using structured binding inside the lambda below, so circumvent with std::tie (supposedly fixed in clang16)
+    uint64_t currentlySelectedSourceID{0}, currentlySelectedFeedID{0};
+    std::tie(currentlySelectedSourceID, currentlySelectedFeedID) = getCurrentlySelectedSourceAndFeedID();
 
     std::function<void(QStandardItem*)> updateBadges;
     updateBadges = [&](QStandardItem* parent)

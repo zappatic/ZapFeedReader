@@ -21,13 +21,6 @@
 
 #include "ZapFR/Global.h"
 
-extern "C"
-{
-#include "lauxlib.h"
-#include "lua.h"
-#include "lualib.h"
-}
-
 namespace ZapFR
 {
     namespace Engine

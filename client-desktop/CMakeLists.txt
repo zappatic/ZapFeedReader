@@ -126,6 +126,7 @@ target_include_directories(zapfeedreader-client PRIVATE ../engine/include)
 target_include_directories(zapfeedreader-client SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib/include)
 
 target_link_libraries(zapfeedreader-client PRIVATE  zapfeedreader-engine
+                                                    PkgConfig::lua
                                                     Qt${QT_VERSION_MAJOR}::Widgets 
                                                     Qt${QT_VERSION_MAJOR}::Xml 
                                                     Qt${QT_VERSION_MAJOR}::Network

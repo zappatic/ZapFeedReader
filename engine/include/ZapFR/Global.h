@@ -77,6 +77,13 @@
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
 
+extern "C"
+{
+#include "lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
+}
+
 namespace ZapFR
 {
     namespace Engine

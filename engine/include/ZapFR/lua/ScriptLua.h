@@ -38,7 +38,10 @@ namespace ZapFR
 
             static ScriptLua* getInstance();
 
-            static void runPostScript(const std::string& script, Source* source, Feed* feed, Post* post);
+            static void runPostScript(const std::string& script, Source* source, Feed* feed, Post* post,
+                                      const std::optional<const std::function<void(const std::string&)>>& printCallback = {});
+
+            static int printTrap(lua_State* L);
 
           private:
             explicit ScriptLua();

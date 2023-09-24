@@ -291,7 +291,7 @@ void ZapFR::Client::DialogEditScript::initializeTestEnvironment()
     mDummyPost->setContent("The purpose of this post is <b>for testing</b> your scripts!");
     mDummyPost->setAuthor("Test Author");
     mDummyPost->setCommentsURL("https://zapfeedreader.zappatic.net#comments");
-    mDummyPost->setLogCallback([&](const std::string& message) { QMetaObject::invokeMethod(this, [=, this]() { appendToLog(message); }); });
+    mDummyPost->setLogCallback([&](const std::string& message) { QMetaObject::invokeMethod(this, [=, this]() { appendToLog(QString::fromUtf8(message)); }); });
 
     mDummySource->setAssociatedDummyFeed(mDummyFeed.get());
     mDummySource->setAssociatedDummyPost(mDummyPost.get());
@@ -358,7 +358,25 @@ void ZapFR::Client::DialogEditScript::runTestScript()
     mDummyPost->setFlagColors(flagColors);
 
     auto script = ui->textEditScript->toPlainText().toStdString();
-    ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, mDummySource.get(), mDummyFeed.get(), mDummyPost.get());
+    try
+    {
+        ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, mDummySource.get(), mDummyFeed.get(), mDummyPost.get(),
+                                                               [&](const std::string& message)
+                                                               { QMetaObject::invokeMethod(this, [=, this]() { appendToLog(QString::fromUtf8(message)); }); });
+    }
+    catch (const std::exception& e)
+    {
+        static QRegularExpression errorRegex(R"(^\[.*?\]:([0-9]+):(.*?)$)");
+        auto m = errorRegex.match(e.what());
+        if (m.hasMatch())
+        {
+            appendToLog(tr("Error on line %1: %2").arg(m.captured(1)).arg(m.captured(2)));
+        }
+        else
+        {
+            appendToLog(QString::fromUtf8(e.what()));
+        }
+    }
     updateTestUI();
 }
 
@@ -372,7 +390,7 @@ void ZapFR::Client::DialogEditScript::clearLog()
     ui->plainTextEditLog->setPlainText("");
 }
 
-void ZapFR::Client::DialogEditScript::appendToLog(const std::string& message)
+void ZapFR::Client::DialogEditScript::appendToLog(const QString& message)
 {
-    ui->plainTextEditLog->appendPlainText(QString::fromUtf8(message));
+    ui->plainTextEditLog->appendPlainText(message);
 }
