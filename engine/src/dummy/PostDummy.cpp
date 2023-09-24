@@ -45,23 +45,26 @@ void ZapFR::Engine::PostDummy::markUnflagged(FlagColor /*flagColor*/)
 
 void ZapFR::Engine::PostDummy::markAsRead()
 {
-    //    updateIsRead(true, {"posts.feedID=?", "posts.id=?"}, {use(mFeedID, "feedID"), use(mID, "id")});
+    setIsRead(true);
 }
 
 void ZapFR::Engine::PostDummy::markAsUnread()
 {
-    //    updateIsRead(false, {"posts.feedID=?", "posts.id=?"}, {use(mFeedID, "feedID"), use(mID, "id")});
+    setIsRead(false);
 }
 
-void ZapFR::Engine::PostDummy::assignToScriptFolder(uint64_t /*scriptFolderID*/)
+void ZapFR::Engine::PostDummy::assignToScriptFolder(uint64_t scriptFolderID)
 {
-    // unassignFromScriptFolder(scriptFolderID);
-    // Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
-    // insertStmt << "INSERT INTO scriptfolder_posts (scriptFolderID, postID) VALUES (?, ?)", use(scriptFolderID), use(mID), now;
+    if (mLogCallback.has_value())
+    {
+        mLogCallback.value()(fmt::format("Assigned to script folder with ID {}", scriptFolderID));
+    }
 }
 
-void ZapFR::Engine::PostDummy::unassignFromScriptFolder(uint64_t /*scriptFolderID*/)
+void ZapFR::Engine::PostDummy::unassignFromScriptFolder(uint64_t scriptFolderID)
 {
-    // Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
-    // deleteStmt << "DELETE FROM scriptfolder_posts WHERE postID=? AND scriptFolderID=?", use(mID), use(scriptFolderID), now;
+    if (mLogCallback.has_value())
+    {
+        mLogCallback.value()(fmt::format("Unassigned from script folder with ID {}", scriptFolderID));
+    }
 }

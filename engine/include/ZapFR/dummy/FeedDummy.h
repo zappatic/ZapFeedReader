@@ -31,6 +31,10 @@ namespace ZapFR
           public:
             FeedDummy(uint64_t id, Source* parentSource);
             virtual ~FeedDummy() = default;
+            FeedDummy(const FeedDummy& e) = delete;
+            FeedDummy& operator=(const FeedDummy&) = delete;
+            FeedDummy(FeedDummy&&) = delete;
+            FeedDummy& operator=(FeedDummy&&) = delete;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                               FlagColor flagColor) override;
@@ -45,10 +49,10 @@ namespace ZapFR
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
 
             // dummy stuff
-            void addPost(PostDummy* post);
+            void setAssociatedDummyPost(PostDummy* post) { mAssociatedPost = post; }
 
           private:
-            std::unordered_map<uint64_t, PostDummy*> mPosts{};
+            PostDummy* mAssociatedPost{nullptr};
         };
     } // namespace Engine
 } // namespace ZapFR

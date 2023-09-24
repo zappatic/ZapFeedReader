@@ -74,6 +74,8 @@ namespace ZapFR
             void markDirty();
             void runTestScript();
             void resetTestValues();
+            void clearLog();
+            void appendToLog(const std::string& message);
 
           private:
             Ui::DialogEditScript* ui;

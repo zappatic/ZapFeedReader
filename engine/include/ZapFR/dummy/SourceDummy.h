@@ -31,6 +31,10 @@ namespace ZapFR
           public:
             explicit SourceDummy(uint64_t id);
             ~SourceDummy() = default;
+            SourceDummy(const SourceDummy& e) = delete;
+            SourceDummy& operator=(const SourceDummy&) = delete;
+            SourceDummy(SourceDummy&&) = delete;
+            SourceDummy& operator=(SourceDummy&&) = delete;
 
             // source stuff
             void fetchStatistics() override;
@@ -81,10 +85,12 @@ namespace ZapFR
                            const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script) override;
 
             // dummy stuff
-            void addDummyFeed(FeedDummy* feed);
+            void setAssociatedDummyFeed(FeedDummy* feed) { mAssociatedFeed = feed; }
+            void setAssociatedDummyPost(PostDummy* post) { mAssociatedPost = post; }
 
           private:
-            std::unordered_map<uint64_t, FeedDummy*> mFeeds{};
+            FeedDummy* mAssociatedFeed{nullptr};
+            PostDummy* mAssociatedPost{nullptr};
         };
     } // namespace Engine
 } // namespace ZapFR

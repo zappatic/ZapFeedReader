@@ -246,7 +246,36 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <item row="4" column="1">
              <widget class="QLineEdit" name="lineEditTestPostCommentsURL"/>
             </item>
+            <item row="5" column="1">
+             <widget class="QCheckBox" name="checkBoxIsRead">
+              <property name="text">
+               <string>Is read</string>
+              </property>
+             </widget>
+            </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBoxLog">
+            <property name="title">
+             <string>Log</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <item>
+              <widget class="QPlainTextEdit" name="plainTextEditLog">
+               <property name="undoRedoEnabled">
+                <bool>false</bool>
+               </property>
+               <property name="lineWrapMode">
+                <enum>QPlainTextEdit::NoWrap</enum>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -264,6 +293,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
           <widget class="QPushButton" name="pushButtonResetTestValues">
            <property name="text">
             <string>Reset values</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonClearLog">
+           <property name="text">
+            <string>Clear log</string>
            </property>
           </widget>
          </item>

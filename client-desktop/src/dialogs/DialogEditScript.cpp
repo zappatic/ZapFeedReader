@@ -55,6 +55,7 @@ ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(par
 
     connect(ui->pushButtonRunScript, &QPushButton::clicked, this, &DialogEditScript::runTestScript);
     connect(ui->pushButtonResetTestValues, &QPushButton::clicked, this, &DialogEditScript::resetTestValues);
+    connect(ui->pushButtonClearLog, &QPushButton::clicked, this, &DialogEditScript::clearLog);
 }
 
 ZapFR::Client::DialogEditScript::~DialogEditScript()
@@ -266,13 +267,22 @@ void ZapFR::Client::DialogEditScript::initializeTestEnvironment()
 
     mDummyFeed = std::make_unique<ZapFR::Engine::FeedDummy>(1, mDummySource.get());
     mDummyFeed->setTitle("Dummy feed");
+    mDummyFeed->setLink("https://zapfeedreader.zappatic.net");
 
     mDummyPost = std::make_unique<ZapFR::Engine::PostDummy>(1);
+    mDummyPost->setFeedID(mDummyFeed->id());
+    mDummyPost->setFeedTitle(mDummyFeed->title());
+    mDummyPost->setFeedLink(mDummyFeed->link());
     mDummyPost->setTitle("This is the title of a dummy post");
     mDummyPost->setLink("https://zapfeedreader.zappatic.net");
     mDummyPost->setContent("The purpose of this post is <b>for testing</b> your scripts!");
     mDummyPost->setAuthor("Test Author");
     mDummyPost->setCommentsURL("https://zapfeedreader.zappatic.net#comments");
+    mDummyPost->setLogCallback([&](const std::string& message) { QMetaObject::invokeMethod(this, [=, this]() { appendToLog(message); }); });
+
+    mDummySource->setAssociatedDummyFeed(mDummyFeed.get());
+    mDummySource->setAssociatedDummyPost(mDummyPost.get());
+    mDummyFeed->setAssociatedDummyPost(mDummyPost.get());
 
     updateTestUI();
 }
@@ -286,11 +296,19 @@ void ZapFR::Client::DialogEditScript::updateTestUI()
         ui->plainTextEditTestPostContent->setPlainText(QString::fromUtf8(mDummyPost->content()));
         ui->lineEditTestPostAuthor->setText(QString::fromUtf8(mDummyPost->author()));
         ui->lineEditTestPostCommentsURL->setText(QString::fromUtf8(mDummyPost->commentsURL()));
+        ui->checkBoxIsRead->setChecked(mDummyPost->isRead());
     }
 }
 
 void ZapFR::Client::DialogEditScript::runTestScript()
 {
+    mDummyPost->setTitle(ui->lineEditTestPostTitle->text().toStdString());
+    mDummyPost->setLink(ui->lineEditTestPostLink->text().toStdString());
+    mDummyPost->setContent(ui->plainTextEditTestPostContent->toPlainText().toStdString());
+    mDummyPost->setAuthor(ui->lineEditTestPostAuthor->text().toStdString());
+    mDummyPost->setCommentsURL(ui->lineEditTestPostCommentsURL->text().toStdString());
+    mDummyPost->setIsRead(ui->checkBoxIsRead->isChecked());
+
     auto script = ui->textEditScript->toPlainText().toStdString();
     ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, mDummySource.get(), mDummyFeed.get(), mDummyPost.get());
     updateTestUI();
@@ -299,4 +317,14 @@ void ZapFR::Client::DialogEditScript::runTestScript()
 void ZapFR::Client::DialogEditScript::resetTestValues()
 {
     initializeTestEnvironment();
+}
+
+void ZapFR::Client::DialogEditScript::clearLog()
+{
+    ui->plainTextEditLog->setPlainText("");
+}
+
+void ZapFR::Client::DialogEditScript::appendToLog(const std::string& message)
+{
+    ui->plainTextEditLog->appendPlainText(QString::fromUtf8(message));
 }

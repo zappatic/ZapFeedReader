@@ -31,6 +31,8 @@ namespace ZapFR
             explicit PostDummy(uint64_t id);
             ~PostDummy() = default;
 
+            void setLogCallback(const std::function<void(const std::string&)>& cb) { mLogCallback = cb; }
+
             void markFlagged(FlagColor flagColor);
             void markUnflagged(FlagColor flagColor);
 
@@ -39,6 +41,9 @@ namespace ZapFR
 
             void assignToScriptFolder(uint64_t scriptFolderID);
             void unassignFromScriptFolder(uint64_t scriptFolderID);
+
+          private:
+            std::optional<std::function<void(const std::string&)>> mLogCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

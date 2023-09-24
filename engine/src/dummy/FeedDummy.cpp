@@ -22,11 +22,6 @@ ZapFR::Engine::FeedDummy::FeedDummy(uint64_t id, Source* parentSource) : Feed(id
 {
 }
 
-void ZapFR::Engine::FeedDummy::addPost(PostDummy* post)
-{
-    mPosts[post->id()] = post;
-}
-
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FeedDummy::getPosts(uint64_t /*perPage*/, uint64_t /*page*/, bool /*showOnlyUnread*/,
                                                                                                            const std::string& /*searchFilter*/, FlagColor /*flagColor*/)
 {

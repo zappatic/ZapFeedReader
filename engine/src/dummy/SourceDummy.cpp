@@ -22,12 +22,6 @@ ZapFR::Engine::SourceDummy::SourceDummy(uint64_t id) : Source(id)
 {
 }
 
-/* ************************** DUMMY STUFF ************************** */
-void ZapFR::Engine::SourceDummy::addDummyFeed(FeedDummy* feed)
-{
-    mFeeds[feed->id()] = feed;
-}
-
 /* ************************** FEED STUFF ************************** */
 std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceDummy::getFeeds(uint32_t /*fetchInfo*/)
 {
@@ -92,31 +86,16 @@ void ZapFR::Engine::SourceDummy::markAsRead()
     throw std::runtime_error("Not implemented");
 }
 
-void ZapFR::Engine::SourceDummy::setPostsReadStatus(bool /*markAsRead*/, const std::vector<std::tuple<uint64_t, uint64_t>>& /*feedsAndPostIDs*/)
+void ZapFR::Engine::SourceDummy::setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& /*feedsAndPostIDs*/)
 {
-    // for (const auto& [feedID, posts] : remapFeedPostTuplesToMap(feedsAndPostIDs))
-    // {
-    //     auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
-    //     if (feed.has_value())
-    //     {
-    //         for (const auto& postID : posts)
-    //         {
-    //             auto post = feed.value()->getPost(postID);
-    //             if (post.has_value())
-    //             {
-    //                 auto localPost = dynamic_cast<PostLocal*>(post.value().get());
-    //                 if (markAsRead)
-    //                 {
-    //                     localPost->markAsRead();
-    //                 }
-    //                 else
-    //                 {
-    //                     localPost->markAsUnread();
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    if (markAsRead)
+    {
+        mAssociatedPost->markAsRead();
+    }
+    else
+    {
+        mAssociatedPost->markAsUnread();
+    }
 }
 
 void ZapFR::Engine::SourceDummy::setPostsFlagStatus(bool /*markFlagged*/, const std::unordered_set<FlagColor>& /*flagColors*/,
@@ -150,56 +129,17 @@ void ZapFR::Engine::SourceDummy::setPostsFlagStatus(bool /*markFlagged*/, const 
     // }
 }
 
-void ZapFR::Engine::SourceDummy::assignPostsToScriptFolder(uint64_t /*scriptFolderID*/, bool /*assign*/,
-                                                           const std::vector<std::tuple<uint64_t, uint64_t>>& /*feedsAndPostIDs*/)
+void ZapFR::Engine::SourceDummy::assignPostsToScriptFolder(uint64_t scriptFolderID, bool assign, const std::vector<std::tuple<uint64_t, uint64_t>>& /*feedsAndPostIDs*/)
 {
-    // auto scriptFolder = getScriptFolder(scriptFolderID, Source::FetchInfo::Data); // fetch data to ensure script folder exists
-    // if (!scriptFolder.has_value())
-    // {
-    //     return;
-    // }
-
-    // for (const auto& [feedID, posts] : remapFeedPostTuplesToMap(feedsAndPostIDs))
-    // {
-    //     auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
-    //     for (const auto& postID : posts)
-    //     {
-    //         auto post = feed.value()->getPost(postID);
-    //         if (post.has_value())
-    //         {
-    //             auto localPost = dynamic_cast<PostLocal*>(post.value().get());
-    //             if (assign)
-    //             {
-    //                 localPost->assignToScriptFolder(scriptFolderID);
-    //             }
-    //             else
-    //             {
-    //                 localPost->unassignFromScriptFolder(scriptFolderID);
-    //             }
-    //         }
-    //     }
-    // }
+    if (assign)
+    {
+        mAssociatedPost->assignToScriptFolder(scriptFolderID);
+    }
+    else
+    {
+        mAssociatedPost->unassignFromScriptFolder(scriptFolderID);
+    }
 }
-
-// std::unordered_map<uint64_t, std::vector<uint64_t>>
-// ZapFR::Engine::SourceDummy::remapFeedPostTuplesToMap(const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) const
-// {
-//     std::unordered_map<uint64_t, std::vector<uint64_t>> feedsWithPostsMap;
-//     for (const auto& [feedID, postID] : feedsAndPostIDs)
-//     {
-//         if (feedsWithPostsMap.contains(feedID))
-//         {
-//             feedsWithPostsMap.at(feedID).emplace_back(postID);
-//         }
-//         else
-//         {
-//             std::vector<uint64_t> vec;
-//             vec.emplace_back(postID);
-//             feedsWithPostsMap[feedID] = vec;
-//         }
-//     }
-//     return feedsWithPostsMap;
-// }
 
 std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceDummy::getUnreadCounts()
 {
