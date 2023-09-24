@@ -13,7 +13,6 @@ target_sources(zapfeedreader-engine PRIVATE
     FeedParserATOM10.cpp
     FavIconParser.cpp
     Flag.cpp
-    ScriptLua.cpp
     agents/AgentMonitorFeedRefreshCompletion.cpp
     agents/feed/AgentFeedAdd.cpp
     agents/feed/AgentFeedClearLogs.cpp
@@ -84,5 +83,7 @@ target_sources(zapfeedreader-engine PRIVATE
     dummy/SourceDummy.cpp
     dummy/PostDummy.cpp
     dummy/FeedDummy.cpp
+    lua/ScriptLua.cpp
     lua/LuaProxyPost.cpp
+    lua/LuaTableConversions.cpp
 )

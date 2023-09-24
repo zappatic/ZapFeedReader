@@ -22,56 +22,6 @@
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 
-void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Source* source, Feed* feed, Post* post)
-{
-    lua_createtable(L, 0, 15);
-
-    lua_pushlightuserdata(L, static_cast<void*>(source));
-    lua_setfield(L, -2, "_source_ptr");
-
-    lua_pushlightuserdata(L, static_cast<void*>(feed));
-    lua_setfield(L, -2, "_feed_ptr");
-
-    lua_pushlightuserdata(L, static_cast<void*>(post));
-    lua_setfield(L, -2, "_post_ptr");
-
-    lua_pushstring(L, post->title().c_str());
-    lua_setfield(L, -2, "title");
-
-    lua_pushcfunction(L, markAsRead);
-    lua_setfield(L, -2, "markAsRead");
-
-    lua_pushcfunction(L, markAsUnread);
-    lua_setfield(L, -2, "markAsUnread");
-
-    lua_pushcfunction(L, flag);
-    lua_setfield(L, -2, "flag");
-
-    lua_pushcfunction(L, unflag);
-    lua_setfield(L, -2, "unflag");
-
-    lua_pushcfunction(L, assignToScriptFolder);
-    lua_setfield(L, -2, "assignToScriptFolder");
-
-    lua_pushcfunction(L, unassignFromScriptFolder);
-    lua_setfield(L, -2, "unassignFromScriptFolder");
-
-    lua_pushcfunction(L, setTitle);
-    lua_setfield(L, -2, "setTitle");
-
-    lua_pushcfunction(L, setLink);
-    lua_setfield(L, -2, "setLink");
-
-    lua_pushcfunction(L, setContent);
-    lua_setfield(L, -2, "setContent");
-
-    lua_pushcfunction(L, setAuthor);
-    lua_setfield(L, -2, "setAuthor");
-
-    lua_pushcfunction(L, setCommentsURL);
-    lua_setfield(L, -2, "setCommentsURL");
-}
-
 int ZapFR::Engine::LuaProxyPost::setTitle(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);

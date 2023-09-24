@@ -17,6 +17,7 @@
 */
 
 #include "SyntaxHighlighterLua.h"
+#include "ZapFR/lua/LuaSyntaxHighlighting.h"
 
 ZapFR::Client::SyntaxHighlighterLua::SyntaxHighlighterLua(QTextDocument* parent) : QSyntaxHighlighter(parent)
 {
@@ -29,22 +30,16 @@ ZapFR::Client::SyntaxHighlighterLua::SyntaxHighlighterLua(QTextDocument* parent)
     static std::array<QString, 21> reservedKeywords{R"(\band\b)", R"(\bbreak\b)",    R"(\bdo\b)",     R"(\belse\b)", R"(\belseif\b)", R"(\bend\b)",   R"(\bfalse\b)",
                                                     R"(\bfor\b)", R"(\bfunction\b)", R"(\bif\b)",     R"(\bin\b)",   R"(\blocal\b)",  R"(\bnil\b)",   R"(\bnot\b)",
                                                     R"(\bor\b)",  R"(\brepeat\b)",   R"(\breturn\b)", R"(\bthen\b)", R"(\btrue\b)",   R"(\buntil\b)", R"(\bwhile\b)"};
-    static std::array<QString, 8> types{R"(CurrentPost)",
-                                        R"(CurrentPost\.title)",
-                                        R"(CurrentPost:markAsRead\(\))",
-                                        R"(CurrentPost:markAsUnread\(\))",
-                                        R"(CurrentPost:flag\(.*?\))",
-                                        R"(CurrentPost:unflag\(.*?\))",
-                                        R"(CurrentPost:assignToScriptFolder\(.*?\))",
-                                        R"(CurrentPost:unassignFromScriptFolder\(.*?\))"};
 
     for (const auto& reservedKeyword : reservedKeywords)
     {
         mRules.emplace_back(reservedKeyword, mFormatReservedKeywords);
     }
-    for (const auto& t : types)
+
+    mRules.emplace_back("CurrentPost", mFormatTypes);
+    for (const auto& t : ZapFR::Engine::gsLuaPostSyntaxHighlighting)
     {
-        mRules.emplace_back(t, mFormatTypes);
+        mRules.emplace_back(QString("CurrentPost%1").arg(QString::fromUtf8(t)), mFormatTypes);
     }
     mRules.emplace_back(R"(\b[0-9.]+\b)", mFormatNumber);
     mRules.emplace_back(R"(\-\-.*?$)", mFormatComments);

@@ -16,34 +16,23 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_SCRIPTLUA_H
-#define ZAPFR_ENGINE_SCRIPTLUA_H
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Post.h"
+#include "ZapFR/base/Source.h"
+#include "ZapFR/lua/LuaProxyPost.h"
 
-#include "ZapFR/base/ScriptFolder.h"
-
-namespace ZapFR
+void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Source* source, Feed* feed, Post* post)
 {
-    namespace Engine
-    {
-        class Source;
-        class Feed;
-        class Post;
+    lua_createtable(L, 0, %POSTTABLECOUNT%);
 
-        class ScriptLua
-        {
-          public:
-            ScriptLua(const ScriptLua&) = delete;
-            ScriptLua& operator=(const ScriptLua&) = delete;
-            virtual ~ScriptLua() = default;
+    lua_pushlightuserdata(L, static_cast<void*>(source));
+    lua_setfield(L, -2, "_source_ptr");
 
-            static ScriptLua* getInstance();
+    lua_pushlightuserdata(L, static_cast<void*>(feed));
+    lua_setfield(L, -2, "_feed_ptr");
 
-            static void runPostScript(const std::string& script, Source* source, Feed* feed, Post* post);
+    lua_pushlightuserdata(L, static_cast<void*>(post));
+    lua_setfield(L, -2, "_post_ptr");
 
-          private:
-            explicit ScriptLua();
-        };
-    } // namespace Engine
-} // namespace ZapFR
-
-#endif // ZAPFR_ENGINE_SCRIPTLUA_H
+    %POSTTABLE%
+}

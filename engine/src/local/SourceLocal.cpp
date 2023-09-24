@@ -22,12 +22,12 @@
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/OPMLParser.h"
-#include "ZapFR/ScriptLua.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/FolderLocal.h"
 #include "ZapFR/local/PostLocal.h"
 #include "ZapFR/local/ScriptFolderLocal.h"
 #include "ZapFR/local/ScriptLocal.h"
+#include "ZapFR/lua/ScriptLua.h"
 
 using namespace Poco::Data::Keywords;
 

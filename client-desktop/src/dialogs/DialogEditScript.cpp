@@ -18,7 +18,7 @@
 
 #include "dialogs/DialogEditScript.h"
 #include "SyntaxHighlighterLua.h"
-#include "ZapFR/ScriptLua.h"
+#include "ZapFR/lua/ScriptLua.h"
 #include "delegates/ItemDelegateEditScriptDialogSource.h"
 #include "models/StandardItemModelSources.h"
 #include "ui_DialogEditScript.h"

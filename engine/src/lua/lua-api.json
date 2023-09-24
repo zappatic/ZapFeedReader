@@ -1,0 +1,104 @@
+{
+  "post": {
+    "fields": [
+      {
+        "name": "title",
+        "value": "post->title().c_str()",
+        "description": "Retrieves the title of the post",
+        "highlight": "R\"(\\.title)\""
+      },
+      {
+        "name": "link",
+        "value": "post->link().c_str()",
+        "description": "Retrieves the link of the post",
+        "highlight": "R\"(\\.link)\""
+      },
+      {
+        "name": "content",
+        "value": "post->content().c_str()",
+        "description": "Retrieves the content of the post",
+        "highlight": "R\"(\\.content)\""
+      },
+      {
+        "name": "author",
+        "value": "post->author().c_str()",
+        "description": "Retrieves the author of the post",
+        "highlight": "R\"(\\.author)\""
+      },
+      {
+        "name": "commentsURL",
+        "value": "post->commentsURL().c_str()",
+        "description": "Retrieves the comments URL of the post",
+        "highlight": "R\"(\\.commentsURL)\""
+      }
+    ],
+    "methods": [
+      {
+        "name": "markAsRead",
+        "value": "markAsRead",
+        "description": "Marks the post as read",
+        "highlight": "R\"(:markAsRead\\(\\))\""
+      },
+      {
+        "name": "markAsUnread",
+        "value": "markAsUnread",
+        "description": "Marks the post as unread",
+        "highlight": "R\"(:markAsUnread\\(\\))\""
+      },
+      {
+        "name": "flag",
+        "value": "flag",
+        "description": "Assigns a flag of the specified color to the post. Valid colors are \"blue\", \"green\", \"yellow\", \"orange\", \"red\", \"purple\"",
+        "highlight": "R\"(:flag\\(.*?\\))\""
+      },
+      {
+        "name": "unflag",
+        "value": "unflag",
+        "description": "Unassigns a flag of a specified color from the post. Valid colors are \"blue\", \"green\", \"yellow\", \"orange\", \"red\", \"purple\"",
+        "highlight": "R\"(:unflag\\(.*?\\))\""
+      },
+      {
+        "name": "assignToScriptFolder",
+        "value": "assignToScriptFolder",
+        "description": "Assigns the post to the specified script folder",
+        "highlight": "R\"(:assignToScriptFolder\\(.*?\\))\""
+      },
+      {
+        "name": "unassignFromScriptFolder",
+        "value": "unassignFromScriptFolder",
+        "description": "Unassigns the post from the specified script folder",
+        "highlight": "R\"(:unassignFromScriptFolder\\(.*?\\))\""
+      },
+      {
+        "name": "setTitle",
+        "value": "setTitle",
+        "description": "Sets the title of the post",
+        "highlight": "R\"(:setTitle\\(.*?\\))\""
+      },
+      {
+        "name": "setLink",
+        "value": "setLink",
+        "description": "Sets the link of the post",
+        "highlight": "R\"(:setLink\\(.*?\\))\""
+      },
+      {
+        "name": "setContent",
+        "value": "setContent",
+        "description": "Sets the content of the post",
+        "highlight": "R\"(:setContent\\(.*?\\))\""
+      },
+      {
+        "name": "setAuthor",
+        "value": "setAuthor",
+        "description": "Sets the author of the post",
+        "highlight": "R\"(:setAuthor\\(.*?\\))\""
+      },
+      {
+        "name": "setCommentsURL",
+        "value": "setCommentsURL",
+        "description": "Sets the comment URL of the post",
+        "highlight": "R\"(:setCommentsURL\\(.*?\\))\""
+      }
+    ]
+  }
+}

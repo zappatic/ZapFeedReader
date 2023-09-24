@@ -129,6 +129,7 @@ void ZapFR::Client::MainWindow::initializeUI()
     ui->toolBar->insertAction(actionHamburgerMenu, ui->treeViewSources->actionToolbarRefresh());
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewPosts->actionMarkAsRead());
 
+    ui->toolBar->insertAction(actionHamburgerMenu, ui->treeViewSources->actionReconnectToSource());
     ui->toolBar->insertAction(actionHamburgerMenu, mActionBackToPosts.get());
 
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionAddScript());

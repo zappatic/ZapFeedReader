@@ -14,3 +14,6 @@ target_link_libraries(zapfeedreader-engine PRIVATE  PkgConfig::lua
                                                     Poco::DataSQLite)
 
 add_subdirectory(src)
+
+add_custom_target(generate-lua-api COMMAND ${CMAKE_SOURCE_DIR}/engine/src/lua/api-generator.py  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/engine/src/lua/)
+add_dependencies(zapfeedreader-engine generate-lua-api)

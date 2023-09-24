@@ -16,7 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/ScriptLua.h"
+#include "ZapFR/lua/ScriptLua.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
