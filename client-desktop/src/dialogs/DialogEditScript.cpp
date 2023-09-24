@@ -56,6 +56,19 @@ ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(par
     connect(ui->pushButtonRunScript, &QPushButton::clicked, this, &DialogEditScript::runTestScript);
     connect(ui->pushButtonResetTestValues, &QPushButton::clicked, this, &DialogEditScript::resetTestValues);
     connect(ui->pushButtonClearLog, &QPushButton::clicked, this, &DialogEditScript::clearLog);
+
+    ui->widgetFlagBlue->setFlagColor(ZapFR::Engine::FlagColor::Blue);
+    ui->widgetFlagGreen->setFlagColor(ZapFR::Engine::FlagColor::Green);
+    ui->widgetFlagYellow->setFlagColor(ZapFR::Engine::FlagColor::Yellow);
+    ui->widgetFlagOrange->setFlagColor(ZapFR::Engine::FlagColor::Orange);
+    ui->widgetFlagRed->setFlagColor(ZapFR::Engine::FlagColor::Red);
+    ui->widgetFlagPurple->setFlagColor(ZapFR::Engine::FlagColor::Purple);
+
+    static std::vector<PopupFlag*> flags{ui->widgetFlagBlue, ui->widgetFlagGreen, ui->widgetFlagYellow, ui->widgetFlagOrange, ui->widgetFlagRed, ui->widgetFlagPurple};
+    for (const auto& flag : flags)
+    {
+        connect(flag, &PopupFlag::flagClicked, [&](PopupFlag* clickedFlag) { clickedFlag->toggleStyle(); });
+    }
 }
 
 ZapFR::Client::DialogEditScript::~DialogEditScript()
@@ -297,6 +310,14 @@ void ZapFR::Client::DialogEditScript::updateTestUI()
         ui->lineEditTestPostAuthor->setText(QString::fromUtf8(mDummyPost->author()));
         ui->lineEditTestPostCommentsURL->setText(QString::fromUtf8(mDummyPost->commentsURL()));
         ui->checkBoxIsRead->setChecked(mDummyPost->isRead());
+
+        const auto& flagColors = mDummyPost->flagColors();
+        ui->widgetFlagBlue->setFlagStyle(flagColors.contains(ZapFR::Engine::FlagColor::Blue) ? Utilities::FlagStyle::Filled : Utilities::FlagStyle::Unfilled);
+        ui->widgetFlagGreen->setFlagStyle(flagColors.contains(ZapFR::Engine::FlagColor::Green) ? Utilities::FlagStyle::Filled : Utilities::FlagStyle::Unfilled);
+        ui->widgetFlagYellow->setFlagStyle(flagColors.contains(ZapFR::Engine::FlagColor::Yellow) ? Utilities::FlagStyle::Filled : Utilities::FlagStyle::Unfilled);
+        ui->widgetFlagOrange->setFlagStyle(flagColors.contains(ZapFR::Engine::FlagColor::Orange) ? Utilities::FlagStyle::Filled : Utilities::FlagStyle::Unfilled);
+        ui->widgetFlagRed->setFlagStyle(flagColors.contains(ZapFR::Engine::FlagColor::Red) ? Utilities::FlagStyle::Filled : Utilities::FlagStyle::Unfilled);
+        ui->widgetFlagPurple->setFlagStyle(flagColors.contains(ZapFR::Engine::FlagColor::Purple) ? Utilities::FlagStyle::Filled : Utilities::FlagStyle::Unfilled);
     }
 }
 
@@ -308,6 +329,33 @@ void ZapFR::Client::DialogEditScript::runTestScript()
     mDummyPost->setAuthor(ui->lineEditTestPostAuthor->text().toStdString());
     mDummyPost->setCommentsURL(ui->lineEditTestPostCommentsURL->text().toStdString());
     mDummyPost->setIsRead(ui->checkBoxIsRead->isChecked());
+
+    std::unordered_set<ZapFR::Engine::FlagColor> flagColors;
+    if (ui->widgetFlagBlue->flagStyle() == Utilities::FlagStyle::Filled)
+    {
+        flagColors.insert(ZapFR::Engine::FlagColor::Blue);
+    }
+    if (ui->widgetFlagGreen->flagStyle() == Utilities::FlagStyle::Filled)
+    {
+        flagColors.insert(ZapFR::Engine::FlagColor::Green);
+    }
+    if (ui->widgetFlagYellow->flagStyle() == Utilities::FlagStyle::Filled)
+    {
+        flagColors.insert(ZapFR::Engine::FlagColor::Yellow);
+    }
+    if (ui->widgetFlagOrange->flagStyle() == Utilities::FlagStyle::Filled)
+    {
+        flagColors.insert(ZapFR::Engine::FlagColor::Orange);
+    }
+    if (ui->widgetFlagRed->flagStyle() == Utilities::FlagStyle::Filled)
+    {
+        flagColors.insert(ZapFR::Engine::FlagColor::Red);
+    }
+    if (ui->widgetFlagPurple->flagStyle() == Utilities::FlagStyle::Filled)
+    {
+        flagColors.insert(ZapFR::Engine::FlagColor::Purple);
+    }
+    mDummyPost->setFlagColors(flagColors);
 
     auto script = ui->textEditScript->toPlainText().toStdString();
     ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, mDummySource.get(), mDummyFeed.get(), mDummyPost.get());

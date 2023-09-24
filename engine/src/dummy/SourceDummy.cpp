@@ -98,35 +98,23 @@ void ZapFR::Engine::SourceDummy::setPostsReadStatus(bool markAsRead, const std::
     }
 }
 
-void ZapFR::Engine::SourceDummy::setPostsFlagStatus(bool /*markFlagged*/, const std::unordered_set<FlagColor>& /*flagColors*/,
+void ZapFR::Engine::SourceDummy::setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,
                                                     const std::vector<std::tuple<uint64_t, uint64_t>>& /*feedsAndPostIDs*/)
 {
-    // for (const auto& [feedID, posts] : remapFeedPostTuplesToMap(feedsAndPostIDs))
-    // {
-    //     auto feed = getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
-    //     if (feed.has_value())
-    //     {
-    //         for (const auto& postID : posts)
-    //         {
-    //             auto post = feed.value()->getPost(postID);
-    //             if (post.has_value())
-    //             {
-    //                 for (const auto& fc : flagColors)
-    //                 {
-    //                     auto localPost = dynamic_cast<PostLocal*>(post.value().get());
-    //                     if (markFlagged)
-    //                     {
-    //                         localPost->markFlagged(fc);
-    //                     }
-    //                     else
-    //                     {
-    //                         localPost->markUnflagged(fc);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    if (markFlagged)
+    {
+        for (const auto& fc : flagColors)
+        {
+            mAssociatedPost->markFlagged(fc);
+        }
+    }
+    else
+    {
+        for (const auto& fc : flagColors)
+        {
+            mAssociatedPost->markUnflagged(fc);
+        }
+    }
 }
 
 void ZapFR::Engine::SourceDummy::assignPostsToScriptFolder(uint64_t scriptFolderID, bool assign, const std::vector<std::tuple<uint64_t, uint64_t>>& /*feedsAndPostIDs*/)
@@ -155,30 +143,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
 /* ************************** FLAG STUFF ************************** */
 std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceDummy::getUsedFlagColors()
 {
-    // std::unordered_set<FlagColor> flags;
-
-    // uint64_t fc{0};
-    // Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    // selectStmt << "SELECT DISTINCT(flagID) FROM flags", into(fc), range(0, 1);
-    // while (!selectStmt.done())
-    // {
-    //     if (selectStmt.execute() > 0)
-    //     {
-    //         try
-    //         {
-    //             auto flagColor = Flag::flagColorForID(static_cast<uint8_t>(fc));
-    //             flags.insert(flagColor);
-    //         }
-    //         catch (...)
-    //         {
-    //             Log::log(LogLevel::Debug, fmt::format("Invalid flag color ID requested: {}", fc), {});
-    //             // ignore non existent flag colors
-    //         }
-    //     }
-    // }
-
-    // return flags;
-    return {};
+    throw std::runtime_error("Not implemented");
 }
 
 /* ************************** SCRIPT FOLDER STUFF ************************** */

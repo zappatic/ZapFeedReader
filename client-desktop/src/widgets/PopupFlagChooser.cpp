@@ -122,3 +122,16 @@ void ZapFR::Client::PopupFlag::mouseReleaseEvent(QMouseEvent* /*event*/)
 {
     emit flagClicked(this);
 }
+
+void ZapFR::Client::PopupFlag::toggleStyle()
+{
+    if (mFlagStyle == Utilities::FlagStyle::Unfilled)
+    {
+        mFlagStyle = Utilities::FlagStyle::Filled;
+    }
+    else
+    {
+        mFlagStyle = Utilities::FlagStyle::Unfilled;
+    }
+    update();
+}

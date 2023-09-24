@@ -22,25 +22,19 @@ ZapFR::Engine::PostDummy::PostDummy(uint64_t id) : Post(id)
 {
 }
 
-void ZapFR::Engine::PostDummy::markFlagged(FlagColor /*flagColor*/)
+void ZapFR::Engine::PostDummy::markFlagged(FlagColor flagColor)
 {
-    // if (flagColor == FlagColor::Gray)
-    // {
-    //     return;
-    // }
-
-    // markUnflagged(flagColor);
-
-    // auto fc = Flag::idForFlagColor(flagColor);
-    // Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
-    // insertStmt << "INSERT INTO flags (postID, flagID) VALUES (?, ?)", use(mID), use(fc), now;
+    if (flagColor == FlagColor::Gray)
+    {
+        return;
+    }
+    markUnflagged(flagColor);
+    mFlagColors.insert(flagColor);
 }
 
-void ZapFR::Engine::PostDummy::markUnflagged(FlagColor /*flagColor*/)
+void ZapFR::Engine::PostDummy::markUnflagged(FlagColor flagColor)
 {
-    // auto fc = Flag::idForFlagColor(flagColor);
-    // Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
-    // deleteStmt << "DELETE FROM flags WHERE postID=? AND flagID=?", use(mID), use(fc), now;
+    mFlagColors.erase(flagColor);
 }
 
 void ZapFR::Engine::PostDummy::markAsRead()

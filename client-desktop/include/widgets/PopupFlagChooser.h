@@ -45,6 +45,8 @@ namespace ZapFR
             void setFlagStyle(Utilities::FlagStyle flagStyle);
             Utilities::FlagStyle flagStyle() const noexcept;
 
+            void toggleStyle();
+
           signals:
             void flagClicked(PopupFlag* flag);
 

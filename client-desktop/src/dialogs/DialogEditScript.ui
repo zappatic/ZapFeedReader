@@ -253,28 +253,129 @@ li.checked::marker { content: &quot;\2612&quot;; }
               </property>
              </widget>
             </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="labelFlags">
+              <property name="text">
+               <string>Flags :</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="ZapFR::Client::FrameFlagFilters" name="frameFlags">
+              <layout class="QHBoxLayout" name="horizontalLayoutFlags">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="ZapFR::Client::PopupFlag" name="widgetFlagBlue" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="ZapFR::Client::PopupFlag" name="widgetFlagGreen" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="ZapFR::Client::PopupFlag" name="widgetFlagYellow" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="ZapFR::Client::PopupFlag" name="widgetFlagOrange" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="ZapFR::Client::PopupFlag" name="widgetFlagRed" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="ZapFR::Client::PopupFlag" name="widgetFlagPurple" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacerFlags">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </item>
            </layout>
           </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxLog">
+         <property name="title">
+          <string>Log</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
-           <widget class="QGroupBox" name="groupBoxLog">
-            <property name="title">
-             <string>Log</string>
+           <widget class="QPlainTextEdit" name="plainTextEditLog">
+            <property name="undoRedoEnabled">
+             <bool>false</bool>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_7">
-             <item>
-              <widget class="QPlainTextEdit" name="plainTextEditLog">
-               <property name="undoRedoEnabled">
-                <bool>false</bool>
-               </property>
-               <property name="lineWrapMode">
-                <enum>QPlainTextEdit::NoWrap</enum>
-               </property>
-               <property name="readOnly">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <property name="lineWrapMode">
+             <enum>QPlainTextEdit::NoWrap</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -339,6 +440,18 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <class>ZapFR::Client::TreeViewEditScriptDialogSources</class>
    <extends>QTreeView</extends>
    <header>widgets/TreeViewEditScriptDialogSources.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::PopupFlag</class>
+   <extends>QWidget</extends>
+   <header>widgets/PopupFlagChooser.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::FrameFlagFilters</class>
+   <extends>QFrame</extends>
+   <header>widgets/FrameFlagFilters.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>
