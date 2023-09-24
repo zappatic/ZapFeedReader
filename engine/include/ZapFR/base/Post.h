@@ -34,6 +34,11 @@ namespace ZapFR
 
             struct Enclosure
             {
+                Enclosure() = default;
+                Enclosure(const std::string& enclosureURL, const std::string& enclosureMimetype, uint64_t enclosureSize)
+                    : url(enclosureURL), mimeType(enclosureMimetype), size(enclosureSize)
+                {
+                }
                 std::string url{""};
                 std::string mimeType{""};
                 uint64_t size{0};
@@ -67,8 +72,12 @@ namespace ZapFR
             void setDatePublished(const std::string& datePublished) { mDatePublished = datePublished; }
             void setFlagColors(const std::unordered_set<FlagColor>& flagColors) { mFlagColors = flagColors; }
             void addEnclosure(const Enclosure& enclosure) { mEnclosures.emplace_back(enclosure); }
+            void addEnclosure(const std::string& url, const std::string& mimeType, uint64_t size) { mEnclosures.emplace_back(url, mimeType, size); }
+            void updateEnclosure(uint64_t index, const std::string& url, const std::string& mimeType, uint64_t size);
+            void removeEnclosure(uint64_t index);
 
             virtual Poco::JSON::Object toJSON();
+            virtual void fromJSON(const Poco::JSON::Object::Ptr o);
             static constexpr const char* JSONIdentifierPostID{"id"};
             static constexpr const char* JSONIdentifierPostIsRead{"isRead"};
             static constexpr const char* JSONIdentifierPostFeedID{"feedID"};

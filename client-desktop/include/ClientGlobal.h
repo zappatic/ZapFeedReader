@@ -146,6 +146,7 @@ namespace ZapFR
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
         static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";
+        static const QString MIMETYPE_COPIED_TEST_POST = "application/x-zapfr-testpost";
 
         static const uint32_t StatusBarDefaultTimeout{2500};
 

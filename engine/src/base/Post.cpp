@@ -58,3 +58,55 @@ Poco::JSON::Object ZapFR::Engine::Post::toJSON()
     o.set(Post::JSONIdentifierPostEnclosures, enclosuresArr);
     return o;
 }
+
+void ZapFR::Engine::Post::fromJSON(const Poco::JSON::Object::Ptr o)
+{
+    setIsRead(o->getValue<bool>(Post::JSONIdentifierPostIsRead));
+    setFeedID(o->getValue<uint64_t>(Post::JSONIdentifierPostFeedID));
+    setFeedTitle(o->getValue<std::string>(Post::JSONIdentifierPostFeedTitle));
+    setFeedLink(o->getValue<std::string>(Post::JSONIdentifierPostFeedLink));
+    setTitle(o->getValue<std::string>(Post::JSONIdentifierPostTitle));
+    setLink(o->getValue<std::string>(Post::JSONIdentifierPostLink));
+    setContent(o->getValue<std::string>(Post::JSONIdentifierPostContent));
+    setAuthor(o->getValue<std::string>(Post::JSONIdentifierPostAuthor));
+    setCommentsURL(o->getValue<std::string>(Post::JSONIdentifierPostCommentsURL));
+    setGuid(o->getValue<std::string>(Post::JSONIdentifierPostGuid));
+    setDatePublished(o->getValue<std::string>(Post::JSONIdentifierPostDatePublished));
+
+    std::unordered_set<FlagColor> flagColors;
+    std::vector<std::string> flagColorNames;
+    Helpers::splitString(o->getValue<std::string>(JSONIdentifierPostFlagColors), ',', flagColorNames);
+    for (auto& name : flagColorNames)
+    {
+        Poco::trimInPlace(name);
+        flagColors.insert(Flag::flagColorForName(name));
+    }
+    setFlagColors(flagColors);
+
+    auto enclosuresArr = o->getArray(Post::JSONIdentifierPostEnclosures);
+    for (size_t i = 0; i < enclosuresArr->size(); ++i)
+    {
+        auto enclosureObj = enclosuresArr->getObject(static_cast<uint32_t>(i));
+        addEnclosure(enclosureObj->getValue<std::string>(Post::JSONIdentifierPostEnclosureURL), enclosureObj->getValue<std::string>(Post::JSONIdentifierPostEnclosureMimeType),
+                     enclosureObj->getValue<uint64_t>(Post::JSONIdentifierPostEnclosureSize));
+    }
+}
+
+void ZapFR::Engine::Post::removeEnclosure(uint64_t index)
+{
+    if (index < mEnclosures.size())
+    {
+        mEnclosures.erase(mEnclosures.begin() + index);
+    }
+}
+
+void ZapFR::Engine::Post::updateEnclosure(uint64_t index, const std::string& url, const std::string& mimeType, uint64_t size)
+{
+    if (index < mEnclosures.size())
+    {
+        auto& enclosure = mEnclosures.at(index);
+        enclosure.url = url;
+        enclosure.mimeType = mimeType;
+        enclosure.size = size;
+    }
+}

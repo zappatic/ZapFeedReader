@@ -23,43 +23,10 @@ ZapFR::Engine::PostRemote::PostRemote(uint64_t id) : Post(id)
 {
 }
 
-std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostRemote::fromJSON(const Poco::JSON::Object::Ptr o)
+std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostRemote::createFromJSON(const Poco::JSON::Object::Ptr o)
 {
     auto postID = o->getValue<uint64_t>(Post::JSONIdentifierPostID);
-
     auto post = std::make_unique<PostRemote>(postID);
-    post->setIsRead(o->getValue<bool>(Post::JSONIdentifierPostIsRead));
-    post->setFeedID(o->getValue<uint64_t>(Post::JSONIdentifierPostFeedID));
-    post->setFeedTitle(o->getValue<std::string>(Post::JSONIdentifierPostFeedTitle));
-    post->setFeedLink(o->getValue<std::string>(Post::JSONIdentifierPostFeedLink));
-    post->setTitle(o->getValue<std::string>(Post::JSONIdentifierPostTitle));
-    post->setLink(o->getValue<std::string>(Post::JSONIdentifierPostLink));
-    post->setContent(o->getValue<std::string>(Post::JSONIdentifierPostContent));
-    post->setAuthor(o->getValue<std::string>(Post::JSONIdentifierPostAuthor));
-    post->setCommentsURL(o->getValue<std::string>(Post::JSONIdentifierPostCommentsURL));
-    post->setGuid(o->getValue<std::string>(Post::JSONIdentifierPostGuid));
-    post->setDatePublished(o->getValue<std::string>(Post::JSONIdentifierPostDatePublished));
-
-    std::unordered_set<FlagColor> flagColors;
-    std::vector<std::string> flagColorNames;
-    Helpers::splitString(o->getValue<std::string>(JSONIdentifierPostFlagColors), ',', flagColorNames);
-    for (auto& name : flagColorNames)
-    {
-        Poco::trimInPlace(name);
-        flagColors.insert(Flag::flagColorForName(name));
-    }
-    post->setFlagColors(flagColors);
-
-    auto enclosuresArr = o->getArray(Post::JSONIdentifierPostEnclosures);
-    for (size_t i = 0; i < enclosuresArr->size(); ++i)
-    {
-        auto enclosureObj = enclosuresArr->getObject(static_cast<uint32_t>(i));
-        Enclosure e;
-        e.url = enclosureObj->getValue<std::string>(Post::JSONIdentifierPostEnclosureURL);
-        e.mimeType = enclosureObj->getValue<std::string>(Post::JSONIdentifierPostEnclosureMimeType);
-        e.size = enclosureObj->getValue<uint64_t>(Post::JSONIdentifierPostEnclosureSize);
-        post->addEnclosure(e);
-    }
-
+    post->fromJSON(o);
     return post;
 }

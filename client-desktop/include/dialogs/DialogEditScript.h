@@ -24,6 +24,7 @@
 #include "ZapFR/dummy/FeedDummy.h"
 #include "ZapFR/dummy/PostDummy.h"
 #include "ZapFR/dummy/SourceDummy.h"
+#include "dialogs/DialogTestScriptEditEnclosure.h"
 
 namespace Ui
 {
@@ -76,6 +77,10 @@ namespace ZapFR
             void resetTestValues();
             void clearLog();
             void appendToLog(const QString& message);
+            void pasteTestPost();
+            void addEnclosure();
+            void editEnclosure();
+            void removeEnclosure();
 
           private:
             Ui::DialogEditScript* ui;
@@ -83,6 +88,8 @@ namespace ZapFR
             uint64_t mCurrentID{0};
             DisplayMode mDisplayMode{DisplayMode::Add};
             std::unique_ptr<QStandardItemModel> mFeedsModel{nullptr};
+            std::unique_ptr<QStandardItemModel> mTestEnclosuresModel{nullptr};
+            std::unique_ptr<DialogTestScriptEditEnclosure> mDialogEditEnclosure{nullptr};
             std::unique_ptr<SyntaxHighlighterLua> mSyntaxHighlighterLua{nullptr};
             bool mIsDirty{false};
 
@@ -91,6 +98,20 @@ namespace ZapFR
             std::unique_ptr<ZapFR::Engine::PostDummy> mDummyPost{nullptr};
             void initializeTestEnvironment();
             void updateTestUI();
+
+            enum EnclosureColumn
+            {
+                URL = 0,
+                MimeType = 1,
+                Size = 2,
+            };
+
+            enum DialogEditScriptPane
+            {
+                Details = 0,
+                Script = 1,
+                Test = 2,
+            };
         };
     } // namespace Client
 } // namespace ZapFR

@@ -44,6 +44,7 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPalett
     mActionMarkSelectionAsRead = std::make_unique<QAction>(tr("Mark as read"), this);
     mActionMarkSelectionAsUnread = std::make_unique<QAction>(tr("Mark as unread"), this);
     mActionOpenInExternalBrowser = std::make_unique<QAction>(tr("Open in external browser"), this);
+    mActionCopyForTestScript = std::make_unique<QAction>(tr("Copy for test script"), this);
 
     viewport()->setAttribute(Qt::WA_Hover);
     setMouseTracking(true);
@@ -866,6 +867,36 @@ void ZapFR::Client::TableViewPosts::connectStuff()
                 }
             });
 
+    connect(mActionCopyForTestScript.get(), &QAction::triggered,
+            [this]()
+            {
+                auto index = currentIndex();
+                if (index.isValid())
+                {
+                    auto postID = index.data(Role::ID).toULongLong();
+                    auto feedID = index.data(Role::FeedID).toULongLong();
+                    auto sourceID = index.data(Role::SourceID).toULongLong();
+                    ZapFR::Engine::Agent::getInstance()->queueGetPost(sourceID, feedID, postID,
+                                                                      [&](std::unique_ptr<ZapFR::Engine::Post> post)
+                                                                      {
+                                                                          auto jsonObj = post->toJSON();
+                                                                          std::stringstream jsonStream;
+                                                                          Poco::JSON::Stringifier::stringify(jsonObj, jsonStream);
+                                                                          auto json = jsonStream.str();
+
+                                                                          QMetaObject::invokeMethod(this,
+                                                                                                    [=, this]()
+                                                                                                    {
+                                                                                                        auto jsonData = QByteArray(json.c_str(), json.length());
+                                                                                                        auto mimeData = new QMimeData();
+                                                                                                        mimeData->setData(MIMETYPE_COPIED_TEST_POST, jsonData);
+                                                                                                        QGuiApplication::clipboard()->setMimeData(mimeData);
+                                                                                                        mMainWindow->setStatusBarMessage(tr("Post copied"));
+                                                                                                    });
+                                                                      });
+                }
+            });
+
     connect(this, &TableViewPosts::customContextMenuRequested,
             [&](const QPoint& p)
             {
@@ -1149,6 +1180,8 @@ void ZapFR::Client::TableViewPosts::createContextMenus()
 
     auto removeFromScriptFolderMenu = mPostContextMenu->addMenu(tr("Remove from script folder"));
     removeFromScriptFolderMenu->setProperty(gsRemoveFromScriptFolderMenuProperty, true);
+
+    mPostContextMenu->addAction(mActionCopyForTestScript.get());
 
     mPostContextMenu->addSeparator();
     mPostContextMenu->addAction(mActionOpenInExternalBrowser.get());

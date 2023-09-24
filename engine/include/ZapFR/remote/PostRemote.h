@@ -31,7 +31,7 @@ namespace ZapFR
             explicit PostRemote(uint64_t id);
             ~PostRemote() = default;
 
-            static std::unique_ptr<Post> fromJSON(const Poco::JSON::Object::Ptr o);
+            static std::unique_ptr<Post> createFromJSON(const Poco::JSON::Object::Ptr o);
         };
     } // namespace Engine
 } // namespace ZapFR

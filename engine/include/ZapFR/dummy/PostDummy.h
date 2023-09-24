@@ -42,6 +42,8 @@ namespace ZapFR
             void assignToScriptFolder(uint64_t scriptFolderID);
             void unassignFromScriptFolder(uint64_t scriptFolderID);
 
+            static std::unique_ptr<PostDummy> createFromJSON(const Poco::JSON::Object::Ptr o);
+
           private:
             std::optional<std::function<void(const std::string&)>> mLogCallback{};
         };

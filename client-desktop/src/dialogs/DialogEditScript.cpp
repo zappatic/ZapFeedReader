@@ -28,10 +28,27 @@
 ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(parent), ui(new Ui::DialogEditScript)
 {
     ui->setupUi(this);
-    mFeedsModel = std::make_unique<QStandardItemModel>(this);
+
     mSyntaxHighlighterLua = std::make_unique<SyntaxHighlighterLua>(ui->textEditScript->document());
+
+    mFeedsModel = std::make_unique<QStandardItemModel>(this);
     ui->treeViewRunOnFeedIDs->setModel(mFeedsModel.get());
     ui->treeViewRunOnFeedIDs->setItemDelegate(new ItemDelegateEditScriptDialogSource(ui->treeViewRunOnFeedIDs));
+
+    mTestEnclosuresModel = std::make_unique<QStandardItemModel>(this);
+    ui->tableViewTestEnclosures->setModel(mTestEnclosuresModel.get());
+    mDialogEditEnclosure = std::make_unique<DialogTestScriptEditEnclosure>(this);
+
+    connect(ui->tabWidget, &QTabWidget::currentChanged,
+            [this](int32_t index)
+            {
+                if (index == DialogEditScriptPane::Test)
+                {
+                    auto mimeData = QGuiApplication::clipboard()->mimeData();
+                    ui->pushButtonPasteTestPost->setVisible(mimeData != nullptr && mimeData->hasFormat(MIMETYPE_COPIED_TEST_POST));
+                }
+            });
+    connect(ui->pushButtonPasteTestPost, &QPushButton::clicked, this, &DialogEditScript::pasteTestPost);
 
     connect(ui->treeViewRunOnFeedIDs, &TreeViewEditScriptDialogSources::feedClicked,
             [&](const QModelIndex& index)
@@ -69,6 +86,30 @@ ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(par
     {
         connect(flag, &PopupFlag::flagClicked, [&](PopupFlag* clickedFlag) { clickedFlag->toggleStyle(); });
     }
+
+    connect(ui->pushButtonAddTestEnclosure, &QPushButton::clicked, this, &DialogEditScript::addEnclosure);
+    connect(ui->pushButtonRemoveTestEnclosure, &QPushButton::clicked, this, &DialogEditScript::removeEnclosure);
+    connect(ui->tableViewTestEnclosures, &QTableView::doubleClicked, this, &DialogEditScript::editEnclosure);
+
+    connect(mDialogEditEnclosure.get(), &DialogEditScript::accepted,
+            [&]()
+            {
+                switch (mDialogEditEnclosure->displayMode())
+                {
+                    case DialogTestScriptEditEnclosure::DisplayMode::Add:
+                    {
+                        mDummyPost->addEnclosure(mDialogEditEnclosure->url().toStdString(), mDialogEditEnclosure->mimeType().toStdString(), mDialogEditEnclosure->size());
+                        break;
+                    }
+                    case DialogTestScriptEditEnclosure::DisplayMode::Edit:
+                    {
+                        mDummyPost->updateEnclosure(ui->tableViewTestEnclosures->currentIndex().row(), mDialogEditEnclosure->url().toStdString(),
+                                                    mDialogEditEnclosure->mimeType().toStdString(), mDialogEditEnclosure->size());
+                        break;
+                    }
+                }
+                updateTestUI();
+            });
 }
 
 ZapFR::Client::DialogEditScript::~DialogEditScript()
@@ -318,6 +359,36 @@ void ZapFR::Client::DialogEditScript::updateTestUI()
         ui->widgetFlagOrange->setFlagStyle(flagColors.contains(ZapFR::Engine::FlagColor::Orange) ? Utilities::FlagStyle::Filled : Utilities::FlagStyle::Unfilled);
         ui->widgetFlagRed->setFlagStyle(flagColors.contains(ZapFR::Engine::FlagColor::Red) ? Utilities::FlagStyle::Filled : Utilities::FlagStyle::Unfilled);
         ui->widgetFlagPurple->setFlagStyle(flagColors.contains(ZapFR::Engine::FlagColor::Purple) ? Utilities::FlagStyle::Filled : Utilities::FlagStyle::Unfilled);
+
+        mTestEnclosuresModel->clear();
+        for (const auto& enclosure : mDummyPost->enclosures())
+        {
+            auto url = QString::fromUtf8(enclosure.url);
+            auto urlItem = new QStandardItem(url);
+            urlItem->setData(url, Qt::ToolTipRole);
+
+            auto size = QString("%1 bytes").arg(enclosure.size);
+            auto sizeItem = new QStandardItem(size);
+            sizeItem->setData(size, Qt::ToolTipRole);
+
+            auto mimeType = QString::fromUtf8(enclosure.mimeType);
+            auto mimeTypeItem = new QStandardItem(mimeType);
+            mimeTypeItem->setData(mimeType, Qt::ToolTipRole);
+
+            QList<QStandardItem*> rowData;
+            rowData << urlItem << mimeTypeItem << sizeItem;
+            mTestEnclosuresModel->appendRow(rowData);
+        }
+        mTestEnclosuresModel->setHorizontalHeaderItem(EnclosureColumn::URL, new QStandardItem(tr("URL")));
+        mTestEnclosuresModel->setHorizontalHeaderItem(EnclosureColumn::MimeType, new QStandardItem(tr("Mimetype")));
+        mTestEnclosuresModel->setHorizontalHeaderItem(EnclosureColumn::Size, new QStandardItem(tr("Size")));
+
+        auto hh = ui->tableViewTestEnclosures->horizontalHeader();
+        hh->setSectionResizeMode(EnclosureColumn::Size, QHeaderView::Interactive);
+        hh->setSectionResizeMode(EnclosureColumn::MimeType, QHeaderView::Interactive);
+        hh->setSectionResizeMode(EnclosureColumn::URL, QHeaderView::Stretch);
+        hh->resizeSection(EnclosureColumn::MimeType, 150);
+        hh->resizeSection(EnclosureColumn::Size, 150);
     }
 }
 
@@ -393,4 +464,55 @@ void ZapFR::Client::DialogEditScript::clearLog()
 void ZapFR::Client::DialogEditScript::appendToLog(const QString& message)
 {
     ui->plainTextEditLog->appendPlainText(message);
+}
+
+void ZapFR::Client::DialogEditScript::pasteTestPost()
+{
+    auto mimeData = QGuiApplication::clipboard()->mimeData();
+    if (mimeData != nullptr && mimeData->hasFormat(MIMETYPE_COPIED_TEST_POST))
+    {
+        auto jsonData = mimeData->data(MIMETYPE_COPIED_TEST_POST);
+        auto json = std::string(jsonData.constData(), jsonData.length());
+        Poco::JSON::Parser parser;
+        try
+        {
+            auto root = parser.parse(json);
+            auto postJSON = root.extract<Poco::JSON::Object::Ptr>();
+            mDummyPost = std::move(ZapFR::Engine::PostDummy::createFromJSON(postJSON));
+
+            mDummySource->setAssociatedDummyPost(mDummyPost.get());
+            mDummyFeed->setAssociatedDummyPost(mDummyPost.get());
+            updateTestUI();
+        }
+        catch (...)
+        {
+        }
+    }
+}
+
+void ZapFR::Client::DialogEditScript::addEnclosure()
+{
+    mDialogEditEnclosure->reset(DialogTestScriptEditEnclosure::DisplayMode::Add, "", "", 0);
+    mDialogEditEnclosure->open();
+}
+
+void ZapFR::Client::DialogEditScript::editEnclosure()
+{
+    auto index = ui->tableViewTestEnclosures->currentIndex();
+    if (index.isValid())
+    {
+        const auto& enclosure = mDummyPost->enclosures().at(index.row());
+        mDialogEditEnclosure->reset(DialogTestScriptEditEnclosure::DisplayMode::Edit, QString::fromUtf8(enclosure.url), QString::fromUtf8(enclosure.mimeType), enclosure.size);
+        mDialogEditEnclosure->open();
+    }
+}
+
+void ZapFR::Client::DialogEditScript::removeEnclosure()
+{
+    auto index = ui->tableViewTestEnclosures->currentIndex();
+    if (index.isValid())
+    {
+        mDummyPost->removeEnclosure(index.row());
+        updateTestUI();
+    }
 }

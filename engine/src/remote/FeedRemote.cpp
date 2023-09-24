@@ -62,7 +62,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
                 for (size_t i = 0; i < postArr->size(); ++i)
                 {
                     auto postObj = postArr->getObject(static_cast<uint32_t>(i));
-                    posts.emplace_back(PostRemote::fromJSON(postObj));
+                    posts.emplace_back(PostRemote::createFromJSON(postObj));
                 }
             }
         }
@@ -89,7 +89,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedRemote::g
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
         if (!rootObj.isNull())
         {
-            return PostRemote::fromJSON(rootObj);
+            return PostRemote::createFromJSON(rootObj);
         }
     }
     return {};
