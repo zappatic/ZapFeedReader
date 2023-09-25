@@ -23,7 +23,7 @@
 
 void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Source* source, Feed* feed, Post* post)
 {
-    lua_createtable(L, 0, %POSTTABLECOUNT%);
+    lua_createtable(L, 0, 3 + %POSTTABLECOUNT%);
 
     lua_pushlightuserdata(L, static_cast<void*>(source));
     lua_setfield(L, -2, "_source_ptr");
@@ -34,5 +34,28 @@ void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Source* sourc
     lua_pushlightuserdata(L, static_cast<void*>(post));
     lua_setfield(L, -2, "_post_ptr");
 
-    %POSTTABLE%
+%POSTTABLE%
+}
+
+void ZapFR::Engine::LuaProxyPost::convertPostEnclosuresToTable(lua_State* L, Post* post)
+{
+    const auto& enclosures = post->enclosures();
+    auto enclosureCount = static_cast<int32_t>(enclosures.size());
+
+    lua_createtable(L, enclosureCount, 0);
+
+    for (auto i = 1; i <= enclosureCount; ++i)
+    {
+        lua_createtable(L, 0, 2 + %POSTENCLOSURESTABLECOUNT%);
+
+        lua_pushlightuserdata(L, static_cast<void*>(post));
+        lua_setfield(L, -2, "_post_ptr");
+
+        lua_pushnumber(L, i - 1);
+        lua_setfield(L, -2, "_index");
+
+%POSTENCLOSURESTABLE%
+
+        lua_rawseti(L, -2, i);
+    }
 }

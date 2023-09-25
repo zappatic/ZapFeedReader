@@ -28,6 +28,10 @@ namespace ZapFR
         static std::array<std::string, %POSTSYNTAXHIGHLIGHTINGCOUNT%> gsLuaPostSyntaxHighlighting{
 %POSTSYNTAXHIGHLIGHTING%
         };
+
+        static std::array<std::string, %POSTENCLOSURESSYNTAXHIGHLIGHTINGCOUNT%> gsLuaPostEnclosuresSyntaxHighlighting{
+%POSTENCLOSURESSYNTAXHIGHLIGHTING%
+        };
     }
 } // namespace ZapFR
 

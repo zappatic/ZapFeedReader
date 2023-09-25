@@ -33,23 +33,37 @@ namespace ZapFR
 {
     namespace Engine
     {
-        static std::array<std::string, 16> gsLuaPostSyntaxHighlighting{
-            R"(\.title)", 
-            R"(\.link)", 
-            R"(\.content)", 
-            R"(\.author)", 
-            R"(\.commentsURL)", 
+        static std::array<std::string, 19> gsLuaPostSyntaxHighlighting{
             R"(:markAsRead\(\))", 
             R"(:markAsUnread\(\))", 
             R"(:flag\(.*?\))", 
             R"(:unflag\(.*?\))", 
             R"(:assignToScriptFolder\(.*?\))", 
             R"(:unassignFromScriptFolder\(.*?\))", 
+            R"(:getTitle\(.*?\))", 
             R"(:setTitle\(.*?\))", 
             R"(:setLink\(.*?\))", 
+            R"(:getLink\(.*?\))", 
+            R"(:getLink\(.*?\))", 
+            R"(:getContent\(.*?\))", 
             R"(:setContent\(.*?\))", 
             R"(:setAuthor\(.*?\))", 
+            R"(:getAuthor\(.*?\))", 
+            R"(:getCommentsURL\(.*?\))", 
             R"(:setCommentsURL\(.*?\))", 
+            R"(:getEnclosures\(.*?\))", 
+            R"(:addEnclosure\(.*?\))", 
+
+        };
+
+        static std::array<std::string, 7> gsLuaPostEnclosuresSyntaxHighlighting{
+            R"(:setURL\(.*?\))", 
+            R"(:getURL\(.*?\))", 
+            R"(:setMimeType\(.*?\))", 
+            R"(:getMimeType\(.*?\))", 
+            R"(:setSize\(.*?\))", 
+            R"(:getSize\(.*?\))", 
+            R"(:remove\(.*?\))", 
 
         };
     }

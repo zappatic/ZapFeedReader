@@ -1,37 +1,6 @@
 {
   "post": {
-    "fields": [
-      {
-        "name": "title",
-        "value": "post->title().c_str()",
-        "description": "Retrieves the title of the post",
-        "highlight": "R\"(\\.title)\""
-      },
-      {
-        "name": "link",
-        "value": "post->link().c_str()",
-        "description": "Retrieves the link of the post",
-        "highlight": "R\"(\\.link)\""
-      },
-      {
-        "name": "content",
-        "value": "post->content().c_str()",
-        "description": "Retrieves the content of the post",
-        "highlight": "R\"(\\.content)\""
-      },
-      {
-        "name": "author",
-        "value": "post->author().c_str()",
-        "description": "Retrieves the author of the post",
-        "highlight": "R\"(\\.author)\""
-      },
-      {
-        "name": "commentsURL",
-        "value": "post->commentsURL().c_str()",
-        "description": "Retrieves the comments URL of the post",
-        "highlight": "R\"(\\.commentsURL)\""
-      }
-    ],
+    "fields": [],
     "methods": [
       {
         "name": "markAsRead",
@@ -70,6 +39,12 @@
         "highlight": "R\"(:unassignFromScriptFolder\\(.*?\\))\""
       },
       {
+        "name": "getTitle",
+        "value": "getTitle",
+        "description": "Gets the title of the post",
+        "highlight": "R\"(:getTitle\\(.*?\\))\""
+      },
+      {
         "name": "setTitle",
         "value": "setTitle",
         "description": "Sets the title of the post",
@@ -80,6 +55,24 @@
         "value": "setLink",
         "description": "Sets the link of the post",
         "highlight": "R\"(:setLink\\(.*?\\))\""
+      },
+      {
+        "name": "getLink",
+        "value": "getLink",
+        "description": "Gets the link of the post",
+        "highlight": "R\"(:getLink\\(.*?\\))\""
+      },
+      {
+        "name": "getLink",
+        "value": "getLink",
+        "description": "Gets the link of the post",
+        "highlight": "R\"(:getLink\\(.*?\\))\""
+      },
+      {
+        "name": "getContent",
+        "value": "getContent",
+        "description": "Gets the content of the post",
+        "highlight": "R\"(:getContent\\(.*?\\))\""
       },
       {
         "name": "setContent",
@@ -94,10 +87,81 @@
         "highlight": "R\"(:setAuthor\\(.*?\\))\""
       },
       {
+        "name": "getAuthor",
+        "value": "getAuthor",
+        "description": "Gets the author of the post",
+        "highlight": "R\"(:getAuthor\\(.*?\\))\""
+      },
+      {
+        "name": "getCommentsURL",
+        "value": "getCommentsURL",
+        "description": "Gets the comment URL of the post",
+        "highlight": "R\"(:getCommentsURL\\(.*?\\))\""
+      },
+      {
         "name": "setCommentsURL",
         "value": "setCommentsURL",
         "description": "Sets the comment URL of the post",
         "highlight": "R\"(:setCommentsURL\\(.*?\\))\""
+      },
+      {
+        "name": "getEnclosures",
+        "value": "getEnclosures",
+        "description": "Gets the enclosures of a post",
+        "highlight": "R\"(:getEnclosures\\(.*?\\))\""
+      },
+      {
+        "name": "addEnclosure",
+        "value": "addEnclosure",
+        "description": "Adds a new enclosure",
+        "highlight": "R\"(:addEnclosure\\(.*?\\))\""
+      }
+    ]
+  },
+  "post-enclosure": {
+    "fields": [],
+    "methods": [
+      {
+        "name": "setURL",
+        "value": "setEnclosureURL",
+        "description": "Sets the URL of the post enclosure",
+        "highlight": "R\"(:setURL\\(.*?\\))\""
+      },
+      {
+        "name": "getURL",
+        "value": "getEnclosureURL",
+        "description": "Gets the URL of the post enclosure",
+        "highlight": "R\"(:getURL\\(.*?\\))\""
+      },
+      {
+        "name": "setMimeType",
+        "value": "setEnclosureMimeType",
+        "description": "Sets the mimetype of the post enclosure",
+        "highlight": "R\"(:setMimeType\\(.*?\\))\""
+      },
+      {
+        "name": "getMimeType",
+        "value": "getEnclosureMimeType",
+        "description": "Gets the mimetype of the post enclosure",
+        "highlight": "R\"(:getMimeType\\(.*?\\))\""
+      },
+      {
+        "name": "setSize",
+        "value": "setEnclosureSize",
+        "description": "Sets the size (in bytes) of the post enclosure",
+        "highlight": "R\"(:setSize\\(.*?\\))\""
+      },
+      {
+        "name": "getSize",
+        "value": "getEnclosureSize",
+        "description": "Gets the size (in bytes) of the post enclosure",
+        "highlight": "R\"(:getSize\\(.*?\\))\""
+      },
+      {
+        "name": "remove",
+        "value": "removeEnclosure",
+        "description": "Removes the post enclosure",
+        "highlight": "R\"(:remove\\(.*?\\))\""
       }
     ]
   }

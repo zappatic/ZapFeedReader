@@ -24,19 +24,47 @@ with open("lua-api.json", "r") as fp:
     api_json = fp.read()
 api_entries = json.loads(api_json)
 
+def dumpField(field, indent):
+    spaces = " " * (indent * 4)
+    str  = f"""{spaces}// .{field["name"]} - {field["description"]}\n"""
+    if field["type"] == "string":
+        str += f"""{spaces}lua_pushstring(L, {field["value"]});\n"""
+    elif field["type"] == "table":
+        str += f"""{spaces}{field["value"]};\n"""
+    elif field["type"] == "integer":
+        str += f"""{spaces}lua_pushinteger(L, {field["value"]});\n"""
+    else:
+        raise("Unknown field type")
+    str += f"""{spaces}lua_setfield(L, -2, "{field["name"]}");\n\n"""
+    return str
+
+def dumpMethod(method, indent):
+    spaces = " " * (indent * 4)
+    str  = f"""{spaces}// :{method["name"]} - {method["description"]}\n"""
+    str += f"""{spaces}lua_pushcfunction(L, {method["value"]});\n"""
+    str += f"""{spaces}lua_setfield(L, -2, "{method["name"]}");\n\n"""
+    return str
+
+
 # POST TABLE
 post_table_count = 0
 post_table = ""
 for field in api_entries["post"]["fields"]:
-    post_table += f"""    // .{field["name"]} - {field["description"]}\n"""
-    post_table += f"""    lua_pushstring(L, {field["value"]});\n"""
-    post_table += f"""    lua_setfield(L, -2, "{field["name"]}");\n\n"""
+    post_table += dumpField(field, 1)
     post_table_count += 1
-for field in api_entries["post"]["methods"]:
-    post_table += f"""    // :{field["name"]} - {field["description"]}\n"""
-    post_table += f"""    lua_pushcfunction(L, {field["value"]});\n"""
-    post_table += f"""    lua_setfield(L, -2, "{field["name"]}");\n\n"""
+for method in api_entries["post"]["methods"]:
+    post_table += dumpMethod(method, 1)
     post_table_count += 1
+
+# POST ENCLOSURES TABLE
+post_enclosures_table_count = 0
+post_enclosures_table = ""
+for field in api_entries["post-enclosure"]["fields"]:
+    post_enclosures_table += dumpField(field, 2)
+    post_enclosures_table_count += 1
+for method in api_entries["post-enclosure"]["methods"]:
+    post_enclosures_table += dumpMethod(method, 2)
+    post_enclosures_table_count += 1
 
 # POST SYNTAX HIGHLIGHTING
 post_syntax_highlighting_count = 0
@@ -48,16 +76,30 @@ for field in api_entries["post"]["methods"]:
     post_syntax_highlighting += f"""            {field["highlight"]}, \n"""
     post_syntax_highlighting_count += 1
 
+# POST ENCLOSURES SYNTAX HIGHLIGHTING
+post_enclosures_syntax_highlighting_count = 0
+post_enclosures_syntax_highlighting = ""
+for field in api_entries["post-enclosure"]["fields"]:
+    post_enclosures_syntax_highlighting += f"""            {field["highlight"]}, \n"""
+    post_enclosures_syntax_highlighting_count += 1
+for field in api_entries["post-enclosure"]["methods"]:
+    post_enclosures_syntax_highlighting += f"""            {field["highlight"]}, \n"""
+    post_enclosures_syntax_highlighting_count += 1
+
 # CREATE THE NEW TEMPLATES
 with open("LuaTableConversions.cpp.tpl", "r") as fp:
     cpp_template = fp.read()
 cpp_template = cpp_template.replace("%POSTTABLECOUNT%", str(post_table_count))
 cpp_template = cpp_template.replace("%POSTTABLE%", post_table)
+cpp_template = cpp_template.replace("%POSTENCLOSURESTABLECOUNT%", str(post_enclosures_table_count))
+cpp_template = cpp_template.replace("%POSTENCLOSURESTABLE%", post_enclosures_table)
 
 with open("../../include/ZapFR/lua/LuaSyntaxHighlighting.h.tpl", "r") as fp:
     synhig_template = fp.read()
 synhig_template = synhig_template.replace("%POSTSYNTAXHIGHLIGHTINGCOUNT%", str(post_syntax_highlighting_count))
 synhig_template = synhig_template.replace("%POSTSYNTAXHIGHLIGHTING%", post_syntax_highlighting)
+synhig_template = synhig_template.replace("%POSTENCLOSURESSYNTAXHIGHLIGHTINGCOUNT%", str(post_enclosures_syntax_highlighting_count))
+synhig_template = synhig_template.replace("%POSTENCLOSURESSYNTAXHIGHLIGHTING%", post_enclosures_syntax_highlighting)
 
 # WRITE OUT THE FILES
 header  = "/* **************************************************************************** */\n"

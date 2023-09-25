@@ -74,7 +74,7 @@ namespace ZapFR
             void addEnclosure(const Enclosure& enclosure) { mEnclosures.emplace_back(enclosure); }
             void addEnclosure(const std::string& url, const std::string& mimeType, uint64_t size) { mEnclosures.emplace_back(url, mimeType, size); }
             void updateEnclosure(uint64_t index, const std::string& url, const std::string& mimeType, uint64_t size);
-            void removeEnclosure(uint64_t index);
+            void removeEnclosure(uint64_t index); // TODO: removing by index is not good, needs to be on unique id, because if you loop over enclosures it messes up
 
             virtual Poco::JSON::Object toJSON();
             virtual void fromJSON(const Poco::JSON::Object::Ptr o);

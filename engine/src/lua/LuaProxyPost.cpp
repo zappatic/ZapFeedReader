@@ -22,6 +22,20 @@
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 
+int ZapFR::Engine::LuaProxyPost::getTitle(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        lua_pushstring(L, post->title().c_str());
+        return 1;
+    }
+
+    return 0;
+}
+
 int ZapFR::Engine::LuaProxyPost::setTitle(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
@@ -32,6 +46,20 @@ int ZapFR::Engine::LuaProxyPost::setTitle(lua_State* L)
     {
         auto newTitle = std::string(lua_tostring(L, 2));
         post->setTitle(newTitle);
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::getLink(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        lua_pushstring(L, post->link().c_str());
+        return 1;
     }
 
     return 0;
@@ -52,6 +80,20 @@ int ZapFR::Engine::LuaProxyPost::setLink(lua_State* L)
     return 0;
 }
 
+int ZapFR::Engine::LuaProxyPost::getContent(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        lua_pushstring(L, post->content().c_str());
+        return 1;
+    }
+
+    return 0;
+}
+
 int ZapFR::Engine::LuaProxyPost::setContent(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
@@ -67,6 +109,20 @@ int ZapFR::Engine::LuaProxyPost::setContent(lua_State* L)
     return 0;
 }
 
+int ZapFR::Engine::LuaProxyPost::getAuthor(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        lua_pushstring(L, post->author().c_str());
+        return 1;
+    }
+
+    return 0;
+}
+
 int ZapFR::Engine::LuaProxyPost::setAuthor(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
@@ -77,6 +133,20 @@ int ZapFR::Engine::LuaProxyPost::setAuthor(lua_State* L)
     {
         auto newAuthor = std::string(lua_tostring(L, 2));
         post->setAuthor(newAuthor);
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::getCommentsURL(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        lua_pushstring(L, post->commentsURL().c_str());
+        return 1;
     }
 
     return 0;
@@ -207,6 +277,206 @@ int ZapFR::Engine::LuaProxyPost::unassignFromScriptFolder(lua_State* L)
     }
 
     return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::getEnclosures(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        convertPostEnclosuresToTable(L, post);
+        return 1;
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::getEnclosureURL(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [post, index] = lookupPostEnclosureData(L);
+    if (post != nullptr)
+    {
+        const auto& enclosures = post->enclosures();
+        if (index < enclosures.size())
+        {
+            const auto& enclosure = enclosures.at(index);
+            lua_pushstring(L, enclosure.url.c_str());
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::addEnclosure(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TSTRING);
+    luaL_checktype(L, 3, LUA_TSTRING);
+    luaL_checktype(L, 4, LUA_TNUMBER);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        auto url = std::string(lua_tostring(L, 2));
+        auto mimeType = std::string(lua_tostring(L, 3));
+        int success;
+        auto size = lua_tointegerx(L, 4, &success);
+        if (success == 0)
+        {
+            size = 0;
+        }
+        post->addEnclosure(url, mimeType, size);
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::removeEnclosure(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [post, index] = lookupPostEnclosureData(L);
+    if (post != nullptr)
+    {
+        post->removeEnclosure(index);
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::setEnclosureURL(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TSTRING);
+
+    auto [post, index] = lookupPostEnclosureData(L);
+    if (post != nullptr)
+    {
+        auto newURL = std::string(lua_tostring(L, 2));
+
+        const auto& enclosures = post->enclosures();
+        if (index < enclosures.size())
+        {
+            const auto& enclosure = enclosures.at(index);
+            post->updateEnclosure(index, newURL, enclosure.mimeType, enclosure.size);
+        }
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::getEnclosureMimeType(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [post, index] = lookupPostEnclosureData(L);
+    if (post != nullptr)
+    {
+        const auto& enclosures = post->enclosures();
+        if (index < enclosures.size())
+        {
+            const auto& enclosure = enclosures.at(index);
+            lua_pushstring(L, enclosure.mimeType.c_str());
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::setEnclosureMimeType(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TSTRING);
+
+    auto [post, index] = lookupPostEnclosureData(L);
+    if (post != nullptr)
+    {
+        auto newMimeType = std::string(lua_tostring(L, 2));
+
+        const auto& enclosures = post->enclosures();
+        if (index < enclosures.size())
+        {
+            const auto& enclosure = enclosures.at(index);
+            post->updateEnclosure(index, enclosure.url, newMimeType, enclosure.size);
+        }
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::getEnclosureSize(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [post, index] = lookupPostEnclosureData(L);
+    if (post != nullptr)
+    {
+        const auto& enclosures = post->enclosures();
+        if (index < enclosures.size())
+        {
+            const auto& enclosure = enclosures.at(index);
+            lua_pushinteger(L, enclosure.size);
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::setEnclosureSize(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TNUMBER);
+
+    auto [post, index] = lookupPostEnclosureData(L);
+    if (post != nullptr)
+    {
+        int success;
+        auto newSize = static_cast<uint64_t>(lua_tointegerx(L, 2, &success));
+        if (success != 0)
+        {
+            const auto& enclosures = post->enclosures();
+            if (index < enclosures.size())
+            {
+                const auto& enclosure = enclosures.at(index);
+                post->updateEnclosure(index, enclosure.url, enclosure.mimeType, newSize);
+            }
+        }
+    }
+
+    return 0;
+}
+
+std::tuple<ZapFR::Engine::Post*, uint64_t> ZapFR::Engine::LuaProxyPost::lookupPostEnclosureData(lua_State* L)
+{
+    Post* post{nullptr};
+    uint64_t index{0};
+
+    lua_pushvalue(L, 1);
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0)
+    {
+        lua_pushvalue(L, -2); // make a copy of the key
+        auto key = std::string(lua_tostring(L, -1));
+        if (key == "_index")
+        {
+            index = lua_tointeger(L, -2);
+        }
+        else if (key == "_post_ptr")
+        {
+            post = static_cast<Post*>(lua_touserdata(L, -2));
+        }
+
+        lua_pop(L, 2); // pop the table value and the cloned key
+    }
+    lua_pop(L, 1);
+    return std::make_tuple(post, index);
 }
 
 std::tuple<ZapFR::Engine::Source*, ZapFR::Engine::Feed*, ZapFR::Engine::Post*> ZapFR::Engine::LuaProxyPost::lookupPostPointer(lua_State* L)

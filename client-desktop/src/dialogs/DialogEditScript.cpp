@@ -197,6 +197,7 @@ void ZapFR::Client::DialogEditScript::reset(DisplayMode dm, uint64_t sourceID, u
     ui->textEditScript->setText(script);
     ui->tabWidget->setCurrentIndex(0);
     ui->lineEditTitle->setFocus();
+    clearLog();
     mIsDirty = false;
 
     initializeTestEnvironment();
