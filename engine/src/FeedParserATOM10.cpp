@@ -203,6 +203,45 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
                 }
             }
 
+            if (item.content.empty()) // see if there's a media:thumbnail/media:description present (for YouTube)
+            {
+                Poco::XML::Element::NSMap nsMap;
+                nsMap.declarePrefix("media", "http://search.yahoo.com/mrss/");
+
+                std::stringstream mediaContentStream;
+                auto mediaGroupNode = entryNode->getNodeByPathNS("media:group", nsMap);
+                if (mediaGroupNode != nullptr)
+                {
+                    auto thumbnailNode = mediaGroupNode->getNodeByPathNS("media:thumbnail", nsMap);
+                    if (thumbnailNode != nullptr && thumbnailNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
+                    {
+                        auto thumbnailEl = dynamic_cast<Poco::XML::Element*>(thumbnailNode);
+                        if (thumbnailEl->hasAttribute("url"))
+                        {
+                            mediaContentStream << R"(<a href=")" << item.link << R"("><img src=")" << thumbnailEl->getAttribute("url") << R"(" alt="" /></a>)";
+                        }
+                    }
+
+                    auto descriptionNode = mediaGroupNode->getNodeByPathNS("media:description", nsMap);
+                    if (descriptionNode != nullptr && descriptionNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
+                    {
+                        auto descriptionEl = dynamic_cast<Poco::XML::Element*>(descriptionNode);
+                        if (descriptionEl->hasAttribute("type") && descriptionEl->getAttribute("type") == "html")
+                        {
+                            mediaContentStream << "<p>" << descriptionNode->innerText() << "</p>";
+                        }
+                        else
+                        {
+                            auto text = descriptionNode->innerText();
+                            Poco::replaceInPlace(text, "\n", "<br />");
+                            mediaContentStream << "<p>" << text << "</p>";
+                        }
+                    }
+
+                    item.content = mediaContentStream.str();
+                }
+            }
+
             auto authorNode = fetchNode(entryNode, "author");
             if (authorNode != nullptr)
             {
