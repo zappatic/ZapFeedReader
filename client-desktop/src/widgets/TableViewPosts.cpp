@@ -1032,6 +1032,7 @@ void ZapFR::Client::TableViewPosts::connectStuff()
                 mShowOnlyUnreadPosts = !mShowOnlyUnreadPosts;
                 if (mShowOnlyUnreadPosts)
                 {
+                    mCurrentPostPage = 1;
                     mMainWindow->getUI()->pushButtonToggleShowUnread->setText(tr("Show all posts"));
                 }
                 else
