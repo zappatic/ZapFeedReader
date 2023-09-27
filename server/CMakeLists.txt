@@ -5,6 +5,7 @@ target_include_directories(zapfeedreader-server PRIVATE ../engine/include)
 target_include_directories(zapfeedreader-server SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib/include)
 
 target_link_libraries(zapfeedreader-server PRIVATE  zapfeedreader-engine 
+                                                    PkgConfig::lua
                                                     Poco::Foundation
                                                     Poco::Util
                                                     Poco::XML
