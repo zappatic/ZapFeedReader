@@ -85,6 +85,7 @@ namespace ZapFR
             QAction* actionImportOPML() const noexcept { return mActionImportOPML.get(); }
             QAction* actionExportOPML() const noexcept { return mActionExportOPML.get(); }
             QAction* actionViewProperties() const noexcept { return mActionViewProperties.get(); }
+            QAction* actionOpenAssociatedWebsite() const noexcept { return mActionOpenAssociatedWebsite.get(); }
 
             enum class DisplayMode
             {
@@ -104,8 +105,9 @@ namespace ZapFR
                 ParentFolderID = Qt::ItemDataRole::UserRole + 6,
                 Error = Qt::ItemDataRole::UserRole + 7,
                 FeedURL = Qt::ItemDataRole::UserRole + 8,
-                SortOrder = Qt::ItemDataRole::UserRole + 9,
-                SourceType = Qt::ItemDataRole::UserRole + 10,
+                FeedLink = Qt::ItemDataRole::UserRole + 9,
+                SortOrder = Qt::ItemDataRole::UserRole + 10,
+                SourceType = Qt::ItemDataRole::UserRole + 11,
             };
 
             enum EntryType
@@ -172,6 +174,7 @@ namespace ZapFR
             std::unique_ptr<QAction> mActionImportOPML{nullptr};
             std::unique_ptr<QAction> mActionExportOPML{nullptr};
             std::unique_ptr<QAction> mActionViewProperties{nullptr};
+            std::unique_ptr<QAction> mActionOpenAssociatedWebsite{nullptr};
 
             uint64_t mPreviouslySelectedSourceID{0};
             uint64_t mInitialSourceCount{0};

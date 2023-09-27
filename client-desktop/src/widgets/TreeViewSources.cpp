@@ -53,6 +53,7 @@ ZapFR::Client::TreeViewSources::TreeViewSources(QWidget* parent) : TreeViewPalet
     mActionImportOPML = std::make_unique<QAction>(tr("Import OPML"), this);
     mActionExportOPML = std::make_unique<QAction>(tr("Export OPML"), this);
     mActionViewProperties = std::make_unique<QAction>(tr("View properties"), this);
+    mActionOpenAssociatedWebsite = std::make_unique<QAction>(tr("Open associated website"), this);
 }
 
 void ZapFR::Client::TreeViewSources::setMainWindow(MainWindow* mw) noexcept
@@ -117,10 +118,26 @@ void ZapFR::Client::TreeViewSources::mouseDoubleClickEvent(QMouseEvent* event)
     if (index.isValid())
     {
         auto type = index.data(Role::Type).toULongLong();
-        if (type == EntryType::Folder)
+        switch (type)
         {
-            editFolder();
-            return;
+            case EntryType::Folder:
+            {
+                editFolder();
+                return;
+            }
+            case EntryType::Feed:
+            {
+                auto link = index.data(Role::FeedLink).toString();
+                if (!link.isEmpty() && link.startsWith("http"))
+                {
+                    QDesktopServices::openUrl(link);
+                }
+                return;
+            }
+            case EntryType::Source:
+            {
+                // nop
+            }
         }
     }
 
@@ -222,6 +239,7 @@ void ZapFR::Client::TreeViewSources::reload()
                         feedItem->setData(QString::fromUtf8(feedError.value()), Qt::ToolTipRole);
                     }
                     feedItem->setData(QString::fromUtf8(feed->url()), Role::FeedURL);
+                    feedItem->setData(QString::fromUtf8(feed->link()), Role::FeedLink);
                     feedItem->setData(QVariant::fromValue<uint64_t>(feed->sortOrder()), Role::SortOrder);
 
                     if (!FeedIconCache::isCached(retrievedSource->id(), feed->id()) || !FeedIconCache::isSameHash(retrievedSource->id(), feed->id(), feed->iconHash()))
@@ -1540,6 +1558,19 @@ void ZapFR::Client::TreeViewSources::connectStuff()
     connect(mActionImportOPML.get(), &QAction::triggered, this, &TreeViewSources::importOPML);
     connect(mActionExportOPML.get(), &QAction::triggered, this, &TreeViewSources::exportOPML);
     connect(mActionViewProperties.get(), &QAction::triggered, [&]() { reloadPropertiesPane(); });
+    connect(mActionOpenAssociatedWebsite.get(), &QAction::triggered,
+            [&]()
+            {
+                auto index = currentIndex();
+                if (index.isValid())
+                {
+                    auto link = index.data(Role::FeedLink).toString();
+                    if (!link.isEmpty() && link.startsWith("http"))
+                    {
+                        QDesktopServices::openUrl(link);
+                    }
+                }
+            });
 
     connect(ui->widgetPropertiesPaneSource, &WidgetPropertiesPaneSource::sourceUpdated, [&]() { reload(); });
 
@@ -1726,6 +1757,7 @@ void ZapFR::Client::TreeViewSources::createContextMenus()
     mContextMenuFeed = std::make_unique<QMenu>(nullptr);
     mContextMenuFeed->addAction(mActionRefresh.get());
     mContextMenuFeed->addAction(ui->tableViewPosts->actionMarkAsRead());
+    mContextMenuFeed->addAction(mActionOpenAssociatedWebsite.get());
     mContextMenuFeed->addSeparator();
     mContextMenuFeed->addAction(mActionRemoveFeed.get());
     mContextMenuFeed->addSeparator();
