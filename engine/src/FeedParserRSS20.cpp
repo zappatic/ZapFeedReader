@@ -144,10 +144,10 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
         int tzDiff;
 
         Poco::DateTime parsedDate;
-        auto dateParseSuccess = Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::RFC822_FORMAT, item.datePublished, parsedDate, tzDiff);
+        auto dateParseSuccess = Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::RFC1123_FORMAT, item.datePublished, parsedDate, tzDiff);
         if (!dateParseSuccess)
         {
-            dateParseSuccess = Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::RFC1123_FORMAT, item.datePublished, parsedDate, tzDiff);
+            dateParseSuccess = Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::RFC822_FORMAT, item.datePublished, parsedDate, tzDiff);
         }
 
         if (dateParseSuccess)
