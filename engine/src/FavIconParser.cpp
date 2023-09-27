@@ -30,6 +30,54 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
     auto uri = Poco::URI(url);
     auto html = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID);
 
+    // exception for YouTube: extract the channel image from the ytInitialData variable
+    if (Poco::endsWith(uri.getHost(), std::string("youtube.com")))
+    {
+        static Poco::RegularExpression ytInitialDataRegex("var ytInitialData = ({.*?});");
+        Poco::RegularExpression::MatchVec matches;
+        ytInitialDataRegex.match(html, 0, matches);
+        if (matches.size() == 2)
+        {
+            try
+            {
+                auto match = matches.at(1);
+
+                Poco::JSON::Parser parser;
+                auto root = parser.parse(html.substr(match.offset, match.length));
+                auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+                if (rootObj->has("metadata")) // converting to Poco::DynamicStruct has syntax advantages but performance disadvantages (needs to copy)
+                {
+                    auto metadataObj = rootObj->getObject("metadata");
+                    if (metadataObj->has("channelMetadataRenderer"))
+                    {
+                        auto cmdrObj = metadataObj->getObject("channelMetadataRenderer");
+                        if (cmdrObj->has("avatar"))
+                        {
+                            auto avatarObj = cmdrObj->getObject("avatar");
+                            if (avatarObj->has("thumbnails"))
+                            {
+                                auto thumbnailsArr = avatarObj->getArray("thumbnails");
+                                if (thumbnailsArr->size() > 0)
+                                {
+                                    auto thumbnail = thumbnailsArr->getObject(0);
+                                    if (thumbnail->has("url"))
+                                    {
+                                        mFavIcon = thumbnail->getValue<std::string>("url");
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (...)
+            {
+                // failed to parse the channel icon out of the json dump; default to YouTube favicon
+            }
+        }
+    }
+
     // try to locate <link rel="icon" href="..."> with a sax parser
     FavIconSaxParser handler;
     FavIconSaxErrorHandler errorHandler;
