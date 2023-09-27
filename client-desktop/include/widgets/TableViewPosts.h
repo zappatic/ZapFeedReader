@@ -87,7 +87,6 @@ namespace ZapFR
 
           private slots:
             void processFlagToggle(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle);
-            void openPostInExternalBrowser();
 
           protected:
             void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
@@ -139,6 +138,8 @@ namespace ZapFR
             void markPostSelectionUnflagged();
             void assignPostSelectionToScriptFolder();
             void removePostSelectionFromScriptFolder();
+
+            void openSelectedPostsInExternalBrowser(const std::function<void(const QString&)>& openHandler);
 
             static constexpr uint64_t msPostsPerPage{100};
         };

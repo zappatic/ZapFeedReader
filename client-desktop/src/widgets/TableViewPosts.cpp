@@ -393,7 +393,7 @@ void ZapFR::Client::TableViewPosts::keyPressEvent(QKeyEvent* event)
     auto k = event->key();
     if (k == Qt::Key_Return || k == Qt::Key_Enter || k == Qt::Key_Space)
     {
-        openPostInExternalBrowser();
+        openSelectedPostsInExternalBrowser([](const QString& url) { QDesktopServices::openUrl(url); });
     }
     QTableView::keyPressEvent(event);
 }
@@ -444,15 +444,44 @@ void ZapFR::Client::TableViewPosts::processFlagToggle(ZapFR::Engine::FlagColor f
     }
 }
 
-void ZapFR::Client::TableViewPosts::openPostInExternalBrowser()
+void ZapFR::Client::TableViewPosts::openSelectedPostsInExternalBrowser(const std::function<void(const QString&)>& openHandler)
 {
-    auto index = currentIndex();
-    if (index.isValid())
+    std::unordered_set<QString> urls;
+    auto selection = selectionModel()->selectedIndexes();
+    for (const auto& s : selection)
     {
-        auto link = index.data(Role::Link).toString();
-        if (!link.isEmpty() && link.startsWith("http"))
+        if (s.column() == Column::TitleCol)
         {
-            QDesktopServices::openUrl(link);
+            auto link = s.data(Role::Link).toString();
+            if (!link.isEmpty() && link.startsWith("http"))
+            {
+                urls.insert(link);
+            }
+        }
+    }
+
+    bool openURLs = urls.size() > 0;
+
+    if (urls.size() > 5)
+    {
+        auto m = QMessageBox(this);
+        m.setIcon(QMessageBox::Icon::Warning);
+        m.addButton(QMessageBox::Cancel);
+        auto openAnywayButton = m.addButton(QMessageBox::Yes);
+        openAnywayButton->setText(tr("Open anyway"));
+        m.setWindowTitle(tr("Multiple posts selected"));
+        m.setText(tr("You have selected %1 posts. Are you sure you want to open that many browser tabs at once?").arg(QString::number(urls.size())));
+        m.setDefaultButton(QMessageBox::Cancel);
+        m.exec();
+        auto cb = m.clickedButton();
+        openURLs = (cb == openAnywayButton);
+    }
+
+    if (openURLs)
+    {
+        for (const auto& url : urls)
+        {
+            openHandler(url);
         }
     }
 }
@@ -847,25 +876,14 @@ void ZapFR::Client::TableViewPosts::connectStuff()
 {
     auto ui = mMainWindow->getUI();
 
-    connect(this, &QTableView::doubleClicked, this, &TableViewPosts::openPostInExternalBrowser);
+    connect(this, &QTableView::doubleClicked, [&]() { openSelectedPostsInExternalBrowser([](const QString& url) { QDesktopServices::openUrl(url); }); });
     connect(mPopupFlagChooser.get(), &PopupFlagChooser::flagToggled, this, &TableViewPosts::processFlagToggle);
 
     connect(mActionMarkAsRead.get(), &QAction::triggered, this, &TableViewPosts::markAsRead);
     connect(mActionMarkSelectionAsUnread.get(), &QAction::triggered, this, &TableViewPosts::markPostSelectionAsUnread);
     connect(mActionMarkSelectionAsRead.get(), &QAction::triggered, this, &TableViewPosts::markPostSelectionAsRead);
     connect(mActionOpenInExternalBrowser.get(), &QAction::triggered,
-            [this]()
-            {
-                auto index = currentIndex();
-                if (index.isValid())
-                {
-                    auto link = index.data(Role::Link).toString();
-                    if (!link.isEmpty() && link.startsWith("http"))
-                    {
-                        QDesktopServices::openUrl(link);
-                    }
-                }
-            });
+            [&]() { openSelectedPostsInExternalBrowser([](const QString& url) { QDesktopServices::openUrl(url); }); });
 
     connect(mActionCopyForTestScript.get(), &QAction::triggered,
             [this]()
@@ -965,18 +983,17 @@ void ZapFR::Client::TableViewPosts::connectStuff()
                             connect(action, &QAction::triggered,
                                     [=, this]()
                                     {
-                                        auto index = currentIndex();
-                                        if (index.isValid())
-                                        {
-                                            auto url = index.data(Role::Link).toString();
-                                            QStringList args;
-                                            for (auto arg : browser.args)
+                                        openSelectedPostsInExternalBrowser(
+                                            [&](const QString& url)
                                             {
-                                                args << arg.replace("{url}", url);
-                                            }
-                                            qint64 pid{0};
-                                            QProcess::startDetached(browser.command, args, QString(), &pid);
-                                        }
+                                                QStringList args;
+                                                for (auto arg : browser.args)
+                                                {
+                                                    args << arg.replace("{url}", url);
+                                                }
+                                                qint64 pid{0};
+                                                QProcess::startDetached(browser.command, args, QString(), &pid);
+                                            });
                                     });
                             mPostContextMenu->addAction(action);
                         }
