@@ -51,39 +51,41 @@ void ZapFR::Engine::OPMLParser::startElement(const Poco::XML::XMLString& /*uri*/
 {
     if (localName == "outline")
     {
+        bool isRSS{false};
+        std::string text = "Untitled feed";
+
         auto textIndex = attrList.getIndex("", "text");
         if (textIndex > -1)
         {
-            bool isRSS{false};
-            auto text = attrList.getValue(textIndex);
+            text = attrList.getValue(textIndex);
+        }
 
-            // Even though the spec says to include type="rss", some OPML files don't have this
-            // The rule to determine whether an outline is an rss feed is the fact that it has
-            // a xmlUrl attribute that starts with 'http'
+        // Even though the spec says to include type="rss", some OPML files don't have this
+        // The rule to determine whether an outline is an rss feed is the fact that it has
+        // a xmlUrl attribute that starts with 'http'
 
-            auto xmlUrlIndex = attrList.getIndex("", "xmlUrl");
-            if (xmlUrlIndex > -1)
+        auto xmlUrlIndex = attrList.getIndex("", "xmlUrl");
+        if (xmlUrlIndex > -1)
+        {
+            auto xmlUrl = attrList.getValue(xmlUrlIndex);
+            if (xmlUrl.starts_with("http"))
             {
-                auto xmlUrl = attrList.getValue(xmlUrlIndex);
-                if (xmlUrl.starts_with("http"))
-                {
-                    isRSS = true;
-                    mCurrentOutlineIsFeed = true;
+                isRSS = true;
+                mCurrentOutlineIsFeed = true;
 
-                    OPMLEntry entry;
-                    entry.title = text;
-                    entry.url = xmlUrl;
-                    entry.folderHierarchy = mCurrentFolderHierarchy;
-                    mEntries.emplace_back(entry);
-                }
+                OPMLEntry entry;
+                entry.title = text;
+                entry.url = xmlUrl;
+                entry.folderHierarchy = mCurrentFolderHierarchy;
+                mEntries.emplace_back(entry);
             }
+        }
 
-            if (!isRSS)
-            {
-                // treat it as a subfolder
-                mCurrentOutlineIsFeed = false;
-                mCurrentFolderHierarchy.push_back(text);
-            }
+        if (!isRSS)
+        {
+            // treat it as a subfolder
+            mCurrentOutlineIsFeed = false;
+            mCurrentFolderHierarchy.push_back(text);
         }
     }
 }
