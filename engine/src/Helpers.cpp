@@ -86,6 +86,27 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std
         }
     }
 
+    // stupid exception for YouTube's consent form bullshit
+    auto host = url.getHost();
+    if (Poco::endsWith(host, std::string("youtube.com")) || Poco::endsWith(host, std::string("youtu.be")) || Poco::endsWith(host, std::string("ytimg.com")))
+    {
+        auto consentBullshitFound{false};
+        auto q = url.getQueryParameters();
+        for (const auto& [k, v] : q)
+        {
+            if (k == "ucbcb")
+            {
+                consentBullshitFound = true;
+                break;
+            }
+        }
+        if (!consentBullshitFound)
+        {
+            q.emplace_back("ucbcb", "1");
+            url.setQueryParameters(q);
+        }
+    }
+
     // lambda to convert relative url to absolute url, in case a 301/302 redirect is received
     const auto ensureRedirectLocationIsAbsolute = [](const Poco::URI& originalURL, const std::string& newLocation) -> Poco::URI
     {

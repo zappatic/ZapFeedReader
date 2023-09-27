@@ -47,9 +47,9 @@ std::string ZapFR::Engine::FeedParserATOM10::link() const
         if (linkNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
         {
             auto linkEl = dynamic_cast<Poco::XML::Element*>(linkNode);
-            if (linkEl->hasAttribute("rel") && linkEl->getAttribute("rel") == "alternate")
+            if (linkEl->hasAttribute("rel") && linkEl->getAttribute("rel") == "alternate" && linkEl->hasAttribute("href"))
             {
-                link = linkEl->innerText();
+                link = linkEl->getAttribute("href");
                 break;
             }
         }
