@@ -95,6 +95,8 @@ namespace ZapFR
             std::unique_ptr<QAction> mActionExit{nullptr};
             std::unique_ptr<QAction> mActionBackToPosts{nullptr};
 
+            bool mForceClose{false};
+
             QString dataDir() const;
             QString settingsFile() const;
 

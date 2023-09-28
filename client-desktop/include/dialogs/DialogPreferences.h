@@ -53,6 +53,7 @@ namespace ZapFR
             bool autoRefreshEnabled() const;
             bool detectBrowsersEnabled() const;
             bool hideLocalSource() const;
+            bool minimizeInsteadOfClose() const;
             ZapFR::Engine::LogLevel logLevel() const;
 
             enum Role

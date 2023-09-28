@@ -169,14 +169,23 @@ void ZapFR::Client::MainWindow::initializeUI()
     ui->menu_Hamburger->addAction(mActionExit.get());
 }
 
-void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* /*event*/)
+void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* event)
 {
     saveSettings();
-    if (mStartupDetectBrowsersThread != nullptr && mStartupDetectBrowsersThread->joinable())
+
+    if (mPreferences->minimizeInsteadOfClose && !mForceClose)
     {
-        mStartupDetectBrowsersThread->join();
+        event->ignore();
+        setWindowState(Qt::WindowMinimized);
     }
-    ZapFR::Engine::Agent::getInstance()->joinAll();
+    else
+    {
+        if (mStartupDetectBrowsersThread != nullptr && mStartupDetectBrowsersThread->joinable())
+        {
+            mStartupDetectBrowsersThread->join();
+        }
+        ZapFR::Engine::Agent::getInstance()->joinAll();
+    }
 }
 
 void ZapFR::Client::MainWindow::saveSettings() const
@@ -196,6 +205,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(SETTING_POST_FONTSIZE, mPreferences->postFontSize);
     root.insert(SETTING_POST_DETECTBROWSERS, mPreferences->detectBrowsers);
     root.insert(SETTING_UI_HIDE_LOCAL_SOURCE, mPreferences->hideLocalSource);
+    root.insert(SETTING_UI_MINIMIZE_INSTEAD_OF_CLOSE, mPreferences->minimizeInsteadOfClose);
     root.insert(SETTING_FEEDS_REFRESH_BEHAVIOUR, mPreferences->refreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     root.insert(SETTING_FEEDS_AUTOREFRESH_INTERVAL, static_cast<int32_t>(ar->feedRefreshInterval()));
@@ -272,6 +282,10 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 if (root.contains(SETTING_UI_HIDE_LOCAL_SOURCE))
                 {
                     mPreferences->hideLocalSource = root.value(SETTING_UI_HIDE_LOCAL_SOURCE).toBool();
+                }
+                if (root.contains(SETTING_UI_MINIMIZE_INSTEAD_OF_CLOSE))
+                {
+                    mPreferences->minimizeInsteadOfClose = root.value(SETTING_UI_MINIMIZE_INSTEAD_OF_CLOSE).toBool();
                 }
                 if (root.contains(SETTING_FEEDS_REFRESH_BEHAVIOUR))
                 {
@@ -866,6 +880,7 @@ void ZapFR::Client::MainWindow::showPreferences()
                         mPreferences->detectBrowsers = mDialogPreferences->detectBrowsersEnabled();
 
                         mPreferences->hideLocalSource = mDialogPreferences->hideLocalSource();
+                        mPreferences->minimizeInsteadOfClose = mDialogPreferences->minimizeInsteadOfClose();
                         ui->treeViewSources->reload();
 
                         mPreferences->refreshBehaviour = mDialogPreferences->refreshBehaviour();
@@ -919,7 +934,12 @@ ZapFR::Client::Theme ZapFR::Client::MainWindow::getCurrentColorTheme() const
 
 void ZapFR::Client::MainWindow::connectStuff()
 {
-    connect(mActionExit.get(), &QAction::triggered, [&]() { QGuiApplication::quit(); });
+    connect(mActionExit.get(), &QAction::triggered,
+            [&]()
+            {
+                mForceClose = true;
+                QGuiApplication::quit();
+            });
     connect(mActionShowPreferences.get(), &QAction::triggered, this, &MainWindow::showPreferences);
     connect(mActionBackToPosts.get(), &QAction::triggered, [&]() { setContentPane(ContentPane::Posts); });
 

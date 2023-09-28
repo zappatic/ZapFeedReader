@@ -93,6 +93,7 @@ namespace ZapFR
         static const QString SETTING_UI_THEME = "ui.theme";
         static const QString SETTING_UI_FONTSIZE = "ui.fontsize";
         static const QString SETTING_UI_HIDE_LOCAL_SOURCE = "ui.hidelocalsource";
+        static const QString SETTING_UI_MINIMIZE_INSTEAD_OF_CLOSE = "ui.minimizeinsteadofclose";
         static const QString SETTING_POST_FONTSIZE = "post.fontsize";
         static const QString SETTING_POST_DETECTBROWSERS = "post.detectbrowsers";
         static const QString SETTING_FEEDS_REFRESH_BEHAVIOUR = "feeds.refreshbehaviour";
@@ -142,6 +143,7 @@ namespace ZapFR
             RefreshBehaviour refreshBehaviour{RefreshBehaviour::CurrentSelection};
             bool detectBrowsers{false};
             bool hideLocalSource{false};
+            bool minimizeInsteadOfClose{false};
         };
 
         static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
