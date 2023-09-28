@@ -39,6 +39,7 @@ namespace ZapFR
             void clearLogs() override;
 
             void update(const std::string& newTitle) override;
+            void sort(SortMethod sortMethod) override;
 
             void fetchSubfolders();
             void fetchStatistics();

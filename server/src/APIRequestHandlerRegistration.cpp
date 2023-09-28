@@ -260,6 +260,19 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Sorts all the subfolders and feeds in a given folder)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/folder/([0-9]+)/sort$)", R"(/folder/<folderID>/sort)");
+				entry->addURIParameter({R"(folderID)", R"(The id of the folder to sort)"});
+				entry->addBodyParameter({R"(sortMethod)", false, R"(The method of sorting. Currently supported: 'alphaAsc' (default))"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Object)");
+				entry->setHandler(ZapFR::Server::APIHandler_folder_sort);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Folders)", R"(Updates the properties of a folder)");
 				entry->setMethod("PATCH");
 				entry->setPath(R"(^\/folder/([0-9]+)$)", R"(/folder/<folderID>)");

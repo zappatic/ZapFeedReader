@@ -86,6 +86,7 @@ namespace ZapFR
             QAction* actionExportOPML() const noexcept { return mActionExportOPML.get(); }
             QAction* actionViewProperties() const noexcept { return mActionViewProperties.get(); }
             QAction* actionOpenAssociatedWebsite() const noexcept { return mActionOpenAssociatedWebsite.get(); }
+            QAction* actionSortFolder() const noexcept { return mActionSortFolder.get(); }
 
             enum class DisplayMode
             {
@@ -133,6 +134,7 @@ namespace ZapFR
 
             void addFolder();
             void editFolder();
+            void sortFolder();
             void removeFolder();
 
             void addFeed();
@@ -175,6 +177,7 @@ namespace ZapFR
             std::unique_ptr<QAction> mActionExportOPML{nullptr};
             std::unique_ptr<QAction> mActionViewProperties{nullptr};
             std::unique_ptr<QAction> mActionOpenAssociatedWebsite{nullptr};
+            std::unique_ptr<QAction> mActionSortFolder{nullptr};
 
             uint64_t mPreviouslySelectedSourceID{0};
             uint64_t mInitialSourceCount{0};

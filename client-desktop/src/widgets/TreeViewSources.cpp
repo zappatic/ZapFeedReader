@@ -46,6 +46,7 @@ ZapFR::Client::TreeViewSources::TreeViewSources(QWidget* parent) : TreeViewPalet
     mActionRemoveFeed = std::make_unique<QAction>(tr("Remove feed"), this);
     mActionAddFolder = std::make_unique<QAction>(tr("Add folder"), this);
     mActionEditFolder = std::make_unique<QAction>(tr("Edit folder"), this);
+    mActionSortFolder = std::make_unique<QAction>(tr("Sort folder alphabetically"), this);
     mActionRemoveFolder = std::make_unique<QAction>(tr("Remove folder"), this);
     mActionToolbarRefresh = std::make_unique<QAction>(tr("Refresh"), this);
     mActionRefresh = std::make_unique<QAction>(tr("Refresh"), this);
@@ -1056,6 +1057,22 @@ void ZapFR::Client::TreeViewSources::removeFolder()
     }
 }
 
+void ZapFR::Client::TreeViewSources::sortFolder()
+{
+    auto index = currentIndex();
+    if (index.isValid())
+    {
+        auto type = index.data(Role::Type).toULongLong();
+        if (type == EntryType::Folder)
+        {
+            auto sourceID = index.data(Role::ParentSourceID).toULongLong();
+            auto folderID = index.data(Role::ID).toULongLong();
+            ZapFR::Engine::Agent::getInstance()->queueSortFolder(sourceID, folderID, ZapFR::Engine::SortMethod::AlphabeticallyAscending,
+                                                                 [&]() { QMetaObject::invokeMethod(this, [=, this]() { reload(); }); });
+        }
+    }
+}
+
 void ZapFR::Client::TreeViewSources::addFeed()
 {
     if (mDialogAddFeed == nullptr)
@@ -1551,6 +1568,7 @@ void ZapFR::Client::TreeViewSources::connectStuff()
     connect(mActionAddFolder.get(), &QAction::triggered, this, &TreeViewSources::addFolder);
     connect(mActionRemoveFolder.get(), &QAction::triggered, this, &TreeViewSources::removeFolder);
     connect(mActionEditFolder.get(), &QAction::triggered, this, &TreeViewSources::editFolder);
+    connect(mActionSortFolder.get(), &QAction::triggered, this, &TreeViewSources::sortFolder);
     connect(mActionAddFeed.get(), &QAction::triggered, this, &TreeViewSources::addFeed);
     connect(mActionRefresh.get(), &QAction::triggered, this, &TreeViewSources::refreshViaContextMenu);
     connect(mActionToolbarRefresh.get(), &QAction::triggered, this, &TreeViewSources::refreshViaToolbarButton);
@@ -1748,6 +1766,7 @@ void ZapFR::Client::TreeViewSources::createContextMenus()
     mContextMenuFolder->addSeparator();
     mContextMenuFolder->addAction(mActionAddFeed.get());
     mContextMenuFolder->addAction(mActionAddFolder.get());
+    mContextMenuFolder->addAction(mActionSortFolder.get());
     mContextMenuFolder->addAction(mActionEditFolder.get());
     mContextMenuFolder->addAction(mActionRemoveFolder.get());
     mContextMenuFolder->addSeparator();

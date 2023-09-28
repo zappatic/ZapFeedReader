@@ -34,6 +34,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/folder/AgentFolderMove.cpp
     agents/folder/AgentFolderRefresh.cpp
     agents/folder/AgentFolderRemove.cpp
+    agents/folder/AgentFolderSort.cpp
     agents/folder/AgentFolderUpdate.cpp
     agents/folder/AgentFoldersGet.cpp
     agents/post/AgentPostGet.cpp

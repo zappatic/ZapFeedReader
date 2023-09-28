@@ -55,6 +55,7 @@ namespace ZapFR
                 FolderMove,
                 FolderRefresh,
                 FolderRemove,
+                FolderSort,
                 FolderUpdate,
                 FoldersGet,
                 MonitorFeedRefreshCompletion,

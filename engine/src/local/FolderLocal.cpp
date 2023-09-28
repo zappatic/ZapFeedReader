@@ -446,6 +446,90 @@ void ZapFR::Engine::FolderLocal::update(const std::string& newTitle)
     updateStmt << "UPDATE folders SET title=? WHERE id=?", useRef(newTitle), use(mID), now;
 }
 
+void ZapFR::Engine::FolderLocal::sort(SortMethod sortMethod)
+{
+    struct Sortable
+    {
+        Sortable(uint64_t sortableID, const std::string& sortableTitle) : id(sortableID), title(sortableTitle) {}
+        uint64_t id;
+        std::string title;
+    };
+
+    // sort feeds
+    std::vector<Sortable> feeds{};
+    {
+        uint64_t feedID{0};
+        std::string title{""};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT id,title FROM feeds WHERE folder=?", use(mID), into(feedID), into(title), range(0, 1);
+        while (!selectStmt.done())
+        {
+            if (selectStmt.execute() > 0)
+            {
+                feeds.emplace_back(feedID, title);
+            }
+        }
+    }
+
+    if (feeds.size() > 0)
+    {
+        switch (sortMethod)
+        {
+            case SortMethod::AlphabeticallyAscending:
+            {
+                std::sort(feeds.begin(), feeds.end(), [](const Sortable& a, const Sortable& b) { return Poco::icompare(a.title, b.title) < 0; });
+                break;
+            }
+        }
+
+        uint64_t sortOrder{10};
+        for (const auto& sortable : feeds)
+        {
+            uint64_t feedID = sortable.id;
+            Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+            updateStmt << "UPDATE feeds SET sortOrder=? WHERE id=?", use(sortOrder), use(feedID), now;
+            sortOrder += 10;
+        }
+    }
+
+    // sort folders
+    std::vector<Sortable> folders{};
+    {
+        uint64_t folderID{0};
+        std::string title{""};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT id,title FROM folders WHERE parent=?", use(mID), into(folderID), into(title), range(0, 1);
+        while (!selectStmt.done())
+        {
+            if (selectStmt.execute() > 0)
+            {
+                folders.emplace_back(folderID, title);
+            }
+        }
+    }
+
+    if (folders.size() > 0)
+    {
+        switch (sortMethod)
+        {
+            case SortMethod::AlphabeticallyAscending:
+            {
+                std::sort(folders.begin(), folders.end(), [](const Sortable& a, const Sortable& b) { return Poco::icompare(a.title, b.title) < 0; });
+                break;
+            }
+        }
+
+        uint64_t sortOrder{10};
+        for (const auto& sortable : folders)
+        {
+            uint64_t folderID = sortable.id;
+            Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
+            updateStmt << "UPDATE folders SET sortOrder=? WHERE id=?", use(sortOrder), use(folderID), now;
+            sortOrder += 10;
+        }
+    }
+}
+
 std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::FolderLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                               const std::string& orderClause, const std::string& limitClause,
                                                                                               const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)

@@ -72,6 +72,7 @@ namespace ZapFR
             virtual void clearLogs() = 0;
 
             virtual void update(const std::string& newTitle) = 0;
+            virtual void sort(SortMethod sortMethod) = 0;
 
             void setDataFetched(bool b) { mDataFetched = b; }
 

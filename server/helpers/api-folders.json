@@ -110,6 +110,26 @@
     "contentType": "application/json",
     "jsonOutput": "Object"
   },
+  "folder-sort": {
+    "section": "Folders",
+    "description": "Sorts all the subfolders and feeds in a given folder",
+    "method": "POST",
+    "path": "^\\/folder/([0-9]+)/sort$",
+    "prettyPath": "/folder/<folderID>/sort",
+    "uriParameters": [
+      { "name": "folderID", "description": "The id of the folder to sort" }
+    ],
+    "parameters": [
+      {
+        "name": "sortMethod",
+        "required": false,
+        "description": "The method of sorting. Currently supported: 'alphaAsc' (default)"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Object"
+  },
   "folder-markasread": {
     "section": "Folders",
     "description": "Marks all posts in the folder as read, returns the affected feedIDs",

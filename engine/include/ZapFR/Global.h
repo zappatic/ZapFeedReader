@@ -57,6 +57,7 @@
 #include <Poco/ThreadPool.h>
 #include <Poco/Timer.h>
 #include <Poco/URI.h>
+#include <Poco/UTF8String.h>
 #include <Poco/UUIDGenerator.h>
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/SystemConfiguration.h>
@@ -92,6 +93,11 @@ namespace ZapFR
         {
             Server,
             Client
+        };
+
+        enum class SortMethod
+        {
+            AlphabeticallyAscending,
         };
 
         static const uint64_t APIVersion{1};

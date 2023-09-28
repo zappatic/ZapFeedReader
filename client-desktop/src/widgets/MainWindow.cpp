@@ -549,6 +549,7 @@ void ZapFR::Client::MainWindow::configureIcons()
     ui->treeViewSources->actionRemoveSource()->setIcon(configureIcon(":/remove.svg"));
     ui->treeViewSources->actionViewProperties()->setIcon(configureIcon(":/properties.svg"));
     ui->treeViewSources->actionOpenAssociatedWebsite()->setIcon(configureIcon(":/globe.svg"));
+    ui->treeViewSources->actionSortFolder()->setIcon(configureIcon(":/sort.svg"));
     ui->tableViewPosts->actionMarkAsRead()->setIcon(configureIcon(":/markAsRead.svg"));
     ui->tableViewLogs->actionViewLogs()->setIcon(configureIcon(":/viewLogs.svg"));
     ui->tableViewLogs->actionClearLogs()->setIcon(configureIcon(":/remove.svg"));

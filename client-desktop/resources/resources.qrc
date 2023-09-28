@@ -26,5 +26,6 @@
         <file>hamburger.svg</file>
         <file>properties.svg</file>
         <file>globe.svg</file>
+        <file>sort.svg</file>
     </qresource>
 </RCC>

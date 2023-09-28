@@ -171,6 +171,29 @@ void ZapFR::Engine::FolderRemote::update(const std::string& newTitle)
     }
 }
 
+void ZapFR::Engine::FolderRemote::sort(SortMethod sortMethod)
+{
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath(fmt::format("/folder/{}/sort", mID));
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        std::map<std::string, std::string> params;
+        switch (sortMethod)
+        {
+            case SortMethod::AlphabeticallyAscending:
+            {
+                params["sortMethod"] = "alphaAsc";
+                break;
+            }
+        }
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+    }
+}
+
 std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::FolderRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)
 {
     std::function<std::unique_ptr<Folder>(const Poco::JSON::Object::Ptr)> constructFolder;
