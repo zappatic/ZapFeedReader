@@ -33,25 +33,45 @@ ZapFR::Client::TableViewLogs::TableViewLogs(QWidget* parent) : TableViewPaletteC
 
     mActionViewLogs = std::make_unique<QAction>(tr("View logs"), this);
     mActionClearLogs = std::make_unique<QAction>(tr("Clear logs"), this);
+    mActionCopyMessages = std::make_unique<QAction>(tr("Copy"), this);
 }
 
 void ZapFR::Client::TableViewLogs::setMainWindow(MainWindow* mw) noexcept
 {
     mMainWindow = mw;
     connectStuff();
+    createContextMenu();
 }
 
 void ZapFR::Client::TableViewLogs::reload()
 {
+    static auto whitespaceRe = QRegularExpression(R"(\s+)");
+
     // lambda for the callback, retrieving the logs
     auto processLogs = [&](uint64_t sourceID, const std::vector<ZapFR::Engine::Log*> logs, uint64_t page, uint64_t totalRecordCount)
     {
+        const auto setItemData = [&](QStandardItem* item, ZapFR::Engine::Log* log)
+        {
+            auto message = QString::fromUtf8(log->message());
+            message.replace(whitespaceRe, " ");
+
+            item->setData(message, Role::Message);
+            item->setData(QVariant::fromValue<uint64_t>(log->id()), Role::ID);
+            item->setData(QVariant::fromValue<uint64_t>(log->level()), Role::Level);
+            item->setData(QString::fromUtf8(log->timestamp()), Role::Timestamp);
+            if (log->feedID().has_value())
+            {
+                item->setData(QVariant::fromValue<uint64_t>(log->feedID().value()), Role::FeedID);
+                item->setData(QVariant::fromValue<uint64_t>(sourceID), Role::ParentSourceID);
+            }
+        };
+
         QList<QList<QStandardItem*>> rows;
         for (const auto& log : logs)
         {
             auto logLevelItem = new QStandardItem("");
+            setItemData(logLevelItem, log);
             auto logLevel = log->level();
-            logLevelItem->setData(QVariant::fromValue<uint64_t>(logLevel), Role::Level);
             switch (logLevel)
             {
                 case ZapFR::Engine::LogLevel::Debug:
@@ -78,23 +98,19 @@ void ZapFR::Client::TableViewLogs::reload()
 
             auto dateLog = QString::fromUtf8(log->timestamp());
             auto dateItem = new QStandardItem(Utilities::prettyDate(dateLog));
-            dateItem->setData(QVariant::fromValue<uint64_t>(log->id()), Role::ID);
+            setItemData(dateItem, log);
 
             auto feedItem = new QStandardItem("");
-            if (log->feedID().has_value())
-            {
-                feedItem->setData(QVariant::fromValue<uint64_t>(log->feedID().value()), Role::FeedID);
-                feedItem->setData(QVariant::fromValue<uint64_t>(sourceID), Role::ParentSourceID);
-            }
+            setItemData(feedItem, log);
             if (log->feedTitle().has_value())
             {
                 feedItem->setData(QString::fromUtf8(log->feedTitle().value()), Qt::ToolTipRole);
             }
 
             auto message = QString::fromUtf8(log->message());
-            static auto whitespaceRe = QRegularExpression(R"(\s+)");
             message.replace(whitespaceRe, " ");
             auto titleItem = new QStandardItem(message);
+            setItemData(titleItem, log);
 
             QList<QStandardItem*> rowData;
             rowData << logLevelItem << feedItem << dateItem << titleItem;
@@ -162,6 +178,8 @@ void ZapFR::Client::TableViewLogs::populateLogs(const QList<QList<QStandardItem*
 
 void ZapFR::Client::TableViewLogs::connectStuff()
 {
+    connect(mActionCopyMessages.get(), &QAction::triggered, this, &TableViewLogs::copyMessages);
+
     connect(mActionViewLogs.get(), &QAction::triggered,
             [&]()
             {
@@ -243,4 +261,42 @@ void ZapFR::Client::TableViewLogs::connectStuff()
                                                       reload();
                                                   });
             });
+
+    connect(this, &TableViewLogs::customContextMenuRequested, [&](const QPoint& p) { mLogsContextMenu->popup(viewport()->mapToGlobal(p)); });
+}
+
+void ZapFR::Client::TableViewLogs::createContextMenu()
+{
+    mLogsContextMenu = std::make_unique<QMenu>(nullptr);
+    mLogsContextMenu->addAction(mActionCopyMessages.get());
+}
+
+void ZapFR::Client::TableViewLogs::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_C && ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier))
+    {
+        copyMessages();
+        return;
+    }
+    QTableView::keyPressEvent(event);
+}
+
+void ZapFR::Client::TableViewLogs::copyMessages()
+{
+    QString stringToCopy;
+    QTextStream ss(&stringToCopy);
+
+    auto selection = selectionModel()->selectedIndexes();
+    for (const auto& selectedRow : selection)
+    {
+        if (selectedRow.column() == Column::MessageCol)
+        {
+            ss << "At: " << selectedRow.data(Role::Timestamp).toString() << "\n";
+            ss << "Level: " << selectedRow.data(Role::Level).toULongLong() << "\n";
+            ss << "Message: " << selectedRow.data(Role::Message).toString() << "\n\n";
+        }
+    }
+
+    QApplication::clipboard()->setText(stringToCopy);
+    mMainWindow->setStatusBarMessage(tr("Log message(s) copied to clipboard"));
 }

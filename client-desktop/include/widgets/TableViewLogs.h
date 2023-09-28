@@ -61,14 +61,24 @@ namespace ZapFR
                 FeedID = Qt::ItemDataRole::UserRole + 2,
                 Level = Qt::ItemDataRole::UserRole + 3,
                 ParentSourceID = Qt::ItemDataRole::UserRole + 4,
+                Message = Qt::ItemDataRole::UserRole + 5,
+                Timestamp = Qt::ItemDataRole::UserRole + 6,
             };
+
+          protected:
+            void keyPressEvent(QKeyEvent* event) override;
+
+          private slots:
+            void copyMessages();
 
           private:
             MainWindow* mMainWindow{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelLogs{nullptr};
+            std::unique_ptr<QMenu> mLogsContextMenu{nullptr};
 
             std::unique_ptr<QAction> mActionViewLogs{nullptr};
             std::unique_ptr<QAction> mActionClearLogs{nullptr};
+            std::unique_ptr<QAction> mActionCopyMessages{nullptr};
 
             uint64_t mCurrentLogPage{1};
             uint64_t mCurrentLogCount{0};
@@ -76,6 +86,7 @@ namespace ZapFR
 
             void populateLogs(const QList<QList<QStandardItem*>>& logs = {}, uint64_t pageNumber = 1, uint64_t totalLogCount = 0);
             void connectStuff();
+            void createContextMenu();
 
             static constexpr uint64_t msLogsPerPage{100};
         };
