@@ -33,7 +33,7 @@
 //		isEnabled (REQD) - Whether the script is enabled or not ('true' or 'false') - apiRequest->parameter("isEnabled")
 //		runOnEvents - A comma separated list of events the script should run on - apiRequest->parameter("runOnEvents")
 //		runOnFeedIDs - A comma separated list of feedIDs the script should run for - apiRequest->parameter("runOnFeedIDs")
-//		script (REQD) - The script contents - apiRequest->parameter("script")
+//		script - The script contents - apiRequest->parameter("script")
 //
 //	Content-Type: application/json
 //	JSON output: Object
