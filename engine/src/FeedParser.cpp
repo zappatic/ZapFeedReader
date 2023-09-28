@@ -48,6 +48,16 @@ std::string ZapFR::Engine::FeedParser::fetchNodeValue(Poco::XML::Node* parent, c
     return "";
 }
 
+std::string ZapFR::Engine::FeedParser::fetchNodeValueNS(Poco::XML::Node* parent, const std::string& nodeName, const Poco::XML::Node::NSMap& nsMap) const
+{
+    auto node = parent->getNodeByPathNS(nodeName, nsMap);
+    if (node != nullptr)
+    {
+        return node->innerText();
+    }
+    return "";
+}
+
 std::string ZapFR::Engine::FeedParser::fetchNodeValueInnerXML(Poco::XML::Node* parent, const std::string& nodeName) const
 {
     auto node = parent->getNodeByPath(nodeName);

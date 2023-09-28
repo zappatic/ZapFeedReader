@@ -77,10 +77,11 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
         item.author = fetchNodeValue(itemNode, "author");
         item.content = fetchNodeValueInnerXML(itemNode, "description");
 
-        // see if there's a content:encoded with more information present, if so, replace the body of the text with that
         Poco::XML::Element::NSMap nsMap;
         nsMap.declarePrefix("content", "http://purl.org/rss/1.0/modules/content/");
+        nsMap.declarePrefix("torrent", "http://xmlns.ezrss.it/0.1/");
 
+        // see if there's a content:encoded with more information present, if so, replace the body of the text with that
         auto contentEncodedNode = itemNode->getNodeByPathNS("content:encoded", nsMap);
         if (contentEncodedNode != nullptr)
         {
@@ -103,6 +104,18 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
             item.enclosures.emplace_back(e);
         }
         enclosureNodes->release();
+
+        // see if there's a torrent:magnetURI and torrent:contentLength present, if so, add that as an enclosure
+        auto magnetURI = fetchNodeValueNS(itemNode, "torrent:magnetURI", nsMap);
+        if (!magnetURI.empty())
+        {
+            Post::Enclosure e;
+            e.url = magnetURI;
+            e.mimeType = "application/x-bittorrent";
+            auto contentLength = fetchNodeValueNS(itemNode, "torrent:contentLength", nsMap);
+            Poco::NumberParser::tryParseUnsigned64(contentLength, e.size);
+            item.enclosures.emplace_back(e);
+        }
 
         item.commentsURL = fetchNodeValue(itemNode, "comments");
 

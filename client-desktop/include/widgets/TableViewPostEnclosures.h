@@ -64,6 +64,9 @@ namespace ZapFR
             void copyLink();
             void showContextMenu(const QPoint& p);
 
+          protected:
+            void keyPressEvent(QKeyEvent* event) override;
+
           private:
             MainWindow* mMainWindow{nullptr};
             std::unique_ptr<QStandardItemModel> mItemModelPostEnclosures{nullptr};

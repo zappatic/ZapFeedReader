@@ -68,6 +68,7 @@ namespace ZapFR
 
             std::string fetchNodeValue(const std::string& nodeName) const;
             std::string fetchNodeValue(Poco::XML::Node* parent, const std::string& nodeName) const;
+            std::string fetchNodeValueNS(Poco::XML::Node* parent, const std::string& nodeName, const Poco::XML::Node::NSMap& nsMap) const;
             std::string fetchNodeValueInnerXML(Poco::XML::Node* parent, const std::string& nodeName) const;
             Poco::XML::Node* fetchNode(Poco::XML::Node* parent, const std::string& nodeName) const;
         };

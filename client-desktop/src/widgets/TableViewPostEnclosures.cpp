@@ -26,7 +26,7 @@ ZapFR::Client::TableViewPostEnclosures::TableViewPostEnclosures(QWidget* parent)
     setModel(mItemModelPostEnclosures.get());
 
     mContextMenu = std::make_unique<QMenu>(nullptr);
-    mCopyLinkAction = std::make_unique<QAction>(tr("Copy link"));
+    mCopyLinkAction = std::make_unique<QAction>(tr("Copy URL"));
     mOpenInBrowserAction = std::make_unique<QAction>(tr("Open in external browser"));
     mContextMenu->addAction(mCopyLinkAction.get());
     mContextMenu->addAction(mOpenInBrowserAction.get());
@@ -37,13 +37,25 @@ ZapFR::Client::TableViewPostEnclosures::TableViewPostEnclosures(QWidget* parent)
     connect(mOpenInBrowserAction.get(), &QAction::triggered, this, &TableViewPostEnclosures::openEnclosureInExternalBrowser);
 }
 
+void ZapFR::Client::TableViewPostEnclosures::keyPressEvent(QKeyEvent* event)
+{
+    auto index = currentIndex();
+    if (event->key() == Qt::Key_C && ((event->modifiers() & Qt::ControlModifier) == Qt::ControlModifier))
+    {
+        QApplication::clipboard()->setText(index.data(Role::Link).toString());
+        mMainWindow->setStatusBarMessage(tr("Enclosure URL copied to clipboard"));
+        return;
+    }
+    QTableView::keyPressEvent(event);
+}
+
 void ZapFR::Client::TableViewPostEnclosures::openEnclosureInExternalBrowser()
 {
     auto index = currentIndex();
     if (index.isValid())
     {
         auto link = index.data(Role::Link).toString();
-        if (!link.isEmpty() && link.startsWith("http"))
+        if (!link.isEmpty() && (link.startsWith("http") || link.startsWith("magnet:")))
         {
             QDesktopServices::openUrl(link);
         }
