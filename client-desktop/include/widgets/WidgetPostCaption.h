@@ -19,8 +19,6 @@
 #ifndef ZAPFR_CLIENT_WIDGETPOSTCAPTION_H
 #define ZAPFR_CLIENT_WIDGETPOSTCAPTION_H
 
-#include "ClientGlobal.h"
-
 namespace ZapFR
 {
     namespace Client

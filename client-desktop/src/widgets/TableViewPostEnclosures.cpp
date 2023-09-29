@@ -16,8 +16,16 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/TableViewPostEnclosures.h"
+#include <QApplication>
+#include <QClipboard>
+#include <QDesktopServices>
+#include <QHeaderView>
+#include <QMenu>
+#include <QMimeDatabase>
+#include <QProcess>
+
 #include "widgets/MainWindow.h"
+#include "widgets/TableViewPostEnclosures.h"
 #include "widgets/WebEngineViewPost.h"
 
 ZapFR::Client::TableViewPostEnclosures::TableViewPostEnclosures(QWidget* parent) : TableViewPaletteCorrected(parent)

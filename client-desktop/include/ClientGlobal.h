@@ -19,85 +19,38 @@
 #ifndef ZAPFR_CLIENT_CLIENTGLOBAL_H
 #define ZAPFR_CLIENT_CLIENTGLOBAL_H
 
-#include <QApplication>
-#include <QClipboard>
-#include <QComboBox>
-#include <QDate>
-#include <QDesktopServices>
-#include <QDialog>
-#include <QDir>
-#include <QDomDocument>
-#include <QDomElement>
-#include <QDropEvent>
-#include <QFile>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QFontMetrics>
-#include <QGridLayout>
-#include <QGuiApplication>
-#include <QHeaderView>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QLineEdit>
-#include <QLocale>
-#include <QMainWindow>
-#include <QMap>
-#include <QMenu>
-#include <QMessageBox>
-#include <QMimeData>
-#include <QMimeDatabase>
-#include <QMimeType>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QPainter>
-#include <QPainterPath>
-#include <QPalette>
-#include <QProcess>
-#include <QPushButton>
-#include <QRegularExpression>
-#include <QSortFilterProxyModel>
-#include <QSpacerItem>
-#include <QStandardItem>
-#include <QStandardItemModel>
-#include <QStandardPaths>
 #include <QString>
-#include <QStyleHints>
-#include <QStylePainter>
-#include <QStyledItemDelegate>
-#include <QSyntaxHighlighter>
-#include <QTableView>
-#include <QTextCharFormat>
-#include <QTimer>
-#include <QToolTip>
-#include <QTranslator>
-#include <QTreeView>
-#include <QWebEngineContextMenuRequest>
-#include <QWebEnginePage>
-#include <QWebEngineSettings>
-#include <QWebEngineView>
 
 namespace ZapFR
 {
     namespace Client
     {
-        static const QString SETTING_MAINWINDOW_STATE = "mainwindow.state";
-        static const QString SETTING_MAINWINDOW_GEOMETRY = "mainwindow.geometry";
-        static const QString SETTING_SPLITTERSOURCESANDCONTENTPANES_STATE = "splittersourcesandcontentpanes.state";
-        static const QString SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE = "splittersourcesandscriptfolders.state";
-        static const QString SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE = "splitterpoststableandpostview.state";
-        static const QString SETTING_SOURCETREEVIEW_EXPANSION = "sourcetreeview.expansion";
-        static const QString SETTING_UI_THEME = "ui.theme";
-        static const QString SETTING_UI_FONTSIZE = "ui.fontsize";
-        static const QString SETTING_UI_HIDE_LOCAL_SOURCE = "ui.hidelocalsource";
-        static const QString SETTING_UI_MINIMIZE_INSTEAD_OF_CLOSE = "ui.minimizeinsteadofclose";
-        static const QString SETTING_POST_FONTSIZE = "post.fontsize";
-        static const QString SETTING_POST_DETECTBROWSERS = "post.detectbrowsers";
-        static const QString SETTING_FEEDS_REFRESH_BEHAVIOUR = "feeds.refreshbehaviour";
-        static const QString SETTING_FEEDS_AUTOREFRESH_ENABLED = "feeds.autorefresh.enabled";
-        static const QString SETTING_FEEDS_AUTOREFRESH_INTERVAL = "feeds.autorefresh.interval";
-        static const QString SETTING_FEEDS_LOGLEVEL = "feeds.loglevel";
+        namespace Setting
+        {
+            static const QString MainWindowState = "mainwindow.state";
+            static const QString MainWindowGeometry = "mainwindow.geometry";
+            static const QString SplitterSourcesAndContentPanesState = "splittersourcesandcontentpanes.state";
+            static const QString SplitterSourcesAndScriptFoldersState = "splittersourcesandscriptfolders.state";
+            static const QString SplitterPostsTableAdPostViewState = "splitterpoststableandpostview.state";
+            static const QString SourceTreeViewExpansion = "sourcetreeview.expansion";
+            static const QString UITheme = "ui.theme";
+            static const QString UIFontSize = "ui.fontsize";
+            static const QString UIHideLocalSource = "ui.hidelocalsource";
+            static const QString UIMinimizeInsteadOfClose = "ui.minimizeinsteadofclose";
+            static const QString PostFontSize = "post.fontsize";
+            static const QString PostDetectBrowsers = "post.detectbrowsers";
+            static const QString FeedsRefreshBehaviour = "feeds.refreshbehaviour";
+            static const QString FeedsAutoRefreshEnabled = "feeds.autorefresh.enabled";
+            static const QString FeedsAutoRefreshInterval = "feeds.autorefresh.interval";
+            static const QString FeedsLogLevel = "feeds.loglevel";
+        } // namespace Setting
+
+        namespace MimeType
+        {
+            static const QString DraggableFeed = "application/x-zapfr-feed";
+            static const QString DraggableFolder = "application/x-zapfr-folder";
+            static const QString TestPost = "application/x-zapfr-testpost";
+        } // namespace MimeType
 
         enum ContentPane
         {
@@ -143,10 +96,6 @@ namespace ZapFR
             bool hideLocalSource{false};
             bool minimizeInsteadOfClose{false};
         };
-
-        static const QString MIMETYPE_DRAGGABLE_FEED = "application/x-zapfr-feed";
-        static const QString MIMETYPE_DRAGGABLE_FOLDER = "application/x-zapfr-folder";
-        static const QString MIMETYPE_COPIED_TEST_POST = "application/x-zapfr-testpost";
 
         static const uint32_t StatusBarDefaultTimeout{2500};
 

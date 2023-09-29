@@ -19,7 +19,9 @@
 #ifndef ZAPFR_CLIENT_UTILITIES_H
 #define ZAPFR_CLIENT_UTILITIES_H
 
-#include "ClientGlobal.h"
+#include <QPixmap>
+#include <QRectF>
+
 #include "ZapFR/Flag.h"
 
 namespace ZapFR

@@ -19,6 +19,8 @@
 #ifndef ZAPFR_CLIENT_DIALOGEDITFOLDER_H
 #define ZAPFR_CLIENT_DIALOGEDITFOLDER_H
 
+#include <QDialog>
+
 #include "../ClientGlobal.h"
 
 namespace Ui

@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_SYNTAXHIGHLIGHTERLUA_H
 #define ZAPFR_CLIENT_SYNTAXHIGHLIGHTERLUA_H
 
-#include "ClientGlobal.h"
+#include <QRegularExpression>
+#include <QSyntaxHighlighter>
 
 namespace ZapFR
 {

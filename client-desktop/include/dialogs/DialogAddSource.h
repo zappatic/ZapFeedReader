@@ -19,6 +19,10 @@
 #ifndef ZAPFR_CLIENT_DIALOGADDSOURCE_H
 #define ZAPFR_CLIENT_DIALOGADDSOURCE_H
 
+#include <QDialog>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+
 #include "../ClientGlobal.h"
 
 namespace Ui

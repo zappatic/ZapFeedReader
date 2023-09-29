@@ -17,6 +17,9 @@
 */
 
 #include <Poco/NumberParser.h>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMessageBox>
 
 #include "ZapFR/Global.h"
 #include "dialogs/DialogAddSource.h"

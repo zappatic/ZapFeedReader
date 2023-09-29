@@ -19,6 +19,8 @@
 #ifndef ZAPFR_CLIENT_DIALOGTESTSCRIPTEDITENCLOSURE_H
 #define ZAPFR_CLIENT_DIALOGTESTSCRIPTEDITENCLOSURE_H
 
+#include <QDialog>
+
 #include "../ClientGlobal.h"
 
 namespace Ui

@@ -16,8 +16,13 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "models/StandardItemModelSources.h"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMessageBox>
+#include <QMimeData>
+
 #include "ZapFR/Agent.h"
+#include "models/StandardItemModelSources.h"
 #include "widgets/MainWindow.h"
 #include "widgets/TreeViewSources.h"
 
@@ -67,13 +72,13 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
     }
 
     QByteArray json;
-    if (data->hasFormat(MIMETYPE_DRAGGABLE_FEED))
+    if (data->hasFormat(MimeType::DraggableFeed))
     {
-        json = data->data(MIMETYPE_DRAGGABLE_FEED);
+        json = data->data(MimeType::DraggableFeed);
     }
-    else if (data->hasFormat(MIMETYPE_DRAGGABLE_FOLDER))
+    else if (data->hasFormat(MimeType::DraggableFolder))
     {
-        json = data->data(MIMETYPE_DRAGGABLE_FOLDER);
+        json = data->data(MimeType::DraggableFolder);
     }
     else
     {
@@ -100,12 +105,12 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
         newFolder = parent.data(TreeViewSources::Role::ID).toULongLong();
     }
 
-    if (data->hasFormat(MIMETYPE_DRAGGABLE_FEED))
+    if (data->hasFormat(MimeType::DraggableFeed))
     {
         ZapFR::Engine::Agent::getInstance()->queueMoveFeed(parentSourceID, childID, newFolder, newSortOrder,
                                                            [&]() { QMetaObject::invokeMethod(mMainWindow, [this]() { mMainWindow->treeViewSources()->reload(); }); });
     }
-    else if (data->hasFormat(MIMETYPE_DRAGGABLE_FOLDER))
+    else if (data->hasFormat(MimeType::DraggableFolder))
     {
         ZapFR::Engine::Agent::getInstance()->queueMoveFolder(parentSourceID, childID, newFolder, newSortOrder,
                                                              [&]() { QMetaObject::invokeMethod(mMainWindow, [this]() { mMainWindow->treeViewSources()->reload(); }); });
@@ -115,7 +120,7 @@ bool ZapFR::Client::StandardItemModelSources::dropMimeData(const QMimeData* data
 
 QStringList ZapFR::Client::StandardItemModelSources::mimeTypes() const
 {
-    return QStringList() << MIMETYPE_DRAGGABLE_FEED << MIMETYPE_DRAGGABLE_FOLDER;
+    return QStringList() << MimeType::DraggableFeed << MimeType::DraggableFolder;
 }
 
 QMimeData* ZapFR::Client::StandardItemModelSources::mimeData(const QModelIndexList& indexes) const
@@ -140,12 +145,12 @@ QMimeData* ZapFR::Client::StandardItemModelSources::mimeData(const QModelIndexLi
         {
             case TreeViewSources::EntryType::Feed:
             {
-                mimeData->setData(MIMETYPE_DRAGGABLE_FEED, QJsonDocument(o).toJson());
+                mimeData->setData(MimeType::DraggableFeed, QJsonDocument(o).toJson());
                 break;
             }
             case TreeViewSources::EntryType::Folder:
             {
-                mimeData->setData(MIMETYPE_DRAGGABLE_FOLDER, QJsonDocument(o).toJson());
+                mimeData->setData(MimeType::DraggableFolder, QJsonDocument(o).toJson());
                 break;
             }
         }

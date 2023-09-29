@@ -16,13 +16,16 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/TableViewLogs.h"
+#include <QClipboard>
+#include <QMessageBox>
+
 #include "./ui_MainWindow.h"
 #include "Utilities.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/Log.h"
 #include "delegates/ItemDelegateLog.h"
 #include "widgets/MainWindow.h"
+#include "widgets/TableViewLogs.h"
 #include "widgets/TreeViewSources.h"
 
 ZapFR::Client::TableViewLogs::TableViewLogs(QWidget* parent) : TableViewPaletteCorrected(parent)

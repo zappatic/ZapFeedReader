@@ -16,6 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QFile>
+#include <QTimer>
+
 #include "widgets/LineEditSearch.h"
 
 ZapFR::Client::LineEditSearch::LineEditSearch(QWidget* parent) : QLineEdit(parent)

@@ -16,13 +16,21 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/TableViewPosts.h"
+#include <QClipboard>
+#include <QDesktopServices>
+#include <QMessageBox>
+#include <QMimeData>
+#include <QPainter>
+#include <QPen>
+#include <QProcess>
+
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/ScriptFolder.h"
 #include "delegates/ItemDelegatePost.h"
 #include "widgets/MainWindow.h"
 #include "widgets/PopupFlagChooser.h"
+#include "widgets/TableViewPosts.h"
 #include "widgets/TableViewScriptFolders.h"
 #include "widgets/TreeViewSources.h"
 #include "widgets/WebEnginePagePost.h"
@@ -908,7 +916,7 @@ void ZapFR::Client::TableViewPosts::connectStuff()
                                                                                                         auto jsonData =
                                                                                                             QByteArray(json.c_str(), static_cast<ssize_t>(json.length()));
                                                                                                         auto mimeData = new QMimeData();
-                                                                                                        mimeData->setData(MIMETYPE_COPIED_TEST_POST, jsonData);
+                                                                                                        mimeData->setData(MimeType::TestPost, jsonData);
                                                                                                         QGuiApplication::clipboard()->setMimeData(mimeData);
                                                                                                         mMainWindow->setStatusBarMessage(tr("Post copied"));
                                                                                                     });

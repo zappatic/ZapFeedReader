@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_ITEMDELEGATEPOST_H
 #define ZAPFR_CLIENT_ITEMDELEGATEPOST_H
 
-#include "ClientGlobal.h"
+#include <QStyledItemDelegate>
+
 #include "ZapFR/Flag.h"
 
 namespace ZapFR

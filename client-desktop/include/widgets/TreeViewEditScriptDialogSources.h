@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_TREEVIEWEDITSCRIPTDIALOGSOURCES_H
 #define ZAPFR_CLIENT_TREEVIEWEDITSCRIPTDIALOGSOURCES_H
 
-#include "ClientGlobal.h"
+#include <QMouseEvent>
+
 #include "widgets/TreeViewPaletteCorrected.h"
 
 namespace ZapFR

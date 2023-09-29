@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QToolTip>
+
 #include "widgets/TreeViewPaletteCorrected.h"
 
 ZapFR::Client::TreeViewPaletteCorrected::TreeViewPaletteCorrected(QWidget* parent) : QTreeView(parent)

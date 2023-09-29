@@ -21,6 +21,10 @@
 
 #include <thread>
 
+#include <QMainWindow>
+#include <QPushButton>
+#include <QStandardItemModel>
+
 #include "ClientGlobal.h"
 #include "ZapFR/Flag.h"
 #include "ZapFR/base/Post.h"

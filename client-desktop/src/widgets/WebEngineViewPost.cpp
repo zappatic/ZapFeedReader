@@ -20,6 +20,11 @@
 #include <fmt/core.h>
 
 #include <Poco/URI.h>
+#include <QClipboard>
+#include <QDesktopServices>
+#include <QDir>
+#include <QProcess>
+#include <QWebEngineContextMenuRequest>
 
 #include "./ui_MainWindow.h"
 #include "widgets/MainWindow.h"

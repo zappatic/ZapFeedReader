@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QToolTip>
+
 #include "widgets/TableViewPaletteCorrected.h"
 
 ZapFR::Client::TableViewPaletteCorrected::TableViewPaletteCorrected(QWidget* parent) : QTableView(parent)

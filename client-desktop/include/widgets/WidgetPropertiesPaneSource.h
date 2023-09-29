@@ -19,7 +19,7 @@
 #ifndef ZAPFR_CLIENT_WIDGETPROPERTIESPANESOURCE_H
 #define ZAPFR_CLIENT_WIDGETPROPERTIESPANESOURCE_H
 
-#include "ClientGlobal.h"
+#include <QWidget>
 
 namespace Ui
 {

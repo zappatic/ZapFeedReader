@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_SERVER_SERVERGLOBAL_H
-#define ZAPFR_SERVER_SERVERGLOBAL_H
+#ifndef ZAPFR_SERVER_EXCEPTIONS_H
+#define ZAPFR_SERVER_EXCEPTIONS_H
 
 namespace ZapFR
 {
@@ -31,4 +31,4 @@ namespace ZapFR
     } // namespace Server
 } // namespace ZapFR
 
-#endif // ZAPFR_SERVER_SERVERGLOBAL_H
+#endif // ZAPFR_SERVER_EXCEPTIONS_H

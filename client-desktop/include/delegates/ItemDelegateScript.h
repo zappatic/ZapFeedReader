@@ -19,7 +19,7 @@
 #ifndef ZAPFR_CLIENT_ITEMDELEGATESCRIPT_H
 #define ZAPFR_CLIENT_ITEMDELEGATESCRIPT_H
 
-#include "ClientGlobal.h"
+#include <QStyledItemDelegate>
 
 namespace ZapFR
 {

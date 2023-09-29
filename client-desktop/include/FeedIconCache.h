@@ -19,7 +19,7 @@
 #ifndef ZAPFR_CLIENT_FEEDICONCACHE_H
 #define ZAPFR_CLIENT_FEEDICONCACHE_H
 
-#include "ClientGlobal.h"
+#include <QPixmap>
 
 namespace ZapFR
 {

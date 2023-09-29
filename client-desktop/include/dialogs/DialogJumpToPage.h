@@ -19,6 +19,8 @@
 #ifndef ZAPFR_CLIENT_DIALOGJUMPTOPAGE_H
 #define ZAPFR_CLIENT_DIALOGJUMPTOPAGE_H
 
+#include <QDialog>
+
 #include "../ClientGlobal.h"
 
 namespace Ui

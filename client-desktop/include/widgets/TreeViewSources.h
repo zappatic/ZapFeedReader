@@ -21,7 +21,11 @@
 
 #include <unordered_set>
 
-#include "ClientGlobal.h"
+#include <QJsonObject>
+#include <QKeyEvent>
+#include <QStandardItemModel>
+#include <QTimer>
+
 #include "widgets/TreeViewPaletteCorrected.h"
 
 namespace ZapFR

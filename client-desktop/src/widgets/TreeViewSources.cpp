@@ -16,7 +16,15 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/TreeViewSources.h"
+#include <QDesktopServices>
+#include <QDomDocument>
+#include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMessageBox>
+#include <QTimer>
+
 #include "./ui_MainWindow.h"
 #include "FeedIconCache.h"
 #include "ZapFR/Agent.h"
@@ -32,6 +40,7 @@
 #include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
 #include "widgets/MainWindow.h"
+#include "widgets/TreeViewSources.h"
 #include "widgets/WidgetPropertiesPaneFeed.h"
 #include "widgets/WidgetPropertiesPaneFolder.h"
 #include "widgets/WidgetPropertiesPaneSource.h"
@@ -632,7 +641,7 @@ void ZapFR::Client::TreeViewSources::saveSettings(QJsonObject& root)
     {
         case DisplayMode::ShowAll:
         {
-            root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedItems());
+            root.insert(Setting::SourceTreeViewExpansion, expandedItems());
             break;
         }
         case DisplayMode::ShowSourcesOnly:
@@ -640,7 +649,7 @@ void ZapFR::Client::TreeViewSources::saveSettings(QJsonObject& root)
             if (mReloadExpansionSelectionState != nullptr)
             {
                 auto expandedItems = mReloadExpansionSelectionState->value("expanded").toArray();
-                root.insert(SETTING_SOURCETREEVIEW_EXPANSION, expandedItems);
+                root.insert(Setting::SourceTreeViewExpansion, expandedItems);
             }
             break;
         }
@@ -649,12 +658,12 @@ void ZapFR::Client::TreeViewSources::saveSettings(QJsonObject& root)
 
 void ZapFR::Client::TreeViewSources::restoreSettings(const QJsonObject& root)
 {
-    if (root.contains(SETTING_SOURCETREEVIEW_EXPANSION))
+    if (root.contains(Setting::SourceTreeViewExpansion))
     {
         // instead of doing this immediately, write the array to mReloadSourcesExpansionSelectionState
         // so that it will get picked up by reload(), which happens after restoring the settings
         mReloadExpansionSelectionState = std::make_unique<QJsonObject>();
-        mReloadExpansionSelectionState->insert("expanded", root.value(SETTING_SOURCETREEVIEW_EXPANSION).toArray());
+        mReloadExpansionSelectionState->insert("expanded", root.value(Setting::SourceTreeViewExpansion).toArray());
         mReloadExpansionSelectionState->insert("selectedSourceID", 0);
         mReloadExpansionSelectionState->insert("selectedID", 0);
         mReloadExpansionSelectionState->insert("selectedType", 0);

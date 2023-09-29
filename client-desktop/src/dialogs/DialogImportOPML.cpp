@@ -16,8 +16,12 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "dialogs/DialogImportOPML.h"
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QMessageBox>
+
 #include "ZapFR/OPMLParser.h"
+#include "dialogs/DialogImportOPML.h"
 #include "ui_DialogImportOPML.h"
 
 ZapFR::Client::DialogImportOPML::DialogImportOPML(QWidget* parent) : DialogWithSourcesAndFolders(parent), ui(new Ui::DialogImportOPML)

@@ -17,8 +17,9 @@
 */
 
 #include <Poco/Net/NetSSL.h>
+#include <QApplication>
+#include <QTranslator>
 
-#include "ClientGlobal.h"
 #include "widgets/MainWindow.h"
 
 int main(int argc, char* argv[])

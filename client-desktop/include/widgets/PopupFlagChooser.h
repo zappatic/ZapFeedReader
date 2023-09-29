@@ -19,7 +19,6 @@
 #ifndef ZAPFR_CLIENT_POPUPFLAGCHOOSER_H
 #define ZAPFR_CLIENT_POPUPFLAGCHOOSER_H
 
-#include "ClientGlobal.h"
 #include "Utilities.h"
 #include "ZapFR/Flag.h"
 

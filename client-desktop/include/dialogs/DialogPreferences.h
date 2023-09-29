@@ -19,6 +19,8 @@
 #ifndef ZAPFR_CLIENT_DIALOGPREFERENCES_H
 #define ZAPFR_CLIENT_DIALOGPREFERENCES_H
 
+#include <QDialog>
+
 #include "../ClientGlobal.h"
 #include "ZapFR/Log.h"
 #include "widgets/MainWindow.h"

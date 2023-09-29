@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_TREEVIEWPALETTECORRECTED_H
 #define ZAPFR_CLIENT_TREEVIEWPALETTECORRECTED_H
 
-#include "ClientGlobal.h"
+#include <QEvent>
+#include <QTreeView>
 
 namespace ZapFR
 {

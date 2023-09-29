@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_TABLEVIEWLOGS_H
 #define ZAPFR_CLIENT_TABLEVIEWLOGS_H
 
-#include "ClientGlobal.h"
+#include <QStandardItemModel>
+
 #include "widgets/TableViewPaletteCorrected.h"
 
 namespace ZapFR

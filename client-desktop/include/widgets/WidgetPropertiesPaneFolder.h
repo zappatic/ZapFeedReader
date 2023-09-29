@@ -19,7 +19,7 @@
 #ifndef ZAPFR_CLIENT_WIDGETPROPERTIESPANEFOLDER_H
 #define ZAPFR_CLIENT_WIDGETPROPERTIESPANEFOLDER_H
 
-#include "ClientGlobal.h"
+#include <QWidget>
 
 namespace Ui
 {

@@ -19,7 +19,9 @@
 #ifndef ZAPFR_CLIENT_TABLEVIEWPOSTSENCLOSURES_H
 #define ZAPFR_CLIENT_TABLEVIEWPOSTSENCLOSURES_H
 
-#include "ClientGlobal.h"
+#include <QKeyEvent>
+#include <QStandardItemModel>
+
 #include "ZapFR/base/Post.h"
 #include "widgets/TableViewPaletteCorrected.h"
 

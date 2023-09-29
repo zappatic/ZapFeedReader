@@ -17,6 +17,8 @@
 */
 
 #include <Poco/JSON/Parser.h>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "FeedIconCache.h"
 #include "Utilities.h"

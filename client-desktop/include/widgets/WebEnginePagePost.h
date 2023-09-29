@@ -19,7 +19,7 @@
 #ifndef ZAPFR_CLIENT_WEBENGINEPAGEPOST_H
 #define ZAPFR_CLIENT_WEBENGINEPAGEPOST_H
 
-#include "ClientGlobal.h"
+#include <QWebEnginePage>
 
 namespace ZapFR
 {

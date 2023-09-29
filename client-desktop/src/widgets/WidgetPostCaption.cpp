@@ -16,8 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/WidgetPostCaption.h"
+#include <QPainter>
+#include <QPen>
+
 #include "widgets/MainWindow.h"
+#include "widgets/WidgetPostCaption.h"
 
 ZapFR::Client::WidgetPostCaption::WidgetPostCaption(QWidget* parent) : QWidget(parent)
 {

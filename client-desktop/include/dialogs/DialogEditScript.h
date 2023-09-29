@@ -19,6 +19,9 @@
 #ifndef ZAPFR_CLIENT_DIALOGEDITSCRIPT_H
 #define ZAPFR_CLIENT_DIALOGEDITSCRIPT_H
 
+#include <QDialog>
+#include <QStandardItemModel>
+
 #include "../ClientGlobal.h"
 #include "ZapFR/base/Script.h"
 #include "ZapFR/dummy/FeedDummy.h"

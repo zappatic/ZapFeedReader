@@ -17,6 +17,9 @@
 */
 
 #include <Poco/JSON/Parser.h>
+#include <QClipboard>
+#include <QMessageBox>
+#include <QMimeData>
 
 #include "SyntaxHighlighterLua.h"
 #include "ZapFR/lua/ScriptLua.h"
@@ -47,7 +50,7 @@ ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(par
                 if (index == DialogEditScriptPane::Test)
                 {
                     auto mimeData = QGuiApplication::clipboard()->mimeData();
-                    ui->pushButtonPasteTestPost->setVisible(mimeData != nullptr && mimeData->hasFormat(MIMETYPE_COPIED_TEST_POST));
+                    ui->pushButtonPasteTestPost->setVisible(mimeData != nullptr && mimeData->hasFormat(MimeType::TestPost));
                 }
             });
     connect(ui->pushButtonPasteTestPost, &QPushButton::clicked, this, &DialogEditScript::pasteTestPost);
@@ -472,9 +475,9 @@ void ZapFR::Client::DialogEditScript::appendToLog(const QString& message)
 void ZapFR::Client::DialogEditScript::pasteTestPost()
 {
     auto mimeData = QGuiApplication::clipboard()->mimeData();
-    if (mimeData != nullptr && mimeData->hasFormat(MIMETYPE_COPIED_TEST_POST))
+    if (mimeData != nullptr && mimeData->hasFormat(MimeType::TestPost))
     {
-        auto jsonData = mimeData->data(MIMETYPE_COPIED_TEST_POST);
+        auto jsonData = mimeData->data(MimeType::TestPost);
         auto json = std::string(jsonData.constData(), static_cast<size_t>(jsonData.length()));
         Poco::JSON::Parser parser;
         try

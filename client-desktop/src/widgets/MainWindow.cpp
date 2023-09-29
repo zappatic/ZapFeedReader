@@ -17,6 +17,12 @@
 */
 
 #include <Poco/JSON/Parser.h>
+#include <QDir>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QStandardPaths>
+#include <QStyleHints>
 
 #include "./ui_MainWindow.h"
 #include "Utilities.h"
@@ -193,26 +199,26 @@ void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* event)
 void ZapFR::Client::MainWindow::saveSettings() const
 {
     QJsonObject root;
-    root.insert(SETTING_MAINWINDOW_STATE, QString::fromUtf8(saveState().toBase64()));
-    root.insert(SETTING_MAINWINDOW_GEOMETRY, QString::fromUtf8(saveGeometry().toBase64()));
-    root.insert(SETTING_SPLITTERSOURCESANDCONTENTPANES_STATE, QString::fromUtf8(ui->splitterSourcesAndContentPanes->saveState().toBase64()));
-    root.insert(SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE, QString::fromUtf8(ui->splitterSourcesAndScriptFolders->saveState().toBase64()));
-    root.insert(SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE, QString::fromUtf8(ui->splitterPostsTableAndPostView->saveState().toBase64()));
+    root.insert(Setting::MainWindowState, QString::fromUtf8(saveState().toBase64()));
+    root.insert(Setting::MainWindowGeometry, QString::fromUtf8(saveGeometry().toBase64()));
+    root.insert(Setting::SplitterSourcesAndContentPanesState, QString::fromUtf8(ui->splitterSourcesAndContentPanes->saveState().toBase64()));
+    root.insert(Setting::SplitterSourcesAndScriptFoldersState, QString::fromUtf8(ui->splitterSourcesAndScriptFolders->saveState().toBase64()));
+    root.insert(Setting::SplitterPostsTableAdPostViewState, QString::fromUtf8(ui->splitterPostsTableAndPostView->saveState().toBase64()));
     ui->treeViewSources->saveSettings(root);
     if (mPreferences->theme != Theme::UseSystem)
     {
-        root.insert(SETTING_UI_THEME, mPreferences->theme == Theme::Light ? "light" : "dark");
+        root.insert(Setting::UITheme, mPreferences->theme == Theme::Light ? "light" : "dark");
     }
-    root.insert(SETTING_UI_FONTSIZE, mPreferences->uiFontSize);
-    root.insert(SETTING_POST_FONTSIZE, mPreferences->postFontSize);
-    root.insert(SETTING_POST_DETECTBROWSERS, mPreferences->detectBrowsers);
-    root.insert(SETTING_UI_HIDE_LOCAL_SOURCE, mPreferences->hideLocalSource);
-    root.insert(SETTING_UI_MINIMIZE_INSTEAD_OF_CLOSE, mPreferences->minimizeInsteadOfClose);
-    root.insert(SETTING_FEEDS_REFRESH_BEHAVIOUR, mPreferences->refreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
+    root.insert(Setting::UIFontSize, mPreferences->uiFontSize);
+    root.insert(Setting::PostFontSize, mPreferences->postFontSize);
+    root.insert(Setting::PostDetectBrowsers, mPreferences->detectBrowsers);
+    root.insert(Setting::UIHideLocalSource, mPreferences->hideLocalSource);
+    root.insert(Setting::UIMinimizeInsteadOfClose, mPreferences->minimizeInsteadOfClose);
+    root.insert(Setting::FeedsRefreshBehaviour, mPreferences->refreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
-    root.insert(SETTING_FEEDS_AUTOREFRESH_INTERVAL, static_cast<int32_t>(ar->feedRefreshInterval()));
-    root.insert(SETTING_FEEDS_AUTOREFRESH_ENABLED, ar->isEnabled());
-    root.insert(SETTING_FEEDS_LOGLEVEL, ZapFR::Engine::Log::logLevel());
+    root.insert(Setting::FeedsAutoRefreshInterval, static_cast<int32_t>(ar->feedRefreshInterval()));
+    root.insert(Setting::FeedsAutoRefreshEnabled, ar->isEnabled());
+    root.insert(Setting::FeedsLogLevel, ZapFR::Engine::Log::logLevel());
 
     auto sf = QFile(settingsFile());
     sf.open(QIODeviceBase::WriteOnly);
@@ -233,84 +239,84 @@ void ZapFR::Client::MainWindow::restoreSettings()
             if (json.isObject())
             {
                 auto root = json.object();
-                if (root.contains(SETTING_MAINWINDOW_STATE))
+                if (root.contains(Setting::MainWindowState))
                 {
-                    restoreState(QByteArray::fromBase64(root.value(SETTING_MAINWINDOW_STATE).toVariant().toByteArray()));
+                    restoreState(QByteArray::fromBase64(root.value(Setting::MainWindowState).toVariant().toByteArray()));
                 }
-                if (root.contains(SETTING_MAINWINDOW_GEOMETRY))
+                if (root.contains(Setting::MainWindowGeometry))
                 {
-                    restoreGeometry(QByteArray::fromBase64(root.value(SETTING_MAINWINDOW_GEOMETRY).toVariant().toByteArray()));
+                    restoreGeometry(QByteArray::fromBase64(root.value(Setting::MainWindowGeometry).toVariant().toByteArray()));
                 }
-                if (root.contains(SETTING_SPLITTERSOURCESANDCONTENTPANES_STATE))
+                if (root.contains(Setting::SplitterSourcesAndContentPanesState))
                 {
                     ui->splitterSourcesAndContentPanes->restoreState(
-                        QByteArray::fromBase64(root.value(SETTING_SPLITTERSOURCESANDCONTENTPANES_STATE).toVariant().toByteArray()));
+                        QByteArray::fromBase64(root.value(Setting::SplitterSourcesAndContentPanesState).toVariant().toByteArray()));
                 }
-                if (root.contains(SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE))
+                if (root.contains(Setting::SplitterSourcesAndScriptFoldersState))
                 {
                     ui->splitterSourcesAndScriptFolders->restoreState(
-                        QByteArray::fromBase64(root.value(SETTING_SPLITTERSOURCESANDSCRIPTFOLDERS_STATE).toVariant().toByteArray()));
+                        QByteArray::fromBase64(root.value(Setting::SplitterSourcesAndScriptFoldersState).toVariant().toByteArray()));
                 }
-                if (root.contains(SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE))
+                if (root.contains(Setting::SplitterPostsTableAdPostViewState))
                 {
-                    ui->splitterPostsTableAndPostView->restoreState(QByteArray::fromBase64(root.value(SETTING_SPLITTERPOSTSTABLEANDPOSTVIEW_STATE).toVariant().toByteArray()));
+                    ui->splitterPostsTableAndPostView->restoreState(QByteArray::fromBase64(root.value(Setting::SplitterPostsTableAdPostViewState).toVariant().toByteArray()));
                 }
 
                 ui->treeViewSources->restoreSettings(root);
 
-                if (root.contains(SETTING_UI_THEME))
+                if (root.contains(Setting::UITheme))
                 {
-                    auto value = root.value(SETTING_UI_THEME);
+                    auto value = root.value(Setting::UITheme);
                     mPreferences->theme = (value == "light" ? Theme::Light : Theme::Dark);
                     applyColorScheme();
                 }
-                if (root.contains(SETTING_UI_FONTSIZE))
+                if (root.contains(Setting::UIFontSize))
                 {
-                    mPreferences->uiFontSize = static_cast<uint16_t>(root.value(SETTING_UI_FONTSIZE).toInt(11));
+                    mPreferences->uiFontSize = static_cast<uint16_t>(root.value(Setting::UIFontSize).toInt(11));
                     updatePreferredFontSize();
                 }
-                if (root.contains(SETTING_POST_FONTSIZE))
+                if (root.contains(Setting::PostFontSize))
                 {
-                    mPreferences->postFontSize = static_cast<uint16_t>(root.value(SETTING_POST_FONTSIZE).toInt(11));
+                    mPreferences->postFontSize = static_cast<uint16_t>(root.value(Setting::PostFontSize).toInt(11));
                 }
-                if (root.contains(SETTING_POST_DETECTBROWSERS))
+                if (root.contains(Setting::PostDetectBrowsers))
                 {
-                    mPreferences->detectBrowsers = root.value(SETTING_POST_DETECTBROWSERS).toBool();
+                    mPreferences->detectBrowsers = root.value(Setting::PostDetectBrowsers).toBool();
                     if (mPreferences->detectBrowsers)
                     {
                         mStartupDetectBrowsersThread = std::make_unique<std::thread>([this]() { ui->webViewPost->detectBrowsers(); });
                     }
                 }
-                if (root.contains(SETTING_UI_HIDE_LOCAL_SOURCE))
+                if (root.contains(Setting::UIHideLocalSource))
                 {
-                    mPreferences->hideLocalSource = root.value(SETTING_UI_HIDE_LOCAL_SOURCE).toBool();
+                    mPreferences->hideLocalSource = root.value(Setting::UIHideLocalSource).toBool();
                 }
-                if (root.contains(SETTING_UI_MINIMIZE_INSTEAD_OF_CLOSE))
+                if (root.contains(Setting::UIMinimizeInsteadOfClose))
                 {
-                    mPreferences->minimizeInsteadOfClose = root.value(SETTING_UI_MINIMIZE_INSTEAD_OF_CLOSE).toBool();
+                    mPreferences->minimizeInsteadOfClose = root.value(Setting::UIMinimizeInsteadOfClose).toBool();
                 }
-                if (root.contains(SETTING_FEEDS_REFRESH_BEHAVIOUR))
+                if (root.contains(Setting::FeedsRefreshBehaviour))
                 {
                     mPreferences->refreshBehaviour =
-                        (root.value(SETTING_FEEDS_REFRESH_BEHAVIOUR).toString() == "entiresource" ? RefreshBehaviour::EntireSource : RefreshBehaviour::CurrentSelection);
+                        (root.value(Setting::FeedsRefreshBehaviour).toString() == "entiresource" ? RefreshBehaviour::EntireSource : RefreshBehaviour::CurrentSelection);
                 }
 
                 auto enableAutoRefresh{true};
-                if (root.contains(SETTING_FEEDS_AUTOREFRESH_ENABLED))
+                if (root.contains(Setting::FeedsAutoRefreshEnabled))
                 {
-                    enableAutoRefresh = root.value(SETTING_FEEDS_AUTOREFRESH_ENABLED).toBool();
+                    enableAutoRefresh = root.value(Setting::FeedsAutoRefreshEnabled).toBool();
                 }
                 ZapFR::Engine::AutoRefresh::getInstance()->setEnabled(enableAutoRefresh);
 
                 uint64_t autoRefreshInterval{ZapFR::Engine::DefaultFeedAutoRefreshInterval};
-                if (root.contains(SETTING_FEEDS_AUTOREFRESH_INTERVAL))
+                if (root.contains(Setting::FeedsAutoRefreshInterval))
                 {
-                    autoRefreshInterval = static_cast<uint64_t>(root.value(SETTING_FEEDS_AUTOREFRESH_INTERVAL).toInt(ZapFR::Engine::DefaultFeedAutoRefreshInterval));
+                    autoRefreshInterval = static_cast<uint64_t>(root.value(Setting::FeedsAutoRefreshInterval).toInt(ZapFR::Engine::DefaultFeedAutoRefreshInterval));
                 }
 
-                if (root.contains(SETTING_FEEDS_LOGLEVEL))
+                if (root.contains(Setting::FeedsLogLevel))
                 {
-                    ZapFR::Engine::Log::setLogLevel(static_cast<ZapFR::Engine::LogLevel>(root.value(SETTING_FEEDS_LOGLEVEL).toInt(ZapFR::Engine::LogLevel::Warning)));
+                    ZapFR::Engine::Log::setLogLevel(static_cast<ZapFR::Engine::LogLevel>(root.value(Setting::FeedsLogLevel).toInt(ZapFR::Engine::LogLevel::Warning)));
                 }
                 ZapFR::Engine::AutoRefresh::getInstance()->setFeedRefreshInterval(autoRefreshInterval);
             }

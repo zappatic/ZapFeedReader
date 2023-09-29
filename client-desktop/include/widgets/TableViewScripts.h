@@ -19,7 +19,9 @@
 #ifndef ZAPFR_CLIENT_TABLEVIEWSCRIPTS_H
 #define ZAPFR_CLIENT_TABLEVIEWSCRIPTS_H
 
-#include "ClientGlobal.h"
+#include <QKeyEvent>
+#include <QStandardItemModel>
+
 #include "widgets/TableViewPaletteCorrected.h"
 
 namespace ZapFR

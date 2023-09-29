@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_TABLEVIEWPALETTECORRECTED_H
 #define ZAPFR_CLIENT_TABLEVIEWPALETTECORRECTED_H
 
-#include "ClientGlobal.h"
+#include <QEvent>
+#include <QTableView>
 
 namespace ZapFR
 {

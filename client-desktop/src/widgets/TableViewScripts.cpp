@@ -16,13 +16,15 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/TableViewScripts.h"
+#include <QMessageBox>
+
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/Script.h"
 #include "delegates/ItemDelegateScript.h"
 #include "dialogs/DialogEditScript.h"
 #include "widgets/MainWindow.h"
+#include "widgets/TableViewScripts.h"
 #include "widgets/TreeViewSources.h"
 
 ZapFR::Client::TableViewScripts::TableViewScripts(QWidget* parent) : TableViewPaletteCorrected(parent)

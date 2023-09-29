@@ -16,8 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "delegates/ItemDelegateSource.h"
+#include <QPainter>
+#include <QPainterPath>
+
 #include "FeedIconCache.h"
+#include "delegates/ItemDelegateSource.h"
 #include "widgets/TreeViewSources.h"
 
 ZapFR::Client::ItemDelegateSource::ItemDelegateSource(QObject* parent) : QStyledItemDelegate(parent)

@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_FRAMEFLAGFILTERS_H
 #define ZAPFR_CLIENT_FRAMEFLAGFILTERS_H
 
-#include "ClientGlobal.h"
+#include <QFrame>
+
 #include "ZapFR/Flag.h"
 
 namespace ZapFR

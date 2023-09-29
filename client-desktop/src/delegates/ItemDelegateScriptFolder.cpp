@@ -16,8 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "delegates/ItemDelegateScriptFolder.h"
+#include <QPainter>
+#include <QPainterPath>
+
 #include "FeedIconCache.h"
+#include "delegates/ItemDelegateScriptFolder.h"
 #include "widgets/TableViewScriptFolders.h"
 #include "widgets/TreeViewSources.h"
 

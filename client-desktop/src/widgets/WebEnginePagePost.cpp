@@ -16,6 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QDesktopServices>
+#include <QWebEngineSettings>
+
 #include "widgets/WebEnginePagePost.h"
 
 ZapFR::Client::WebEnginePagePost::WebEnginePagePost(QObject* parent) : QWebEnginePage(parent)

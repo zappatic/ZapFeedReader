@@ -19,7 +19,7 @@
 #ifndef ZAPFR_CLIENT_STANDARDITEMMODELSOURCES_H
 #define ZAPFR_CLIENT_STANDARDITEMMODELSOURCES_H
 
-#include "ClientGlobal.h"
+#include <QStandardItemModel>
 
 namespace ZapFR
 {

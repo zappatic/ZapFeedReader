@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_TABLEVIEWPOSTS_H
 #define ZAPFR_CLIENT_TABLEVIEWPOSTS_H
 
-#include "ClientGlobal.h"
+#include <QStandardItemModel>
+
 #include "Utilities.h"
 #include "ZapFR/Flag.h"
 #include "ZapFR/base/Post.h"

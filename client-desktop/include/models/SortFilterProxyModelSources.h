@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_SORTFILTERPROXYMODELSOURCES_H
 #define ZAPFR_CLIENT_SORTFILTERPROXYMODELSOURCES_H
 
-#include "ClientGlobal.h"
+#include <QSortFilterProxyModel>
+
 #include "widgets/TreeViewSources.h"
 
 namespace ZapFR

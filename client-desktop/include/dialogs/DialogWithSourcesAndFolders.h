@@ -19,6 +19,11 @@
 #ifndef ZAPFR_CLIENT_DIALOGWITHSOURCESANDFOLDERS_H
 #define ZAPFR_CLIENT_DIALOGWITHSOURCESANDFOLDERS_H
 
+#include <QComboBox>
+#include <QDialog>
+#include <QStandardItem>
+#include <QStandardItemModel>
+
 #include "../ClientGlobal.h"
 #include "ZapFR/base/Source.h"
 

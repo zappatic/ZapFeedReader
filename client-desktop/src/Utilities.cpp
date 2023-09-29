@@ -16,6 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QDateTime>
+#include <QFile>
+
 #include "Utilities.h"
 
 std::unordered_map<ZapFR::Engine::FlagColor, QPixmap> ZapFR::Client::Utilities::msFilledFlagCache{};

@@ -19,7 +19,7 @@
 #ifndef ZAPFR_CLIENT_LINEEDITSEARCH_H
 #define ZAPFR_CLIENT_LINEEDITSEARCH_H
 
-#include "ClientGlobal.h"
+#include <QLineEdit>
 
 namespace ZapFR
 {

@@ -19,7 +19,8 @@
 #ifndef ZAPFR_CLIENT_WEBENGINEVIEWPOST_H
 #define ZAPFR_CLIENT_WEBENGINEVIEWPOST_H
 
-#include "ClientGlobal.h"
+#include <QMenu>
+#include <QWebEngineView>
 
 namespace ZapFR
 {
