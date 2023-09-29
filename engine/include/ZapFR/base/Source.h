@@ -83,7 +83,7 @@ namespace ZapFR
             virtual std::vector<std::unique_ptr<Feed>> getFeeds(uint32_t fetchInfo) = 0;
             virtual std::optional<std::unique_ptr<Feed>> getFeed(uint64_t feedID, uint32_t fetchInfo) = 0;
             virtual uint64_t addFeed(const std::string& url, uint64_t folder) = 0;
-            virtual void moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) = 0;
+            virtual std::unordered_map<uint64_t, uint64_t> moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder) = 0;
             virtual void removeFeed(uint64_t feedID) = 0;
 
             virtual std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent, uint32_t fetchInfo) = 0;

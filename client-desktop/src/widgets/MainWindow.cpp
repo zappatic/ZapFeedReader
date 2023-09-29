@@ -41,7 +41,6 @@
 #include "dialogs/DialogJumpToPage.h"
 #include "dialogs/DialogPreferences.h"
 #include "models/SortFilterProxyModelSources.h"
-#include "models/StandardItemModelSources.h"
 #include "widgets/LineEditSearch.h"
 #include "widgets/MainWindow.h"
 

@@ -34,7 +34,7 @@
 //		parentFolderID (REQD) - The (new) folder parent to put the feed in - apiRequest->parameter("parentFolderID")
 //
 //	Content-Type: application/json
-//	JSON output: Object
+//	JSON output: Array
 //
 // API::
 
@@ -51,19 +51,25 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_move([[maybe_
     Poco::NumberParser::tryParseUnsigned64(sortOrderStr, sortOrder);
     Poco::NumberParser::tryParseUnsigned64(parentFolderIDStr, parentFolderID);
 
+    Poco::JSON::Array arr;
     if (feedID != 0)
     {
         auto source = ZapFR::Engine::Source::getSource(1);
         if (source.has_value())
         {
-            source.value()->moveFeed(feedID, parentFolderID, sortOrder);
+            const auto& affectedFeeds = source.value()->moveFeed(feedID, parentFolderID, sortOrder);
+
+            for (const auto& [affectedFeedID, affectedSortOrder] : affectedFeeds)
+            {
+                Poco::JSON::Object o;
+                o.set("feedID", affectedFeedID);
+                o.set("sortOrder", affectedSortOrder);
+                arr.add(o);
+            }
         }
     }
 
-    Poco::JSON::Object o;
-    o.set("success", true);
-
-    Poco::JSON::Stringifier::stringify(o, response.send());
+    Poco::JSON::Stringifier::stringify(arr, response.send());
 
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

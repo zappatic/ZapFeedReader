@@ -127,7 +127,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->addBodyParameter({R"(parentFolderID)", true, R"(The (new) folder parent to put the feed in)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
-				entry->setJSONOutput(R"(Object)");
+				entry->setJSONOutput(R"(Array)");
 				entry->setHandler(ZapFR::Server::APIHandler_feed_move);
 				msAPIs.emplace_back(std::move(entry));
 			}

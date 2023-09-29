@@ -547,7 +547,7 @@ void ZapFR::Engine::FeedLocal::updateProperties(const std::string& feedURL, std:
     setRefreshInterval(refreshIntervalInSeconds);
 }
 
-void ZapFR::Engine::FeedLocal::move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::FeedLocal::move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
 {
     uint64_t oldFolder{0};
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
@@ -556,11 +556,29 @@ void ZapFR::Engine::FeedLocal::move(uint64_t feedID, uint64_t newFolder, uint64_
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE feeds SET folder=?, sortOrder=? WHERE id=?", use(newFolder), use(newSortOrder), use(feedID), now;
 
+    std::vector<uint64_t> parentFoldersToQuery{newFolder};
     resort(newFolder);
     if (newFolder != oldFolder) // check in case we are moving within the same folder
     {
+        parentFoldersToQuery.emplace_back(oldFolder);
         resort(oldFolder);
     }
+
+    std::unordered_map<uint64_t, uint64_t> affectedFeedIDs;
+    auto parentFolderIDs = Helpers::joinIDNumbers(parentFoldersToQuery, ",");
+    uint64_t affectedFeedID{0};
+    uint64_t affectedSortOrder{0};
+    Poco::Data::Statement affectedSelectStmt(*(Database::getInstance()->session()));
+    affectedSelectStmt << Poco::format("SELECT id,sortOrder FROM feeds WHERE folder IN (%s)", parentFolderIDs), into(affectedFeedID), into(affectedSortOrder), range(0, 1);
+    while (!affectedSelectStmt.done())
+    {
+        if (affectedSelectStmt.execute() > 0)
+        {
+            affectedFeedIDs[affectedFeedID] = affectedSortOrder;
+        }
+    }
+
+    return affectedFeedIDs;
 }
 
 void ZapFR::Engine::FeedLocal::resort(uint64_t folder)

@@ -146,23 +146,22 @@ void ZapFR::Client::TableViewPosts::reload()
         index = mMainWindow->treeViewSources()->currentIndex();
         if (index.isValid())
         {
-            if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Feed)
+            auto type = index.data(TreeViewSources::Role::Type).toULongLong();
+            auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+            if (type == TreeViewSources::EntryType::Feed)
             {
-                auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
                 auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
                                                                        processPosts);
             }
-            else if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Folder)
+            else if (type == TreeViewSources::EntryType::Folder)
             {
-                auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
                 auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
                                                                          processPosts);
             }
-            else if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Source)
+            else if (type == TreeViewSources::EntryType::Source)
             {
-                auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
                                                                          processPosts);
             }
@@ -216,7 +215,8 @@ void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardIte
     setColumnHidden(Column::FeedCol, false);
     auto treeViewSourcesIndex = mMainWindow->treeViewSources()->currentIndex();
     auto tableViewScriptFoldersIndex = mMainWindow->getUI()->tableViewScriptFolders->currentIndex();
-    if (!tableViewScriptFoldersIndex.isValid() && treeViewSourcesIndex.isValid() && treeViewSourcesIndex.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Feed)
+    if (!tableViewScriptFoldersIndex.isValid() && treeViewSourcesIndex.isValid() &&
+        treeViewSourcesIndex.data(TreeViewSources::Role::Type).toULongLong() == TreeViewSources::EntryType::Feed)
     {
         setColumnHidden(Column::FeedCol, true);
     }

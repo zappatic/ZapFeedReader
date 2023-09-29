@@ -74,7 +74,7 @@ void ZapFR::Client::ItemDelegateEditScriptDialogSource::paint(QPainter* painter,
     }
 
     // draw the icon
-    if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Feed)
+    if (index.data(TreeViewSources::Role::Type).toULongLong() == TreeViewSources::EntryType::Feed)
     {
         QPixmap icon;
         if (parentTreeView->isEnabled())

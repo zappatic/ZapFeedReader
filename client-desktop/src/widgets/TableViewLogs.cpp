@@ -126,21 +126,20 @@ void ZapFR::Client::TableViewLogs::reload()
     auto index = mMainWindow->treeViewSources()->currentIndex();
     if (index.isValid())
     {
-        if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Feed)
+        auto type = index.data(TreeViewSources::Role::Type).toULongLong();
+        auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+        if (type == TreeViewSources::EntryType::Feed)
         {
-            auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
             auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueGetFeedLogs(sourceID, feedID, msLogsPerPage, mCurrentLogPage, processLogs);
         }
-        else if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Folder)
+        else if (type == TreeViewSources::EntryType::Folder)
         {
-            auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
             auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueGetFolderLogs(sourceID, folderID, msLogsPerPage, mCurrentLogPage, processLogs);
         }
-        else if (index.data(TreeViewSources::Role::Type) == TreeViewSources::EntryType::Source)
+        else if (type == TreeViewSources::EntryType::Source)
         {
-            auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueGetSourceLogs(sourceID, msLogsPerPage, mCurrentLogPage, processLogs);
         }
         else

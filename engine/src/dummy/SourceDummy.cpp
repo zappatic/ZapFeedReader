@@ -38,7 +38,7 @@ uint64_t ZapFR::Engine::SourceDummy::addFeed(const std::string& /*url*/, uint64_
     throw std::runtime_error("Not implemented");
 }
 
-void ZapFR::Engine::SourceDummy::moveFeed(uint64_t /*feedID*/, uint64_t /*newFolder*/, uint64_t /*newSortOrder*/)
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceDummy::moveFeed(uint64_t /*feedID*/, uint64_t /*newFolder*/, uint64_t /*newSortOrder*/)
 {
     throw std::runtime_error("Not implemented");
 }

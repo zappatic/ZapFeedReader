@@ -107,7 +107,7 @@
     ],
     "requireCredentials": true,
     "contentType": "application/json",
-    "jsonOutput": "Object"
+    "jsonOutput": "Array"
   },
   "feed-markasread": {
     "section": "Feeds",

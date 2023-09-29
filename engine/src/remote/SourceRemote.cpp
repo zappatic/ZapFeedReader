@@ -166,8 +166,10 @@ uint64_t ZapFR::Engine::SourceRemote::addFeed(const std::string& url, uint64_t f
     return 0;
 }
 
-void ZapFR::Engine::SourceRemote::moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
 {
+    std::unordered_map<uint64_t, uint64_t> affectedFeedIDs;
+
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
     {
@@ -178,8 +180,26 @@ void ZapFR::Engine::SourceRemote::moveFeed(uint64_t feedID, uint64_t newFolder, 
         params["parentFolderID"] = std::to_string(newFolder);
         params["sortOrder"] = std::to_string(newSortOrder);
 
-        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto arr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!arr.isNull())
+        {
+            for (size_t i = 0; i < arr->size(); ++i)
+            {
+                auto o = arr->getObject(static_cast<uint32_t>(i));
+                if (!o.isNull())
+                {
+                    auto id = o->getValue<uint64_t>("feedID");
+                    auto sortOrder = o->getValue<uint64_t>("sortOrder");
+                    affectedFeedIDs[id] = sortOrder;
+                }
+            }
+        }
     }
+
+    return affectedFeedIDs;
 }
 
 void ZapFR::Engine::SourceRemote::removeFeed(uint64_t feedID)

@@ -19,6 +19,7 @@
 #ifndef ZAPFR_CLIENT_SORTFILTERPROXYMODELSOURCES_H
 #define ZAPFR_CLIENT_SORTFILTERPROXYMODELSOURCES_H
 
+#include <Poco/JSON/Object.h>
 #include <QSortFilterProxyModel>
 
 #include "widgets/TreeViewSources.h"
@@ -27,22 +28,40 @@ namespace ZapFR
 {
     namespace Client
     {
+        class MainWindow;
+
         class SortFilterProxyModelSources : public QSortFilterProxyModel
         {
             Q_OBJECT
 
           public:
-            SortFilterProxyModelSources(QObject* parent = nullptr);
+            SortFilterProxyModelSources(MainWindow* mainWindow, QObject* parent = nullptr);
             ~SortFilterProxyModelSources() = default;
+            SortFilterProxyModelSources(const SortFilterProxyModelSources& e) = delete;
+            SortFilterProxyModelSources& operator=(const SortFilterProxyModelSources&) = delete;
+            SortFilterProxyModelSources(SortFilterProxyModelSources&&) = delete;
+            SortFilterProxyModelSources& operator=(SortFilterProxyModelSources&&) = delete;
 
             void setDisplayMode(TreeViewSources::DisplayMode mode);
+            void setAllowDragAndDrop(bool b) noexcept { mAllowDragAndDrop = b; }
 
           protected:
             bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
             bool lessThan(const QModelIndex& sourceLeft, const QModelIndex& sourceRight) const override;
 
+            Qt::ItemFlags flags(const QModelIndex& index) const override;
+            bool canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const override;
+            bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
+            QStringList mimeTypes() const override;
+            QMimeData* mimeData(const QModelIndexList& indexes) const override;
+
           private:
+            MainWindow* mMainWindow;
             TreeViewSources::DisplayMode mDisplayMode{TreeViewSources::DisplayMode::ShowAll};
+            bool mAllowDragAndDrop{true};
+
+            std::string serializeItem(const QModelIndex& index) const;
+            QStandardItem* unserializeItem(const Poco::JSON::Object::Ptr o) const;
         };
     } // namespace Client
 } // namespace ZapFR

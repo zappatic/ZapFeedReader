@@ -217,7 +217,8 @@ void ZapFR::Engine::Agent::queueRemoveFeed(uint64_t sourceID, uint64_t feedID, s
     enqueue(std::make_unique<AgentFeedRemove>(sourceID, feedID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder,
+                                         std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFeedMove>(sourceID, feedID, newFolder, newSortOrder, finishedCallback));
 }

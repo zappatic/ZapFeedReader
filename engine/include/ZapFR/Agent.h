@@ -99,7 +99,8 @@ namespace ZapFR
 
             // feed manipulation
             void queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
-            void queueMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
+            void queueMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder,
+                               std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
             void queueGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
             void queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
             void queueRefreshFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, Feed* refreshedFeed)> finishedCallback);

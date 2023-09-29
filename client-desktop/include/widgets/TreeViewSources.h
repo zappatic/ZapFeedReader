@@ -33,7 +33,6 @@ namespace ZapFR
     namespace Client
     {
         class MainWindow;
-        class StandardItemModelSources;
         class SortFilterProxyModelSources;
         class DialogAddSource;
         class DialogAddFeed;
@@ -55,7 +54,7 @@ namespace ZapFR
 
             void reload();
             void setMainWindow(MainWindow* mw) noexcept;
-            StandardItemModelSources* sourcesItemModel() const noexcept { return mItemModelSources.get(); }
+            QStandardItemModel* sourcesItemModel() const noexcept { return mItemModelSources.get(); }
             uint64_t previouslySelectedSourceID() const noexcept { return mPreviouslySelectedSourceID; }
             void setPreviouslySelectedSourceID(uint64_t sID) noexcept { mPreviouslySelectedSourceID = sID; }
 
@@ -70,6 +69,7 @@ namespace ZapFR
             void setAllowDragAndDrop(bool b);
             void agentErrorOccurred(uint64_t sourceID, const std::string& errorMessage);
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
+            void updateFeedSortOrders(uint64_t sourceID, const std::unordered_map<uint64_t, uint64_t>& feedIDs);
             void saveSettings(QJsonObject& root);
             void restoreSettings(const QJsonObject& root);
 
@@ -117,7 +117,7 @@ namespace ZapFR
                 SourceType = Qt::ItemDataRole::UserRole + 11,
             };
 
-            enum EntryType
+            enum EntryType : uint64_t
             {
                 Source = 0,
                 Feed = 1,
@@ -156,7 +156,7 @@ namespace ZapFR
           private:
             MainWindow* mMainWindow{nullptr};
 
-            std::unique_ptr<StandardItemModelSources> mItemModelSources{nullptr};
+            std::unique_ptr<QStandardItemModel> mItemModelSources{nullptr};
             std::unique_ptr<SortFilterProxyModelSources> mProxyModelSources{nullptr};
             std::unique_ptr<DialogAddSource> mDialogAddSource{nullptr};
             std::unique_ptr<DialogAddFolder> mDialogAddFolder{nullptr};

@@ -62,7 +62,7 @@ namespace ZapFR
                                                                                    const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings, uint32_t fetchInfo);
             static uint64_t nextSortOrder(uint64_t folderID);
             static std::unique_ptr<FeedLocal> create(Source* parentSource, const std::string& url, const std::string& title, uint64_t parentFolderID);
-            static void move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder);
+            static std::unordered_map<uint64_t, uint64_t> move(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder);
             static void resort(uint64_t folder);
             static void remove(Source* parentSource, uint64_t feedID);
 

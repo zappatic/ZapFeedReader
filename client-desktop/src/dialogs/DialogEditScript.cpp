@@ -25,7 +25,6 @@
 #include "ZapFR/lua/ScriptLua.h"
 #include "delegates/ItemDelegateEditScriptDialogSource.h"
 #include "dialogs/DialogEditScript.h"
-#include "models/StandardItemModelSources.h"
 #include "ui_DialogEditScript.h"
 #include "widgets/MainWindow.h"
 #include "widgets/TreeViewSources.h"

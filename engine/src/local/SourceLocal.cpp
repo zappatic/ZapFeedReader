@@ -83,9 +83,9 @@ uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t fo
     return feedID;
 }
 
-void ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
 {
-    FeedLocal::move(feedID, newFolder, newSortOrder);
+    return FeedLocal::move(feedID, newFolder, newSortOrder);
 }
 
 void ZapFR::Engine::SourceLocal::removeFeed(uint64_t feedID)
