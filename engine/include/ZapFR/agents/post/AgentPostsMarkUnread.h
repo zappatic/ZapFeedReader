@@ -20,7 +20,6 @@
 #define ZAPFR_ENGINE_AGENTPOSTSMARKUNREAD_H
 
 #include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

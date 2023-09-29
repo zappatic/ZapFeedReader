@@ -19,8 +19,6 @@
 #ifndef ZAPFR_SERVER_APIHANDLERS_H
 #define ZAPFR_SERVER_APIHANDLERS_H
 
-#include "ServerGlobal.h"
-
 namespace ZapFR
 {
     namespace Server

@@ -19,7 +19,7 @@
 #ifndef ZAPFR_SERVER_APIREQUESTHANDLERFACTORY_H
 #define ZAPFR_SERVER_APIREQUESTHANDLERFACTORY_H
 
-#include "ServerGlobal.h"
+#include <Poco/Net/HTTPRequestHandlerFactory.h>
 
 namespace ZapFR
 {

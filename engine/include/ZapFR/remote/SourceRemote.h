@@ -19,6 +19,8 @@
 #ifndef ZAPFR_ENGINE_SOURCEREMOTE_H
 #define ZAPFR_ENGINE_SOURCEREMOTE_H
 
+#include <Poco/URI.h>
+
 #include "ZapFR/base/Source.h"
 
 namespace ZapFR

@@ -20,7 +20,6 @@
 #define ZAPFR_ENGINE_AGENTSCRIPTADD_H
 
 #include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
 #include "ZapFR/base/Script.h"
 
 namespace ZapFR

@@ -16,6 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/JSON/Object.h>
+#include <Poco/Net/HTTPServerRequest.h>
+#include <Poco/Net/HTTPServerResponse.h>
+
 #include "APIRequest404Handler.h"
 
 void ZapFR::Server::APIRequest404Handler::handleRequest(Poco::Net::HTTPServerRequest& /*request*/, Poco::Net::HTTPServerResponse& response)

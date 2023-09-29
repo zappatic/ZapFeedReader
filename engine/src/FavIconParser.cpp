@@ -16,6 +16,13 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/JSON/Parser.h>
+#include <Poco/Net/HTTPRequest.h>
+#include <Poco/RegularExpression.h>
+#include <Poco/SAX/Attributes.h>
+#include <Poco/SAX/SAXParser.h>
+#include <Poco/URI.h>
+
 #include "ZapFR/FavIconParser.h"
 #include "ZapFR/Helpers.h"
 

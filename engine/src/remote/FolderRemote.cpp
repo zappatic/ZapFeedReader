@@ -16,10 +16,16 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/remote/FolderRemote.h"
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
+#include <Poco/JSON/Parser.h>
+#include <Poco/Net/HTTPRequest.h>
+
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/base/Post.h"
+#include "ZapFR/remote/FolderRemote.h"
 #include "ZapFR/remote/PostRemote.h"
 #include "ZapFR/remote/SourceRemote.h"
 

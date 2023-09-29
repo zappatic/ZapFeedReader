@@ -19,7 +19,10 @@
 #ifndef ZAPFR_ENGINE_SCRIPT_H
 #define ZAPFR_ENGINE_SCRIPT_H
 
-#include "ZapFR/Global.h"
+#include <optional>
+#include <unordered_set>
+
+#include <Poco/JSON/Object.h>
 
 namespace ZapFR
 {

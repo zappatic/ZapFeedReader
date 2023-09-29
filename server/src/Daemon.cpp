@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/JSON/Parser.h>
+
 #include "Daemon.h"
 #include "HTTPServer.h"
 #include "ZapFR/AutoRefresh.h"

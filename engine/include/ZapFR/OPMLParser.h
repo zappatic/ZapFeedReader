@@ -19,7 +19,7 @@
 #ifndef ZAPFR_ENGINE_OPMLPARSER_H
 #define ZAPFR_ENGINE_OPMLPARSER_H
 
-#include "ZapFR/Global.h"
+#include <Poco/SAX/ContentHandler.h>
 
 namespace ZapFR
 {

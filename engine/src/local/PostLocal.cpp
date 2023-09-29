@@ -16,9 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/local/PostLocal.h"
+#include <Poco/Data/RecordSet.h>
+
 #include "ZapFR/Database.h"
 #include "ZapFR/Helpers.h"
+#include "ZapFR/local/PostLocal.h"
 
 using namespace Poco::Data::Keywords;
 

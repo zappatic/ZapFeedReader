@@ -19,7 +19,9 @@
 #ifndef ZAPFR_ENGINE_FAVICONPARSER_H
 #define ZAPFR_ENGINE_FAVICONPARSER_H
 
-#include "ZapFR/Global.h"
+#include <Poco/SAX/ContentHandler.h>
+#include <Poco/SAX/ErrorHandler.h>
+#include <Poco/SAX/SAXException.h>
 
 namespace ZapFR
 {

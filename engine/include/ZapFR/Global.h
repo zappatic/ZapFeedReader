@@ -19,71 +19,7 @@
 #ifndef ZAPFR_ENGINE_GLOBAL_H
 #define ZAPFR_ENGINE_GLOBAL_H
 
-#include <Poco/Base64Decoder.h>
-#include <Poco/Base64Encoder.h>
-#include <Poco/DOM/DOMParser.h>
-#include <Poco/DOM/DOMWriter.h>
-#include <Poco/DOM/Document.h>
-#include <Poco/DOM/NamedNodeMap.h>
-#include <Poco/DOM/NodeList.h>
-#include <Poco/Data/RecordSet.h>
-#include <Poco/Data/SQLite/Connector.h>
-#include <Poco/Data/Session.h>
-#include <Poco/DateTime.h>
-#include <Poco/DateTimeParser.h>
-#include <Poco/DigestStream.h>
-#include <Poco/File.h>
-#include <Poco/FileStream.h>
-#include <Poco/JSON/Array.h>
-#include <Poco/JSON/Object.h>
-#include <Poco/JSON/Parser.h>
-#include <Poco/MD5Engine.h>
-#include <Poco/Net/HTMLForm.h>
-#include <Poco/Net/HTTPCredentials.h>
-#include <Poco/Net/HTTPRequest.h>
-#include <Poco/Net/HTTPResponse.h>
-#include <Poco/Net/HTTPSClientSession.h>
-#include <Poco/Nullable.h>
-#include <Poco/NumberParser.h>
-#include <Poco/RegularExpression.h>
-#include <Poco/Runnable.h>
-#include <Poco/SAX/Attributes.h>
-#include <Poco/SAX/ContentHandler.h>
-#include <Poco/SAX/ErrorHandler.h>
-#include <Poco/SAX/SAXException.h>
-#include <Poco/SAX/SAXParser.h>
-#include <Poco/StreamCopier.h>
-#include <Poco/StringTokenizer.h>
-#include <Poco/ThreadPool.h>
-#include <Poco/Timer.h>
-#include <Poco/URI.h>
-#include <Poco/UTF8String.h>
-#include <Poco/UUIDGenerator.h>
-#include <Poco/Util/ServerApplication.h>
-#include <Poco/Util/SystemConfiguration.h>
-#include <Poco/Version.h>
-#include <Poco/XML/XMLWriter.h>
-
-#include <cxxabi.h>
-#include <functional>
 #include <memory>
-#include <mutex>
-#include <optional>
-#include <sstream>
-#include <string>
-#include <thread>
-#include <unordered_map>
-#include <unordered_set>
-
-#define FMT_HEADER_ONLY
-#include <fmt/core.h>
-
-extern "C"
-{
-#include "lauxlib.h"
-#include "lua.h"
-#include "lualib.h"
-}
 
 namespace ZapFR
 {

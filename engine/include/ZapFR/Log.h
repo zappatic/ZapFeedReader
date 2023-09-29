@@ -19,7 +19,10 @@
 #ifndef ZAPFR_ENGINE_LOG_H
 #define ZAPFR_ENGINE_LOG_H
 
-#include "ZapFR/Global.h"
+#include <optional>
+
+#include <Poco/Data/AbstractBinding.h>
+#include <Poco/JSON/Object.h>
 
 namespace ZapFR
 {

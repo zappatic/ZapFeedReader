@@ -19,8 +19,6 @@
 #ifndef ZAPFR_ENGINE_LUASYNTAXHIGHLIGHTING_H
 #define ZAPFR_ENGINE_LUASYNTAXHIGHLIGHTING_H
 
-#include "ZapFR/Global.h"
-
 namespace ZapFR
 {
     namespace Engine

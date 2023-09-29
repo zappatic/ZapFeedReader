@@ -16,9 +16,14 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "APIRequest.h"
+#include <Poco/Base64Decoder.h>
+#include <Poco/NullStream.h>
+#include <Poco/StreamCopier.h>
+
 #include "API.h"
+#include "APIRequest.h"
 #include "Daemon.h"
+#include "Exceptions.h"
 #include "ZapFR/Helpers.h"
 
 ZapFR::Server::APIRequest::APIRequest(API* api, Poco::Net::HTTPServerRequest& request) : mAPI(api)

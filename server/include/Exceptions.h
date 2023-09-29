@@ -16,18 +16,19 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_SERVER_APIERRORS_H
-#define ZAPFR_SERVER_APIERRORS_H
+#ifndef ZAPFR_SERVER_SERVERGLOBAL_H
+#define ZAPFR_SERVER_SERVERGLOBAL_H
 
 namespace ZapFR
 {
     namespace Server
     {
-        enum class APIErrorCode
+        class UnauthorizedError : public std::runtime_error
         {
-
+          public:
+            explicit UnauthorizedError(const std::string& s = "") : std::runtime_error(s) {}
         };
-    }
+    } // namespace Server
 } // namespace ZapFR
 
-#endif // ZAPFR_SERVER_APIERRORS_H
+#endif // ZAPFR_SERVER_SERVERGLOBAL_H

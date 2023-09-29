@@ -16,6 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
 #include "ZapFR/dummy/PostDummy.h"
 
 ZapFR::Engine::PostDummy::PostDummy(uint64_t id) : Post(id)

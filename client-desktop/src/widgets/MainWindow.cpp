@@ -16,7 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/MainWindow.h"
+#include <Poco/JSON/Parser.h>
+
 #include "./ui_MainWindow.h"
 #include "Utilities.h"
 #include "ZapFR/Agent.h"
@@ -36,6 +37,7 @@
 #include "models/SortFilterProxyModelSources.h"
 #include "models/StandardItemModelSources.h"
 #include "widgets/LineEditSearch.h"
+#include "widgets/MainWindow.h"
 
 namespace
 {

@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/NumberParser.h>
+
 #include "dialogs/DialogJumpToPage.h"
 #include "ui_DialogJumpToPage.h"
 

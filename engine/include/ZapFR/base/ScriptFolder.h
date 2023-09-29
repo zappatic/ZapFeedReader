@@ -19,8 +19,9 @@
 #ifndef ZAPFR_ENGINE_SCRIPTFOLDER_H
 #define ZAPFR_ENGINE_SCRIPTFOLDER_H
 
+#include <Poco/JSON/Object.h>
+
 #include "ZapFR/Flag.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

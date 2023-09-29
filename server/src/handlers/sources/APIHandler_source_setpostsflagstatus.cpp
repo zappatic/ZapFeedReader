@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/JSON/Parser.h>
+
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"

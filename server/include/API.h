@@ -19,7 +19,13 @@
 #ifndef ZAPFR_SERVER_API_H
 #define ZAPFR_SERVER_API_H
 
-#include "ServerGlobal.h"
+#include <functional>
+#include <memory>
+#include <unordered_set>
+
+#include <Poco/Net/HTTPServerRequest.h>
+#include <Poco/Net/HTTPServerResponse.h>
+#include <Poco/RegularExpression.h>
 
 namespace ZapFR
 {

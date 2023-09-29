@@ -20,7 +20,6 @@
 #define ZAPFR_ENGINE_AGENTSOURCECLEARLOGS_H
 
 #include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

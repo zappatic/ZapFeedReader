@@ -16,12 +16,14 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/WidgetPropertiesPaneSource.h"
+#include <Poco/JSON/Parser.h>
+
 #include "FeedIconCache.h"
 #include "Utilities.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/Source.h"
 #include "ui_WidgetPropertiesPaneSource.h"
+#include "widgets/WidgetPropertiesPaneSource.h"
 
 ZapFR::Client::WidgetPropertiesPaneSource::WidgetPropertiesPaneSource(QWidget* parent) : QWidget(parent), ui(new Ui::WidgetPropertiesPaneSource)
 {

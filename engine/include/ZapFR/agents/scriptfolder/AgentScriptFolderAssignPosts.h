@@ -20,7 +20,6 @@
 #define ZAPFR_ENGINE_AGENTSCRIPTFOLDERASSIGNPOSTS_H
 
 #include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

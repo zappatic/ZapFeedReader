@@ -19,7 +19,9 @@
 #ifndef ZAPFR_ENGINE_FEEDPARSER_H
 #define ZAPFR_ENGINE_FEEDPARSER_H
 
-#include "ZapFR/Global.h"
+#include <Poco/DOM/Document.h>
+#include <Poco/URI.h>
+
 #include "ZapFR/base/Post.h"
 
 namespace ZapFR

@@ -19,7 +19,10 @@
 #ifndef ZAPFR_SERVER_HTTPSERVER_H
 #define ZAPFR_SERVER_HTTPSERVER_H
 
-#include "ServerGlobal.h"
+#include <memory>
+
+#include <Poco/Net/Context.h>
+#include <Poco/Net/HTTPServer.h>
 
 namespace ZapFR
 {

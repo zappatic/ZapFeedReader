@@ -19,7 +19,14 @@
 #ifndef ZAPFR_ENGINE_LUAPROXYPOST_H
 #define ZAPFR_ENGINE_LUAPROXYPOST_H
 
-#include "ZapFR/Global.h"
+#include <memory>
+
+extern "C"
+{
+#include "lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
+}
 
 namespace ZapFR
 {

@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/Base64Encoder.h>
+
 #include "ZapFR/base/Feed.h"
 
 const std::unordered_map<std::string, ZapFR::Engine::Feed::Statistic> ZapFR::Engine::Feed::JSONIdentifierFeedStatisticMap{

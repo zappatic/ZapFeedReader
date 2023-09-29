@@ -16,8 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/Data/SQLite/Connector.h>
+
 #include "ZapFR/Database.h"
-#include "ZapFR/Global.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 

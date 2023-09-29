@@ -19,7 +19,8 @@
 #ifndef ZAPFR_SERVER_APIREQUEST_H
 #define ZAPFR_SERVER_APIREQUEST_H
 
-#include "ServerGlobal.h"
+#include <Poco/Net/HTMLForm.h>
+#include <Poco/URI.h>
 
 namespace ZapFR
 {

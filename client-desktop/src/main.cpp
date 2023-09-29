@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/Net/NetSSL.h>
+
 #include "ClientGlobal.h"
 #include "widgets/MainWindow.h"
 

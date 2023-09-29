@@ -19,6 +19,8 @@
 #ifndef ZAPFR_ENGINE_POSTDUMMY_H
 #define ZAPFR_ENGINE_POSTDUMMY_H
 
+#include <optional>
+
 #include "ZapFR/base/Post.h"
 
 namespace ZapFR

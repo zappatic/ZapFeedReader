@@ -19,6 +19,8 @@
 #ifndef ZAPFR_ENGINE_SCRIPTFOLDERLOCAL_H
 #define ZAPFR_ENGINE_SCRIPTFOLDERLOCAL_H
 
+#include <Poco/Data/AbstractBinding.h>
+
 #include "ZapFR/base/ScriptFolder.h"
 
 namespace ZapFR

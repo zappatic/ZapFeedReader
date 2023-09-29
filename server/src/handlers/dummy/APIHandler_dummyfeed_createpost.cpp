@@ -16,6 +16,14 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
+#include <Poco/DateTime.h>
+#include <Poco/DateTimeFormat.h>
+#include <Poco/DateTimeFormatter.h>
+#include <Poco/UUIDGenerator.h>
+
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"

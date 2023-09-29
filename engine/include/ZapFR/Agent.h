@@ -19,6 +19,12 @@
 #ifndef ZAPFR_ENGINE_AGENT_H
 #define ZAPFR_ENGINE_AGENT_H
 
+#include <deque>
+#include <optional>
+
+#include <Poco/ThreadPool.h>
+#include <Poco/Timer.h>
+
 #include "AgentRunnable.h"
 #include "ZapFR/Flag.h"
 #include "ZapFR/Global.h"

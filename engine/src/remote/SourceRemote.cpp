@@ -16,7 +16,12 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/remote/SourceRemote.h"
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
+#include <Poco/JSON/Parser.h>
+#include <Poco/Net/HTTPRequest.h>
+
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/base/Feed.h"
@@ -28,6 +33,7 @@
 #include "ZapFR/remote/PostRemote.h"
 #include "ZapFR/remote/ScriptFolderRemote.h"
 #include "ZapFR/remote/ScriptRemote.h"
+#include "ZapFR/remote/SourceRemote.h"
 
 ZapFR::Engine::SourceRemote::SourceRemote(uint64_t id) : Source(id)
 {

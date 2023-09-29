@@ -21,6 +21,7 @@
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 #include "ZapFR/lua/LuaProxyPost.h"
+#include "ZapFR/Global.h"
 
 namespace
 {

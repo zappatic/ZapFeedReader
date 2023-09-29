@@ -19,9 +19,10 @@
 #ifndef ZAPFR_ENGINE_SOURCE_H
 #define ZAPFR_ENGINE_SOURCE_H
 
+#include <optional>
+
 #include "Script.h"
 #include "ZapFR/Flag.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

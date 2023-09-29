@@ -96,7 +96,7 @@ void ZapFR::Engine::Post::removeEnclosure(uint64_t index)
 {
     if (index < mEnclosures.size())
     {
-        mEnclosures.erase(mEnclosures.begin() + index);
+        mEnclosures.erase(mEnclosures.begin() + static_cast<int64_t>(index));
     }
 }
 

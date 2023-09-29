@@ -19,6 +19,9 @@
 #ifndef ZAPFR_ENGINE_FEEDLOCAL_H
 #define ZAPFR_ENGINE_FEEDLOCAL_H
 
+#include <Poco/Data/AbstractBinding.h>
+#include <Poco/File.h>
+
 #include "ZapFR/base/Feed.h"
 
 namespace ZapFR

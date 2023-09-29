@@ -19,8 +19,11 @@
 #ifndef ZAPFR_ENGINE_POST_H
 #define ZAPFR_ENGINE_POST_H
 
+#include <unordered_set>
+
+#include <Poco/JSON/Object.h>
+
 #include "ZapFR/Flag.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

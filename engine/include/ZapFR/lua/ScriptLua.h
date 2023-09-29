@@ -19,7 +19,16 @@
 #ifndef ZAPFR_ENGINE_SCRIPTLUA_H
 #define ZAPFR_ENGINE_SCRIPTLUA_H
 
-#include "ZapFR/Global.h"
+#include <functional>
+#include <string>
+#include <optional>
+
+extern "C"
+{
+#include "lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
+}
 
 namespace ZapFR
 {

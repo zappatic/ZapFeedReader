@@ -16,6 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/DOM/NodeList.h>
+#include <Poco/DigestStream.h>
+#include <Poco/MD5Engine.h>
+#include <Poco/UUIDGenerator.h>
+
 #include "ZapFR/FeedParserRSS20.h"
 
 ZapFR::Engine::FeedParserRSS20::FeedParserRSS20(Poco::XML::Document* xmlDoc, const std::string& url) : FeedParser(xmlDoc, url)

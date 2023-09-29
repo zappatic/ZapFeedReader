@@ -16,6 +16,19 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
+#include <Poco/Base64Decoder.h>
+#include <Poco/Base64Encoder.h>
+#include <Poco/Net/Context.h>
+#include <Poco/Net/HTMLForm.h>
+#include <Poco/Net/HTTPRequest.h>
+#include <Poco/Net/HTTPResponse.h>
+#include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/URI.h>
+
+#include "ZapFR/Global.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 

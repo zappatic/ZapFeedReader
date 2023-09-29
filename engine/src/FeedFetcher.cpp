@@ -16,6 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/DOM/DOMParser.h>
+#include <Poco/Net/HTTPRequest.h>
+
 #include "ZapFR/FeedFetcher.h"
 #include "ZapFR/FeedParserATOM10.h"
 #include "ZapFR/FeedParserRSS10.h"

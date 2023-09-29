@@ -19,7 +19,9 @@
 #ifndef ZAPFR_ENGINE_HELPERS_H
 #define ZAPFR_ENGINE_HELPERS_H
 
-#include "ZapFR/Global.h"
+#include <optional>
+
+#include <Poco/Net/HTTPCredentials.h>
 
 namespace ZapFR
 {

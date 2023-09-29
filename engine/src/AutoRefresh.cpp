@@ -16,8 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/AutoRefresh.h"
+#include <Poco/DateTimeParser.h>
+
 #include "ZapFR/Agent.h"
+#include "ZapFR/AutoRefresh.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 

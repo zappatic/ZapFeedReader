@@ -16,8 +16,13 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/remote/ScriptRemote.h"
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
+#include <Poco/Net/HTTPRequest.h>
+
 #include "ZapFR/Helpers.h"
+#include "ZapFR/remote/ScriptRemote.h"
 #include "ZapFR/remote/SourceRemote.h"
 
 ZapFR::Engine::ScriptRemote::ScriptRemote(uint64_t id, Source* parentSource) : Script(id, parentSource)

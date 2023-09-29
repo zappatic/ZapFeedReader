@@ -16,9 +16,14 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "widgets/WebEngineViewPost.h"
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
+#include <Poco/URI.h>
+
 #include "./ui_MainWindow.h"
 #include "widgets/MainWindow.h"
+#include "widgets/WebEngineViewPost.h"
 
 bool ZapFR::Client::WebEngineViewPost::msBrowsersDetected{false};
 std::vector<ZapFR::Client::DetectedBrowser> ZapFR::Client::WebEngineViewPost::msDetectedBrowsers{};

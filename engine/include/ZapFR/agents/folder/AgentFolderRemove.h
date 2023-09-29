@@ -20,7 +20,6 @@
 #define ZAPFR_ENGINE_AGENTFOLDERREMOVE_H
 
 #include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

@@ -16,8 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/AgentMonitorFeedRefreshCompletion.h"
+#include <thread>
+
 #include "ZapFR/Agent.h"
+#include "ZapFR/agents/AgentMonitorFeedRefreshCompletion.h"
 #include "ZapFR/base/Source.h"
 
 using namespace std::chrono_literals;

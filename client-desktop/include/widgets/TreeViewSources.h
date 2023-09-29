@@ -19,6 +19,8 @@
 #ifndef ZAPFR_CLIENT_TREEVIEWSOURCES_H
 #define ZAPFR_CLIENT_TREEVIEWSOURCES_H
 
+#include <unordered_set>
+
 #include "ClientGlobal.h"
 #include "widgets/TreeViewPaletteCorrected.h"
 

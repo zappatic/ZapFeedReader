@@ -16,7 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/local/SourceLocal.h"
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
 #include "ZapFR/Database.h"
 #include "ZapFR/FeedFetcher.h"
 #include "ZapFR/Helpers.h"
@@ -27,6 +29,7 @@
 #include "ZapFR/local/PostLocal.h"
 #include "ZapFR/local/ScriptFolderLocal.h"
 #include "ZapFR/local/ScriptLocal.h"
+#include "ZapFR/local/SourceLocal.h"
 #include "ZapFR/lua/ScriptLua.h"
 
 using namespace Poco::Data::Keywords;

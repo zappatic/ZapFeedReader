@@ -21,7 +21,6 @@
 
 #include "ZapFR/AgentRunnable.h"
 #include "ZapFR/Flag.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

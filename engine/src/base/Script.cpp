@@ -16,8 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/base/Script.h"
+#include <Poco/StringTokenizer.h>
+
 #include "ZapFR/Helpers.h"
+#include "ZapFR/base/Script.h"
 #include "ZapFR/base/Source.h"
 
 std::string ZapFR::Engine::Script::msEventNewPostIdentifier{"newpost"};

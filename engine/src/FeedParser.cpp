@@ -16,6 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/DOM/DOMWriter.h>
+#include <Poco/DOM/NodeList.h>
+#include <Poco/XML/XMLWriter.h>
+
 #include "ZapFR/FeedParser.h"
 
 ZapFR::Engine::FeedParser::FeedParser(Poco::XML::Document* xmlDoc, const std::string& url) : mXMLDoc(xmlDoc), mURL(url)

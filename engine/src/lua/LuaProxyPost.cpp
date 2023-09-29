@@ -330,7 +330,7 @@ int ZapFR::Engine::LuaProxyPost::addEnclosure(lua_State* L)
         {
             size = 0;
         }
-        post->addEnclosure(url, mimeType, size);
+        post->addEnclosure(url, mimeType, static_cast<uint64_t>(size));
     }
 
     return 0;
@@ -421,7 +421,7 @@ int ZapFR::Engine::LuaProxyPost::getEnclosureSize(lua_State* L)
         if (index < enclosures.size())
         {
             const auto& enclosure = enclosures.at(index);
-            lua_pushinteger(L, enclosure.size);
+            lua_pushinteger(L, static_cast<int64_t>(enclosure.size));
             return 1;
         }
     }
@@ -466,7 +466,7 @@ std::tuple<ZapFR::Engine::Post*, uint64_t> ZapFR::Engine::LuaProxyPost::lookupPo
         auto key = std::string(lua_tostring(L, -1));
         if (key == "_index")
         {
-            index = lua_tointeger(L, -2);
+            index = static_cast<uint64_t>(lua_tointeger(L, -2));
         }
         else if (key == "_post_ptr")
         {

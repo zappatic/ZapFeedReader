@@ -19,8 +19,11 @@
 #ifndef ZAPFR_ENGINE_FEED_H
 #define ZAPFR_ENGINE_FEED_H
 
+#include <optional>
+
+#include <Poco/JSON/Object.h>
+
 #include "ZapFR/Flag.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

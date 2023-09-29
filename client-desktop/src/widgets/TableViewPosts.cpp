@@ -905,7 +905,8 @@ void ZapFR::Client::TableViewPosts::connectStuff()
                                                                           QMetaObject::invokeMethod(this,
                                                                                                     [=, this]()
                                                                                                     {
-                                                                                                        auto jsonData = QByteArray(json.c_str(), json.length());
+                                                                                                        auto jsonData =
+                                                                                                            QByteArray(json.c_str(), static_cast<ssize_t>(json.length()));
                                                                                                         auto mimeData = new QMimeData();
                                                                                                         mimeData->setData(MIMETYPE_COPIED_TEST_POST, jsonData);
                                                                                                         QGuiApplication::clipboard()->setMimeData(mimeData);

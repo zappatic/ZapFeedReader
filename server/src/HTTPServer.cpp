@@ -16,8 +16,13 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "HTTPServer.h"
+#include <grp.h>
+#include <pwd.h>
+
+#include <Poco/Net/SecureServerSocket.h>
+
 #include "APIRequestHandlerFactory.h"
+#include "HTTPServer.h"
 
 ZapFR::Server::HTTPServer::HTTPServer(Daemon* daemon, const std::string& bindAddress, uint16_t port, const std::string& pubCert, const std::string& privKey)
     : mDaemon(daemon), mBindAddress(bindAddress), mBindPort(port), mPubCert(pubCert), mPrivKey(privKey)

@@ -19,7 +19,8 @@
 #ifndef ZAPFR_SERVER_DAEMON_H
 #define ZAPFR_SERVER_DAEMON_H
 
-#include "ServerGlobal.h"
+#include <Poco/Util/JSONConfiguration.h>
+#include <Poco/Util/ServerApplication.h>
 
 namespace ZapFR
 {

@@ -16,13 +16,24 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/local/FeedLocal.h"
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
+#include <Poco/Data/RecordSet.h>
+#include <Poco/DigestStream.h>
+#include <Poco/FileStream.h>
+#include <Poco/MD5Engine.h>
+#include <Poco/Path.h>
+#include <Poco/StreamCopier.h>
+
 #include "ZapFR/Database.h"
 #include "ZapFR/FavIconParser.h"
 #include "ZapFR/FeedFetcher.h"
+#include "ZapFR/FeedParser.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/base/Script.h"
+#include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/PostLocal.h"
 #include "ZapFR/local/ScriptLocal.h"
 #include "ZapFR/local/SourceLocal.h"

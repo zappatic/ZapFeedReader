@@ -19,7 +19,8 @@
 #ifndef ZAPFR_SERVER_DUMMYFEED_H
 #define ZAPFR_SERVER_DUMMYFEED_H
 
-#include "ZapFR/Global.h"
+#include <vector>
+
 
 namespace ZapFR
 {

@@ -16,8 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/OPMLParser.h"
+#include <Poco/SAX/Attributes.h>
+#include <Poco/SAX/SAXParser.h>
+
 #include "ZapFR/Helpers.h"
+#include "ZapFR/OPMLParser.h"
 
 std::vector<ZapFR::Engine::OPMLEntry> ZapFR::Engine::OPMLParser::parse(const std::string& opmlXML)
 {

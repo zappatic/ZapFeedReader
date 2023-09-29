@@ -16,10 +16,12 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "dialogs/DialogEditScript.h"
+#include <Poco/JSON/Parser.h>
+
 #include "SyntaxHighlighterLua.h"
 #include "ZapFR/lua/ScriptLua.h"
 #include "delegates/ItemDelegateEditScriptDialogSource.h"
+#include "dialogs/DialogEditScript.h"
 #include "models/StandardItemModelSources.h"
 #include "ui_DialogEditScript.h"
 #include "widgets/MainWindow.h"
@@ -103,7 +105,7 @@ ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(par
                     }
                     case DialogTestScriptEditEnclosure::DisplayMode::Edit:
                     {
-                        mDummyPost->updateEnclosure(ui->tableViewTestEnclosures->currentIndex().row(), mDialogEditEnclosure->url().toStdString(),
+                        mDummyPost->updateEnclosure(static_cast<uint64_t>(ui->tableViewTestEnclosures->currentIndex().row()), mDialogEditEnclosure->url().toStdString(),
                                                     mDialogEditEnclosure->mimeType().toStdString(), mDialogEditEnclosure->size());
                         break;
                     }
@@ -473,13 +475,13 @@ void ZapFR::Client::DialogEditScript::pasteTestPost()
     if (mimeData != nullptr && mimeData->hasFormat(MIMETYPE_COPIED_TEST_POST))
     {
         auto jsonData = mimeData->data(MIMETYPE_COPIED_TEST_POST);
-        auto json = std::string(jsonData.constData(), jsonData.length());
+        auto json = std::string(jsonData.constData(), static_cast<size_t>(jsonData.length()));
         Poco::JSON::Parser parser;
         try
         {
             auto root = parser.parse(json);
             auto postJSON = root.extract<Poco::JSON::Object::Ptr>();
-            mDummyPost = std::move(ZapFR::Engine::PostDummy::createFromJSON(postJSON));
+            mDummyPost = ZapFR::Engine::PostDummy::createFromJSON(postJSON);
 
             mDummySource->setAssociatedDummyPost(mDummyPost.get());
             mDummyFeed->setAssociatedDummyPost(mDummyPost.get());
@@ -502,7 +504,7 @@ void ZapFR::Client::DialogEditScript::editEnclosure()
     auto index = ui->tableViewTestEnclosures->currentIndex();
     if (index.isValid())
     {
-        const auto& enclosure = mDummyPost->enclosures().at(index.row());
+        const auto& enclosure = mDummyPost->enclosures().at(static_cast<size_t>(index.row()));
         mDialogEditEnclosure->reset(DialogTestScriptEditEnclosure::DisplayMode::Edit, QString::fromUtf8(enclosure.url), QString::fromUtf8(enclosure.mimeType), enclosure.size);
         mDialogEditEnclosure->open();
     }
@@ -513,7 +515,7 @@ void ZapFR::Client::DialogEditScript::removeEnclosure()
     auto index = ui->tableViewTestEnclosures->currentIndex();
     if (index.isValid())
     {
-        mDummyPost->removeEnclosure(index.row());
+        mDummyPost->removeEnclosure(static_cast<uint64_t>(index.row()));
         updateTestUI();
     }
 }

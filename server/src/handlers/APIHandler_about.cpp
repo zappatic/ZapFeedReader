@@ -20,6 +20,7 @@
 #include "APIHandlers.h"
 #include "APIRequest.h"
 #include "Daemon.h"
+#include "ZapFR/Global.h"
 
 // ::API
 //

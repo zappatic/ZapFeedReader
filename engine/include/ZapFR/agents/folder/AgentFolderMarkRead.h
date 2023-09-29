@@ -19,8 +19,9 @@
 #ifndef ZAPFR_ENGINE_AGENTFOLDERMARKREAD_H
 #define ZAPFR_ENGINE_AGENTFOLDERMARKREAD_H
 
+#include <unordered_set>
+
 #include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

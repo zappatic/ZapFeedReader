@@ -16,9 +16,12 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "APIRequestHandler.h"
+#include <Poco/JSON/Object.h>
+
 #include "API.h"
 #include "APIRequest.h"
+#include "APIRequestHandler.h"
+#include "Exceptions.h"
 
 ZapFR::Server::APIRequestHandler::APIRequestHandler(API* api) : mAPI(api)
 {
@@ -38,24 +41,10 @@ void ZapFR::Server::APIRequestHandler::handleRequest(Poco::Net::HTTPServerReques
         auto handler = mAPI->handler();
         httpStatus = handler(apiRequest.get(), response);
     }
-    catch (const APIError& e)
-    {
-        httpStatus = Poco::Net::HTTPResponse::HTTP_OK;
-        auto jsonErrObj = Poco::JSON::Object();
-        jsonErrObj.set("success", false);
-        jsonErrObj.set("error", e.what());
-        Poco::JSON::Stringifier::stringify(jsonErrObj, response.send());
-        std::cerr << "API error: " << e.what() << "\n";
-    }
     catch (const UnauthorizedError& e)
     {
         response.set("WWW-Authenticate", "Basic realm=\"Zap Feed Reader\"");
         httpStatus = Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED;
-        exceptionMessage = e.what();
-    }
-    catch (const FourOhFourError& e)
-    {
-        httpStatus = Poco::Net::HTTPResponse::HTTP_NOT_FOUND;
         exceptionMessage = e.what();
     }
     catch (const Poco::Exception& e)

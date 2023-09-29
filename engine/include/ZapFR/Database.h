@@ -19,7 +19,8 @@
 #ifndef ZAPFR_ENGINE_DATABASE_H
 #define ZAPFR_ENGINE_DATABASE_H
 
-#include "FeedParser.h"
+#include <Poco/Data/Session.h>
+
 #include "ZapFR/Global.h"
 
 namespace ZapFR

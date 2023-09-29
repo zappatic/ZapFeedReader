@@ -16,6 +16,9 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/NumberParser.h>
+
+#include "ZapFR/Global.h"
 #include "dialogs/DialogAddSource.h"
 #include "ui_DialogAddSource.h"
 

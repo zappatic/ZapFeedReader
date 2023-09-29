@@ -19,6 +19,8 @@
 #ifndef ZAPFR_CLIENT_MAINWINDOW_H
 #define ZAPFR_CLIENT_MAINWINDOW_H
 
+#include <thread>
+
 #include "ClientGlobal.h"
 #include "ZapFR/Flag.h"
 #include "ZapFR/base/Post.h"

@@ -19,13 +19,14 @@
 #ifndef ZAPFR_ENGINE_FEEDFETCHER_H
 #define ZAPFR_ENGINE_FEEDFETCHER_H
 
-#include "Database.h"
-#include "ZapFR/Global.h"
+#include <memory>
 
 namespace ZapFR
 {
     namespace Engine
     {
+        class FeedParser;
+
         class FeedFetcher
         {
           public:

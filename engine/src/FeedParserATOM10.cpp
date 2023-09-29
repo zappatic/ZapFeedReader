@@ -16,6 +16,11 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#define FMT_HEADER_ONLY
+#include <fmt/core.h>
+
+#include <Poco/DOM/NodeList.h>
+
 #include "ZapFR/FeedParserATOM10.h"
 
 ZapFR::Engine::FeedParserATOM10::FeedParserATOM10(Poco::XML::Document* xmlDoc, const std::string& url) : FeedParser(xmlDoc, url)

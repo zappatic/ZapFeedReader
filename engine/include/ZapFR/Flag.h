@@ -19,7 +19,9 @@
 #ifndef ZAPFR_ENGINE_FLAG_H
 #define ZAPFR_ENGINE_FLAG_H
 
-#include "ZapFR/Global.h"
+#include <memory>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace ZapFR
 {

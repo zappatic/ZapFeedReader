@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Poco/URI.h>
+
 #include "API.h"
 #include "Daemon.h"
 

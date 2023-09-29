@@ -19,7 +19,9 @@
 #ifndef ZAPFR_ENGINE_AGENTRUNNABLE_H
 #define ZAPFR_ENGINE_AGENTRUNNABLE_H
 
-#include "ZapFR/Global.h"
+#include <functional>
+
+#include <Poco/Runnable.h>
 
 namespace ZapFR
 {

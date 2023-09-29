@@ -19,6 +19,10 @@
 #ifndef ZAPFR_ENGINE_AUTOREFRESH_H
 #define ZAPFR_ENGINE_AUTOREFRESH_H
 
+#include <optional>
+
+#include <Poco/Timer.h>
+
 #include "ZapFR/Global.h"
 
 namespace ZapFR

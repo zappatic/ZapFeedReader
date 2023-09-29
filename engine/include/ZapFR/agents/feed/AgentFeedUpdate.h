@@ -19,8 +19,9 @@
 #ifndef ZAPFR_ENGINE_AGENTFEEDSETPROPERTIES_H
 #define ZAPFR_ENGINE_AGENTFEEDSETPROPERTIES_H
 
+#include <optional>
+
 #include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {

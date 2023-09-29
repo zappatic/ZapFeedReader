@@ -16,8 +16,12 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/AgentRunnable.h"
+#define FMT_HEADER_ONLY
+#include <cxxabi.h>
+#include <fmt/core.h>
+
 #include "ZapFR/Agent.h"
+#include "ZapFR/AgentRunnable.h"
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentRunnable::AgentRunnable(uint64_t sourceID) : mSourceID(sourceID)

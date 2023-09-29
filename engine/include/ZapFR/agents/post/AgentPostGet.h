@@ -19,8 +19,9 @@
 #ifndef ZAPFR_ENGINE_AGENTPOSTGET_H
 #define ZAPFR_ENGINE_AGENTPOSTGET_H
 
+#include <memory>
+
 #include "ZapFR/AgentRunnable.h"
-#include "ZapFR/Global.h"
 
 namespace ZapFR
 {
