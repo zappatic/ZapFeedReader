@@ -28,7 +28,8 @@ namespace ZapFR
         class AgentFolderMove : public AgentRunnable
         {
           public:
-            explicit AgentFolderMove(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
+            explicit AgentFolderMove(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder,
+                                     std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
             virtual ~AgentFolderMove() = default;
 
             void payload(Source* source) override;
@@ -38,7 +39,7 @@ namespace ZapFR
             uint64_t mFolderID{0};
             uint64_t mNewFolderID{0};
             uint64_t mNewSortOrder{0};
-            std::function<void()> mFinishedCallback{};
+            std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

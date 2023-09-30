@@ -108,7 +108,7 @@
     ],
     "requireCredentials": true,
     "contentType": "application/json",
-    "jsonOutput": "Object"
+    "jsonOutput": "Array"
   },
   "folder-sort": {
     "section": "Folders",

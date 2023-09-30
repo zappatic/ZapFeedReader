@@ -64,7 +64,7 @@ uint64_t ZapFR::Engine::SourceDummy::addFolder(const std::string& /*title*/, uin
     throw std::runtime_error("Not implemented");
 }
 
-void ZapFR::Engine::SourceDummy::moveFolder(uint64_t /*folderID*/, uint64_t /*newParent*/, uint64_t /*newSortOrder*/)
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceDummy::moveFolder(uint64_t /*folderID*/, uint64_t /*newParent*/, uint64_t /*newSortOrder*/)
 {
     throw std::runtime_error("Not implemented");
 }

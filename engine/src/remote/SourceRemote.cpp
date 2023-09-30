@@ -301,8 +301,10 @@ uint64_t ZapFR::Engine::SourceRemote::addFolder(const std::string& title, uint64
     return 0;
 }
 
-void ZapFR::Engine::SourceRemote::moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)
 {
+    std::unordered_map<uint64_t, uint64_t> affectedFolderIDs;
+
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
     {
@@ -313,8 +315,26 @@ void ZapFR::Engine::SourceRemote::moveFolder(uint64_t folderID, uint64_t newPare
         params["parentFolderID"] = std::to_string(newParent);
         params["sortOrder"] = std::to_string(newSortOrder);
 
-        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto arr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!arr.isNull())
+        {
+            for (size_t i = 0; i < arr->size(); ++i)
+            {
+                auto o = arr->getObject(static_cast<uint32_t>(i));
+                if (!o.isNull())
+                {
+                    auto id = o->getValue<uint64_t>("folderID");
+                    auto sortOrder = o->getValue<uint64_t>("sortOrder");
+                    affectedFolderIDs[id] = sortOrder;
+                }
+            }
+        }
     }
+
+    return affectedFolderIDs;
 }
 
 void ZapFR::Engine::SourceRemote::removeFolder(uint64_t folderID)

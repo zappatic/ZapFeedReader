@@ -1360,6 +1360,44 @@ void ZapFR::Client::TreeViewSources::updateFeedSortOrders(uint64_t sourceID, con
     }
 }
 
+void ZapFR::Client::TreeViewSources::updateFolderSortOrders(uint64_t sourceID, const std::unordered_map<uint64_t, uint64_t>& folderIDs)
+{
+    std::function<void(QStandardItem*)> processChildren;
+    processChildren = [&](QStandardItem* parentItem)
+    {
+        auto parentSourceID = parentItem->data(Role::ParentSourceID).toULongLong();
+        if (parentSourceID != sourceID)
+        {
+            return;
+        }
+
+        auto type = parentItem->data(Role::Type).toULongLong();
+
+        if (type == EntryType::Folder)
+        {
+            auto folderID = parentItem->data(Role::ID).toULongLong();
+            if (folderIDs.contains(folderID))
+            {
+                parentItem->setData(QVariant::fromValue<uint64_t>(folderIDs.at(folderID)), Role::SortOrder);
+            }
+        }
+
+        if (type != EntryType::Feed)
+        {
+            for (int32_t i = 0; i < parentItem->rowCount(); ++i)
+            {
+                processChildren(parentItem->child(i));
+            }
+        }
+    };
+
+    auto root = mItemModelSources->invisibleRootItem();
+    for (int32_t i = 0; i < root->rowCount(); ++i)
+    {
+        processChildren(root->child(i));
+    }
+}
+
 void ZapFR::Client::TreeViewSources::importOPML()
 {
     if (mDialogImportOPML == nullptr)

@@ -59,7 +59,7 @@ namespace ZapFR
             static void remove(Source* parentSource, uint64_t folderID);
             static void resort(uint64_t parentID);
             static uint64_t createFolderHierarchy(Source* parentSource, uint64_t parentID, const std::vector<std::string> folderHierarchy);
-            static void move(Source* parentSource, uint64_t folderID, uint64_t newParent, uint64_t newSortOrder);
+            static std::unordered_map<uint64_t, uint64_t> move(Source* parentSource, uint64_t folderID, uint64_t newParent, uint64_t newSortOrder);
 
           private:
             mutable bool mFeedIDsFetched{false};

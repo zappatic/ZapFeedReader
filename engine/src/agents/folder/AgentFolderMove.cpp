@@ -21,13 +21,14 @@
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFolderMove::AgentFolderMove(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentFolderMove::AgentFolderMove(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder,
+                                                std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback)
     : AgentRunnable(sourceID), mFolderID(folderID), mNewFolderID(newFolder), mNewSortOrder(newSortOrder), mFinishedCallback(finishedCallback)
 {
 }
 
 void ZapFR::Engine::AgentFolderMove::payload(Source* source)
 {
-    source->moveFolder(mFolderID, mNewFolderID, mNewSortOrder);
-    mFinishedCallback();
+    auto affectedFolders = source->moveFolder(mFolderID, mNewFolderID, mNewSortOrder);
+    mFinishedCallback(mSourceID, affectedFolders);
 }

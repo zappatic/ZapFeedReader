@@ -60,7 +60,7 @@ namespace ZapFR
             TreeViewSources::DisplayMode mDisplayMode{TreeViewSources::DisplayMode::ShowAll};
             bool mAllowDragAndDrop{true};
 
-            std::string serializeItem(const QModelIndex& index) const;
+            Poco::JSON::Object serializeItem(const QModelIndex& index) const;
             QStandardItem* unserializeItem(const Poco::JSON::Object::Ptr o) const;
         };
     } // namespace Client

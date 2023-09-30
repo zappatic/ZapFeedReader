@@ -425,8 +425,10 @@ uint64_t ZapFR::Engine::FolderLocal::createFolderHierarchy(Source* parentSource,
     return 0;
 }
 
-void ZapFR::Engine::FolderLocal::move(Source* parentSource, uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::FolderLocal::move(Source* parentSource, uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)
 {
+    std::unordered_map<uint64_t, uint64_t> affectedFolderIDs;
+
     auto f = querySingle(parentSource, {"folders.id=?"}, {use(folderID, "id")});
     if (f.has_value())
     {
@@ -434,12 +436,31 @@ void ZapFR::Engine::FolderLocal::move(Source* parentSource, uint64_t folderID, u
         updateStmt << "UPDATE folders SET parent=?, sortOrder=? WHERE id=?", use(newParent), use(newSortOrder), use(folderID), now;
 
         auto oldParent = f.value()->parentID();
+
+        std::vector<uint64_t> parentFoldersToQuery{oldParent};
         resort(oldParent);
         if (newParent != oldParent) // check in case we are moving within the same folder
         {
+            parentFoldersToQuery.emplace_back(newParent);
             resort(newParent);
         }
+
+        auto parentFolderIDs = Helpers::joinIDNumbers(parentFoldersToQuery, ",");
+        uint64_t affectedFolderID{0};
+        uint64_t affectedSortOrder{0};
+        Poco::Data::Statement affectedSelectStmt(*(Database::getInstance()->session()));
+        affectedSelectStmt << Poco::format("SELECT id,sortOrder FROM folders WHERE parent IN (%s)", parentFolderIDs), into(affectedFolderID), into(affectedSortOrder),
+            range(0, 1);
+        while (!affectedSelectStmt.done())
+        {
+            if (affectedSelectStmt.execute() > 0)
+            {
+                affectedFolderIDs[affectedFolderID] = affectedSortOrder;
+            }
+        }
     }
+
+    return affectedFolderIDs;
 }
 
 void ZapFR::Engine::FolderLocal::update(const std::string& newTitle)

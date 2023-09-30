@@ -183,9 +183,10 @@ bool ZapFR::Client::SortFilterProxyModelSources::dropMimeData(const QMimeData* d
     }
     else if (data->hasFormat(MimeType::DraggableFolder))
     {
-        ZapFR::Engine::Agent::getInstance()->queueMoveFolder(parentSourceID, unserialized->data(TreeViewSources::Role::ID).toULongLong(), newFolder,
-                                                             static_cast<uint64_t>(newSortOrder),
-                                                             [&]() { QMetaObject::invokeMethod(mMainWindow, [this]() { mMainWindow->treeViewSources()->reload(); }); });
+        ZapFR::Engine::Agent::getInstance()->queueMoveFolder(
+            parentSourceID, unserialized->data(TreeViewSources::Role::ID).toULongLong(), newFolder, static_cast<uint64_t>(newSortOrder),
+            [&](uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& affectedFolders)
+            { QMetaObject::invokeMethod(mMainWindow, [=, this]() { mMainWindow->treeViewSources()->updateFolderSortOrders(affectedSourceID, affectedFolders); }); });
     }
     return true;
 }
@@ -209,7 +210,11 @@ QMimeData* ZapFR::Client::SortFilterProxyModelSources::mimeData(const QModelInde
         auto index = indexes.at(0);
         auto type = index.data(TreeViewSources::Role::Type).toUInt();
 
-        auto serialized = serializeItem(index);
+        auto serializedObj = serializeItem(index);
+        std::stringstream ss;
+        Poco::JSON::Stringifier::stringify(serializedObj, ss);
+        auto serialized = ss.str();
+
         auto serializedBA = QByteArray(serialized.c_str(), static_cast<ssize_t>(serialized.length()));
 
         switch (type)
@@ -230,43 +235,38 @@ QMimeData* ZapFR::Client::SortFilterProxyModelSources::mimeData(const QModelInde
     return mimeData;
 }
 
-std::string ZapFR::Client::SortFilterProxyModelSources::serializeItem(const QModelIndex& index) const
+Poco::JSON::Object ZapFR::Client::SortFilterProxyModelSources::serializeItem(const QModelIndex& indexToSerialize) const
 {
     Poco::JSON::Object o;
 
-    o.set("DisplayRole", index.data(Qt::DisplayRole).toString().toStdString());
-    if (!index.data(Qt::ToolTipRole).isNull())
+    o.set("DisplayRole", indexToSerialize.data(Qt::DisplayRole).toString().toStdString());
+    if (!indexToSerialize.data(Qt::ToolTipRole).isNull())
     {
-        o.set("ToolTipRole", index.data(Qt::ToolTipRole).toString().toStdString());
+        o.set("ToolTipRole", indexToSerialize.data(Qt::ToolTipRole).toString().toStdString());
     }
-    o.set("Type", index.data(TreeViewSources::Role::Type).toULongLong());
-    o.set("ID", index.data(TreeViewSources::Role::ID).toULongLong());
-    o.set("ParentSourceID", index.data(TreeViewSources::Role::ParentSourceID).toULongLong());
-    o.set("DisplayUnreadCountBadge", index.data(TreeViewSources::Role::DisplayUnreadCountBadge).toBool());
-    o.set("ParentFolderID", index.data(TreeViewSources::Role::ParentFolderID).toULongLong());
-    auto error = index.data(TreeViewSources::Role::Error);
+    o.set("Type", indexToSerialize.data(TreeViewSources::Role::Type).toULongLong());
+    o.set("ID", indexToSerialize.data(TreeViewSources::Role::ID).toULongLong());
+    o.set("ParentSourceID", indexToSerialize.data(TreeViewSources::Role::ParentSourceID).toULongLong());
+    o.set("DisplayUnreadCountBadge", indexToSerialize.data(TreeViewSources::Role::DisplayUnreadCountBadge).toBool());
+    o.set("ParentFolderID", indexToSerialize.data(TreeViewSources::Role::ParentFolderID).toULongLong());
+    auto error = indexToSerialize.data(TreeViewSources::Role::Error);
     if (error.isValid())
     {
         o.set("Error", error.toString().toStdString());
     }
-    o.set("FeedURL", index.data(TreeViewSources::Role::FeedURL).toString().toStdString());
-    o.set("FeedLink", index.data(TreeViewSources::Role::FeedLink).toString().toStdString());
-    o.set("SortOrder", index.data(TreeViewSources::Role::SortOrder).toULongLong());
+    o.set("FeedURL", indexToSerialize.data(TreeViewSources::Role::FeedURL).toString().toStdString());
+    o.set("FeedLink", indexToSerialize.data(TreeViewSources::Role::FeedLink).toString().toStdString());
+    o.set("SortOrder", indexToSerialize.data(TreeViewSources::Role::SortOrder).toULongLong());
 
-    // qDebug() << "before:";
-    // qDebug() << "Type" << index.data(TreeViewSources::Role::Type);
-    // qDebug() << "ID" << index.data(TreeViewSources::Role::ID);
-    // qDebug() << "ParentSourceID" << index.data(TreeViewSources::Role::ParentSourceID);
-    // qDebug() << "DisplayUnreadCountBadge" << index.data(TreeViewSources::Role::DisplayUnreadCountBadge);
-    // qDebug() << "ParentFolderID" << index.data(TreeViewSources::Role::ParentFolderID);
-    // qDebug() << "Error" << index.data(TreeViewSources::Role::Error);
-    // qDebug() << "FeedURL" << index.data(TreeViewSources::Role::FeedURL);
-    // qDebug() << "FeedLink" << index.data(TreeViewSources::Role::FeedLink);
-    // qDebug() << "SortOrder" << index.data(TreeViewSources::Role::SortOrder);
+    Poco::JSON::Array childrenArr;
+    for (int32_t i = 0; i < rowCount(indexToSerialize); ++i)
+    {
+        auto child = index(i, 0, indexToSerialize);
+        childrenArr.add(serializeItem(child));
+    }
+    o.set("children", childrenArr);
 
-    std::stringstream ss;
-    Poco::JSON::Stringifier::stringify(o, ss);
-    return ss.str();
+    return o;
 }
 
 QStandardItem* ZapFR::Client::SortFilterProxyModelSources::unserializeItem(const Poco::JSON::Object::Ptr o) const
@@ -290,16 +290,12 @@ QStandardItem* ZapFR::Client::SortFilterProxyModelSources::unserializeItem(const
     item->setData(QString::fromUtf8(o->getValue<std::string>("FeedLink")), TreeViewSources::Role::FeedLink);
     item->setData(QVariant::fromValue<uint64_t>(o->getValue<uint64_t>("SortOrder")), TreeViewSources::Role::SortOrder);
 
-    // qDebug() << "after:";
-    // qDebug() << "Type" << item->data(TreeViewSources::Role::Type);
-    // qDebug() << "ID" << item->data(TreeViewSources::Role::ID);
-    // qDebug() << "ParentSourceID" << item->data(TreeViewSources::Role::ParentSourceID);
-    // qDebug() << "DisplayUnreadCountBadge" << item->data(TreeViewSources::Role::DisplayUnreadCountBadge);
-    // qDebug() << "ParentFolderID" << item->data(TreeViewSources::Role::ParentFolderID);
-    // qDebug() << "Error" << item->data(TreeViewSources::Role::Error);
-    // qDebug() << "FeedURL" << item->data(TreeViewSources::Role::FeedURL);
-    // qDebug() << "FeedLink" << item->data(TreeViewSources::Role::FeedLink);
-    // qDebug() << "SortOrder" << item->data(TreeViewSources::Role::SortOrder);
+    auto children = o->getArray("children");
+    for (size_t i = 0; i < children->size(); ++i)
+    {
+        auto child = children->getObject(static_cast<uint32_t>(i));
+        item->appendRow(unserializeItem(child));
+    }
 
     return item;
 }

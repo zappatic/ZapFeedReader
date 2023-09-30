@@ -70,6 +70,7 @@ namespace ZapFR
             void agentErrorOccurred(uint64_t sourceID, const std::string& errorMessage);
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);
             void updateFeedSortOrders(uint64_t sourceID, const std::unordered_map<uint64_t, uint64_t>& feedIDs);
+            void updateFolderSortOrders(uint64_t sourceID, const std::unordered_map<uint64_t, uint64_t>& folderIDs);
             void saveSettings(QJsonObject& root);
             void restoreSettings(const QJsonObject& root);
 

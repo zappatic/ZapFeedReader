@@ -242,7 +242,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->addBodyParameter({R"(parentFolderID)", true, R"(The (new) folder parent to put the folder in)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
-				entry->setJSONOutput(R"(Object)");
+				entry->setJSONOutput(R"(Array)");
 				entry->setHandler(ZapFR::Server::APIHandler_folder_move);
 				msAPIs.emplace_back(std::move(entry));
 			}

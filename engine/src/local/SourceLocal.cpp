@@ -151,9 +151,9 @@ uint64_t ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_
     return FolderLocal::create(parentID, title);
 }
 
-void ZapFR::Engine::SourceLocal::moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)
+std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceLocal::moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)
 {
-    FolderLocal::move(this, folderID, newParent, newSortOrder);
+    return FolderLocal::move(this, folderID, newParent, newSortOrder);
 }
 
 void ZapFR::Engine::SourceLocal::removeFolder(uint64_t folderID)

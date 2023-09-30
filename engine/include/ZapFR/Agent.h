@@ -112,7 +112,8 @@ namespace ZapFR
 
             // folder manipulation
             void queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
-            void queueMoveFolder(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder, std::function<void()> finishedCallback);
+            void queueMoveFolder(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder,
+                                 std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
             void queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback);
             void queueRemoveFolder(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
             void queueUpdateFolder(uint64_t sourceID, uint64_t folder, const std::string& newTitle,
