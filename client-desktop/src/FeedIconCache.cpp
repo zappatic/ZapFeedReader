@@ -104,7 +104,7 @@ const QString& ZapFR::Client::FeedIconCache::base64icon(uint64_t sourceID, uint6
 
     // we leave the caching here, not in the cache function, as the base64 icon is only requested
     // for the thumbnail overview, so avoid this work until that request is made
-    const auto& icon = FeedIconCache::icon(sourceID, feedID);
+    const auto& icon = FeedIconCache::icon(sourceID, feedID).scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     QBuffer buffer;
     buffer.open(QIODevice::WriteOnly);
     icon.save(&buffer, "PNG");
