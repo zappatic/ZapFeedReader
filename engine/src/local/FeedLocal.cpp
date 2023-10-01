@@ -449,9 +449,6 @@ void ZapFR::Engine::FeedLocal::fetchStatistics()
 
 void ZapFR::Engine::FeedLocal::fetchThumbnailData()
 {
-    mThumbnailData.clear();
-    fetchData();
-
     std::vector<std::string> whereClause;
     std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
 
@@ -462,21 +459,26 @@ void ZapFR::Engine::FeedLocal::fetchThumbnailData()
     bindings.emplace_back(use(mID, "feedID"));
 
     auto posts = PostLocal::queryMultiple(whereClause, "", "LIMIT 250", bindings);
-
-    ThumbnailData td;
-    td.feedID = mID;
-    td.feedTitle = mTitle;
-    for (const auto& post : posts)
+    if (posts.size() > 0)
     {
-        Poco::DateTime datePublished{};
-        int32_t tzd{0};
-        Poco::DateTimeParser::tryParse(post->datePublished(), datePublished, tzd);
-        auto timestamp = datePublished.timestamp().epochTime();
+        mThumbnailData.clear();
+        fetchData();
 
-        td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link(), timestamp);
+        ThumbnailData td;
+        td.feedID = mID;
+        td.feedTitle = mTitle;
+        for (const auto& post : posts)
+        {
+            Poco::DateTime datePublished{};
+            int32_t tzd{0};
+            Poco::DateTimeParser::tryParse(post->datePublished(), datePublished, tzd);
+            auto timestamp = datePublished.timestamp().epochTime();
+
+            td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link(), timestamp);
+        }
+        std::sort(td.posts.begin(), td.posts.end(), [](const ThumbnailDataPost& a, const ThumbnailDataPost& b) { return (std::difftime(a.timestamp, b.timestamp) > 0); });
+        mThumbnailData.emplace_back(td);
     }
-    std::sort(td.posts.begin(), td.posts.end(), [](const ThumbnailDataPost& a, const ThumbnailDataPost& b) { return (std::difftime(a.timestamp, b.timestamp) > 0); });
-    mThumbnailData.emplace_back(td);
 }
 
 uint64_t ZapFR::Engine::FeedLocal::nextSortOrder(uint64_t folderID)
