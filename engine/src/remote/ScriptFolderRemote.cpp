@@ -97,14 +97,14 @@ void ZapFR::Engine::ScriptFolderRemote::update(const std::string& title, bool sh
 
 std::unique_ptr<ZapFR::Engine::ScriptFolder> ZapFR::Engine::ScriptFolderRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)
 {
-    auto scriptFolderID = o->getValue<uint64_t>(ScriptFolder::JSONIdentifierScriptFolderID);
+    auto scriptFolderID = o->getValue<uint64_t>(JSON::ScriptFolder::ID);
 
     auto scriptFolder = std::make_unique<ScriptFolderRemote>(scriptFolderID, parentSource);
-    scriptFolder->setTitle(o->getValue<std::string>(ScriptFolder::JSONIdentifierScriptFolderTitle));
-    scriptFolder->setShowTotal(o->getValue<bool>(ScriptFolder::JSONIdentifierScriptFolderShowTotal));
-    scriptFolder->setShowUnread(o->getValue<bool>(ScriptFolder::JSONIdentifierScriptFolderShowUnread));
-    scriptFolder->setTotalPostCount(o->getValue<uint64_t>(ScriptFolder::JSONIdentifierScriptFolderTotalPostCount));
-    scriptFolder->setTotalUnreadCount(o->getValue<uint64_t>(ScriptFolder::JSONIdentifierScriptFolderTotalUnreadCount));
+    scriptFolder->setTitle(o->getValue<std::string>(JSON::ScriptFolder::Title));
+    scriptFolder->setShowTotal(o->getValue<bool>(JSON::ScriptFolder::ShowTotal));
+    scriptFolder->setShowUnread(o->getValue<bool>(JSON::ScriptFolder::ShowUnread));
+    scriptFolder->setTotalPostCount(o->getValue<uint64_t>(JSON::ScriptFolder::TotalPostCount));
+    scriptFolder->setTotalUnreadCount(o->getValue<uint64_t>(JSON::ScriptFolder::TotalUnreadCount));
 
     return scriptFolder;
 }

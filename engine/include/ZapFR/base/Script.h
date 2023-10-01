@@ -79,13 +79,6 @@ namespace ZapFR
             static std::string msTypeLuaIdentifier;
 
             virtual Poco::JSON::Object toJSON();
-            static constexpr const char* JSONIdentifierScriptID{"id"};
-            static constexpr const char* JSONIdentifierScriptTitle{"title"};
-            static constexpr const char* JSONIdentifierScriptType{"type"};
-            static constexpr const char* JSONIdentifierScriptIsEnabled{"isEnabled"};
-            static constexpr const char* JSONIdentifierScriptRunOnEvents{"runOnEvents"};
-            static constexpr const char* JSONIdentifierScriptRunOnFeedIDs{"runOnFeedIDs"};
-            static constexpr const char* JSONIdentifierScriptScript{"script"};
 
           protected:
             uint64_t mID{0};

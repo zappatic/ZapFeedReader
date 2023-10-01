@@ -108,24 +108,6 @@ namespace ZapFR
             void setDataFetched(bool b) { mDataFetched = b; }
 
             virtual Poco::JSON::Object toJSON() const;
-            static constexpr const char* JSONIdentifierFeedID{"id"};
-            static constexpr const char* JSONIdentifierFeedURL{"url"};
-            static constexpr const char* JSONIdentifierFeedFolder{"folder"};
-            static constexpr const char* JSONIdentifierFeedGUID{"guid"};
-            static constexpr const char* JSONIdentifierFeedIcon{"icon"};
-            static constexpr const char* JSONIdentifierFeedIconHash{"iconHash"};
-            static constexpr const char* JSONIdentifierFeedTitle{"title"};
-            static constexpr const char* JSONIdentifierFeedSubtitle{"subtitle"};
-            static constexpr const char* JSONIdentifierFeedLink{"link"};
-            static constexpr const char* JSONIdentifierFeedDescription{"description"};
-            static constexpr const char* JSONIdentifierFeedLanguage{"language"};
-            static constexpr const char* JSONIdentifierFeedCopyright{"copyright"};
-            static constexpr const char* JSONIdentifierFeedLastRefreshError{"lastRefreshError"};
-            static constexpr const char* JSONIdentifierFeedRefreshInterval{"refreshInterval"};
-            static constexpr const char* JSONIdentifierFeedLastChecked{"lastChecked"};
-            static constexpr const char* JSONIdentifierFeedSortOrder{"sortOrder"};
-            static constexpr const char* JSONIdentifierFeedUnreadCount{"unreadCount"};
-            static constexpr const char* JSONIdentifierFeedStatistics{"statistics"};
             static const std::unordered_map<std::string, Statistic> JSONIdentifierFeedStatisticMap;
             static const std::unordered_map<Statistic, std::string> FeedStatisticJSONIdentifierMap;
 

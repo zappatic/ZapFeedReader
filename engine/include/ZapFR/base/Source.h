@@ -129,15 +129,6 @@ namespace ZapFR
 
             static const std::unordered_map<Statistic, std::string> SourceStatisticJSONIdentifierMap;
 
-            static constexpr const char* JSONIdentifierThumbnailDataFeedID{"feedID"};
-            static constexpr const char* JSONIdentifierThumbnailDataFeedTitle{"feedTitle"};
-            static constexpr const char* JSONIdentifierThumbnailDataPostLink{"link"};
-            static constexpr const char* JSONIdentifierThumbnailDataPostID{"postID"};
-            static constexpr const char* JSONIdentifierThumbnailDataPostThumbnail{"thumbnail"};
-            static constexpr const char* JSONIdentifierThumbnailDataPostTimestamp{"timestamp"};
-            static constexpr const char* JSONIdentifierThumbnailDataPostTitle{"title"};
-            static constexpr const char* JSONIdentifierThumbnailDataPosts{"posts"};
-
           protected:
             uint64_t mID{0};
             std::string mTitle{""};

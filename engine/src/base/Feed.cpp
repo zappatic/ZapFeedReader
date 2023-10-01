@@ -21,17 +21,17 @@
 #include "ZapFR/base/Feed.h"
 
 const std::unordered_map<std::string, ZapFR::Engine::Feed::Statistic> ZapFR::Engine::Feed::JSONIdentifierFeedStatisticMap{
-    {"postCount", Statistic::PostCount},
-    {"flaggedPostCount", Statistic::FlaggedPostCount},
-    {"oldestPost", Statistic::OldestPost},
-    {"newestPost", Statistic::NewestPost},
+    {JSON::Statistic::PostCount, Statistic::PostCount},
+    {JSON::Statistic::FlaggedPostCount, Statistic::FlaggedPostCount},
+    {JSON::Statistic::OldestPost, Statistic::OldestPost},
+    {JSON::Statistic::NewestPost, Statistic::NewestPost},
 };
 
 const std::unordered_map<ZapFR::Engine::Feed::Statistic, std::string> ZapFR::Engine::Feed::FeedStatisticJSONIdentifierMap{
-    {Statistic::PostCount, "postCount"},
-    {Statistic::FlaggedPostCount, "flaggedPostCount"},
-    {Statistic::OldestPost, "oldestPost"},
-    {Statistic::NewestPost, "newestPost"},
+    {Statistic::PostCount, JSON::Statistic::PostCount},
+    {Statistic::FlaggedPostCount, JSON::Statistic::FlaggedPostCount},
+    {Statistic::OldestPost, JSON::Statistic::OldestPost},
+    {Statistic::NewestPost, JSON::Statistic::NewestPost},
 };
 
 ZapFR::Engine::Feed::Feed(uint64_t feedID, Source* parentSource) : mID(feedID), mParentSource(parentSource)
@@ -41,22 +41,22 @@ ZapFR::Engine::Feed::Feed(uint64_t feedID, Source* parentSource) : mID(feedID), 
 Poco::JSON::Object ZapFR::Engine::Feed::toJSON() const
 {
     Poco::JSON::Object o;
-    o.set(JSONIdentifierFeedID, mID);
-    o.set(JSONIdentifierFeedURL, mURL);
-    o.set(JSONIdentifierFeedFolder, mFolderID);
-    o.set(JSONIdentifierFeedGUID, mGuid);
-    o.set(JSONIdentifierFeedTitle, mTitle);
-    o.set(JSONIdentifierFeedSubtitle, mSubtitle);
-    o.set(JSONIdentifierFeedLink, mLink);
-    o.set(JSONIdentifierFeedDescription, mDescription);
-    o.set(JSONIdentifierFeedLanguage, mLanguage);
-    o.set(JSONIdentifierFeedCopyright, mCopyright);
-    o.set(JSONIdentifierFeedLastRefreshError, mLastRefreshError.has_value() ? mLastRefreshError.value() : "");
-    o.set(JSONIdentifierFeedRefreshInterval, mRefreshInterval.has_value() ? mRefreshInterval.value() : 0);
-    o.set(JSONIdentifierFeedLastChecked, mLastChecked);
-    o.set(JSONIdentifierFeedSortOrder, mSortOrder);
-    o.set(JSONIdentifierFeedUnreadCount, mUnreadCount);
-    o.set(JSONIdentifierFeedIconHash, mIconHash);
+    o.set(JSON::Feed::ID, mID);
+    o.set(JSON::Feed::URL, mURL);
+    o.set(JSON::Feed::Folder, mFolderID);
+    o.set(JSON::Feed::GUID, mGuid);
+    o.set(JSON::Feed::Title, mTitle);
+    o.set(JSON::Feed::Subtitle, mSubtitle);
+    o.set(JSON::Feed::Link, mLink);
+    o.set(JSON::Feed::Description, mDescription);
+    o.set(JSON::Feed::Language, mLanguage);
+    o.set(JSON::Feed::Copyright, mCopyright);
+    o.set(JSON::Feed::LastRefreshError, mLastRefreshError.has_value() ? mLastRefreshError.value() : "");
+    o.set(JSON::Feed::RefreshInterval, mRefreshInterval.has_value() ? mRefreshInterval.value() : 0);
+    o.set(JSON::Feed::LastChecked, mLastChecked);
+    o.set(JSON::Feed::SortOrder, mSortOrder);
+    o.set(JSON::Feed::UnreadCount, mUnreadCount);
+    o.set(JSON::Feed::IconHash, mIconHash);
     if (mStatistics.size() > 0)
     {
         Poco::JSON::Object statsObj;
@@ -64,7 +64,7 @@ Poco::JSON::Object ZapFR::Engine::Feed::toJSON() const
         {
             statsObj.set(FeedStatisticJSONIdentifierMap.at(stat), value);
         }
-        o.set(JSONIdentifierFeedStatistics, statsObj);
+        o.set(JSON::Feed::Statistics, statsObj);
     }
     if (!mIconData.empty())
     {
@@ -72,7 +72,7 @@ Poco::JSON::Object ZapFR::Engine::Feed::toJSON() const
         Poco::Base64Encoder encoder(b64Stream);
         encoder << mIconData;
         encoder.close();
-        o.set(JSONIdentifierFeedIcon, b64Stream.str());
+        o.set(JSON::Feed::Icon, b64Stream.str());
     }
     return o;
 }

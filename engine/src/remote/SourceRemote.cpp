@@ -48,11 +48,11 @@ Poco::URI ZapFR::Engine::SourceRemote::remoteURL() const
             Poco::JSON::Parser parser;
             auto root = parser.parse(mConfigData);
             auto obj = root.extract<Poco::JSON::Object::Ptr>();
-            auto host = obj->getValue<std::string>(JSONIdentifierRemoteConfigDataHost);
-            auto port = obj->getValue<uint16_t>(JSONIdentifierRemoteConfigDataPort);
-            auto useHTTPS = obj->getValue<bool>(JSONIdentifierRemoteConfigDataUseHTTPS);
-            mRemoteLogin = obj->getValue<std::string>(JSONIdentifierRemoteConfigDataLogin);
-            mRemotePassword = obj->getValue<std::string>(JSONIdentifierRemoteConfigDataPassword);
+            auto host = obj->getValue<std::string>(JSON::RemoteConfigData::Host);
+            auto port = obj->getValue<uint16_t>(JSON::RemoteConfigData::Port);
+            auto useHTTPS = obj->getValue<bool>(JSON::RemoteConfigData::UseHTTPS);
+            mRemoteLogin = obj->getValue<std::string>(JSON::RemoteConfigData::Login);
+            mRemotePassword = obj->getValue<std::string>(JSON::RemoteConfigData::Password);
 
             mRemoteURL.setScheme(useHTTPS ? "https" : "http");
             mRemoteURL.setHost(host);
@@ -160,7 +160,7 @@ uint64_t ZapFR::Engine::SourceRemote::addFeed(const std::string& url, uint64_t f
         auto o = root.extract<Poco::JSON::Object::Ptr>();
         if (!o.isNull())
         {
-            return o->getValue<uint64_t>(Feed::JSONIdentifierFeedID);
+            return o->getValue<uint64_t>(JSON::Feed::ID);
         }
     }
     return 0;
@@ -295,7 +295,7 @@ uint64_t ZapFR::Engine::SourceRemote::addFolder(const std::string& title, uint64
         auto o = root.extract<Poco::JSON::Object::Ptr>();
         if (!o.isNull())
         {
-            return o->getValue<uint64_t>(Folder::JSONIdentifierFolderID);
+            return o->getValue<uint64_t>(JSON::Folder::ID);
         }
     }
     return 0;
@@ -398,19 +398,19 @@ void ZapFR::Engine::SourceRemote::unserializeThumbnailData(std::vector<Thumbnail
     {
         auto tdObj = source->getObject(static_cast<uint32_t>(i));
         ThumbnailData td;
-        td.feedID = tdObj->getValue<uint64_t>(JSONIdentifierThumbnailDataFeedID);
-        td.feedTitle = tdObj->getValue<std::string>(JSONIdentifierThumbnailDataFeedTitle);
+        td.feedID = tdObj->getValue<uint64_t>(JSON::ThumbnailData::FeedID);
+        td.feedTitle = tdObj->getValue<std::string>(JSON::ThumbnailData::FeedTitle);
 
-        auto tdPostsArr = tdObj->getArray(JSONIdentifierThumbnailDataPosts);
+        auto tdPostsArr = tdObj->getArray(JSON::ThumbnailData::Posts);
         for (size_t j = 0; j < tdPostsArr->size(); ++j)
         {
             auto tdpObj = tdPostsArr->getObject(static_cast<uint32_t>(j));
             ThumbnailDataPost tdp;
-            tdp.link = tdpObj->getValue<std::string>(JSONIdentifierThumbnailDataPostLink);
-            tdp.postID = tdpObj->getValue<uint64_t>(JSONIdentifierThumbnailDataPostID);
-            tdp.thumbnail = tdpObj->getValue<std::string>(JSONIdentifierThumbnailDataPostThumbnail);
-            tdp.timestamp = tdpObj->getValue<time_t>(JSONIdentifierThumbnailDataPostTimestamp);
-            tdp.title = tdpObj->getValue<std::string>(JSONIdentifierThumbnailDataPostTitle);
+            tdp.link = tdpObj->getValue<std::string>(JSON::ThumbnailData::PostLink);
+            tdp.postID = tdpObj->getValue<uint64_t>(JSON::ThumbnailData::PostID);
+            tdp.thumbnail = tdpObj->getValue<std::string>(JSON::ThumbnailData::PostThumbnail);
+            tdp.timestamp = tdpObj->getValue<time_t>(JSON::ThumbnailData::PostTimestamp);
+            tdp.title = tdpObj->getValue<std::string>(JSON::ThumbnailData::PostTitle);
             td.posts.emplace_back(tdp);
         }
 

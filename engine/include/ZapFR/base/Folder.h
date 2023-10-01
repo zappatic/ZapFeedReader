@@ -80,13 +80,6 @@ namespace ZapFR
             void setDataFetched(bool b) { mDataFetched = b; }
 
             virtual Poco::JSON::Object toJSON();
-            static constexpr const char* JSONIdentifierFolderID{"id"};
-            static constexpr const char* JSONIdentifierFolderTitle{"title"};
-            static constexpr const char* JSONIdentifierFolderParent{"parent"};
-            static constexpr const char* JSONIdentifierFolderSortOrder{"sortOrder"};
-            static constexpr const char* JSONIdentifierFolderSubfolders{"subfolders"};
-            static constexpr const char* JSONIdentifierFolderStatistics{"statistics"};
-            static constexpr const char* JSONIdentifierFolderFeedIDs{"feedIDs"};
             static const std::unordered_map<std::string, Statistic> JSONIdentifierFolderStatisticMap;
             static const std::unordered_map<Statistic, std::string> FolderStatisticJSONIdentifierMap;
 

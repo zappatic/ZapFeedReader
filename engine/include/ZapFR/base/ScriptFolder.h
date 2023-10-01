@@ -61,12 +61,6 @@ namespace ZapFR
             virtual void update(const std::string& title, bool showTotal, bool showUnread) = 0;
 
             virtual Poco::JSON::Object toJSON();
-            static constexpr const char* JSONIdentifierScriptFolderID{"id"};
-            static constexpr const char* JSONIdentifierScriptFolderTitle{"title"};
-            static constexpr const char* JSONIdentifierScriptFolderShowTotal{"showTotal"};
-            static constexpr const char* JSONIdentifierScriptFolderShowUnread{"showUnread"};
-            static constexpr const char* JSONIdentifierScriptFolderTotalPostCount{"totalPostCount"};
-            static constexpr const char* JSONIdentifierScriptFolderTotalUnreadCount{"totalUnreadCount"};
 
           protected:
             uint64_t mID{0};

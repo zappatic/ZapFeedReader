@@ -49,7 +49,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_add([[maybe
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        o.set(ZapFR::Engine::Folder::JSONIdentifierFolderID, source.value()->addFolder(title, parentFolderID));
+        o.set(ZapFR::Engine::JSON::Folder::ID, source.value()->addFolder(title, parentFolderID));
     }
 
     Poco::JSON::Stringifier::stringify(o, response.send());

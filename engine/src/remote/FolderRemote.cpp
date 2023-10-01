@@ -206,33 +206,33 @@ std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::FolderRemote::fromJSON(Sou
     std::function<std::unique_ptr<Folder>(const Poco::JSON::Object::Ptr)> constructFolder;
     constructFolder = [&](const Poco::JSON::Object::Ptr folderObj) -> std::unique_ptr<Folder>
     {
-        auto folderID = folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderID);
-        auto folderParentID = folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderParent);
+        auto folderID = folderObj->getValue<uint64_t>(JSON::Folder::ID);
+        auto folderParentID = folderObj->getValue<uint64_t>(JSON::Folder::Parent);
 
         auto folder = std::make_unique<FolderRemote>(folderID, folderParentID, parentSource);
-        folder->setTitle(folderObj->getValue<std::string>(Folder::JSONIdentifierFolderTitle));
-        folder->setSortOrder(folderObj->getValue<uint64_t>(Folder::JSONIdentifierFolderSortOrder));
+        folder->setTitle(folderObj->getValue<std::string>(JSON::Folder::Title));
+        folder->setSortOrder(folderObj->getValue<uint64_t>(JSON::Folder::SortOrder));
         folder->setDataFetched(true);
 
-        if (folderObj->has(Folder::JSONIdentifierFolderStatistics))
+        if (folderObj->has(JSON::Folder::Statistics))
         {
             std::unordered_map<Folder::Statistic, std::string> stats;
-            auto statsObj = o->getObject(Folder::JSONIdentifierFolderStatistics);
+            auto statsObj = o->getObject(JSON::Folder::Statistics);
             auto statsObjNames = statsObj->getNames();
             for (size_t i = 0; i < statsObjNames.size(); ++i)
             {
                 auto key = statsObjNames.at(i);
-                if (Folder::JSONIdentifierFolderStatisticMap.contains(key))
+                if (JSONIdentifierFolderStatisticMap.contains(key))
                 {
-                    stats[Folder::JSONIdentifierFolderStatisticMap.at(key)] = statsObj->getValue<std::string>(key);
+                    stats[JSONIdentifierFolderStatisticMap.at(key)] = statsObj->getValue<std::string>(key);
                 }
             }
             folder->setStatistics(stats);
         }
 
-        if (folderObj->has(Folder::JSONIdentifierFolderSubfolders))
+        if (folderObj->has(JSON::Folder::Subfolders))
         {
-            auto subfolders = folderObj->getArray(Folder::JSONIdentifierFolderSubfolders);
+            auto subfolders = folderObj->getArray(JSON::Folder::Subfolders);
             for (size_t i = 0; i < subfolders->size(); ++i)
             {
                 auto subfolderObj = subfolders->getObject(static_cast<uint32_t>(i));
@@ -241,7 +241,7 @@ std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::FolderRemote::fromJSON(Sou
         }
 
         std::vector<uint64_t> feedIDs;
-        auto feedIDArr = folderObj->getArray(Folder::JSONIdentifierFolderFeedIDs);
+        auto feedIDArr = folderObj->getArray(JSON::Folder::FeedIDs);
         for (size_t i = 0; i < feedIDArr->size(); ++i)
         {
             auto feedID = feedIDArr->getElement<uint64_t>(static_cast<uint32_t>(i));

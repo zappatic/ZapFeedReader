@@ -17,6 +17,7 @@
 */
 
 #include "ZapFR/base/Post.h"
+#include "ZapFR/Global.h"
 #include "ZapFR/Helpers.h"
 
 ZapFR::Engine::Post::Post(uint64_t id) : mID(id)
@@ -26,58 +27,58 @@ ZapFR::Engine::Post::Post(uint64_t id) : mID(id)
 Poco::JSON::Object ZapFR::Engine::Post::toJSON()
 {
     Poco::JSON::Object o;
-    o.set(JSONIdentifierPostID, mID);
-    o.set(JSONIdentifierPostIsRead, mIsRead);
-    o.set(JSONIdentifierPostFeedID, mFeedID);
-    o.set(JSONIdentifierPostFeedTitle, mFeedTitle);
-    o.set(JSONIdentifierPostFeedLink, mFeedLink);
-    o.set(JSONIdentifierPostTitle, mTitle);
-    o.set(JSONIdentifierPostLink, mLink);
-    o.set(JSONIdentifierPostContent, mContent);
-    o.set(JSONIdentifierPostAuthor, mAuthor);
-    o.set(JSONIdentifierPostCommentsURL, mCommentsURL);
-    o.set(JSONIdentifierPostGuid, mGuid);
-    o.set(JSONIdentifierPostDatePublished, mDatePublished);
-    o.set(JSONIdentifierPostThumbnail, mThumbnail);
+    o.set(JSON::Post::ID, mID);
+    o.set(JSON::Post::IsRead, mIsRead);
+    o.set(JSON::Post::FeedID, mFeedID);
+    o.set(JSON::Post::FeedTitle, mFeedTitle);
+    o.set(JSON::Post::FeedLink, mFeedLink);
+    o.set(JSON::Post::Title, mTitle);
+    o.set(JSON::Post::Link, mLink);
+    o.set(JSON::Post::Content, mContent);
+    o.set(JSON::Post::Author, mAuthor);
+    o.set(JSON::Post::CommentsURL, mCommentsURL);
+    o.set(JSON::Post::Guid, mGuid);
+    o.set(JSON::Post::DatePublished, mDatePublished);
+    o.set(JSON::Post::Thumbnail, mThumbnail);
 
     std::vector<std::string> flagColors;
     for (const auto& flagColor : mFlagColors)
     {
         flagColors.emplace_back(Flag::nameForFlagColor(flagColor));
     }
-    o.set(Post::JSONIdentifierPostFlagColors, Helpers::joinString(flagColors, ","));
+    o.set(JSON::Post::FlagColors, Helpers::joinString(flagColors, ","));
 
     Poco::JSON::Array enclosuresArr;
     for (const auto& e : mEnclosures)
     {
         Poco::JSON::Object enclosureObj;
-        enclosureObj.set(JSONIdentifierPostEnclosureURL, e.url);
-        enclosureObj.set(JSONIdentifierPostEnclosureMimeType, e.mimeType);
-        enclosureObj.set(JSONIdentifierPostEnclosureSize, e.size);
+        enclosureObj.set(JSON::Post::EnclosureURL, e.url);
+        enclosureObj.set(JSON::Post::EnclosureMimeType, e.mimeType);
+        enclosureObj.set(JSON::Post::EnclosureSize, e.size);
         enclosuresArr.add(enclosureObj);
     }
-    o.set(Post::JSONIdentifierPostEnclosures, enclosuresArr);
+    o.set(JSON::Post::Enclosures, enclosuresArr);
     return o;
 }
 
 void ZapFR::Engine::Post::fromJSON(const Poco::JSON::Object::Ptr o)
 {
-    setIsRead(o->getValue<bool>(Post::JSONIdentifierPostIsRead));
-    setFeedID(o->getValue<uint64_t>(Post::JSONIdentifierPostFeedID));
-    setFeedTitle(o->getValue<std::string>(Post::JSONIdentifierPostFeedTitle));
-    setFeedLink(o->getValue<std::string>(Post::JSONIdentifierPostFeedLink));
-    setTitle(o->getValue<std::string>(Post::JSONIdentifierPostTitle));
-    setLink(o->getValue<std::string>(Post::JSONIdentifierPostLink));
-    setContent(o->getValue<std::string>(Post::JSONIdentifierPostContent));
-    setAuthor(o->getValue<std::string>(Post::JSONIdentifierPostAuthor));
-    setCommentsURL(o->getValue<std::string>(Post::JSONIdentifierPostCommentsURL));
-    setGuid(o->getValue<std::string>(Post::JSONIdentifierPostGuid));
-    setDatePublished(o->getValue<std::string>(Post::JSONIdentifierPostDatePublished));
-    setThumbnail(o->getValue<std::string>(Post::JSONIdentifierPostThumbnail));
+    setIsRead(o->getValue<bool>(JSON::Post::IsRead));
+    setFeedID(o->getValue<uint64_t>(JSON::Post::FeedID));
+    setFeedTitle(o->getValue<std::string>(JSON::Post::FeedTitle));
+    setFeedLink(o->getValue<std::string>(JSON::Post::FeedLink));
+    setTitle(o->getValue<std::string>(JSON::Post::Title));
+    setLink(o->getValue<std::string>(JSON::Post::Link));
+    setContent(o->getValue<std::string>(JSON::Post::Content));
+    setAuthor(o->getValue<std::string>(JSON::Post::Author));
+    setCommentsURL(o->getValue<std::string>(JSON::Post::CommentsURL));
+    setGuid(o->getValue<std::string>(JSON::Post::Guid));
+    setDatePublished(o->getValue<std::string>(JSON::Post::DatePublished));
+    setThumbnail(o->getValue<std::string>(JSON::Post::Thumbnail));
 
     std::unordered_set<FlagColor> flagColors;
     std::vector<std::string> flagColorNames;
-    Helpers::splitString(o->getValue<std::string>(JSONIdentifierPostFlagColors), ',', flagColorNames);
+    Helpers::splitString(o->getValue<std::string>(JSON::Post::FlagColors), ',', flagColorNames);
     for (auto& name : flagColorNames)
     {
         Poco::trimInPlace(name);
@@ -85,12 +86,12 @@ void ZapFR::Engine::Post::fromJSON(const Poco::JSON::Object::Ptr o)
     }
     setFlagColors(flagColors);
 
-    auto enclosuresArr = o->getArray(Post::JSONIdentifierPostEnclosures);
+    auto enclosuresArr = o->getArray(JSON::Post::Enclosures);
     for (size_t i = 0; i < enclosuresArr->size(); ++i)
     {
         auto enclosureObj = enclosuresArr->getObject(static_cast<uint32_t>(i));
-        addEnclosure(enclosureObj->getValue<std::string>(Post::JSONIdentifierPostEnclosureURL), enclosureObj->getValue<std::string>(Post::JSONIdentifierPostEnclosureMimeType),
-                     enclosureObj->getValue<uint64_t>(Post::JSONIdentifierPostEnclosureSize));
+        addEnclosure(enclosureObj->getValue<std::string>(JSON::Post::EnclosureURL), enclosureObj->getValue<std::string>(JSON::Post::EnclosureMimeType),
+                     enclosureObj->getValue<uint64_t>(JSON::Post::EnclosureSize));
     }
 }
 

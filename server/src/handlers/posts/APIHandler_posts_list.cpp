@@ -136,21 +136,21 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
         for (const auto& td : thumbnailData)
         {
             Poco::JSON::Object tdObj;
-            tdObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataFeedID, td.feedID);
-            tdObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataFeedTitle, td.feedTitle);
+            tdObj.set(ZapFR::Engine::JSON::ThumbnailData::FeedID, td.feedID);
+            tdObj.set(ZapFR::Engine::JSON::ThumbnailData::FeedTitle, td.feedTitle);
 
             Poco::JSON::Array tdpArr;
             for (const auto& post : td.posts)
             {
                 Poco::JSON::Object pObj;
-                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostLink, post.link);
-                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostID, post.postID);
-                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostThumbnail, post.thumbnail);
-                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostTimestamp, post.timestamp);
-                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostTitle, post.title);
+                pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostLink, post.link);
+                pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostID, post.postID);
+                pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostThumbnail, post.thumbnail);
+                pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostTimestamp, post.timestamp);
+                pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostTitle, post.title);
                 tdpArr.add(pObj);
             }
-            tdObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPosts, tdpArr);
+            tdObj.set(ZapFR::Engine::JSON::ThumbnailData::Posts, tdpArr);
             tdArr.add(tdObj);
         }
         o.set("thumbnaildata", tdArr);

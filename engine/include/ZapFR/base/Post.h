@@ -83,24 +83,6 @@ namespace ZapFR
 
             virtual Poco::JSON::Object toJSON();
             virtual void fromJSON(const Poco::JSON::Object::Ptr o);
-            static constexpr const char* JSONIdentifierPostID{"id"};
-            static constexpr const char* JSONIdentifierPostIsRead{"isRead"};
-            static constexpr const char* JSONIdentifierPostFeedID{"feedID"};
-            static constexpr const char* JSONIdentifierPostFeedTitle{"feedTitle"};
-            static constexpr const char* JSONIdentifierPostFeedLink{"feedLink"};
-            static constexpr const char* JSONIdentifierPostTitle{"title"};
-            static constexpr const char* JSONIdentifierPostLink{"link"};
-            static constexpr const char* JSONIdentifierPostContent{"content"};
-            static constexpr const char* JSONIdentifierPostAuthor{"author"};
-            static constexpr const char* JSONIdentifierPostCommentsURL{"commentsURL"};
-            static constexpr const char* JSONIdentifierPostGuid{"guid"};
-            static constexpr const char* JSONIdentifierPostDatePublished{"datePublished"};
-            static constexpr const char* JSONIdentifierPostThumbnail{"thumbnail"};
-            static constexpr const char* JSONIdentifierPostFlagColors{"flagColors"};
-            static constexpr const char* JSONIdentifierPostEnclosures{"enclosures"};
-            static constexpr const char* JSONIdentifierPostEnclosureURL{"url"};
-            static constexpr const char* JSONIdentifierPostEnclosureMimeType{"mimeType"};
-            static constexpr const char* JSONIdentifierPostEnclosureSize{"size"};
 
           protected:
             uint64_t mID{0};

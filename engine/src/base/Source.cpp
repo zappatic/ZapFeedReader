@@ -24,8 +24,11 @@
 #include "ZapFR/remote/SourceRemote.h"
 
 const std::unordered_map<ZapFR::Engine::Source::Statistic, std::string> ZapFR::Engine::Source::SourceStatisticJSONIdentifierMap{
-    {Statistic::FeedCount, "feedCount"},   {Statistic::PostCount, "postCount"},   {Statistic::FlaggedPostCount, "flaggedPostCount"},
-    {Statistic::OldestPost, "oldestPost"}, {Statistic::NewestPost, "newestPost"},
+    {Statistic::FeedCount, JSON::Statistic::FeedCount},
+    {Statistic::PostCount, JSON::Statistic::PostCount},
+    {Statistic::FlaggedPostCount, JSON::Statistic::FlaggedPostCount},
+    {Statistic::OldestPost, JSON::Statistic::OldestPost},
+    {Statistic::NewestPost, JSON::Statistic::NewestPost},
 };
 
 using namespace Poco::Data::Keywords;
@@ -34,13 +37,13 @@ std::mutex ZapFR::Engine::Source::msCreateSourceMutex{};
 
 std::unique_ptr<ZapFR::Engine::Source> ZapFR::Engine::Source::createSourceInstance(uint64_t id, const std::string& type)
 {
-    if (type == ZapFR::Engine::IdentifierLocalServer)
+    if (type == ZapFR::Engine::ServerIdentifier::Local)
     {
         auto s = std::make_unique<SourceLocal>(id);
         s->setType(type);
         return s;
     }
-    else if (type == ZapFR::Engine::IdentifierRemoteServer)
+    else if (type == ZapFR::Engine::ServerIdentifier::Remote)
     {
         auto s = std::make_unique<SourceRemote>(id);
         s->setType(type);
@@ -190,7 +193,7 @@ void ZapFR::Engine::Source::removeSource(uint64_t id)
     auto source = getSource(id);
     if (source.has_value())
     {
-        if (source.value()->type() == ZapFR::Engine::IdentifierLocalServer)
+        if (source.value()->type() == ZapFR::Engine::ServerIdentifier::Local)
         {
             return;
         }

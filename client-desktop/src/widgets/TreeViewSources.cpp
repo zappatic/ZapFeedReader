@@ -164,7 +164,7 @@ void ZapFR::Client::TreeViewSources::reload()
     std::optional<std::string> typeFilter;
     if (mMainWindow->preferences()->hideLocalSource)
     {
-        typeFilter = ZapFR::Engine::IdentifierRemoteServer;
+        typeFilter = ZapFR::Engine::ServerIdentifier::Remote;
     }
     auto sources = ZapFR::Engine::Source::getSources(typeFilter);
     mInitialSourceCount = sources.size();
@@ -351,11 +351,11 @@ void ZapFR::Client::TreeViewSources::restoreExpansionSelectionState(QStandardIte
                 auto child = mItemModelSources->invisibleRootItem()->child(i);
                 if (child->data(Role::Type).toULongLong() == EntryType::Source)
                 {
-                    if (child->data(Role::SourceType).toString().toStdString() == ZapFR::Engine::IdentifierLocalServer)
+                    if (child->data(Role::SourceType).toString().toStdString() == ZapFR::Engine::ServerIdentifier::Local)
                     {
                         localSource = child;
                     }
-                    else if (firstRemoteSource == nullptr && child->data(Role::SourceType).toString().toStdString() == ZapFR::Engine::IdentifierRemoteServer)
+                    else if (firstRemoteSource == nullptr && child->data(Role::SourceType).toString().toStdString() == ZapFR::Engine::ServerIdentifier::Remote)
                     {
                         firstRemoteSource = child;
                     }
@@ -690,11 +690,11 @@ void ZapFR::Client::TreeViewSources::addSource()
                         if (!hostName.isEmpty())
                         {
                             auto configData = QJsonObject();
-                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataHost] = hostName;
-                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataPort] = mDialogAddSource->port();
-                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataLogin] = mDialogAddSource->login();
-                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataPassword] = mDialogAddSource->password();
-                            configData[ZapFR::Engine::JSONIdentifierRemoteConfigDataUseHTTPS] = mDialogAddSource->useHTTPS();
+                            configData[ZapFR::Engine::JSON::RemoteConfigData::Host] = hostName;
+                            configData[ZapFR::Engine::JSON::RemoteConfigData::Port] = mDialogAddSource->port();
+                            configData[ZapFR::Engine::JSON::RemoteConfigData::Login] = mDialogAddSource->login();
+                            configData[ZapFR::Engine::JSON::RemoteConfigData::Password] = mDialogAddSource->password();
+                            configData[ZapFR::Engine::JSON::RemoteConfigData::UseHTTPS] = mDialogAddSource->useHTTPS();
                             auto configDataStr = QJsonDocument(configData).toJson(QJsonDocument::Compact).toStdString();
                             ZapFR::Engine::Source::create(sourceType, sourceTitle, configDataStr);
                             reload();
@@ -713,7 +713,7 @@ void ZapFR::Client::TreeViewSources::removeSource()
     if (index.isValid())
     {
         auto sourceType = index.data(Role::SourceType).toString().toStdString();
-        if (sourceType == ZapFR::Engine::IdentifierLocalServer)
+        if (sourceType == ZapFR::Engine::ServerIdentifier::Local)
         {
             QMessageBox::information(this, tr("Can't remove local source"), tr("You cannot remove the local source"));
             return;
@@ -1805,7 +1805,7 @@ void ZapFR::Client::TreeViewSources::connectStuff()
                     currentlySelectedSourceID = index.data(Role::ParentSourceID).toULongLong();
                 }
 
-                auto sources = ZapFR::Engine::Source::getSources(ZapFR::Engine::IdentifierRemoteServer);
+                auto sources = ZapFR::Engine::Source::getSources(ZapFR::Engine::ServerIdentifier::Remote);
                 for (const auto& source : sources)
                 {
                     ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(

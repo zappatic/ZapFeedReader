@@ -53,11 +53,11 @@ void ZapFR::Engine::ScriptRemote::update(Type /*type*/, const std::string& title
 
 std::unique_ptr<ZapFR::Engine::Script> ZapFR::Engine::ScriptRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)
 {
-    auto scriptID = o->getValue<uint64_t>(Script::JSONIdentifierScriptID);
+    auto scriptID = o->getValue<uint64_t>(JSON::Script::ID);
 
     auto script = std::make_unique<ScriptRemote>(scriptID, parentSource);
 
-    auto type = o->getValue<std::string>(Script::JSONIdentifierScriptType);
+    auto type = o->getValue<std::string>(JSON::Script::Type);
     if (type == Script::msTypeLuaIdentifier)
     {
         script->setType(Script::Type::Lua);
@@ -67,13 +67,13 @@ std::unique_ptr<ZapFR::Engine::Script> ZapFR::Engine::ScriptRemote::fromJSON(Sou
         throw std::runtime_error("Unknown script type");
     }
 
-    script->setTitle(o->getValue<std::string>(Script::JSONIdentifierScriptTitle));
-    script->setIsEnabled(o->getValue<bool>(Script::JSONIdentifierScriptIsEnabled));
-    script->setScript(o->getValue<std::string>(Script::JSONIdentifierScriptScript));
-    script->setRunOnEvents(Script::parseRunOnEvents(o->getValue<std::string>(Script::JSONIdentifierScriptRunOnEvents)));
-    if (o->has(Script::JSONIdentifierScriptRunOnFeedIDs))
+    script->setTitle(o->getValue<std::string>(JSON::Script::Title));
+    script->setIsEnabled(o->getValue<bool>(JSON::Script::IsEnabled));
+    script->setScript(o->getValue<std::string>(JSON::Script::Script));
+    script->setRunOnEvents(Script::parseRunOnEvents(o->getValue<std::string>(JSON::Script::RunOnEvents)));
+    if (o->has(JSON::Script::RunOnFeedIDs))
     {
-        script->setRunOnFeedIDs(Script::parseRunOnFeedIDs(o->getValue<std::string>(Script::JSONIdentifierScriptRunOnFeedIDs)));
+        script->setRunOnFeedIDs(Script::parseRunOnFeedIDs(o->getValue<std::string>(JSON::Script::RunOnFeedIDs)));
     }
 
     return script;

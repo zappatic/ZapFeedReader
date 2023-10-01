@@ -111,25 +111,25 @@ Poco::JSON::Object ZapFR::Engine::Script::toJSON()
 {
     Poco::JSON::Object o;
 
-    o.set(JSONIdentifierScriptID, mID);
+    o.set(JSON::Script::ID, mID);
     switch (mType)
     {
         case Type::Lua:
         {
-            o.set(JSONIdentifierScriptType, Script::msTypeLuaIdentifier);
+            o.set(JSON::Script::Type, Script::msTypeLuaIdentifier);
             break;
         }
     }
-    o.set(JSONIdentifierScriptTitle, mTitle);
-    o.set(JSONIdentifierScriptIsEnabled, mIsEnabled);
-    o.set(JSONIdentifierScriptRunOnEvents, runOnEventsString(mRunOnEvents));
+    o.set(JSON::Script::Title, mTitle);
+    o.set(JSON::Script::IsEnabled, mIsEnabled);
+    o.set(JSON::Script::RunOnEvents, runOnEventsString(mRunOnEvents));
 
     if (mRunOnFeedIDs.has_value())
     {
-        o.set(JSONIdentifierScriptRunOnFeedIDs, runOnFeedIDsString(mRunOnFeedIDs));
+        o.set(JSON::Script::RunOnFeedIDs, runOnFeedIDsString(mRunOnFeedIDs));
     }
 
-    o.set(JSONIdentifierScriptScript, mScript);
+    o.set(JSON::Script::Script, mScript);
 
     return o;
 }

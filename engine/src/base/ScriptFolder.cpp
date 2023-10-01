@@ -26,11 +26,11 @@ ZapFR::Engine::ScriptFolder::ScriptFolder(uint64_t id, Source* parentSource) : m
 Poco::JSON::Object ZapFR::Engine::ScriptFolder::toJSON()
 {
     Poco::JSON::Object o;
-    o.set(JSONIdentifierScriptFolderID, mID);
-    o.set(JSONIdentifierScriptFolderTitle, mTitle);
-    o.set(JSONIdentifierScriptFolderShowTotal, mShowTotal);
-    o.set(JSONIdentifierScriptFolderShowUnread, mShowUnread);
-    o.set(JSONIdentifierScriptFolderTotalPostCount, mTotalPostCount);
-    o.set(JSONIdentifierScriptFolderTotalUnreadCount, mTotalUnreadCount);
+    o.set(JSON::ScriptFolder::ID, mID);
+    o.set(JSON::ScriptFolder::Title, mTitle);
+    o.set(JSON::ScriptFolder::ShowTotal, mShowTotal);
+    o.set(JSON::ScriptFolder::ShowUnread, mShowUnread);
+    o.set(JSON::ScriptFolder::TotalPostCount, mTotalPostCount);
+    o.set(JSON::ScriptFolder::TotalUnreadCount, mTotalUnreadCount);
     return o;
 }

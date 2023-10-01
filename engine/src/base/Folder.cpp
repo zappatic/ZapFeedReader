@@ -19,13 +19,19 @@
 #include "ZapFR/base/Folder.h"
 
 const std::unordered_map<std::string, ZapFR::Engine::Folder::Statistic> ZapFR::Engine::Folder::JSONIdentifierFolderStatisticMap{
-    {"feedCount", Statistic::FeedCount},   {"postCount", Statistic::PostCount},   {"flaggedPostCount", Statistic::FlaggedPostCount},
-    {"oldestPost", Statistic::OldestPost}, {"newestPost", Statistic::NewestPost},
+    {JSON::Statistic::FeedCount, Statistic::FeedCount},
+    {JSON::Statistic::PostCount, Statistic::PostCount},
+    {JSON::Statistic::FlaggedPostCount, Statistic::FlaggedPostCount},
+    {JSON::Statistic::OldestPost, Statistic::OldestPost},
+    {JSON::Statistic::NewestPost, Statistic::NewestPost},
 };
 
 const std::unordered_map<ZapFR::Engine::Folder::Statistic, std::string> ZapFR::Engine::Folder::FolderStatisticJSONIdentifierMap{
-    {Statistic::FeedCount, "feedCount"},   {Statistic::PostCount, "postCount"},   {Statistic::FlaggedPostCount, "flaggedPostCount"},
-    {Statistic::OldestPost, "oldestPost"}, {Statistic::NewestPost, "newestPost"},
+    {Statistic::FeedCount, JSON::Statistic::FeedCount},
+    {Statistic::PostCount, JSON::Statistic::PostCount},
+    {Statistic::FlaggedPostCount, JSON::Statistic::FlaggedPostCount},
+    {Statistic::OldestPost, JSON::Statistic::OldestPost},
+    {Statistic::NewestPost, JSON::Statistic::NewestPost},
 };
 
 ZapFR::Engine::Folder::Folder(uint64_t id, uint64_t parentFolderID, Source* parentSource) : mID(id), mParentFolderID(parentFolderID), mParentSource(parentSource)
@@ -40,17 +46,17 @@ void ZapFR::Engine::Folder::appendSubfolder(std::unique_ptr<Folder> subfolder)
 Poco::JSON::Object ZapFR::Engine::Folder::toJSON()
 {
     Poco::JSON::Object o;
-    o.set(Folder::JSONIdentifierFolderID, mID);
-    o.set(Folder::JSONIdentifierFolderTitle, mTitle);
-    o.set(Folder::JSONIdentifierFolderParent, mParentFolderID);
-    o.set(Folder::JSONIdentifierFolderSortOrder, mSortOrder);
+    o.set(JSON::Folder::ID, mID);
+    o.set(JSON::Folder::Title, mTitle);
+    o.set(JSON::Folder::Parent, mParentFolderID);
+    o.set(JSON::Folder::SortOrder, mSortOrder);
 
     Poco::JSON::Array subfolders;
     for (const auto& subfolder : mSubfolders)
     {
         subfolders.add(subfolder->toJSON());
     }
-    o.set(Folder::JSONIdentifierFolderSubfolders, subfolders);
+    o.set(JSON::Folder::Subfolders, subfolders);
 
     if (mStatistics.size() > 0)
     {
@@ -59,7 +65,7 @@ Poco::JSON::Object ZapFR::Engine::Folder::toJSON()
         {
             statsObj.set(Folder::FolderStatisticJSONIdentifierMap.at(stat), value);
         }
-        o.set(Folder::JSONIdentifierFolderStatistics, statsObj);
+        o.set(JSON::Folder::Statistics, statsObj);
     }
 
     Poco::JSON::Array feedIDArr;
@@ -67,7 +73,7 @@ Poco::JSON::Object ZapFR::Engine::Folder::toJSON()
     {
         feedIDArr.add(feedID);
     }
-    o.set(Folder::JSONIdentifierFolderFeedIDs, feedIDArr);
+    o.set(JSON::Folder::FeedIDs, feedIDArr);
 
     return o;
 }

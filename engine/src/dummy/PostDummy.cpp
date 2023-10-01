@@ -19,6 +19,7 @@
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
 
+#include "ZapFR/Global.h"
 #include "ZapFR/dummy/PostDummy.h"
 
 ZapFR::Engine::PostDummy::PostDummy(uint64_t id) : Post(id)
@@ -68,7 +69,7 @@ void ZapFR::Engine::PostDummy::unassignFromScriptFolder(uint64_t scriptFolderID)
 
 std::unique_ptr<ZapFR::Engine::PostDummy> ZapFR::Engine::PostDummy::createFromJSON(const Poco::JSON::Object::Ptr o)
 {
-    auto postID = o->getValue<uint64_t>(Post::JSONIdentifierPostID);
+    auto postID = o->getValue<uint64_t>(JSON::Post::ID);
     auto post = std::make_unique<PostDummy>(postID);
     post->fromJSON(o);
     return post;

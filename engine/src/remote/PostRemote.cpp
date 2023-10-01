@@ -17,6 +17,7 @@
 */
 
 #include "ZapFR/remote/PostRemote.h"
+#include "ZapFR/Global.h"
 #include "ZapFR/Helpers.h"
 
 ZapFR::Engine::PostRemote::PostRemote(uint64_t id) : Post(id)
@@ -25,7 +26,7 @@ ZapFR::Engine::PostRemote::PostRemote(uint64_t id) : Post(id)
 
 std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostRemote::createFromJSON(const Poco::JSON::Object::Ptr o)
 {
-    auto postID = o->getValue<uint64_t>(Post::JSONIdentifierPostID);
+    auto postID = o->getValue<uint64_t>(JSON::Post::ID);
     auto post = std::make_unique<PostRemote>(postID);
     post->fromJSON(o);
     return post;

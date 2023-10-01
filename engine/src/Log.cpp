@@ -66,17 +66,17 @@ Poco::JSON::Object ZapFR::Engine::Log::toJSON()
 {
     Poco::JSON::Object o;
 
-    o.set(JSONIdentifierLogID, mID);
-    o.set(JSONIdentifierLogTimestamp, mTimestamp);
-    o.set(JSONIdentifierLogLevel, mLevel);
-    o.set(JSONIdentifierLogMessage, mMessage);
+    o.set(JSON::Log::ID, mID);
+    o.set(JSON::Log::Timestamp, mTimestamp);
+    o.set(JSON::Log::Level, mLevel);
+    o.set(JSON::Log::Message, mMessage);
     if (mFeedID.has_value())
     {
-        o.set(JSONIdentifierLogFeedID, mFeedID.value());
+        o.set(JSON::Log::FeedID, mFeedID.value());
     }
     if (mFeedTitle.has_value())
     {
-        o.set(JSONIdentifierLogFeedTitle, mFeedTitle.value());
+        o.set(JSON::Log::FeedTitle, mFeedTitle.value());
     }
 
     return o;
@@ -84,19 +84,19 @@ Poco::JSON::Object ZapFR::Engine::Log::toJSON()
 
 std::unique_ptr<ZapFR::Engine::Log> ZapFR::Engine::Log::fromJSON(const Poco::JSON::Object::Ptr o)
 {
-    auto logID = o->getValue<uint64_t>(JSONIdentifierLogID);
+    auto logID = o->getValue<uint64_t>(JSON::Log::ID);
 
     auto log = std::make_unique<Log>(logID);
-    log->setTimestamp(o->getValue<std::string>(JSONIdentifierLogTimestamp));
-    log->setLevel(o->getValue<uint64_t>(JSONIdentifierLogLevel));
-    log->setMessage(o->getValue<std::string>(JSONIdentifierLogMessage));
-    if (o->has(JSONIdentifierLogFeedID))
+    log->setTimestamp(o->getValue<std::string>(JSON::Log::Timestamp));
+    log->setLevel(o->getValue<uint64_t>(JSON::Log::Level));
+    log->setMessage(o->getValue<std::string>(JSON::Log::Message));
+    if (o->has(JSON::Log::FeedID))
     {
-        log->setFeedID(o->getValue<uint64_t>(JSONIdentifierLogFeedID));
+        log->setFeedID(o->getValue<uint64_t>(JSON::Log::FeedID));
     }
-    if (o->has(JSONIdentifierLogFeedTitle))
+    if (o->has(JSON::Log::FeedTitle))
     {
-        log->setFeedTitle(o->getValue<std::string>(JSONIdentifierLogFeedTitle));
+        log->setFeedTitle(o->getValue<std::string>(JSON::Log::FeedTitle));
     }
     return log;
 }

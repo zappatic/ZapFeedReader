@@ -211,53 +211,53 @@ void ZapFR::Engine::FeedRemote::updateProperties(const std::string& feedURL, std
 
 void ZapFR::Engine::FeedRemote::fromJSON(const Poco::JSON::Object::Ptr o)
 {
-    setURL(o->getValue<std::string>(Feed::JSONIdentifierFeedURL));
-    setFolder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedFolder));
-    setGuid(o->getValue<std::string>(Feed::JSONIdentifierFeedGUID));
-    setTitle(o->getValue<std::string>(Feed::JSONIdentifierFeedTitle));
-    setSubtitle(o->getValue<std::string>(Feed::JSONIdentifierFeedSubtitle));
-    setLink(o->getValue<std::string>(Feed::JSONIdentifierFeedLink));
-    setDescription(o->getValue<std::string>(Feed::JSONIdentifierFeedDescription));
-    setLanguage(o->getValue<std::string>(Feed::JSONIdentifierFeedLanguage));
-    setCopyright(o->getValue<std::string>(Feed::JSONIdentifierFeedCopyright));
-    setIconHash(o->getValue<std::string>(Feed::JSONIdentifierFeedIconHash));
+    setURL(o->getValue<std::string>(JSON::Feed::URL));
+    setFolder(o->getValue<uint64_t>(JSON::Feed::Folder));
+    setGuid(o->getValue<std::string>(JSON::Feed::GUID));
+    setTitle(o->getValue<std::string>(JSON::Feed::Title));
+    setSubtitle(o->getValue<std::string>(JSON::Feed::Subtitle));
+    setLink(o->getValue<std::string>(JSON::Feed::Link));
+    setDescription(o->getValue<std::string>(JSON::Feed::Description));
+    setLanguage(o->getValue<std::string>(JSON::Feed::Language));
+    setCopyright(o->getValue<std::string>(JSON::Feed::Copyright));
+    setIconHash(o->getValue<std::string>(JSON::Feed::IconHash));
 
-    auto lre = o->getValue<std::string>(Feed::JSONIdentifierFeedLastRefreshError);
+    auto lre = o->getValue<std::string>(JSON::Feed::LastRefreshError);
     if (!lre.empty())
     {
         setLastRefreshError(lre);
     }
 
-    auto ri = o->getValue<uint64_t>(Feed::JSONIdentifierFeedRefreshInterval);
+    auto ri = o->getValue<uint64_t>(JSON::Feed::RefreshInterval);
     if (ri > 0)
     {
         setRefreshInterval(ri);
     }
 
-    setSortOrder(o->getValue<uint64_t>(Feed::JSONIdentifierFeedSortOrder));
-    setLastChecked(o->getValue<std::string>(Feed::JSONIdentifierFeedLastChecked));
-    setUnreadCount(o->getValue<uint64_t>(Feed::JSONIdentifierFeedUnreadCount));
+    setSortOrder(o->getValue<uint64_t>(JSON::Feed::SortOrder));
+    setLastChecked(o->getValue<std::string>(JSON::Feed::LastChecked));
+    setUnreadCount(o->getValue<uint64_t>(JSON::Feed::UnreadCount));
     setDataFetched(true);
 
-    if (o->has(Feed::JSONIdentifierFeedStatistics))
+    if (o->has(JSON::Feed::Statistics))
     {
         std::unordered_map<Feed::Statistic, std::string> stats;
-        auto statsObj = o->getObject(Feed::JSONIdentifierFeedStatistics);
+        auto statsObj = o->getObject(JSON::Feed::Statistics);
         auto statsObjNames = statsObj->getNames();
         for (size_t i = 0; i < statsObjNames.size(); ++i)
         {
             auto key = statsObjNames.at(i);
-            if (Feed::JSONIdentifierFeedStatisticMap.contains(key))
+            if (JSONIdentifierFeedStatisticMap.contains(key))
             {
-                stats[Feed::JSONIdentifierFeedStatisticMap.at(key)] = statsObj->getValue<std::string>(key);
+                stats[JSONIdentifierFeedStatisticMap.at(key)] = statsObj->getValue<std::string>(key);
             }
         }
         setStatistics(stats);
     }
 
-    if (o->has(Feed::JSONIdentifierFeedIcon))
+    if (o->has(JSON::Feed::Icon))
     {
-        std::istringstream base64stream(o->getValue<std::string>(Feed::JSONIdentifierFeedIcon));
+        std::istringstream base64stream(o->getValue<std::string>(JSON::Feed::Icon));
         Poco::Base64Decoder b64decoderstream(base64stream);
         std::string decoded(std::istreambuf_iterator<char>(b64decoderstream), {});
         setIconData(decoded);
@@ -266,7 +266,7 @@ void ZapFR::Engine::FeedRemote::fromJSON(const Poco::JSON::Object::Ptr o)
 
 std::unique_ptr<ZapFR::Engine::Feed> ZapFR::Engine::FeedRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)
 {
-    auto feedID = o->getValue<uint64_t>(Feed::JSONIdentifierFeedID);
+    auto feedID = o->getValue<uint64_t>(JSON::Feed::ID);
 
     auto feed = std::make_unique<FeedRemote>(feedID, parentSource);
     feed->fromJSON(o);

@@ -28,7 +28,7 @@
 ZapFR::Client::DialogAddSource::DialogAddSource(QWidget* parent) : QDialog(parent), ui(new Ui::DialogAddSource)
 {
     ui->setupUi(this);
-    ui->comboBoxSourceType->addItem("ZapFeedReader Server", ZapFR::Engine::IdentifierRemoteServer);
+    ui->comboBoxSourceType->addItem("ZapFeedReader Server", ZapFR::Engine::ServerIdentifier::Remote);
 
     mNetworkAccessManager = std::make_unique<QNetworkAccessManager>();
     connect(mNetworkAccessManager.get(), &QNetworkAccessManager::finished, this, &DialogAddSource::connectionTestFinished);
@@ -74,7 +74,7 @@ void ZapFR::Client::DialogAddSource::accept()
 
     if (!hostName.isEmpty())
     {
-        if (sourceType() == ZapFR::Engine::IdentifierRemoteServer)
+        if (sourceType() == ZapFR::Engine::ServerIdentifier::Remote)
         {
             QUrl url;
             url.setScheme(useHTTPS ? "https" : "http");

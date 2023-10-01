@@ -43,7 +43,7 @@ void ZapFR::Engine::AutoRefresh::onTimer([[maybe_unused]] Poco::Timer& timer)
         std::vector<uint64_t> feedIDsToRefresh;
         Poco::DateTime now;
 
-        auto sources = Source::getSources(IdentifierLocalServer);
+        auto sources = Source::getSources(ServerIdentifier::Local);
         for (const auto& source : sources)
         {
             auto feeds = source->getFeeds(Source::FetchInfo::Data);
