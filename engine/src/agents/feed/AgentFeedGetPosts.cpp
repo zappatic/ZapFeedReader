@@ -22,9 +22,9 @@
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFeedGetPosts::AgentFeedGetPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                    FlagColor flagColor,
-                                                    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
+ZapFR::Engine::AgentFeedGetPosts::AgentFeedGetPosts(
+    uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor,
+    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
     : AgentRunnable(sourceID), mFeedID(feedID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter), mFlagColorFilter(flagColor),
       mFinishedCallback(finishedCallback)
 {
@@ -32,7 +32,7 @@ ZapFR::Engine::AgentFeedGetPosts::AgentFeedGetPosts(uint64_t sourceID, uint64_t 
 
 void ZapFR::Engine::AgentFeedGetPosts::payload(Source* source)
 {
-    auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
+    auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
     if (feed.has_value())
     {
         auto [postCount, posts] = feed.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColorFilter);
@@ -41,6 +41,6 @@ void ZapFR::Engine::AgentFeedGetPosts::payload(Source* source)
         {
             postPointers.emplace_back(post.get());
         }
-        mFinishedCallback(source->id(), postPointers, mPage, postCount);
+        mFinishedCallback(source->id(), postPointers, mPage, postCount, feed.value()->thumbnailData());
     }
 }

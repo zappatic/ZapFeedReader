@@ -223,7 +223,8 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
                         auto thumbnailEl = dynamic_cast<Poco::XML::Element*>(thumbnailNode);
                         if (thumbnailEl->hasAttribute("url"))
                         {
-                            mediaContentStream << R"(<a href=")" << item.link << R"("><img src=")" << thumbnailEl->getAttribute("url") << R"(" alt="" /></a>)";
+                            item.thumbnail = thumbnailEl->getAttribute("url");
+                            mediaContentStream << R"(<a href=")" << item.link << R"("><img src=")" << item.thumbnail << R"(" alt="" /></a>)";
                         }
                     }
 

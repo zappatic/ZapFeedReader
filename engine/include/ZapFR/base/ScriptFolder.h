@@ -22,6 +22,7 @@
 #include <Poco/JSON/Object.h>
 
 #include "ZapFR/Flag.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {
@@ -46,6 +47,7 @@ namespace ZapFR
             bool showUnread() const noexcept { return mShowUnread; }
             const uint64_t& totalPostCount() const noexcept { return mTotalPostCount; }
             const uint64_t& totalUnreadCount() const noexcept { return mTotalUnreadCount; }
+            const std::vector<ThumbnailData>& thumbnailData() { return mThumbnailData; }
 
             void setTitle(const std::string& title) { mTitle = title; }
             void setShowTotal(bool b) { mShowTotal = b; }
@@ -74,6 +76,7 @@ namespace ZapFR
             bool mShowUnread{false};
             uint64_t mTotalPostCount{0};
             uint64_t mTotalUnreadCount{0};
+            std::vector<ThumbnailData> mThumbnailData{};
         };
     } // namespace Engine
 } // namespace ZapFR

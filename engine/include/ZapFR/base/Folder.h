@@ -57,6 +57,7 @@ namespace ZapFR
             const uint64_t& sortOrder() const noexcept { return mSortOrder; }
             const std::unordered_map<Statistic, std::string>& statistics() { return mStatistics; }
             virtual const std::vector<uint64_t>& feedIDsInFoldersAndSubfolders() { return mFeedIDs; }
+            const std::vector<ThumbnailData>& thumbnailData() { return mThumbnailData; }
 
             void setTitle(const std::string& title) { mTitle = title; }
             void setSortOrder(uint64_t sortOrder) { mSortOrder = sortOrder; }
@@ -98,6 +99,7 @@ namespace ZapFR
             std::vector<std::unique_ptr<Folder>> mSubfolders{};
             std::unordered_map<Statistic, std::string> mStatistics{};
             std::vector<uint64_t> mFeedIDs{};
+            std::vector<ThumbnailData> mThumbnailData{};
 
             bool mDataFetched{false};
             bool mSubfoldersFetched{false};

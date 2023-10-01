@@ -59,6 +59,7 @@ namespace ZapFR
             const std::string& commentsURL() const noexcept { return mCommentsURL; }
             const std::string& guid() const noexcept { return mGuid; }
             const std::string& datePublished() const noexcept { return mDatePublished; }
+            const std::string& thumbnail() const noexcept { return mThumbnail; }
             const std::unordered_set<FlagColor>& flagColors() { return mFlagColors; }
             const std::vector<Enclosure>& enclosures() { return mEnclosures; }
 
@@ -73,6 +74,7 @@ namespace ZapFR
             void setCommentsURL(const std::string& commentsURL) { mCommentsURL = commentsURL; }
             void setGuid(const std::string& guid) { mGuid = guid; }
             void setDatePublished(const std::string& datePublished) { mDatePublished = datePublished; }
+            void setThumbnail(const std::string& thumbnail) { mThumbnail = thumbnail; }
             void setFlagColors(const std::unordered_set<FlagColor>& flagColors) { mFlagColors = flagColors; }
             void addEnclosure(const Enclosure& enclosure) { mEnclosures.emplace_back(enclosure); }
             void addEnclosure(const std::string& url, const std::string& mimeType, uint64_t size) { mEnclosures.emplace_back(url, mimeType, size); }
@@ -93,6 +95,7 @@ namespace ZapFR
             static constexpr const char* JSONIdentifierPostCommentsURL{"commentsURL"};
             static constexpr const char* JSONIdentifierPostGuid{"guid"};
             static constexpr const char* JSONIdentifierPostDatePublished{"datePublished"};
+            static constexpr const char* JSONIdentifierPostThumbnail{"thumbnail"};
             static constexpr const char* JSONIdentifierPostFlagColors{"flagColors"};
             static constexpr const char* JSONIdentifierPostEnclosures{"enclosures"};
             static constexpr const char* JSONIdentifierPostEnclosureURL{"url"};
@@ -112,6 +115,7 @@ namespace ZapFR
             std::string mCommentsURL{""};
             std::string mGuid{""};
             std::string mDatePublished{""};
+            std::string mThumbnail{""};
             std::unordered_set<FlagColor> mFlagColors{};
             std::vector<Enclosure> mEnclosures{};
         };

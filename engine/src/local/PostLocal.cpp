@@ -90,6 +90,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     std::string commentsURL{""};
     std::string guid{""};
     std::string datePublished{""};
+    std::string thumbnail{""};
     std::string feedTitle{""};
     std::string feedLink{""};
 
@@ -106,6 +107,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
           ",posts.commentsURL"
           ",posts.guid"
           ",posts.datePublished"
+          ",posts.thumbnail"
           ",feeds.title"
           ",feeds.link"
           " FROM posts"
@@ -136,6 +138,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     selectStmt.addExtract(into(commentsURL));
     selectStmt.addExtract(into(guid));
     selectStmt.addExtract(into(datePublished));
+    selectStmt.addExtract(into(thumbnail));
     selectStmt.addExtract(into(feedTitle));
     selectStmt.addExtract(into(feedLink));
 
@@ -155,6 +158,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
             p->setCommentsURL(commentsURL);
             p->setGuid(guid);
             p->setDatePublished(datePublished);
+            p->setThumbnail(thumbnail);
 
             // query flags
             std::unordered_set<FlagColor> flags;
@@ -201,6 +205,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     std::string commentsURL{""};
     std::string guid{""};
     std::string datePublished{""};
+    std::string thumbnail{""};
     std::string feedTitle{""};
     std::string feedLink{""};
 
@@ -217,6 +222,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
           ",posts.commentsURL"
           ",posts.guid"
           ",posts.datePublished"
+          ",posts.thumbnail"
           ",feeds.title"
           ",feeds.link"
           " FROM posts"
@@ -246,6 +252,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     selectStmt.addExtract(into(commentsURL));
     selectStmt.addExtract(into(guid));
     selectStmt.addExtract(into(datePublished));
+    selectStmt.addExtract(into(thumbnail));
     selectStmt.addExtract(into(feedTitle));
     selectStmt.addExtract(into(feedLink));
 
@@ -266,6 +273,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
         p->setCommentsURL(commentsURL);
         p->setGuid(guid);
         p->setDatePublished(datePublished);
+        p->setThumbnail(thumbnail);
 
         // query flags
         std::unordered_set<FlagColor> flags;
@@ -351,8 +359,14 @@ void ZapFR::Engine::PostLocal::updateIsRead(bool isRead, const std::vector<std::
 }
 
 void ZapFR::Engine::PostLocal::update(const std::string& title, const std::string& link, const std::string& content, const std::string& author, const std::string& commentsURL,
-                                      const std::string& guid, const std::string& datePublished, const std::vector<Enclosure>& enclosures)
+                                      const std::string& guid, const std::string& datePublished, const std::string& thumbnail, const std::vector<Enclosure>& enclosures)
 {
+    Poco::Nullable<std::string> thumbnailNullable;
+    if (!thumbnail.empty())
+    {
+        thumbnailNullable = thumbnail;
+    }
+
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE posts SET"
                   " title=?"
@@ -362,8 +376,9 @@ void ZapFR::Engine::PostLocal::update(const std::string& title, const std::strin
                   ",commentsURL=?"
                   ",guid=?"
                   ",datePublished=?"
+                  ",thumbnail=?"
                   " WHERE id=?",
-        useRef(title), useRef(link), useRef(content), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), use(mID);
+        useRef(title), useRef(link), useRef(content), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), useRef(thumbnailNullable), use(mID);
     updateStmt.execute();
 
     replaceEnclosures(mID, enclosures);
@@ -371,8 +386,15 @@ void ZapFR::Engine::PostLocal::update(const std::string& title, const std::strin
 
 std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link,
                                                                       const std::string& content, const std::string& author, const std::string& commentsURL,
-                                                                      const std::string& guid, const std::string& datePublished, const std::vector<Enclosure>& enclosures)
+                                                                      const std::string& guid, const std::string& datePublished, const std::string& thumbnail,
+                                                                      const std::vector<Enclosure>& enclosures)
 {
+    Poco::Nullable<std::string> thumbnailNullable;
+    if (!thumbnail.empty())
+    {
+        thumbnailNullable = thumbnail;
+    }
+
     Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
     insertStmt << "INSERT INTO posts ("
                   " feedID"
@@ -383,8 +405,9 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
                   ",commentsURL"
                   ",guid"
                   ",datePublished"
-                  ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        use(feedID), useRef(title), useRef(link), useRef(content), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished);
+                  ",thumbnail"
+                  ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        use(feedID), useRef(title), useRef(link), useRef(content), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), useRef(thumbnailNullable);
 
     uint64_t postID{0};
     {
@@ -407,6 +430,7 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
     p->setCommentsURL(commentsURL);
     p->setGuid(guid);
     p->setDatePublished(datePublished);
+    p->setThumbnail(thumbnail);
 
     // query flags
     std::unordered_set<FlagColor> flags;

@@ -38,6 +38,7 @@ Poco::JSON::Object ZapFR::Engine::Post::toJSON()
     o.set(JSONIdentifierPostCommentsURL, mCommentsURL);
     o.set(JSONIdentifierPostGuid, mGuid);
     o.set(JSONIdentifierPostDatePublished, mDatePublished);
+    o.set(JSONIdentifierPostThumbnail, mThumbnail);
 
     std::vector<std::string> flagColors;
     for (const auto& flagColor : mFlagColors)
@@ -72,6 +73,7 @@ void ZapFR::Engine::Post::fromJSON(const Poco::JSON::Object::Ptr o)
     setCommentsURL(o->getValue<std::string>(Post::JSONIdentifierPostCommentsURL));
     setGuid(o->getValue<std::string>(Post::JSONIdentifierPostGuid));
     setDatePublished(o->getValue<std::string>(Post::JSONIdentifierPostDatePublished));
+    setThumbnail(o->getValue<std::string>(Post::JSONIdentifierPostThumbnail));
 
     std::unordered_set<FlagColor> flagColors;
     std::vector<std::string> flagColorNames;

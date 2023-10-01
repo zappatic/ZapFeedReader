@@ -20,6 +20,7 @@
 #include "APIHandlers.h"
 #include "APIRequest.h"
 #include "ZapFR/Flag.h"
+#include "ZapFR/Global.h"
 #include "ZapFR/base/Source.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/FolderLocal.h"
@@ -72,18 +73,19 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        Poco::JSON::Array arr;
         uint64_t postCount{0};
-
         std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
+        std::vector<ZapFR::Engine::ThumbnailData> thumbnailData;
+
         if (parentType == "feed")
         {
-            auto feed = source.value()->getFeed(parentID, ZapFR::Engine::Source::FetchInfo::None);
+            auto feed = source.value()->getFeed(parentID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
             if (feed.has_value())
             {
                 auto t = feed.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
                 postCount = std::get<uint64_t>(t);
                 posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
+                thumbnailData = feed.value()->thumbnailData();
             }
         }
         else if (parentType == "source")
@@ -91,25 +93,30 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
             auto t = source.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
             postCount = std::get<uint64_t>(t);
             posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
+
+            source.value()->fetchThumbnailData();
+            thumbnailData = source.value()->thumbnailData();
         }
         else if (parentType == "folder")
         {
-            auto folder = source.value()->getFolder(parentID, ZapFR::Engine::Source::FetchInfo::None);
+            auto folder = source.value()->getFolder(parentID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
             if (folder.has_value())
             {
                 auto t = folder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
                 postCount = std::get<uint64_t>(t);
                 posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
+                thumbnailData = folder.value()->thumbnailData();
             }
         }
         else if (parentType == "scriptfolder")
         {
-            auto scriptFolder = source.value()->getScriptFolder(parentID, ZapFR::Engine::Source::FetchInfo::None);
+            auto scriptFolder = source.value()->getScriptFolder(parentID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
             if (scriptFolder.has_value())
             {
                 auto t = scriptFolder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
                 postCount = std::get<uint64_t>(t);
                 posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
+                thumbnailData = scriptFolder.value()->thumbnailData();
             }
         }
         else
@@ -117,12 +124,36 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
             throw std::runtime_error("Invalid parent type requested");
         }
 
+        Poco::JSON::Array postsArr;
         for (const auto& post : posts)
         {
-            arr.add(post->toJSON());
+            postsArr.add(post->toJSON());
         }
-        o.set("posts", arr);
+        o.set("posts", postsArr);
         o.set("count", postCount);
+
+        Poco::JSON::Array tdArr;
+        for (const auto& td : thumbnailData)
+        {
+            Poco::JSON::Object tdObj;
+            tdObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataFeedID, td.feedID);
+            tdObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataFeedTitle, td.feedTitle);
+
+            Poco::JSON::Array tdpArr;
+            for (const auto& post : td.posts)
+            {
+                Poco::JSON::Object pObj;
+                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostLink, post.link);
+                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostID, post.postID);
+                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostThumbnail, post.thumbnail);
+                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostTimestamp, post.timestamp);
+                pObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPostTitle, post.title);
+                tdpArr.add(pObj);
+            }
+            tdObj.set(ZapFR::Engine::Source::JSONIdentifierThumbnailDataPosts, tdpArr);
+            tdArr.add(tdObj);
+        }
+        o.set("thumbnaildata", tdArr);
     }
 
     Poco::JSON::Stringifier::stringify(o, response.send());

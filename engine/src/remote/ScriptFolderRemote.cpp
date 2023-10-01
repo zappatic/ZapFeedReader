@@ -69,6 +69,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
                     auto postObj = postArr->getObject(static_cast<uint32_t>(i));
                     posts.emplace_back(PostRemote::createFromJSON(postObj));
                 }
+                SourceRemote::unserializeThumbnailData(mThumbnailData, rootObj->getArray("thumbnaildata"));
             }
         }
     }

@@ -29,14 +29,16 @@ namespace ZapFR
         {
           public:
             static void cache(uint64_t sourceID, uint64_t feedID, const std::string& hash, const QPixmap& pixmap);
-            static QPixmap icon(uint64_t sourceID, uint64_t feedID);
-            static QPixmap iconGrayscale(uint64_t sourceID, uint64_t feedID);
+            static const QPixmap& icon(uint64_t sourceID, uint64_t feedID);
+            static const QPixmap& iconGrayscale(uint64_t sourceID, uint64_t feedID);
+            static const QString& base64icon(uint64_t sourceID, uint64_t feedID);
             static bool isCached(uint64_t sourceID, uint64_t feedID);
             static bool isSameHash(uint64_t sourceID, uint64_t feedID, const std::string& hash);
 
           private:
             // map source ID => ( feedID => pixmap/string )
             static std::unordered_map<uint64_t, std::unordered_map<uint64_t, QPixmap>> msPixmapCache;
+            static std::unordered_map<uint64_t, std::unordered_map<uint64_t, QString>> msBase64Cache;
             static std::unordered_map<uint64_t, std::unordered_map<uint64_t, QPixmap>> msPixmapGrayscaleCache;
             static std::unordered_map<uint64_t, std::unordered_map<uint64_t, std::string>> msHashCache;
             static std::mutex msCacheMutex;

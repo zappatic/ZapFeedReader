@@ -23,6 +23,7 @@
 
 #include "Script.h"
 #include "ZapFR/Flag.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {
@@ -58,6 +59,7 @@ namespace ZapFR
                 FeedUnreadCount = 8,
                 FolderFeedIDs = 16,
                 Subfolders = 32,
+                UnreadThumbnailData = 64,
             };
 
             const uint64_t& id() const noexcept { return mID; }
@@ -65,6 +67,7 @@ namespace ZapFR
             const std::string& type() const noexcept { return mType; }
             const uint64_t& sortOrder() const noexcept { return mSortOrder; }
             const std::string& configData() const noexcept { return mConfigData; }
+            const std::vector<ThumbnailData>& thumbnailData() { return mThumbnailData; }
             const std::unordered_map<Statistic, std::string>& statistics() { return mStatistics; }
             const std::string& lastError() const noexcept { return mLastError; }
 
@@ -78,6 +81,7 @@ namespace ZapFR
             void update(const std::string& newTitle, const std::string& newConfigData);
             virtual std::unordered_set<uint64_t> importOPML(const std::string& opml, uint64_t parentFolderID) = 0;
             virtual void fetchStatistics() = 0;
+            virtual void fetchThumbnailData() = 0;
             virtual void clearLogs() = 0;
 
             virtual std::vector<std::unique_ptr<Feed>> getFeeds(uint32_t fetchInfo) = 0;
@@ -125,12 +129,22 @@ namespace ZapFR
 
             static const std::unordered_map<Statistic, std::string> SourceStatisticJSONIdentifierMap;
 
+            static constexpr const char* JSONIdentifierThumbnailDataFeedID{"feedID"};
+            static constexpr const char* JSONIdentifierThumbnailDataFeedTitle{"feedTitle"};
+            static constexpr const char* JSONIdentifierThumbnailDataPostLink{"link"};
+            static constexpr const char* JSONIdentifierThumbnailDataPostID{"postID"};
+            static constexpr const char* JSONIdentifierThumbnailDataPostThumbnail{"thumbnail"};
+            static constexpr const char* JSONIdentifierThumbnailDataPostTimestamp{"timestamp"};
+            static constexpr const char* JSONIdentifierThumbnailDataPostTitle{"title"};
+            static constexpr const char* JSONIdentifierThumbnailDataPosts{"posts"};
+
           protected:
             uint64_t mID{0};
             std::string mTitle{""};
             std::string mType{""};
             uint64_t mSortOrder{0};
             std::string mConfigData{""};
+            std::vector<ThumbnailData> mThumbnailData{};
             std::unordered_map<Statistic, std::string> mStatistics{};
             std::string mLastError{""};
 

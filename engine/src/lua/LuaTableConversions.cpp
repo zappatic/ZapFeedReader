@@ -31,7 +31,7 @@
 
 void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Source* source, Feed* feed, Post* post)
 {
-    lua_createtable(L, 0, 3 + 19);
+    lua_createtable(L, 0, 3 + 21);
 
     lua_pushlightuserdata(L, static_cast<void*>(source));
     lua_setfield(L, -2, "_source_ptr");
@@ -109,6 +109,14 @@ void ZapFR::Engine::LuaProxyPost::convertPostToTable(lua_State* L, Source* sourc
     // :setCommentsURL - Sets the comment URL of the post
     lua_pushcfunction(L, setCommentsURL);
     lua_setfield(L, -2, "setCommentsURL");
+
+    // :getThumbnail - Gets the thumbnail of the post
+    lua_pushcfunction(L, getThumbnail);
+    lua_setfield(L, -2, "getThumbnail");
+
+    // :setThumbnail - Sets the thumbnail of the post
+    lua_pushcfunction(L, setThumbnail);
+    lua_setfield(L, -2, "setThumbnail");
 
     // :getEnclosures - Gets the enclosures of a post
     lua_pushcfunction(L, getEnclosures);

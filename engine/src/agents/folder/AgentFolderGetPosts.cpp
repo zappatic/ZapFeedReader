@@ -18,13 +18,12 @@
 
 #include "ZapFR/agents/folder/AgentFolderGetPosts.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFolderGetPosts::AgentFolderGetPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                                        const std::string& searchFilter, FlagColor flagColor,
-                                                        std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
+ZapFR::Engine::AgentFolderGetPosts::AgentFolderGetPosts(
+    uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor,
+    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
     : AgentRunnable(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter), mFlagColor(flagColor),
       mFinishedCallback(finishedCallback)
 {
@@ -32,7 +31,7 @@ ZapFR::Engine::AgentFolderGetPosts::AgentFolderGetPosts(uint64_t sourceID, uint6
 
 void ZapFR::Engine::AgentFolderGetPosts::payload(Source* source)
 {
-    auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
+    auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
     if (folder.has_value())
     {
         auto [postCount, posts] = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
@@ -41,6 +40,6 @@ void ZapFR::Engine::AgentFolderGetPosts::payload(Source* source)
         {
             postPointers.emplace_back(post.get());
         }
-        mFinishedCallback(source->id(), postPointers, mPage, postCount);
+        mFinishedCallback(source->id(), postPointers, mPage, postCount, folder.value()->thumbnailData());
     }
 }

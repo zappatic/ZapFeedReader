@@ -31,7 +31,7 @@ namespace ZapFR
 {
     namespace Engine
     {
-        static std::array<std::string, 19> gsLuaPostSyntaxHighlighting{
+        static std::array<std::string, 21> gsLuaPostSyntaxHighlighting{
             R"(:markAsRead\(\))", 
             R"(:markAsUnread\(\))", 
             R"(:flag\(.*?\))", 
@@ -49,6 +49,8 @@ namespace ZapFR
             R"(:getAuthor\(.*?\))", 
             R"(:getCommentsURL\(.*?\))", 
             R"(:setCommentsURL\(.*?\))", 
+            R"(:getThumbnail\(.*?\))", 
+            R"(:setThumbnail\(.*?\))", 
             R"(:getEnclosures\(.*?\))", 
             R"(:addEnclosure\(.*?\))", 
 

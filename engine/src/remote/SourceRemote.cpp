@@ -385,9 +385,37 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
                     posts.emplace_back(PostRemote::createFromJSON(postObj));
                 }
             }
+            unserializeThumbnailData(mThumbnailData, rootObj->getArray("thumbnaildata"));
         }
     }
     return std::make_tuple(postCount, std::move(posts));
+}
+
+void ZapFR::Engine::SourceRemote::unserializeThumbnailData(std::vector<ThumbnailData>& destination, Poco::JSON::Array::Ptr source)
+{
+    destination.clear();
+    for (size_t i = 0; i < source->size(); ++i)
+    {
+        auto tdObj = source->getObject(static_cast<uint32_t>(i));
+        ThumbnailData td;
+        td.feedID = tdObj->getValue<uint64_t>(JSONIdentifierThumbnailDataFeedID);
+        td.feedTitle = tdObj->getValue<std::string>(JSONIdentifierThumbnailDataFeedTitle);
+
+        auto tdPostsArr = tdObj->getArray(JSONIdentifierThumbnailDataPosts);
+        for (size_t j = 0; j < tdPostsArr->size(); ++j)
+        {
+            auto tdpObj = tdPostsArr->getObject(static_cast<uint32_t>(j));
+            ThumbnailDataPost tdp;
+            tdp.link = tdpObj->getValue<std::string>(JSONIdentifierThumbnailDataPostLink);
+            tdp.postID = tdpObj->getValue<uint64_t>(JSONIdentifierThumbnailDataPostID);
+            tdp.thumbnail = tdpObj->getValue<std::string>(JSONIdentifierThumbnailDataPostThumbnail);
+            tdp.timestamp = tdpObj->getValue<time_t>(JSONIdentifierThumbnailDataPostTimestamp);
+            tdp.title = tdpObj->getValue<std::string>(JSONIdentifierThumbnailDataPostTitle);
+            td.posts.emplace_back(tdp);
+        }
+
+        destination.emplace_back(td);
+    }
 }
 
 void ZapFR::Engine::SourceRemote::markAsRead()
@@ -824,6 +852,11 @@ void ZapFR::Engine::SourceRemote::fetchStatistics()
             }
         }
     }
+}
+
+void ZapFR::Engine::SourceRemote::fetchThumbnailData()
+{
+    // nop, this data is given received with the getPosts call
 }
 
 void ZapFR::Engine::SourceRemote::clearLogs()

@@ -33,6 +33,7 @@ namespace ZapFR
 
             // source stuff
             void fetchStatistics() override;
+            void fetchThumbnailData() override;
             std::unordered_set<uint64_t> importOPML(const std::string& opml, uint64_t parentFolderID) override;
             void clearLogs() override;
 

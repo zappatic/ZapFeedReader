@@ -35,6 +35,7 @@ namespace ZapFR
 
             // source stuff
             void fetchStatistics() override;
+            void fetchThumbnailData() override;
             std::unordered_set<uint64_t> importOPML(const std::string& opml, uint64_t parentFolderID) override;
             void clearLogs() override;
 
@@ -55,6 +56,7 @@ namespace ZapFR
             // post stuff
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                               FlagColor flagColor) override;
+            static void unserializeThumbnailData(std::vector<ThumbnailData>& destination, Poco::JSON::Array::Ptr source);
             void markAsRead() override;
             void setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) override;
             void setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,

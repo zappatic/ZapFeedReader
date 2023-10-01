@@ -56,6 +56,32 @@ void ZapFR::Engine::Database::upgrade()
     }
     else
     {
+        std::string currentDBVersionStr{""};
+        Poco::Data::Statement selectVersionStmt(*mSession);
+        selectVersionStmt << "SELECT value FROM config WHERE key='db_schema_version'", into(currentDBVersionStr), now;
+
+        uint64_t currentDBVersion{0};
+        Poco::NumberParser::tryParseUnsigned64(currentDBVersionStr, currentDBVersion);
+        if (currentDBVersion > 0)
+        {
+            if (currentDBVersion < ZapFR::Engine::DBVersion)
+            {
+                static std::vector<std::function<void()>> upgradeFunctions{[]() { /* nop, there is no db version 0 */ },
+                                                                           []() { /* nop, version 1 should have been installed with installDBSchemaV1 */ },
+                                                                           std::bind(&Database::upgradeToDBSchemaV2, this)};
+
+                for (auto i = currentDBVersion + 1; i <= ZapFR::Engine::DBVersion; ++i)
+                {
+                    const auto& upgradeFunc = upgradeFunctions.at(i);
+                    upgradeFunc();
+                }
+            }
+            else if (currentDBVersion > ZapFR::Engine::DBVersion)
+            {
+                std::cerr << "ERROR: Existing database is for a newer version of ZapFeedReader";
+                throw std::runtime_error("ERROR: Existing database is for a newer version of ZapFeedReader");
+            }
+        }
     }
 }
 
@@ -228,4 +254,10 @@ void ZapFR::Engine::Database::installDBSchemaV1()
                        ")",
             now;
     }
+}
+
+void ZapFR::Engine::Database::upgradeToDBSchemaV2()
+{
+    (*mSession) << "ALTER TABLE posts ADD thumbnail TEXT", now;
+    (*mSession) << "UPDATE config SET VALUE='2' WHERE key='db_schema_version'", now;
 }

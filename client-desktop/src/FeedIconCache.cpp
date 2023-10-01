@@ -16,9 +16,12 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QBuffer>
+
 #include "FeedIconCache.h"
 
 std::unordered_map<uint64_t, std::unordered_map<uint64_t, QPixmap>> ZapFR::Client::FeedIconCache::msPixmapCache{};
+std::unordered_map<uint64_t, std::unordered_map<uint64_t, QString>> ZapFR::Client::FeedIconCache::msBase64Cache{};
 std::unordered_map<uint64_t, std::unordered_map<uint64_t, QPixmap>> ZapFR::Client::FeedIconCache::msPixmapGrayscaleCache{};
 std::unordered_map<uint64_t, std::unordered_map<uint64_t, std::string>> ZapFR::Client::FeedIconCache::msHashCache{};
 std::mutex ZapFR::Client::FeedIconCache::msCacheMutex{};
@@ -47,7 +50,7 @@ void ZapFR::Client::FeedIconCache::cache(uint64_t sourceID, uint64_t feedID, con
     msPixmapGrayscaleCache[sourceID][feedID] = QPixmap::fromImage(imgGrayscale);
 }
 
-QPixmap ZapFR::Client::FeedIconCache::icon(uint64_t sourceID, uint64_t feedID)
+const QPixmap& ZapFR::Client::FeedIconCache::icon(uint64_t sourceID, uint64_t feedID)
 {
     std::lock_guard<std::mutex> lock(msCacheMutex);
     if (msPixmapCache.contains(sourceID))
@@ -58,10 +61,11 @@ QPixmap ZapFR::Client::FeedIconCache::icon(uint64_t sourceID, uint64_t feedID)
             return s.at(feedID);
         }
     }
-    return QPixmap(":/rss.png");
+    static QPixmap rssIcon(":/rss.png");
+    return rssIcon;
 }
 
-QPixmap ZapFR::Client::FeedIconCache::iconGrayscale(uint64_t sourceID, uint64_t feedID)
+const QPixmap& ZapFR::Client::FeedIconCache::iconGrayscale(uint64_t sourceID, uint64_t feedID)
 {
     std::lock_guard<std::mutex> lock(msCacheMutex);
     if (msPixmapGrayscaleCache.contains(sourceID))
@@ -81,6 +85,42 @@ QPixmap ZapFR::Client::FeedIconCache::iconGrayscale(uint64_t sourceID, uint64_t 
         rssIcon = QPixmap::fromImage(imgGrayscale);
     }
     return rssIcon;
+}
+
+const QString& ZapFR::Client::FeedIconCache::base64icon(uint64_t sourceID, uint64_t feedID)
+{
+    // avoid double lock below
+    {
+        std::lock_guard<std::mutex> lock(msCacheMutex);
+        if (msBase64Cache.contains(sourceID))
+        {
+            auto& s = msBase64Cache.at(sourceID);
+            if (s.contains(feedID))
+            {
+                return s.at(feedID);
+            }
+        }
+    }
+
+    // we leave the caching here, not in the cache function, as the base64 icon is only requested
+    // for the thumbnail overview, so avoid this work until that request is made
+    const auto& icon = FeedIconCache::icon(sourceID, feedID);
+    QBuffer buffer;
+    buffer.open(QIODevice::WriteOnly);
+    icon.save(&buffer, "PNG");
+    auto base64Icon = QString("data:image/png;base64, %1").arg(QString(buffer.data().toBase64()));
+
+    // avoid double lock again
+    {
+        std::lock_guard<std::mutex> lock(msCacheMutex);
+        if (!msBase64Cache.contains(sourceID))
+        {
+            msBase64Cache[sourceID] = {};
+        }
+        msBase64Cache[sourceID][feedID] = base64Icon;
+    }
+
+    return FeedIconCache::base64icon(sourceID, feedID);
 }
 
 bool ZapFR::Client::FeedIconCache::isCached(uint64_t sourceID, uint64_t feedID)

@@ -105,6 +105,18 @@
         "highlight": "R\"(:setCommentsURL\\(.*?\\))\""
       },
       {
+        "name": "getThumbnail",
+        "value": "getThumbnail",
+        "description": "Gets the thumbnail of the post",
+        "highlight": "R\"(:getThumbnail\\(.*?\\))\""
+      },
+      {
+        "name": "setThumbnail",
+        "value": "setThumbnail",
+        "description": "Sets the thumbnail of the post",
+        "highlight": "R\"(:setThumbnail\\(.*?\\))\""
+      },
+      {
         "name": "getEnclosures",
         "value": "getEnclosures",
         "description": "Gets the enclosures of a post",

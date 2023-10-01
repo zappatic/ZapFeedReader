@@ -47,9 +47,18 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::ge
 std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::getFeed(uint64_t feedID, uint32_t fetchInfo)
 {
     if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data || (fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics ||
-        (fetchInfo & FetchInfo::FeedUnreadCount) == FetchInfo::FeedUnreadCount)
+        (fetchInfo & FetchInfo::FeedUnreadCount) == FetchInfo::FeedUnreadCount || (fetchInfo & FetchInfo::UnreadThumbnailData) == FetchInfo::UnreadThumbnailData)
     {
-        return FeedLocal::querySingle(this, {"feeds.id=?"}, {use(feedID, "id")}, fetchInfo);
+        auto feed = FeedLocal::querySingle(this, {"feeds.id=?"}, {use(feedID, "id")}, fetchInfo);
+        if (feed.has_value())
+        {
+            auto localFeed = dynamic_cast<FeedLocal*>(feed.value().get());
+            if ((fetchInfo & FetchInfo::UnreadThumbnailData) == FetchInfo::UnreadThumbnailData)
+            {
+                localFeed->fetchThumbnailData();
+            }
+        }
+        return feed;
     }
     else
     {
@@ -134,14 +143,21 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal
     bindings.emplace_back(useRef(folderID, "folderID"));
 
     auto folder = FolderLocal::querySingle(this, whereClause, bindings);
-    auto localFolder = dynamic_cast<FolderLocal*>(folder.value().get());
-    if ((fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
+    if (folder.has_value())
     {
-        localFolder->fetchStatistics();
-    }
-    if ((fetchInfo & FetchInfo::FolderFeedIDs) == FetchInfo::FolderFeedIDs)
-    {
-        localFolder->fetchFeedIDsInFoldersAndSubfolders();
+        auto localFolder = dynamic_cast<FolderLocal*>(folder.value().get());
+        if ((fetchInfo & FetchInfo::Statistics) == FetchInfo::Statistics)
+        {
+            localFolder->fetchStatistics();
+        }
+        if ((fetchInfo & FetchInfo::FolderFeedIDs) == FetchInfo::FolderFeedIDs)
+        {
+            localFolder->fetchFeedIDsInFoldersAndSubfolders();
+        }
+        if ((fetchInfo & FetchInfo::UnreadThumbnailData) == FetchInfo::UnreadThumbnailData)
+        {
+            localFolder->fetchThumbnailData();
+        }
     }
     return folder;
 }
@@ -335,6 +351,58 @@ std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceLocal::getUnreadCoun
     return unreadCounts;
 }
 
+void ZapFR::Engine::SourceLocal::fetchThumbnailData()
+{
+    mThumbnailData.clear();
+
+    std::vector<std::string> whereClause;
+
+    whereClause.emplace_back("posts.isRead=FALSE");
+    whereClause.emplace_back("posts.thumbnail NOT NULL");
+
+    auto posts = PostLocal::queryMultiple(whereClause, "", "LIMIT 250", {});
+
+    std::unordered_map<uint64_t, std::string> feedIDToTitleMap;
+    std::unordered_map<uint64_t, std::vector<Post*>> feedIDToPosts;
+    for (const auto& post : posts)
+    {
+        auto feedID = post->feedID();
+        feedIDToTitleMap[feedID] = post->feedTitle();
+        if (!feedIDToPosts.contains(feedID))
+        {
+            feedIDToPosts[feedID] = {};
+        }
+        feedIDToPosts.at(feedID).emplace_back(post.get());
+    }
+
+    // sort by title of the feed
+    std::vector<std::tuple<uint64_t, std::string>> feedIDToTitleVector;
+    for (const auto& [feedID, feedTitle] : feedIDToTitleMap)
+    {
+        feedIDToTitleVector.emplace_back(feedID, feedTitle);
+    }
+    std::sort(feedIDToTitleVector.begin(), feedIDToTitleVector.end(),
+              [](const std::tuple<uint64_t, std::string>& a, const std::tuple<uint64_t, std::string>& b) { return Poco::icompare(std::get<1>(a), std::get<1>(b)) < 0; });
+
+    for (const auto& [feedID, feedTitle] : feedIDToTitleVector)
+    {
+        ThumbnailData td;
+        td.feedID = feedID;
+        td.feedTitle = feedTitle;
+        for (const auto& post : feedIDToPosts.at(feedID))
+        {
+            Poco::DateTime datePublished{};
+            int32_t tzd{0};
+            Poco::DateTimeParser::tryParse(post->datePublished(), datePublished, tzd);
+            auto timestamp = datePublished.timestamp().epochTime();
+
+            td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link(), timestamp);
+        }
+        std::sort(td.posts.begin(), td.posts.end(), [](const ThumbnailDataPost& a, const ThumbnailDataPost& b) { return (std::difftime(a.timestamp, b.timestamp) > 0); });
+        mThumbnailData.emplace_back(td);
+    }
+}
+
 /* ************************** LOGS STUFF ************************** */
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::SourceLocal::getLogs(uint64_t perPage, uint64_t page)
 {
@@ -385,9 +453,18 @@ std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceL
 
 std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceLocal::getScriptFolder(uint64_t id, uint32_t fetchInfo)
 {
-    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data)
+    if ((fetchInfo & FetchInfo::Data) == FetchInfo::Data || (fetchInfo & FetchInfo::UnreadThumbnailData) == FetchInfo::UnreadThumbnailData)
     {
-        return ScriptFolderLocal::querySingle(this, {"scriptfolders.id=?"}, {use(id, "id")});
+        auto scriptFolder = ScriptFolderLocal::querySingle(this, {"scriptfolders.id=?"}, {use(id, "id")});
+        if ((fetchInfo & FetchInfo::UnreadThumbnailData) == FetchInfo::UnreadThumbnailData)
+        {
+            if (scriptFolder.has_value())
+            {
+                auto scriptFolderLocal = dynamic_cast<ScriptFolderLocal*>(scriptFolder.value().get());
+                scriptFolderLocal->fetchThumbnailData();
+            }
+        }
+        return scriptFolder;
     }
     else
     {

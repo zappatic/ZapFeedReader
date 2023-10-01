@@ -23,6 +23,7 @@
 
 #include "Utilities.h"
 #include "ZapFR/Flag.h"
+#include "ZapFR/Global.h"
 #include "ZapFR/base/Post.h"
 #include "widgets/TableViewPaletteCorrected.h"
 
@@ -53,6 +54,7 @@ namespace ZapFR
             void setPage(uint64_t page) noexcept { mCurrentPostPage = page; }
             void updateActivePostFilter();
             void markAsRead();
+            void postsMarkedRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs);
 
             ZapFR::Engine::FlagColor flagFilter() const noexcept { return mFlagFilter; }
             void setFlagFilter(ZapFR::Engine::FlagColor f) noexcept { mFlagFilter = f; }
@@ -118,8 +120,10 @@ namespace ZapFR
             uint64_t mCurrentPostPageCount{1};
             bool mShowOnlyUnreadPosts{false};
             ZapFR::Engine::FlagColor mFlagFilter{ZapFR::Engine::FlagColor::Gray};
+            std::vector<ZapFR::Engine::ThumbnailData> mCurrentThumbnailData{};
 
-            void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0);
+            void populatePosts(const QList<QList<QStandardItem*>>& posts = {}, uint64_t pageNumber = 1, uint64_t totalPostCount = 0,
+                               const std::vector<ZapFR::Engine::ThumbnailData>& thumbnailData = {});
             void handleSelectionChanged(const QModelIndexList& selected);
             void connectStuff();
             void createContextMenus();
@@ -128,7 +132,6 @@ namespace ZapFR
             void postReadyToBeShown(const QString& html, const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures);
             void postsMarkedFlagged(bool reloadPosts);
             void postsMarkedUnflagged(bool reloadPosts);
-            void postsMarkedRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs);
             void postsMarkedUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs);
             void postsAssignedToScriptFolder(uint64_t sourceID, uint64_t scriptFolderID);
             void postsRemovedFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID);

@@ -26,6 +26,7 @@
 
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
+#include "ZapFR/base/Folder.h"
 #include "ZapFR/base/ScriptFolder.h"
 #include "delegates/ItemDelegatePost.h"
 #include "widgets/MainWindow.h"
@@ -82,7 +83,8 @@ void ZapFR::Client::TableViewPosts::reload()
     };
 
     // lambda for the callback, retrieving the posts
-    auto processPosts = [&](uint64_t sourceID, const std::vector<ZapFR::Engine::Post*>& posts, uint64_t pageNumber, uint64_t totalPostCount)
+    auto processPosts = [&](uint64_t sourceID, const std::vector<ZapFR::Engine::Post*>& posts, uint64_t pageNumber, uint64_t totalPostCount,
+                            const std::vector<ZapFR::Engine::ThumbnailData>& thumbnailData)
     {
         QList<QList<QStandardItem*>> rows;
         for (const auto& post : posts)
@@ -116,7 +118,7 @@ void ZapFR::Client::TableViewPosts::reload()
             rows << rowData;
         }
 
-        QMetaObject::invokeMethod(this, [=, this]() { populatePosts(rows, pageNumber, totalPostCount); });
+        QMetaObject::invokeMethod(this, [=, this]() { populatePosts(rows, pageNumber, totalPostCount, thumbnailData); });
     };
 
     auto searchFilter = mMainWindow->searchQuery().toStdString();
@@ -174,8 +176,10 @@ void ZapFR::Client::TableViewPosts::reload()
     }
 }
 
-void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardItem*>>& posts, uint64_t pageNumber, uint64_t totalPostCount)
+void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardItem*>>& posts, uint64_t pageNumber, uint64_t totalPostCount,
+                                                  const std::vector<ZapFR::Engine::ThumbnailData>& thumbnailData)
 {
+    mCurrentThumbnailData = thumbnailData;
     mMainWindow->setContentPane(ContentPane::Posts);
 
     int32_t columnWidthUnread = 50;
@@ -286,9 +290,22 @@ void ZapFR::Client::TableViewPosts::handleSelectionChanged(const QModelIndexList
     }
     else if (selected.count() == 0)
     {
-        ui->webViewPost->setBlankPostPage();
-        ui->widgetPostCaption->setCaption(tr("No post selected"), mMainWindow);
-        ui->stackedWidgetPost->setCurrentIndex(PostPane::PostCaption);
+        if (mCurrentThumbnailData.empty())
+        {
+            ui->webViewPost->setBlankPostPage();
+            ui->widgetPostCaption->setCaption(tr("No post selected"), mMainWindow);
+            ui->stackedWidgetPost->setCurrentIndex(PostPane::PostCaption);
+        }
+        else
+        {
+            auto sourceTreeIndex = ui->treeViewSources->currentIndex();
+            if (sourceTreeIndex.isValid())
+            {
+                auto sourceID = sourceTreeIndex.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+                postReadyToBeShown(ui->webViewPost->getHTMLForThumbnailData(sourceID, mCurrentThumbnailData), {});
+            }
+            ui->stackedWidgetPost->setCurrentIndex(PostPane::Post);
+        }
     }
     else
     {
@@ -1076,7 +1093,11 @@ void ZapFR::Client::TableViewPosts::connectStuff()
                 {
                     if (!url.isEmpty())
                     {
-                        mMainWindow->getUI()->statusbar->showMessage(url);
+                        QUrl uri(url);
+                        if (uri.scheme() != "zapfr")
+                        {
+                            mMainWindow->getUI()->statusbar->showMessage(url);
+                        }
                     }
                     else
                     {

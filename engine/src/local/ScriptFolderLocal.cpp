@@ -76,6 +76,62 @@ void ZapFR::Engine::ScriptFolderLocal::update(const std::string& title, bool sho
     updateStmt << "UPDATE scriptfolders SET title=?, showTotal=?, showUnread=? WHERE id=?", useRef(title), use(showTotal), use(showUnread), use(mID), now;
 }
 
+void ZapFR::Engine::ScriptFolderLocal::fetchThumbnailData()
+{
+    mThumbnailData.clear();
+
+    std::vector<std::string> whereClause;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+
+    whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)");
+    whereClause.emplace_back("posts.isRead=FALSE");
+    whereClause.emplace_back("posts.thumbnail NOT NULL");
+
+    bindings.emplace_back(useRef(mID, "scriptFolderID"));
+
+    auto posts = PostLocal::queryMultiple(whereClause, "", "LIMIT 250", bindings);
+
+    std::unordered_map<uint64_t, std::string> feedIDToTitleMap;
+    std::unordered_map<uint64_t, std::vector<Post*>> feedIDToPosts;
+    for (const auto& post : posts)
+    {
+        auto feedID = post->feedID();
+        feedIDToTitleMap[feedID] = post->feedTitle();
+        if (!feedIDToPosts.contains(feedID))
+        {
+            feedIDToPosts[feedID] = {};
+        }
+        feedIDToPosts.at(feedID).emplace_back(post.get());
+    }
+
+    // sort by title of the feed
+    std::vector<std::tuple<uint64_t, std::string>> feedIDToTitleVector;
+    for (const auto& [feedID, feedTitle] : feedIDToTitleMap)
+    {
+        feedIDToTitleVector.emplace_back(feedID, feedTitle);
+    }
+    std::sort(feedIDToTitleVector.begin(), feedIDToTitleVector.end(),
+              [](const std::tuple<uint64_t, std::string>& a, const std::tuple<uint64_t, std::string>& b) { return Poco::icompare(std::get<1>(a), std::get<1>(b)) < 0; });
+
+    for (const auto& [feedID, feedTitle] : feedIDToTitleVector)
+    {
+        ThumbnailData td;
+        td.feedID = feedID;
+        td.feedTitle = feedTitle;
+        for (const auto& post : feedIDToPosts.at(feedID))
+        {
+            Poco::DateTime datePublished{};
+            int32_t tzd{0};
+            Poco::DateTimeParser::tryParse(post->datePublished(), datePublished, tzd);
+            auto timestamp = datePublished.timestamp().epochTime();
+
+            td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link(), timestamp);
+        }
+        std::sort(td.posts.begin(), td.posts.end(), [](const ThumbnailDataPost& a, const ThumbnailDataPost& b) { return (std::difftime(a.timestamp, b.timestamp) > 0); });
+        mThumbnailData.emplace_back(td);
+    }
+}
+
 std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptFolderLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                                           const std::string& orderClause, const std::string& limitClause,
                                                                                                           const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)

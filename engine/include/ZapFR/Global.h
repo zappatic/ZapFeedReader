@@ -20,6 +20,7 @@
 #define ZAPFR_ENGINE_GLOBAL_H
 
 #include <memory>
+#include <vector>
 
 namespace ZapFR
 {
@@ -36,6 +37,28 @@ namespace ZapFR
             AlphabeticallyAscending,
         };
 
+        struct ThumbnailDataPost
+        {
+            ThumbnailDataPost() = default;
+            ThumbnailDataPost(uint64_t tdpPostID, const std::string& tdpTitle, const std::string& tdpThumbnail, const std::string& tdpLink, time_t tdpTimestamp)
+                : postID(tdpPostID), title(tdpTitle), thumbnail(tdpThumbnail), link(tdpLink), timestamp(tdpTimestamp)
+            {
+            }
+            uint64_t postID{0};
+            std::string title{""};
+            std::string thumbnail{""};
+            std::string link{""};
+            time_t timestamp{0};
+        };
+
+        struct ThumbnailData
+        {
+            uint64_t feedID{0};
+            std::string feedTitle{""};
+            std::vector<ThumbnailDataPost> posts{};
+        };
+
+        static const uint64_t DBVersion{2};
         static const uint64_t APIVersion{1};
         static const uint64_t DefaultFeedAutoRefreshInterval{15 * 60};
         static const uint16_t DefaultServerPort{16016};

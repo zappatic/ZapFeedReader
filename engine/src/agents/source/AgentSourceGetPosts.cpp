@@ -22,9 +22,9 @@
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentSourceGetPosts::AgentSourceGetPosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                        FlagColor flagColor,
-                                                        std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
+ZapFR::Engine::AgentSourceGetPosts::AgentSourceGetPosts(
+    uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor,
+    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
     : AgentRunnable(sourceID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter), mFlagColor(flagColor),
       mFinishedCallback(finishedCallback)
 {
@@ -38,5 +38,6 @@ void ZapFR::Engine::AgentSourceGetPosts::payload(Source* source)
     {
         postPointers.emplace_back(post.get());
     }
-    mFinishedCallback(source->id(), postPointers, mPage, postCount);
+    source->fetchThumbnailData();
+    mFinishedCallback(source->id(), postPointers, mPage, postCount, source->thumbnailData());
 }

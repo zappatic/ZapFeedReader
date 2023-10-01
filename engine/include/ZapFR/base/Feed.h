@@ -24,6 +24,7 @@
 #include <Poco/JSON/Object.h>
 
 #include "ZapFR/Flag.h"
+#include "ZapFR/Global.h"
 
 namespace ZapFR
 {
@@ -71,6 +72,7 @@ namespace ZapFR
             const std::optional<std::string>& lastRefreshError() { return mLastRefreshError; }
             const std::optional<uint64_t>& refreshInterval() { return mRefreshInterval; }
             const std::unordered_map<Statistic, std::string>& statistics() { return mStatistics; }
+            const std::vector<ThumbnailData>& thumbnailData() { return mThumbnailData; }
 
             void setURL(const std::string& url) { mURL = url; }
             void setIconURL(const std::string& iconURL) { mIconURL = iconURL; }
@@ -149,6 +151,7 @@ namespace ZapFR
             uint64_t mSortOrder{0};
             uint64_t mUnreadCount{0};
             std::unordered_map<Statistic, std::string> mStatistics{};
+            std::vector<ThumbnailData> mThumbnailData{};
 
             bool mDataFetched{false};
         };

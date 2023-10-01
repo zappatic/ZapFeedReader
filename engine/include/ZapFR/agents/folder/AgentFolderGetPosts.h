@@ -21,6 +21,7 @@
 
 #include "ZapFR/AgentRunnable.h"
 #include "ZapFR/Flag.h"
+#include "ZapFR/base/Folder.h"
 
 namespace ZapFR
 {
@@ -31,8 +32,9 @@ namespace ZapFR
         class AgentFolderGetPosts : public AgentRunnable
         {
           public:
-            explicit AgentFolderGetPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                         FlagColor flagColor, std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback);
+            explicit AgentFolderGetPosts(
+                uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor,
+                std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
             virtual ~AgentFolderGetPosts() = default;
 
             void payload(Source* source) override;
@@ -45,7 +47,7 @@ namespace ZapFR
             bool mShowOnlyUnread{false};
             std::string mSearchFilter{""};
             FlagColor mFlagColor{FlagColor::Gray};
-            std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> mFinishedCallback{};
+            std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

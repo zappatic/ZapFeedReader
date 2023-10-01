@@ -229,7 +229,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         if (existingPost.has_value()) // UPDATE in case it does
         {
             dynamic_cast<PostLocal*>(existingPost.value().get())
-                ->update(item.title, item.link, item.content, item.author, item.commentsURL, item.guid, item.datePublished, item.enclosures);
+                ->update(item.title, item.link, item.content, item.author, item.commentsURL, item.guid, item.datePublished, item.thumbnail, item.enclosures);
 
             if (scriptsRanOnUpdatePost.size() > 0)
             {
@@ -242,6 +242,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
                 if (!isDifferent && (existingPost.value()->author() != item.author)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->commentsURL() != item.commentsURL)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->datePublished() != item.datePublished)) { isDifferent = true; }
+                if (!isDifferent && (existingPost.value()->thumbnail() != item.thumbnail)) { isDifferent = true; }
                 // clang-format on
 
                 if (isDifferent)
@@ -259,7 +260,8 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         }
         else // INSERT in case it doesn't
         {
-            auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.content, item.author, item.commentsURL, item.guid, item.datePublished, item.enclosures);
+            auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.content, item.author, item.commentsURL, item.guid, item.datePublished, item.thumbnail,
+                                          item.enclosures);
 
             if (scriptsRanOnNewPost.size() > 0)
             {
@@ -443,6 +445,38 @@ void ZapFR::Engine::FeedLocal::fetchStatistics()
         selectStmt << "SELECT MAX(datePublished) FROM posts WHERE feedID=?", into(newestPost), use(mID), now;
         mStatistics[Statistic::NewestPost] = newestPost.isNull() ? "" : newestPost.value();
     }
+}
+
+void ZapFR::Engine::FeedLocal::fetchThumbnailData()
+{
+    mThumbnailData.clear();
+    fetchData();
+
+    std::vector<std::string> whereClause;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+
+    whereClause.emplace_back("posts.feedID=?");
+    whereClause.emplace_back("posts.isRead=FALSE");
+    whereClause.emplace_back("posts.thumbnail NOT NULL");
+
+    bindings.emplace_back(use(mID, "feedID"));
+
+    auto posts = PostLocal::queryMultiple(whereClause, "", "LIMIT 250", bindings);
+
+    ThumbnailData td;
+    td.feedID = mID;
+    td.feedTitle = mTitle;
+    for (const auto& post : posts)
+    {
+        Poco::DateTime datePublished{};
+        int32_t tzd{0};
+        Poco::DateTimeParser::tryParse(post->datePublished(), datePublished, tzd);
+        auto timestamp = datePublished.timestamp().epochTime();
+
+        td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link(), timestamp);
+    }
+    std::sort(td.posts.begin(), td.posts.end(), [](const ThumbnailDataPost& a, const ThumbnailDataPost& b) { return (std::difftime(a.timestamp, b.timestamp) > 0); });
+    mThumbnailData.emplace_back(td);
 }
 
 uint64_t ZapFR::Engine::FeedLocal::nextSortOrder(uint64_t folderID)

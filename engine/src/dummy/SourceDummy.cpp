@@ -195,6 +195,11 @@ void ZapFR::Engine::SourceDummy::fetchStatistics()
     throw std::runtime_error("Not implemented");
 }
 
+void ZapFR::Engine::SourceDummy::fetchThumbnailData()
+{
+    throw std::runtime_error("Not implemented");
+}
+
 std::unordered_set<uint64_t> ZapFR::Engine::SourceDummy::importOPML(const std::string& /*opml*/, uint64_t /*parentFolderID*/)
 {
     throw std::runtime_error("Not implemented");

@@ -58,6 +58,7 @@ namespace ZapFR
                 std::string commentsURL{""};
                 std::string guid{""};
                 std::string datePublished{""};
+                std::string thumbnail{""};
                 std::vector<Post::Enclosure> enclosures{};
             };
 

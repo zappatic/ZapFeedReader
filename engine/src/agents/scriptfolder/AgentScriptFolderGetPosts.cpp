@@ -24,7 +24,7 @@
 
 ZapFR::Engine::AgentScriptFolderGetPosts::AgentScriptFolderGetPosts(
     uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor,
-    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t)> finishedCallback)
+    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
     : AgentRunnable(sourceID), mScriptFolderID(scriptFolderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter),
       mFlagColor(flagColor), mFinishedCallback(finishedCallback)
 {
@@ -32,7 +32,7 @@ ZapFR::Engine::AgentScriptFolderGetPosts::AgentScriptFolderGetPosts(
 
 void ZapFR::Engine::AgentScriptFolderGetPosts::payload(Source* source)
 {
-    auto scriptFolder = source->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
+    auto scriptFolder = source->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
     if (scriptFolder.has_value())
     {
         auto [postCount, posts] = scriptFolder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mFlagColor);
@@ -41,6 +41,6 @@ void ZapFR::Engine::AgentScriptFolderGetPosts::payload(Source* source)
         {
             postPointers.emplace_back(post.get());
         }
-        mFinishedCallback(source->id(), postPointers, mPage, postCount);
+        mFinishedCallback(source->id(), postPointers, mPage, postCount, scriptFolder.value()->thumbnailData());
     }
 }

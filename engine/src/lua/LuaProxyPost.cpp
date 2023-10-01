@@ -167,6 +167,35 @@ int ZapFR::Engine::LuaProxyPost::setCommentsURL(lua_State* L)
     return 0;
 }
 
+int ZapFR::Engine::LuaProxyPost::getThumbnail(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        lua_pushstring(L, post->thumbnail().c_str());
+        return 1;
+    }
+
+    return 0;
+}
+
+int ZapFR::Engine::LuaProxyPost::setThumbnail(lua_State* L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TSTRING);
+
+    auto [source, feed, post] = lookupPostPointer(L);
+    if (post != nullptr)
+    {
+        auto newThumbnail = std::string(lua_tostring(L, 2));
+        post->setThumbnail(newThumbnail);
+    }
+
+    return 0;
+}
+
 int ZapFR::Engine::LuaProxyPost::markAsRead(lua_State* L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);

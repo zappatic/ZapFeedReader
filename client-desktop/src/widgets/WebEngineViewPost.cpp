@@ -27,6 +27,7 @@
 #include <QWebEngineContextMenuRequest>
 
 #include "./ui_MainWindow.h"
+#include "FeedIconCache.h"
 #include "widgets/MainWindow.h"
 #include "widgets/WebEngineViewPost.h"
 
@@ -139,18 +140,38 @@ QString ZapFR::Client::WebEngineViewPost::postStyles() const
             return styles;
         }
 
+        // clang-format off
         cache = QString(R"(body { font-family: "%1", sans-serif; font-size: %5px; background-color: %2; color: %3; margin: 2px 25px; })"
                         "\n"
                         "a { color: %4; }\n"
                         ".zapfr_title { color: %3; font-size: 1.4em; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0; user-select:none; }\n"
                         ".zapfr_infoheader { font-size: 0.75em; display: flex; gap: 10px; }\n"
                         ".zapfr_infoheader_separator { display: inline-block; margin-right: 10px; }\n"
-                        ".zapfr_divider { margin-bottom: 30px; height: 1px; border: none; color: %3; background-color: %3; }\n")
+                        ".zapfr_divider { margin-bottom: 30px; height: 1px; border: none; color: %3; background-color: %3; }\n"
+                        ".zapfr_thumbnail_feedheader { color: %3; font-size: 1.4em; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0;\n"
+                        "   user-select:none; display: flex; flex-direction: row; gap: 15px; border-bottom: 1px solid %3; padding-bottom: 6px;\n"
+                        "}\n"
+                        ".zapfr_thumbnail_feedicon { max-width: 25px; max-height: 25px; }\n"
+                        ".zapfr_thumbnail_grid { display: grid; grid-template-columns: repeat(6, 1fr); grid-column-gap: 10px; grid-row-gap: 20px; margin: 25px 0 65px 0; }\n"
+                        ".zapfr_thumbnail_cell { display: flex; flex-direction: column; align-items:center; }\n\n"
+                        "@media screen and (min-width:0px) and (max-width:850px) {\n"
+                        "   .zapfr_thumbnail_grid { grid-template-columns: repeat(2, 1fr); }\n"
+                        "}\n"
+                        "@media screen and (min-width:851px) and (max-width:1100px) {\n"
+                        "   .zapfr_thumbnail_grid { grid-template-columns: repeat(3, 1fr); }\n"
+                        "}\n"
+                        "@media screen and (min-width:1101px) and (max-width:1350px) {\n"
+                        "   .zapfr_thumbnail_grid { grid-template-columns: repeat(4, 1fr); }\n"
+                        "}\n"
+                        "@media screen and (min-width:1351px) and (max-width:1600px) {\n"
+                        "   .zapfr_thumbnail_grid { grid-template-columns: repeat(5, 1fr); }\n"
+                        "}\n")
                     .arg(font.family())
                     .arg(backgroundColor)
                     .arg(textColor)
                     .arg(highlightColor.name())
                     .arg(bodyFontSize);
+        // clang-format on
         mPostStylesCacheValid = true;
     }
 
@@ -230,6 +251,56 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForPost(ZapFR::Engine::Post* po
         postHTML.replace(QString::fromUtf8(fmt::format("[{}]", key)), value);
     }
     return postHTML;
+}
+
+QString ZapFR::Client::WebEngineViewPost::getHTMLForThumbnailData(uint64_t sourceID, const std::vector<ZapFR::Engine::ThumbnailData>& thumbnailData) const
+{
+    if (thumbnailData.empty())
+    {
+        return "";
+    }
+
+    QString html;
+    auto ss = QTextStream(&html);
+    ss << R"(<!DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css">)"
+       << postStyles() << R"(</style>
+    </head>
+    <body>)";
+
+    for (const auto& td : thumbnailData)
+    {
+        auto icon = FeedIconCache::base64icon(sourceID, td.feedID);
+
+        ss << R"(<h1 class="zapfr_thumbnail_feedheader">)"
+           << R"(<img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)" << QString::fromUtf8(td.feedTitle) << "</h1>";
+        ss << R"(<div class="zapfr_thumbnail_grid">)";
+        for (const auto& tdp : td.posts)
+        {
+            auto qbaLink = QByteArray(tdp.link.c_str(), static_cast<ssize_t>(tdp.link.length()));
+            auto b64Link = QString::fromUtf8(qbaLink.toBase64());
+            auto url = QString("zapfr://viewPostAndMarkUnread?postID=%1&amp;feedID=%2&amp;sourceID=%3&amp;link=%4").arg(tdp.postID).arg(td.feedID).arg(sourceID).arg(b64Link);
+            ss << R"(<div class="zapfr_thumbnail_cell">)";
+            ss << R"(   <div>)";
+            ss << R"(       <a href=")" << url << R"(">)";
+            ss << R"(           <img src=")" << QString::fromUtf8(tdp.thumbnail) << R"(" alt="" width="250" />)";
+            ss << R"(       </a>)";
+            ss << R"(   </div>)";
+            ss << R"(   <div style="text-align:center;">)";
+            ss << R"(       <a href=")" << url << R"(">)";
+            ss << QString::fromUtf8(tdp.title);
+            ss << R"(       </a>)";
+            ss << "     </div>";
+            ss << "</div>";
+        }
+        ss << "</div>";
+    }
+
+    ss << R"(</body></html>)";
+
+    return html;
 }
 
 const std::vector<ZapFR::Client::DetectedBrowser>& ZapFR::Client::WebEngineViewPost::detectBrowsers()

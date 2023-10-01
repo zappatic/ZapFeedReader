@@ -22,6 +22,8 @@
 #include <QMenu>
 #include <QWebEngineView>
 
+#include "ZapFR/Global.h"
+
 namespace ZapFR
 {
     namespace Engine
@@ -61,6 +63,7 @@ namespace ZapFR
             QString postHTMLTemplate() const;
             void invalidatePostStylesCache() { mPostStylesCacheValid = false; }
             QString getHTMLForPost(ZapFR::Engine::Post* post) const;
+            QString getHTMLForThumbnailData(uint64_t sourceID, const std::vector<ZapFR::Engine::ThumbnailData>& thumbnailData) const;
             static const std::vector<DetectedBrowser>& detectBrowsers();
 
           protected:

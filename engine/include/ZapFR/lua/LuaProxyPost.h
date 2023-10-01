@@ -65,6 +65,9 @@ namespace ZapFR
             static int getCommentsURL(lua_State* L);
             static int setCommentsURL(lua_State* L);
 
+            static int getThumbnail(lua_State* L);
+            static int setThumbnail(lua_State* L);
+
             static int getEnclosures(lua_State* L);
             static int addEnclosure(lua_State* L);
             static int removeEnclosure(lua_State* L);

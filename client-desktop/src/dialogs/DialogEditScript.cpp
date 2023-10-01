@@ -355,6 +355,7 @@ void ZapFR::Client::DialogEditScript::updateTestUI()
         ui->plainTextEditTestPostContent->setPlainText(QString::fromUtf8(mDummyPost->content()));
         ui->lineEditTestPostAuthor->setText(QString::fromUtf8(mDummyPost->author()));
         ui->lineEditTestPostCommentsURL->setText(QString::fromUtf8(mDummyPost->commentsURL()));
+        ui->lineEditTestPostThumbnail->setText(QString::fromUtf8(mDummyPost->thumbnail()));
         ui->checkBoxIsRead->setChecked(mDummyPost->isRead());
 
         const auto& flagColors = mDummyPost->flagColors();
@@ -404,6 +405,7 @@ void ZapFR::Client::DialogEditScript::runTestScript()
     mDummyPost->setContent(ui->plainTextEditTestPostContent->toPlainText().toStdString());
     mDummyPost->setAuthor(ui->lineEditTestPostAuthor->text().toStdString());
     mDummyPost->setCommentsURL(ui->lineEditTestPostCommentsURL->text().toStdString());
+    mDummyPost->setThumbnail(ui->lineEditTestPostThumbnail->text().toStdString());
     mDummyPost->setIsRead(ui->checkBoxIsRead->isChecked());
 
     std::unordered_set<ZapFR::Engine::FlagColor> flagColors;

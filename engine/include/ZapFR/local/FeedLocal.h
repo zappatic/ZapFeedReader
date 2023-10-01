@@ -45,6 +45,7 @@ namespace ZapFR
 
             void fetchData();
             void fetchStatistics();
+            void fetchThumbnailData();
             void refresh() override;
             void markAsRead() override;
             void refreshIcon();
