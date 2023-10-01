@@ -18,6 +18,7 @@
 
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
+#include <sstream>
 
 #include <Poco/DateTimeFormat.h>
 #include <Poco/DateTimeFormatter.h>

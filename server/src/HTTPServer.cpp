@@ -17,6 +17,7 @@
 */
 
 #include <grp.h>
+#include <iostream>
 #include <pwd.h>
 
 #include <Poco/Net/SecureServerSocket.h>
