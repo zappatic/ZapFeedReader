@@ -748,7 +748,12 @@ void ZapFR::Client::TreeViewSources::removeSource()
 
             // deleting a source does not need to go over an agent, as it's only possible to delete remote sources that are stored in the local database
             ZapFR::Engine::Source::removeSource(sourceID);
-            reload();
+
+            auto sourceItem = findSourceStandardItem(sourceID);
+            if (sourceItem != nullptr)
+            {
+                mItemModelSources->invisibleRootItem()->removeRow(sourceItem->row());
+            }
         }
     }
 }
