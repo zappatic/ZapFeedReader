@@ -211,8 +211,23 @@ void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardIte
         mCurrentPostPageCount = static_cast<uint64_t>(std::ceil(static_cast<float>(mCurrentPostCount) / static_cast<float>(msPostsPerPage)));
     }
 
-    mMainWindow->getUI()->pushButtonPostPageNumber->setText(QString("%1 %2 / %3").arg(tr("Page")).arg(mCurrentPostPage).arg(mCurrentPostPageCount));
-    mMainWindow->getUI()->labelTotalPostCount->setText(tr("%n post(s)", "", static_cast<int32_t>(mCurrentPostCount)));
+    auto ui = mMainWindow->getUI();
+    ui->pushButtonPostPageNumber->setText(QString("%1 %2 / %3").arg(tr("Page")).arg(mCurrentPostPage).arg(mCurrentPostPageCount));
+    ui->labelTotalPostCount->setToolTip(tr("%n post(s)", "", static_cast<int32_t>(mCurrentPostCount)));
+    QString totalPostCountCaption;
+    if (mCurrentPostCount == 1)
+    {
+        totalPostCountCaption = tr("1 post");
+    }
+    else if (mCurrentPostCount > 1000)
+    {
+        totalPostCountCaption = tr("%1K posts").arg(QString::number(static_cast<float>(mCurrentPostCount) / 1000.0f, 'f', 1));
+    }
+    else
+    {
+        totalPostCountCaption = tr("%1 posts").arg(mCurrentPostCount);
+    }
+    ui->labelTotalPostCount->setText(totalPostCountCaption);
 
     // restore previous selection
     if (mPreviouslySelectedPostIDs.size() > 0)

@@ -31,6 +31,7 @@ set(PROJECT_SOURCES
         src/widgets/TreeViewSources.cpp
         src/widgets/TreeViewEditScriptDialogSources.cpp
         src/widgets/PopupFlagChooser.cpp
+        src/widgets/LabelPaletteCorrected.cpp
         src/widgets/LineEditSearch.cpp
         src/widgets/WidgetPostCaption.cpp
         src/widgets/WidgetPropertiesPaneFeed.cpp
@@ -72,6 +73,7 @@ set(PROJECT_SOURCES
         include/widgets/TreeViewSources.h
         include/widgets/TreeViewEditScriptDialogSources.h
         include/widgets/PopupFlagChooser.h
+        include/widgets/LabelPaletteCorrected.h
         include/widgets/LineEditSearch.h
         include/widgets/WidgetPostCaption.h
         include/widgets/WidgetPropertiesPaneFeed.h

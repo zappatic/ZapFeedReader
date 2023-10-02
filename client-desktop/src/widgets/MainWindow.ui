@@ -379,7 +379,7 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QLabel" name="labelTotalPostCount">
+                <widget class="ZapFR::Client::LabelPaletteCorrected" name="labelTotalPostCount">
                  <property name="font">
                   <font>
                    <pointsize>10</pointsize>
@@ -1065,6 +1065,11 @@
    <extends>QFrame</extends>
    <header>widgets/FrameFlagFilters.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ZapFR::Client::LabelPaletteCorrected</class>
+   <extends>QLabel</extends>
+   <header>widgets/LabelPaletteCorrected.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
