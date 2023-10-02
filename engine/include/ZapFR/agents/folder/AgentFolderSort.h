@@ -31,7 +31,9 @@ namespace ZapFR
         class AgentFolderSort : public AgentRunnable
         {
           public:
-            explicit AgentFolderSort(uint64_t sourceID, uint64_t folderID, SortMethod sortMethod, std::function<void()> finishedCallback);
+            explicit AgentFolderSort(
+                uint64_t sourceID, uint64_t folderID, SortMethod sortMethod,
+                std::function<void(uint64_t, uint64_t, const std::unordered_map<uint64_t, uint64_t>&, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
             virtual ~AgentFolderSort() = default;
 
             void payload(Source* source) override;
@@ -40,7 +42,7 @@ namespace ZapFR
           private:
             uint64_t mFolderID{0};
             SortMethod mSortMethod;
-            std::function<void()> mFinishedCallback{};
+            std::function<void(uint64_t, uint64_t, const std::unordered_map<uint64_t, uint64_t>&, const std::unordered_map<uint64_t, uint64_t>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

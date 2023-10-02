@@ -59,6 +59,9 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_sort([[mayb
         }
     }
 
+    Poco::JSON::Array folderSortOrderArr;
+    Poco::JSON::Array feedSortOrderArr;
+
     if (folderID != 0)
     {
         auto source = ZapFR::Engine::Source::getSource(1);
@@ -67,13 +70,30 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_sort([[mayb
             auto folder = source.value()->getFolder(folderID, ZapFR::Engine::Source::FetchInfo::None);
             if (folder.has_value())
             {
-                folder.value()->sort(sortMethod);
+                const auto& [folderSortOrders, feedSortOrders] = folder.value()->sort(sortMethod);
+
+                for (const auto& [sortedFolderID, folderSortOrder] : folderSortOrders)
+                {
+                    Poco::JSON::Object folderObj;
+                    folderObj.set(ZapFR::Engine::JSON::Folder::ID, sortedFolderID);
+                    folderObj.set(ZapFR::Engine::JSON::Folder::SortOrder, folderSortOrder);
+                    folderSortOrderArr.add(folderObj);
+                }
+
+                for (const auto& [feedID, feedSortOrder] : feedSortOrders)
+                {
+                    Poco::JSON::Object feedObj;
+                    feedObj.set(ZapFR::Engine::JSON::Feed::ID, feedID);
+                    feedObj.set(ZapFR::Engine::JSON::Feed::SortOrder, feedSortOrder);
+                    feedSortOrderArr.add(feedObj);
+                }
             }
         }
     }
 
     Poco::JSON::Object o;
-    o.set("success", true);
+    o.set(ZapFR::Engine::JSON::Folder::FolderSortOrders, folderSortOrderArr);
+    o.set(ZapFR::Engine::JSON::Folder::FeedSortOrders, feedSortOrderArr);
 
     Poco::JSON::Stringifier::stringify(o, response.send());
 

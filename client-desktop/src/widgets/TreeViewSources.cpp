@@ -1202,10 +1202,40 @@ void ZapFR::Client::TreeViewSources::sortFolder()
         auto type = index.data(Role::Type).toULongLong();
         if (type == EntryType::Folder)
         {
-            auto sourceID = index.data(Role::ParentSourceID).toULongLong();
-            auto folderID = index.data(Role::ID).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueSortFolder(sourceID, folderID, ZapFR::Engine::SortMethod::AlphabeticallyAscending,
-                                                                 [&]() { QMetaObject::invokeMethod(this, [=, this]() { reload(); }); });
+            ZapFR::Engine::Agent::getInstance()->queueSortFolder(
+                index.data(Role::ParentSourceID).toULongLong(), index.data(Role::ID).toULongLong(), ZapFR::Engine::SortMethod::AlphabeticallyAscending,
+                [&](uint64_t affectedSourceID, uint64_t affectedParentFolderID, const std::unordered_map<uint64_t, uint64_t>& folderSortOrders,
+                    const std::unordered_map<uint64_t, uint64_t>& feedSortOrders)
+                {
+                    QMetaObject::invokeMethod(this,
+                                              [=, this]()
+                                              {
+                                                  auto parentFolderItem = findFolderStandardItem(affectedSourceID, affectedParentFolderID);
+                                                  if (parentFolderItem != nullptr)
+                                                  {
+                                                      for (int32_t i = 0; i < parentFolderItem->rowCount(); ++i)
+                                                      {
+                                                          auto child = parentFolderItem->child(i);
+                                                          auto childType = child->data(Role::Type).toULongLong();
+                                                          auto childID = child->data(Role::ID).toULongLong();
+                                                          if (childType == EntryType::Folder)
+                                                          {
+                                                              if (folderSortOrders.contains(childID))
+                                                              {
+                                                                  child->setData(QVariant::fromValue<uint64_t>(folderSortOrders.at(childID)), Role::SortOrder);
+                                                              }
+                                                          }
+                                                          else if (childType == EntryType::Feed)
+                                                          {
+                                                              if (feedSortOrders.contains(childID))
+                                                              {
+                                                                  child->setData(QVariant::fromValue<uint64_t>(feedSortOrders.at(childID)), Role::SortOrder);
+                                                              }
+                                                          }
+                                                      }
+                                                  }
+                                              });
+                });
         }
     }
 }

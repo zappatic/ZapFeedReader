@@ -123,6 +123,8 @@ namespace ZapFR
                 constexpr const char Subfolders[]{"subfolders"};
                 constexpr const char Statistics[]{"statistics"};
                 constexpr const char FeedIDs[]{"feedIDs"};
+                constexpr const char FolderSortOrders[]{"folderSortOrders"};
+                constexpr const char FeedSortOrders[]{"feedSortOrders"};
             }; // namespace Folder
 
             namespace Post

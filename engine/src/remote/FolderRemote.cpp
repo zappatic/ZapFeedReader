@@ -178,8 +178,11 @@ void ZapFR::Engine::FolderRemote::update(const std::string& newTitle)
     }
 }
 
-void ZapFR::Engine::FolderRemote::sort(SortMethod sortMethod)
+std::tuple<const std::unordered_map<uint64_t, uint64_t>, const std::unordered_map<uint64_t, uint64_t>> ZapFR::Engine::FolderRemote::sort(SortMethod sortMethod)
 {
+    std::unordered_map<uint64_t, uint64_t> folderSortOrders{};
+    std::unordered_map<uint64_t, uint64_t> feedSortOrders{};
+
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
     auto uri = remoteSource->remoteURL();
     if (remoteSource->remoteURLIsValid())
@@ -197,8 +200,32 @@ void ZapFR::Engine::FolderRemote::sort(SortMethod sortMethod)
             }
         }
 
-        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!rootObj.isNull())
+        {
+            auto folderSortOrderArr = rootObj->getArray(JSON::Folder::FolderSortOrders);
+            for (size_t i = 0; i < folderSortOrderArr->size(); ++i)
+            {
+                auto folderSortObj = folderSortOrderArr->getObject(static_cast<uint32_t>(i));
+                auto folderID = folderSortObj->getValue<uint64_t>(JSON::Folder::ID);
+                auto folderSortOrder = folderSortObj->getValue<uint64_t>(JSON::Folder::SortOrder);
+                folderSortOrders[folderID] = folderSortOrder;
+            }
+
+            auto feedSortOrderArr = rootObj->getArray(JSON::Folder::FeedSortOrders);
+            for (size_t i = 0; i < feedSortOrderArr->size(); ++i)
+            {
+                auto feedSortObj = feedSortOrderArr->getObject(static_cast<uint32_t>(i));
+                auto feedID = feedSortObj->getValue<uint64_t>(JSON::Feed::ID);
+                auto feedSortOrder = feedSortObj->getValue<uint64_t>(JSON::Feed::SortOrder);
+                feedSortOrders[feedID] = feedSortOrder;
+            }
+        }
     }
+    return std::make_tuple(folderSortOrders, feedSortOrders);
 }
 
 std::unique_ptr<ZapFR::Engine::Folder> ZapFR::Engine::FolderRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)

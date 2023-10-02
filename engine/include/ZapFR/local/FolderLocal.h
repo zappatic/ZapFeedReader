@@ -41,7 +41,7 @@ namespace ZapFR
             void clearLogs() override;
 
             void update(const std::string& newTitle) override;
-            void sort(SortMethod sortMethod) override;
+            std::tuple<const std::unordered_map<uint64_t, uint64_t>, const std::unordered_map<uint64_t, uint64_t>> sort(SortMethod sortMethod) override;
 
             void fetchSubfolders();
             void fetchStatistics();

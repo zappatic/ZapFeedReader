@@ -529,7 +529,7 @@ void ZapFR::Engine::FolderLocal::update(const std::string& newTitle)
     updateStmt << "UPDATE folders SET title=? WHERE id=?", useRef(newTitle), use(mID), now;
 }
 
-void ZapFR::Engine::FolderLocal::sort(SortMethod sortMethod)
+std::tuple<const std::unordered_map<uint64_t, uint64_t>, const std::unordered_map<uint64_t, uint64_t>> ZapFR::Engine::FolderLocal::sort(SortMethod sortMethod)
 {
     struct Sortable
     {
@@ -539,6 +539,7 @@ void ZapFR::Engine::FolderLocal::sort(SortMethod sortMethod)
     };
 
     // sort feeds
+    std::unordered_map<uint64_t, uint64_t> feedSortOrders{};
     std::vector<Sortable> feeds{};
     {
         uint64_t feedID{0};
@@ -571,11 +572,13 @@ void ZapFR::Engine::FolderLocal::sort(SortMethod sortMethod)
             uint64_t feedID = sortable.id;
             Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
             updateStmt << "UPDATE feeds SET sortOrder=? WHERE id=?", use(sortOrder), use(feedID), now;
+            feedSortOrders[feedID] = sortOrder;
             sortOrder += 10;
         }
     }
 
     // sort folders
+    std::unordered_map<uint64_t, uint64_t> folderSortOrders{};
     std::vector<Sortable> folders{};
     {
         uint64_t folderID{0};
@@ -608,9 +611,12 @@ void ZapFR::Engine::FolderLocal::sort(SortMethod sortMethod)
             uint64_t folderID = sortable.id;
             Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
             updateStmt << "UPDATE folders SET sortOrder=? WHERE id=?", use(sortOrder), use(folderID), now;
+            folderSortOrders[folderID] = sortOrder;
             sortOrder += 10;
         }
     }
+
+    return std::make_tuple(folderSortOrders, feedSortOrders);
 }
 
 std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::FolderLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,

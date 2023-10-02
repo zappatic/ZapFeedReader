@@ -230,7 +230,9 @@ void ZapFR::Engine::Agent::queueMoveFolder(uint64_t sourceID, uint64_t folderID,
     enqueue(std::make_unique<AgentFolderMove>(sourceID, folderID, newFolder, newSortOrder, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueSortFolder(uint64_t sourceID, uint64_t folderID, SortMethod sortMethod, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueSortFolder(
+    uint64_t sourceID, uint64_t folderID, SortMethod sortMethod,
+    std::function<void(uint64_t, uint64_t, const std::unordered_map<uint64_t, uint64_t>&, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFolderSort>(sourceID, folderID, sortMethod, finishedCallback));
 }

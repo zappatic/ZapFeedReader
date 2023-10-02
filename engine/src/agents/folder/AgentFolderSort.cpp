@@ -21,7 +21,9 @@
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFolderSort::AgentFolderSort(uint64_t sourceID, uint64_t folderID, SortMethod sortMethod, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentFolderSort::AgentFolderSort(
+    uint64_t sourceID, uint64_t folderID, SortMethod sortMethod,
+    std::function<void(uint64_t, uint64_t, const std::unordered_map<uint64_t, uint64_t>&, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback)
     : AgentRunnable(sourceID), mFolderID(folderID), mSortMethod(sortMethod), mFinishedCallback(finishedCallback)
 {
 }
@@ -31,7 +33,7 @@ void ZapFR::Engine::AgentFolderSort::payload(Source* source)
     auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
     if (folder.has_value())
     {
-        folder.value()->sort(mSortMethod);
+        const auto& [folderSortOrders, feedSortOrders] = folder.value()->sort(mSortMethod);
+        mFinishedCallback(mSourceID, mFolderID, folderSortOrders, feedSortOrders);
     }
-    mFinishedCallback();
 }
