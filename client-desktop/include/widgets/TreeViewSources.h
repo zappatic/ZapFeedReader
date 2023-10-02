@@ -63,6 +63,7 @@ namespace ZapFR
             bool doesSourceHaveError(uint64_t sourceID);
 
             QStandardItem* findSourceStandardItem(uint64_t sourceID);
+            QStandardItem* findFolderStandardItem(uint64_t sourceID, uint64_t folderID);
             std::unordered_set<QStandardItem*> findFeedStandardItems(QStandardItem* sourceItem, const std::optional<std::unordered_set<uint64_t>>& feedIDs);
 
             void setUnreadBadgesShown(bool b);

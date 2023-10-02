@@ -92,7 +92,7 @@ namespace ZapFR
 
             virtual std::vector<std::unique_ptr<Folder>> getFolders(uint64_t parent, uint32_t fetchInfo) = 0;
             virtual std::optional<std::unique_ptr<Folder>> getFolder(uint64_t folderID, uint32_t fetchInfo) = 0;
-            virtual uint64_t addFolder(const std::string& title, uint64_t parentID) = 0;
+            virtual std::tuple<uint64_t, uint64_t> addFolder(const std::string& title, uint64_t parentID) = 0;
             virtual void removeFolder(uint64_t folderID) = 0;
             virtual std::unordered_map<uint64_t, uint64_t> moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) = 0;
 

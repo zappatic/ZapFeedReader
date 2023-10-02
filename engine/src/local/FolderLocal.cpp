@@ -323,7 +323,7 @@ uint64_t ZapFR::Engine::FolderLocal::nextSortOrder(uint64_t folderID)
     return sortOrder + 10;
 }
 
-uint64_t ZapFR::Engine::FolderLocal::create(uint64_t parentID, const std::string& title)
+std::tuple<uint64_t, uint64_t> ZapFR::Engine::FolderLocal::create(uint64_t parentID, const std::string& title)
 {
     auto sortOrder = nextSortOrder(parentID);
     Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
@@ -334,7 +334,7 @@ uint64_t ZapFR::Engine::FolderLocal::create(uint64_t parentID, const std::string
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
     selectStmt << "SELECT last_insert_rowid()", into(newFolderID), range(0, 1);
     selectStmt.execute();
-    return newFolderID;
+    return std::make_tuple(newFolderID, sortOrder);
 }
 
 void ZapFR::Engine::FolderLocal::remove(Source* parentSource, uint64_t folderID)
@@ -443,7 +443,8 @@ uint64_t ZapFR::Engine::FolderLocal::createFolderHierarchy(Source* parentSource,
 
         if (!existingSubFolderFound)
         {
-            existingSubfolderID = create(pID, folderTitle);
+            uint64_t sortOrder;
+            std::tie(existingSubfolderID, sortOrder) = create(pID, folderTitle);
         }
         return existingSubfolderID;
     };

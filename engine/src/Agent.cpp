@@ -299,7 +299,8 @@ void ZapFR::Engine::Agent::queueGetPost(uint64_t sourceID, uint64_t feedID, uint
     enqueue(std::make_unique<AgentPostGet>(sourceID, feedID, postID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title,
+                                          std::function<void(uint64_t, uint64_t, uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFolderAdd>(sourceID, parentFolderID, title, finishedCallback));
 }

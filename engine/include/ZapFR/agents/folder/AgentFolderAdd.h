@@ -28,7 +28,8 @@ namespace ZapFR
         class AgentFolderAdd : public AgentRunnable
         {
           public:
-            explicit AgentFolderAdd(uint64_t sourceID, uint64_t parentFolderID, const std::string& title, std::function<void()> finishedCallback);
+            explicit AgentFolderAdd(uint64_t sourceID, uint64_t parentFolderID, const std::string& title,
+                                    std::function<void(uint64_t, uint64_t, uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentFolderAdd() = default;
 
             void payload(Source* source) override;
@@ -37,7 +38,7 @@ namespace ZapFR
           private:
             uint64_t mParentFolderID{0};
             std::string mTitle{""};
-            std::function<void()> mFinishedCallback{};
+            std::function<void(uint64_t, uint64_t, uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

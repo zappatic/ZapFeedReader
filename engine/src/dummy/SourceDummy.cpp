@@ -59,7 +59,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceDummy
     throw std::runtime_error("Not implemented");
 }
 
-uint64_t ZapFR::Engine::SourceDummy::addFolder(const std::string& /*title*/, uint64_t /*parentID*/)
+std::tuple<uint64_t, uint64_t> ZapFR::Engine::SourceDummy::addFolder(const std::string& /*title*/, uint64_t /*parentID*/)
 {
     throw std::runtime_error("Not implemented");
 }

@@ -277,7 +277,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemot
     return {};
 }
 
-uint64_t ZapFR::Engine::SourceRemote::addFolder(const std::string& title, uint64_t parentID)
+std::tuple<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::addFolder(const std::string& title, uint64_t parentID)
 {
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
@@ -295,10 +295,10 @@ uint64_t ZapFR::Engine::SourceRemote::addFolder(const std::string& title, uint64
         auto o = root.extract<Poco::JSON::Object::Ptr>();
         if (!o.isNull())
         {
-            return o->getValue<uint64_t>(JSON::Folder::ID);
+            return std::make_tuple(o->getValue<uint64_t>(JSON::Folder::ID), o->getValue<uint64_t>(JSON::Folder::SortOrder));
         }
     }
-    return 0;
+    return std::make_tuple(0, 0);
 }
 
 std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder)

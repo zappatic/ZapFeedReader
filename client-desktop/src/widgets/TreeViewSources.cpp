@@ -831,26 +831,86 @@ QStandardItem* ZapFR::Client::TreeViewSources::findSourceStandardItem(uint64_t s
     auto root = mItemModelSources->invisibleRootItem();
     for (int32_t i = 0; i < root->rowCount(); ++i)
     {
-        auto child = root->child(i, 0);
+        auto child = root->child(i);
         if (child != nullptr)
         {
-            auto index = mItemModelSources->indexFromItem(child);
-            if (index.isValid())
+            auto type = child->data(Role::Type).toULongLong();
+            if (type == EntryType::Source)
             {
-                auto type = index.data(Role::Type).toULongLong();
-                if (type == EntryType::Source)
+                auto id = child->data(Role::ID).toULongLong();
+                if (sourceID == id)
                 {
-                    auto id = index.data(Role::ID).toULongLong();
-                    if (sourceID == id)
-                    {
-                        sourceItem = child;
-                        break;
-                    }
+                    sourceItem = child;
+                    break;
                 }
             }
         }
     }
     return sourceItem;
+}
+
+QStandardItem* ZapFR::Client::TreeViewSources::findFolderStandardItem(uint64_t sourceID, uint64_t folderID)
+{
+    QStandardItem* foundFolderItem{nullptr};
+
+    std::function<void(QStandardItem*)> findFolder;
+    findFolder = [&](QStandardItem* parent)
+    {
+        auto parentSourceID = parent->data(Role::ParentSourceID).toULongLong();
+        if (parentSourceID != sourceID)
+        {
+            return;
+        }
+
+        auto loopChildren{false};
+        auto type = parent->data(Role::Type).toULongLong();
+        switch (type)
+        {
+            case EntryType::Source:
+            {
+                loopChildren = true;
+                break;
+            }
+            case EntryType::Folder:
+            {
+                loopChildren = true;
+                if (parent->data(Role::ID).toULongLong() == folderID)
+                {
+                    foundFolderItem = parent;
+                    loopChildren = false;
+                    break;
+                }
+                break;
+            }
+            case EntryType::Feed:
+            {
+                // nop
+                break;
+            }
+        }
+        if (loopChildren)
+        {
+            for (int32_t i = 0; i < parent->rowCount(); ++i)
+            {
+                if (foundFolderItem == nullptr)
+                {
+                    auto child = parent->child(i);
+                    findFolder(child);
+                }
+            }
+        }
+    };
+
+    auto root = mItemModelSources->invisibleRootItem();
+    for (int32_t i = 0; i < root->rowCount(); ++i)
+    {
+        if (foundFolderItem == nullptr)
+        {
+            auto child = root->child(i);
+            findFolder(child);
+        }
+    }
+    return foundFolderItem;
 }
 
 std::unordered_set<QStandardItem*> ZapFR::Client::TreeViewSources::findFeedStandardItems(QStandardItem* sourceItem, const std::optional<std::unordered_set<uint64_t>>& feedIDs)
@@ -941,20 +1001,41 @@ void ZapFR::Client::TreeViewSources::addFolder()
                     if (result == QDialog::DialogCode::Accepted)
                     {
                         auto sourceID = mDialogAddFolder->selectedSourceID();
-                        auto folderID = mDialogAddFolder->selectedFolderID();
-                        auto title = mDialogAddFolder->title().toStdString();
-                        if (!title.empty())
+                        auto parentFolderID = mDialogAddFolder->selectedFolderID();
+                        auto title = mDialogAddFolder->title();
+                        if (!title.isEmpty())
                         {
-                            ZapFR::Engine::Agent::getInstance()->queueAddFolder(sourceID, folderID, title,
-                                                                                [&]()
-                                                                                {
-                                                                                    QMetaObject::invokeMethod(this,
-                                                                                                              [=, this]()
-                                                                                                              {
-                                                                                                                  reload();
-                                                                                                                  mMainWindow->setStatusBarMessage(tr("Folder added"));
-                                                                                                              });
-                                                                                });
+                            ZapFR::Engine::Agent::getInstance()->queueAddFolder(
+                                sourceID, parentFolderID, title.toStdString(),
+                                [&](uint64_t affectedSourceID, uint64_t affectedParentID, uint64_t newFolderID, uint64_t newSortOrder)
+                                {
+                                    QMetaObject::invokeMethod(this,
+                                                              [=, this]()
+                                                              {
+                                                                  // look up the parent folder under which to insert the new folder standard item
+                                                                  auto parentFolderItem = findFolderStandardItem(affectedSourceID, affectedParentID);
+                                                                  if (parentFolderItem != nullptr)
+                                                                  {
+                                                                      // create the new folder standard item and insert it
+                                                                      auto folderItem = new QStandardItem(title);
+                                                                      folderItem->setData(QVariant::fromValue<uint64_t>(EntryType::Folder), Role::Type);
+                                                                      folderItem->setData(QVariant::fromValue<uint64_t>(newFolderID), Role::ID);
+                                                                      folderItem->setData(QVariant::fromValue<uint64_t>(affectedParentID), Role::ParentFolderID);
+                                                                      folderItem->setData(QVariant::fromValue<uint64_t>(affectedSourceID), Role::ParentSourceID);
+                                                                      folderItem->setData(QVariant::fromValue<uint64_t>(newSortOrder), Role::SortOrder);
+                                                                      parentFolderItem->appendRow(folderItem);
+
+                                                                      // make sure the parent is expanded if we just created a folder withing an unexpanded parent
+                                                                      auto parentIndex = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(parentFolderItem));
+                                                                      if (!isExpanded(parentIndex))
+                                                                      {
+                                                                          setExpanded(parentIndex, true);
+                                                                      }
+
+                                                                      mMainWindow->setStatusBarMessage(tr("Folder added"));
+                                                                  }
+                                                              });
+                                });
                         }
                     }
                 });

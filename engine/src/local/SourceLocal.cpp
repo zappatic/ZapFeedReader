@@ -162,7 +162,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceLocal
     return folder;
 }
 
-uint64_t ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_t parentID)
+std::tuple<uint64_t, uint64_t> ZapFR::Engine::SourceLocal::addFolder(const std::string& title, uint64_t parentID)
 {
     return FolderLocal::create(parentID, title);
 }

@@ -56,7 +56,7 @@ namespace ZapFR
             static std::optional<std::unique_ptr<Folder>> querySingle(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                       const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static uint64_t nextSortOrder(uint64_t folderID);
-            static uint64_t create(uint64_t parentID, const std::string& title);
+            static std::tuple<uint64_t, uint64_t> create(uint64_t parentID, const std::string& title);
             static void remove(Source* parentSource, uint64_t folderID);
             static void resort(uint64_t parentID);
             static uint64_t createFolderHierarchy(Source* parentSource, uint64_t parentID, const std::vector<std::string> folderHierarchy);

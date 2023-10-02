@@ -90,7 +90,6 @@ bool ZapFR::Client::WebEnginePagePost::acceptNavigationRequest(const QUrl& url, 
         }
         case QWebEnginePage::NavigationTypeOther:
         {
-            qDebug() << url;
             return true; // needed for embedded YouTube videos
         }
         default:
