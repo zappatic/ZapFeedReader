@@ -1002,12 +1002,12 @@ void ZapFR::Client::TreeViewSources::addFolder()
                     {
                         auto sourceID = mDialogAddFolder->selectedSourceID();
                         auto parentFolderID = mDialogAddFolder->selectedFolderID();
-                        auto title = mDialogAddFolder->title();
-                        if (!title.isEmpty())
+                        auto title = mDialogAddFolder->title().toStdString();
+                        if (!title.empty())
                         {
                             ZapFR::Engine::Agent::getInstance()->queueAddFolder(
-                                sourceID, parentFolderID, title.toStdString(),
-                                [&](uint64_t affectedSourceID, uint64_t affectedParentID, uint64_t newFolderID, uint64_t newSortOrder)
+                                sourceID, parentFolderID, title,
+                                [&](uint64_t affectedSourceID, uint64_t affectedParentID, uint64_t newFolderID, uint64_t newSortOrder, const std::string& newTitle)
                                 {
                                     QMetaObject::invokeMethod(this,
                                                               [=, this]()
@@ -1017,7 +1017,7 @@ void ZapFR::Client::TreeViewSources::addFolder()
                                                                   if (parentFolderItem != nullptr)
                                                                   {
                                                                       // create the new folder standard item and insert it
-                                                                      auto folderItem = new QStandardItem(title);
+                                                                      auto folderItem = new QStandardItem(QString::fromUtf8(newTitle));
                                                                       folderItem->setData(QVariant::fromValue<uint64_t>(EntryType::Folder), Role::Type);
                                                                       folderItem->setData(QVariant::fromValue<uint64_t>(newFolderID), Role::ID);
                                                                       folderItem->setData(QVariant::fromValue<uint64_t>(affectedParentID), Role::ParentFolderID);
@@ -1144,17 +1144,47 @@ void ZapFR::Client::TreeViewSources::removeFolder()
         {
             auto sourceID = index.data(Role::ParentSourceID).toULongLong();
             auto folder = index.data(Role::ID).toULongLong();
-            ZapFR::Engine::Agent::getInstance()->queueRemoveFolder(sourceID, folder,
-                                                                   [&]()
-                                                                   {
-                                                                       QMetaObject::invokeMethod(this,
-                                                                                                 [=, this]()
-                                                                                                 {
-                                                                                                     reload();
-                                                                                                     mMainWindow->getUI()->tableViewPosts->clearPosts();
-                                                                                                     mMainWindow->setStatusBarMessage(tr("Folder removed"));
-                                                                                                 });
-                                                                   });
+            ZapFR::Engine::Agent::getInstance()->queueRemoveFolder(
+                sourceID, folder,
+                [&](uint64_t affectedSourceID, uint64_t affectedFolderID)
+                {
+                    QMetaObject::invokeMethod(
+                        this,
+                        [=, this]()
+                        {
+                            // look up the folder item and its parent item
+                            auto folderItem = findFolderStandardItem(affectedSourceID, affectedFolderID);
+                            if (folderItem != nullptr)
+                            {
+                                auto parentFolderItem = findFolderStandardItem(affectedSourceID, folderItem->data(Role::ParentFolderID).toULongLong());
+                                if (parentFolderItem != nullptr)
+                                {
+                                    parentFolderItem->removeRow(folderItem->row());
+
+                                    // reapply the sortorders
+                                    std::vector<std::tuple<uint64_t, QStandardItem*>> sortOrderAndChild;
+                                    for (int32_t i = 0; i < parentFolderItem->rowCount(); ++i)
+                                    {
+                                        auto child = parentFolderItem->child(i);
+                                        sortOrderAndChild.emplace_back(child->data(Role::SortOrder).toULongLong(), child);
+                                    }
+                                    std::sort(sortOrderAndChild.begin(), sortOrderAndChild.end(),
+                                              [](const std::tuple<uint64_t, QStandardItem*>& a, const std::tuple<uint64_t, QStandardItem*>& b)
+                                              { return std::get<1>(a)->data(Role::SortOrder).toULongLong() < std::get<1>(b)->data(Role::SortOrder).toULongLong(); });
+
+                                    uint64_t counter = 10;
+                                    for (const auto& [sortOrder, child] : sortOrderAndChild)
+                                    {
+                                        child->setData(QVariant::fromValue<uint64_t>(counter), Role::SortOrder);
+                                        counter += 10;
+                                    }
+
+                                    mMainWindow->getUI()->tableViewPosts->clearPosts();
+                                    mMainWindow->setStatusBarMessage(tr("Folder removed"));
+                                }
+                            }
+                        });
+                });
         }
     }
 }

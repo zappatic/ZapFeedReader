@@ -23,7 +23,7 @@
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderAdd::AgentFolderAdd(uint64_t sourceID, uint64_t parentFolderID, const std::string& title,
-                                              std::function<void(uint64_t, uint64_t, uint64_t, uint64_t)> finishedCallback)
+                                              std::function<void(uint64_t, uint64_t, uint64_t, uint64_t, const std::string&)> finishedCallback)
     : AgentRunnable(sourceID), mParentFolderID(parentFolderID), mTitle(title), mFinishedCallback(finishedCallback)
 {
 }
@@ -31,5 +31,5 @@ ZapFR::Engine::AgentFolderAdd::AgentFolderAdd(uint64_t sourceID, uint64_t parent
 void ZapFR::Engine::AgentFolderAdd::payload(Source* source)
 {
     const auto& [newFolderID, newSortOrder] = source->addFolder(mTitle, mParentFolderID);
-    mFinishedCallback(mSourceID, mParentFolderID, newFolderID, newSortOrder);
+    mFinishedCallback(mSourceID, mParentFolderID, newFolderID, newSortOrder, mTitle);
 }

@@ -28,7 +28,7 @@ namespace ZapFR
         class AgentFolderRemove : public AgentRunnable
         {
           public:
-            explicit AgentFolderRemove(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback);
+            explicit AgentFolderRemove(uint64_t sourceID, uint64_t folder, std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentFolderRemove() = default;
 
             void payload(Source* source) override;
@@ -36,7 +36,7 @@ namespace ZapFR
 
           private:
             uint64_t mFolderID{0};
-            std::function<void()> mFinishedCallback{};
+            std::function<void(uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -20,7 +20,7 @@
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFolderRemove::AgentFolderRemove(uint64_t sourceID, uint64_t folder, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentFolderRemove::AgentFolderRemove(uint64_t sourceID, uint64_t folder, std::function<void(uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(sourceID), mFolderID(folder), mFinishedCallback(finishedCallback)
 {
 }
@@ -28,5 +28,5 @@ ZapFR::Engine::AgentFolderRemove::AgentFolderRemove(uint64_t sourceID, uint64_t 
 void ZapFR::Engine::AgentFolderRemove::payload(Source* source)
 {
     source->removeFolder(mFolderID);
-    mFinishedCallback();
+    mFinishedCallback(mSourceID, mFolderID);
 }
