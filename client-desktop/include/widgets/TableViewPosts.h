@@ -145,6 +145,7 @@ namespace ZapFR
             void removePostSelectionFromScriptFolder();
 
             void openSelectedPostsInExternalBrowser(const std::function<void(const QString&)>& openHandler);
+            void clear();
 
             static constexpr uint64_t msPostsPerPage{100};
         };

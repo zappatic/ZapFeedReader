@@ -119,7 +119,6 @@ void ZapFR::Client::MainWindow::initializeUI()
     mActionBackToPosts = std::make_unique<QAction>(tr("Back to posts"), this);
 
     ui->progressBarSources->setVisible(false);
-    ui->progressBarPosts->setVisible(false);
     ui->menubar->setVisible(false);
     ui->stackedWidgetContentPanes->setCurrentIndex(ContentPane::Posts);
 

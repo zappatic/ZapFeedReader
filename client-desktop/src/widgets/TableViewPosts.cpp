@@ -46,6 +46,14 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPalett
 {
     setItemDelegate(new ItemDelegatePost(this));
 
+    mItemModelPosts = std::make_unique<QStandardItemModel>(this);
+    setModel(mItemModelPosts.get());
+
+    horizontalHeader()->resizeSection(Column::UnreadCol, 50);
+    horizontalHeader()->resizeSection(Column::FlagCol, 40);
+    horizontalHeader()->resizeSection(Column::FeedCol, 40);
+    horizontalHeader()->resizeSection(Column::DateCol, 180);
+
     mPopupFlagChooser = std::make_unique<PopupFlagChooser>(this);
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
 
@@ -74,12 +82,8 @@ void ZapFR::Client::TableViewPosts::reload()
 {
     mIsReloading = true;
     auto ui = mMainWindow->getUI();
-    ui->progressBarPosts->setVisible(true);
     ui->webViewPost->setBlankPostPage();
-    if (mItemModelPosts != nullptr)
-    {
-        mItemModelPosts->clear();
-    }
+    clear();
 
     // lambda to assign the correct role data to the table entries
     auto setItemData = [&](QStandardItem* item, ZapFR::Engine::Post* post, uint64_t sourceID)
@@ -191,48 +195,13 @@ void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardIte
     mCurrentThumbnailData = thumbnailData;
     mMainWindow->setContentPane(ContentPane::Posts);
 
-    int32_t columnWidthUnread = 50;
-    int32_t columnWidthFlag = 40;
-    int32_t columnWidthFeed = 40;
-    int32_t columnWidthDate = 180;
-    // restore the previous column widths
-    if (mItemModelPosts != nullptr)
-    {
-        columnWidthUnread = horizontalHeader()->sectionSize(Column::UnreadCol);
-        columnWidthFlag = horizontalHeader()->sectionSize(Column::FlagCol);
-        columnWidthFeed = horizontalHeader()->sectionSize(Column::FeedCol);
-        columnWidthDate = horizontalHeader()->sectionSize(Column::DateCol);
-    }
+    clear();
 
-    mItemModelPosts = std::make_unique<QStandardItemModel>(this);
-    setModel(mItemModelPosts.get());
-    mItemModelPosts->setHorizontalHeaderItem(Column::UnreadCol, new QStandardItem(tr("Unread")));
-    mItemModelPosts->setHorizontalHeaderItem(Column::FlagCol, new QStandardItem(tr("Flag")));
-    mItemModelPosts->setHorizontalHeaderItem(Column::FeedCol, new QStandardItem(tr("Feed")));
-    mItemModelPosts->setHorizontalHeaderItem(Column::TitleCol, new QStandardItem(tr("Title")));
-    mItemModelPosts->setHorizontalHeaderItem(Column::DateCol, new QStandardItem(tr("Date")));
     for (const auto& post : posts)
     {
         mItemModelPosts->appendRow(post);
     }
-    horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    horizontalHeader()->setSectionResizeMode(Column::TitleCol, QHeaderView::Stretch);
-    horizontalHeader()->resizeSection(Column::UnreadCol, columnWidthUnread);
-    horizontalHeader()->resizeSection(Column::FlagCol, columnWidthFlag);
-    horizontalHeader()->resizeSection(Column::FeedCol, columnWidthFeed);
-    horizontalHeader()->resizeSection(Column::DateCol, columnWidthDate);
     handleSelectionChanged({});
-
-    // in case we have just 1 feed selected, hide the feed column in the posts table
-    // if we have a script folder selected, always show the feed column
-    setColumnHidden(Column::FeedCol, false);
-    auto treeViewSourcesIndex = mMainWindow->treeViewSources()->currentIndex();
-    auto tableViewScriptFoldersIndex = mMainWindow->getUI()->tableViewScriptFolders->currentIndex();
-    if (!tableViewScriptFoldersIndex.isValid() && treeViewSourcesIndex.isValid() &&
-        treeViewSourcesIndex.data(TreeViewSources::Role::Type).toULongLong() == TreeViewSources::EntryType::Feed)
-    {
-        setColumnHidden(Column::FeedCol, true);
-    }
 
     mCurrentPostCount = totalPostCount;
     mCurrentPostPage = pageNumber;
@@ -271,11 +240,49 @@ void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardIte
     }
 
     mIsReloading = false;
-    mMainWindow->getUI()->progressBarPosts->setVisible(false);
+}
+
+void ZapFR::Client::TableViewPosts::clear()
+{
+    int32_t columnWidthUnread = horizontalHeader()->sectionSize(Column::UnreadCol);
+    int32_t columnWidthFlag = horizontalHeader()->sectionSize(Column::FlagCol);
+    int32_t columnWidthFeed = horizontalHeader()->sectionSize(Column::FeedCol);
+    int32_t columnWidthDate = horizontalHeader()->sectionSize(Column::DateCol);
+
+    mItemModelPosts->clear();
+
+    mItemModelPosts->setHorizontalHeaderItem(Column::UnreadCol, new QStandardItem(tr("Unread")));
+    mItemModelPosts->setHorizontalHeaderItem(Column::FlagCol, new QStandardItem(tr("Flag")));
+    mItemModelPosts->setHorizontalHeaderItem(Column::FeedCol, new QStandardItem(tr("Feed")));
+    mItemModelPosts->setHorizontalHeaderItem(Column::TitleCol, new QStandardItem(tr("Title")));
+    mItemModelPosts->setHorizontalHeaderItem(Column::DateCol, new QStandardItem(tr("Date")));
+
+    horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    horizontalHeader()->setSectionResizeMode(Column::TitleCol, QHeaderView::Stretch);
+    horizontalHeader()->resizeSection(Column::UnreadCol, columnWidthUnread);
+    horizontalHeader()->resizeSection(Column::FlagCol, columnWidthFlag);
+    horizontalHeader()->resizeSection(Column::FeedCol, columnWidthFeed);
+    horizontalHeader()->resizeSection(Column::DateCol, columnWidthDate);
+
+    // in case we have just 1 feed selected, hide the feed column in the posts table
+    // if we have a script folder selected, always show the feed column
+    setColumnHidden(Column::FeedCol, false);
+    auto treeViewSourcesIndex = mMainWindow->treeViewSources()->currentIndex();
+    auto tableViewScriptFoldersIndex = mMainWindow->getUI()->tableViewScriptFolders->currentIndex();
+    if (!tableViewScriptFoldersIndex.isValid() && treeViewSourcesIndex.isValid() &&
+        treeViewSourcesIndex.data(TreeViewSources::Role::Type).toULongLong() == TreeViewSources::EntryType::Feed)
+    {
+        setColumnHidden(Column::FeedCol, true);
+    }
 }
 
 void ZapFR::Client::TableViewPosts::handleSelectionChanged(const QModelIndexList& selected)
 {
+    if (mMainWindow == nullptr)
+    {
+        return; // this happens on startup, due to setModal in the c'tor
+    }
+
     mCurrentPostID = 0;
     mCurrentPostSourceID = 0;
     mCurrentPostFeedID = 0;
