@@ -155,6 +155,8 @@ void ZapFR::Client::TreeViewSources::mouseDoubleClickEvent(QMouseEvent* event)
 
 void ZapFR::Client::TreeViewSources::reload()
 {
+    mMainWindow->getUI()->progressBarSources->setVisible(true);
+
     preserveExpansionSelectionState();
 
     mItemModelSources->clear();
@@ -167,7 +169,6 @@ void ZapFR::Client::TreeViewSources::reload()
         typeFilter = ZapFR::Engine::ServerIdentifier::Remote;
     }
     auto sources = ZapFR::Engine::Source::getSources(typeFilter);
-    mInitialSourceCount = sources.size();
     for (const auto& source : sources)
     {
         ZapFR::Engine::Agent::getInstance()->queueGetSourceTree(
@@ -269,6 +270,56 @@ void ZapFR::Client::TreeViewSources::reload()
                 QMetaObject::invokeMethod(this, [=, this]() { populateSources(retrievedSource->id(), sourceItem); });
             });
     }
+
+    // monitor the just launched getSourceTree agents, and act upon completion thereof
+    ZapFR::Engine::Agent::getInstance()->queueMonitorSourceReloadCompletion(
+        [&]()
+        {
+            QMetaObject::invokeMethod(this,
+                                      [=, this]()
+                                      {
+                                          // if nothing is selected in the source tree (as it is on startup):
+                                          // select the local source if it has children or there is no remote source
+                                          // else select the first remote source
+                                          if (selectionModel()->selectedIndexes().isEmpty())
+                                          {
+                                              QStandardItem* localSource{nullptr};
+                                              QStandardItem* firstRemoteSource{nullptr};
+                                              for (auto i = 0; i < mItemModelSources->invisibleRootItem()->rowCount(); ++i)
+                                              {
+                                                  auto child = mItemModelSources->invisibleRootItem()->child(i);
+                                                  if (child->data(Role::Type).toULongLong() == EntryType::Source)
+                                                  {
+                                                      if (child->data(Role::SourceType).toString().toStdString() == ZapFR::Engine::ServerIdentifier::Local)
+                                                      {
+                                                          localSource = child;
+                                                      }
+                                                      else if (firstRemoteSource == nullptr &&
+                                                               child->data(Role::SourceType).toString().toStdString() == ZapFR::Engine::ServerIdentifier::Remote)
+                                                      {
+                                                          firstRemoteSource = child;
+                                                      }
+                                                      else
+                                                      {
+                                                          break;
+                                                      }
+                                                  }
+                                              }
+                                              QStandardItem* toSelect{nullptr};
+                                              if (localSource != nullptr && (localSource->rowCount() > 0 || firstRemoteSource == nullptr))
+                                              {
+                                                  toSelect = localSource;
+                                              }
+                                              else if (firstRemoteSource != nullptr)
+                                              {
+                                                  toSelect = firstRemoteSource;
+                                              }
+                                              setCurrentIndex(mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(toSelect)));
+                                          }
+
+                                          mMainWindow->getUI()->progressBarSources->setVisible(false);
+                                      });
+        });
 }
 
 void ZapFR::Client::TreeViewSources::populateSources(uint64_t /*sourceID*/, QStandardItem* sourceItem)
@@ -336,45 +387,6 @@ void ZapFR::Client::TreeViewSources::restoreExpansionSelectionState(QStandardIte
                 }
             };
             selectIndex(mItemModelSources->invisibleRootItem());
-        }
-
-        // if nothing is selected in the source tree (as it is on startup):
-        // select the local source if it has children or there is no remote source
-        // else select the first remote source
-        // only do this when ALL the sources have been loaded (as this function is called from each source retrieval callback)
-        if (!currentIndex().isValid() && mItemModelSources->invisibleRootItem()->rowCount() == static_cast<int32_t>(mInitialSourceCount))
-        {
-            QStandardItem* localSource{nullptr};
-            QStandardItem* firstRemoteSource{nullptr};
-            for (auto i = 0; i < mItemModelSources->invisibleRootItem()->rowCount(); ++i)
-            {
-                auto child = mItemModelSources->invisibleRootItem()->child(i);
-                if (child->data(Role::Type).toULongLong() == EntryType::Source)
-                {
-                    if (child->data(Role::SourceType).toString().toStdString() == ZapFR::Engine::ServerIdentifier::Local)
-                    {
-                        localSource = child;
-                    }
-                    else if (firstRemoteSource == nullptr && child->data(Role::SourceType).toString().toStdString() == ZapFR::Engine::ServerIdentifier::Remote)
-                    {
-                        firstRemoteSource = child;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-            QStandardItem* toSelect{nullptr};
-            if (localSource != nullptr && (localSource->rowCount() > 0 || firstRemoteSource == nullptr))
-            {
-                toSelect = localSource;
-            }
-            else if (firstRemoteSource != nullptr)
-            {
-                toSelect = firstRemoteSource;
-            }
-            setCurrentIndex(mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(toSelect)));
         }
     }
 }

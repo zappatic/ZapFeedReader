@@ -187,7 +187,6 @@ namespace ZapFR
             std::unique_ptr<QAction> mActionSortFolder{nullptr};
 
             uint64_t mPreviouslySelectedSourceID{0};
-            uint64_t mInitialSourceCount{0};
             std::unique_ptr<QJsonObject> mReloadExpansionSelectionState{nullptr};
             DisplayMode mDisplayMode{DisplayMode::ShowAll};
 

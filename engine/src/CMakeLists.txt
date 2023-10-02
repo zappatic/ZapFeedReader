@@ -14,6 +14,7 @@ target_sources(zapfeedreader-engine PRIVATE
     FavIconParser.cpp
     Flag.cpp
     agents/AgentMonitorFeedRefreshCompletion.cpp
+    agents/AgentMonitorSourceReloadCompletion.cpp
     agents/feed/AgentFeedAdd.cpp
     agents/feed/AgentFeedClearLogs.cpp
     agents/feed/AgentFeedGet.cpp

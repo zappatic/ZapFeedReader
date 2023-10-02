@@ -112,6 +112,7 @@ namespace ZapFR
             std::unique_ptr<QAction> mActionOpenInExternalBrowser{nullptr};
             std::unique_ptr<QAction> mActionCopyForTestScript{nullptr};
 
+            bool mIsReloading{false};
             uint64_t mCurrentPostSourceID{0};
             uint64_t mCurrentPostFeedID{0};
             uint64_t mCurrentPostID{0};

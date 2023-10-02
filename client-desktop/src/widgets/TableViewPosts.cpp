@@ -72,6 +72,15 @@ void ZapFR::Client::TableViewPosts::setMainWindow(MainWindow* mainWindow) noexce
 
 void ZapFR::Client::TableViewPosts::reload()
 {
+    mIsReloading = true;
+    auto ui = mMainWindow->getUI();
+    ui->progressBarPosts->setVisible(true);
+    ui->webViewPost->setBlankPostPage();
+    if (mItemModelPosts != nullptr)
+    {
+        mItemModelPosts->clear();
+    }
+
     // lambda to assign the correct role data to the table entries
     auto setItemData = [&](QStandardItem* item, ZapFR::Engine::Post* post, uint64_t sourceID)
     {
@@ -260,6 +269,9 @@ void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardIte
 
         mPreviouslySelectedPostIDs.clear();
     }
+
+    mIsReloading = false;
+    mMainWindow->getUI()->progressBarPosts->setVisible(false);
 }
 
 void ZapFR::Client::TableViewPosts::handleSelectionChanged(const QModelIndexList& selected)
@@ -532,7 +544,9 @@ void ZapFR::Client::TableViewPosts::paintEvent(QPaintEvent* event)
         auto painter = QPainter(vp);
         painter.setPen(textPen);
         painter.setFont(f);
-        painter.drawText(textRect, Qt::AlignTop | Qt::AlignHCenter, tr("No posts found"));
+
+        auto caption = mIsReloading ? tr("Loading posts...") : tr("No posts found");
+        painter.drawText(textRect, Qt::AlignTop | Qt::AlignHCenter, caption);
     }
 }
 

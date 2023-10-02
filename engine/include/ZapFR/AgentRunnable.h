@@ -61,6 +61,7 @@ namespace ZapFR
                 FolderUpdate,
                 FoldersGet,
                 MonitorFeedRefreshCompletion,
+                MonitorSourceReloadCompletion,
                 PostGet,
                 PostsMarkFlagged,
                 PostsMarkRead,

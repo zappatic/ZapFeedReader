@@ -18,6 +18,7 @@
 
 #include "ZapFR/Agent.h"
 #include "ZapFR/agents/AgentMonitorFeedRefreshCompletion.h"
+#include "ZapFR/agents/AgentMonitorSourceReloadCompletion.h"
 #include "ZapFR/agents/feed/AgentFeedAdd.h"
 #include "ZapFR/agents/feed/AgentFeedClearLogs.h"
 #include "ZapFR/agents/feed/AgentFeedGet.h"
@@ -429,6 +430,11 @@ void ZapFR::Engine::Agent::queueMonitorFeedRefreshCompletion(std::function<void(
     // that doesn't really matter, as the feed-refreshing would have to finish first anyway, and the monitor thread wouldn't
     // have been able to complete before that.
     enqueue(std::make_unique<AgentMonitorFeedRefreshCompletion>(this, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMonitorSourceReloadCompletion(std::function<void()> finishedCallback)
+{
+    enqueue(std::make_unique<AgentMonitorSourceReloadCompletion>(this, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueClearSourceLogs(uint64_t sourceID, std::function<void()> finishedCallback)

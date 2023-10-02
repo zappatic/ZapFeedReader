@@ -152,8 +152,9 @@ namespace ZapFR
             void queueAddScript(uint64_t sourceID, Script::Type type, const std::string& title, bool enabled, const std::unordered_set<Script::Event>& events,
                                 const std::optional<std::unordered_set<uint64_t>>& feedIDs, const std::string& script, std::function<void(uint64_t)> finishedCallback);
 
-            // querying the threadpool/queue
+            // monitoring
             void queueMonitorFeedRefreshCompletion(std::function<void()> finishedCallback);
+            void queueMonitorSourceReloadCompletion(std::function<void()> finishedCallback);
             uint64_t totalCountOfType(AgentRunnable::Type t) const;
 
           private:
