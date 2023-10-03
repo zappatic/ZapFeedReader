@@ -88,67 +88,60 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
     // try to locate <link rel="icon" href="..."> with a sax parser
     FavIconSaxParser handler;
     FavIconSaxErrorHandler errorHandler;
-    bool saxParsingSuccessful{true};
+    bool saxParsingSuccessful{false};
     try
     {
         Poco::XML::SAXParser parser;
         parser.setContentHandler(&handler);
         parser.setErrorHandler(&errorHandler);
         parser.parseString(html);
+        saxParsingSuccessful = true;
     }
     catch (...)
     {
-        // todo: log std::cout << "parsing failed in whole html doc\n";
-        saxParsingSuccessful = false;
     }
 
     mFavIcon = handler.favIconURL();
     if (!mFavIcon.empty() || saxParsingSuccessful)
     {
-        // todo: log std::cout << "found favicon url : " << mFavIcon << "\n";
         return;
     }
 
     // try to extract all <link ...> tags from the original html, and parse that, to avoid xml errors elsewhere in the doc
-    static auto linkRegex = Poco::RegularExpression("(<link.*?>)");
+    static auto linkRegex = Poco::RegularExpression("(<link.*?>)", Poco::RegularExpression::RE_GLOBAL);
     Poco::RegularExpression::MatchVec matches;
-    linkRegex.match(html, 0, matches);
-    if (matches.size() > 0)
+    size_t offset{0};
+    std::stringstream fakeXML;
+    fakeXML << R"(<?xml version="1.0" encoding="UTF-8"?><links>)";
+    while (linkRegex.match(html, offset, matches) > 0)
     {
-        std::stringstream fakeXML;
-        fakeXML << R"(<xml version="1.0">\n<links>)";
-        for (const auto& match : matches)
-        {
-            fakeXML << html.substr(match.offset, match.length) << "\n";
-        }
-        fakeXML << "</links>\n";
+        fakeXML << html.substr(matches.at(1).offset, matches.at(1).length) << "\n";
+        offset = matches.at(0).offset + 1;
+    }
+    fakeXML << "</links>\n";
 
+    saxParsingSuccessful = false;
+    try
+    {
+        Poco::XML::SAXParser parser;
+        parser.setContentHandler(&handler);
+        parser.setErrorHandler(&errorHandler);
+        parser.parseString(fakeXML.str());
         saxParsingSuccessful = true;
-        try
-        {
-            Poco::XML::SAXParser parser;
-            parser.setContentHandler(&handler);
-            parser.setErrorHandler(&errorHandler);
-            parser.parseString(fakeXML.str());
-        }
-        catch (...)
-        {
-            // todo: log std::cout << "parsing failed in fake html doc\n";
-            saxParsingSuccessful = false;
-        }
+    }
+    catch (...)
+    {
+    }
 
-        mFavIcon = handler.favIconURL();
-        if (!mFavIcon.empty() || saxParsingSuccessful)
-        {
-            // todo: log std::cout << "found favicon url : " << mFavIcon << "\n";
-            return;
-        }
+    mFavIcon = handler.favIconURL();
+    if (!mFavIcon.empty() || saxParsingSuccessful)
+    {
+        return;
     }
 
     // point to <site>/favicon.ico as a last resort
     auto lastResortURI = Poco::URI(url);
     lastResortURI.setPath("/favicon.ico");
-    // todo: log std::cout << "fallback to " << uri.toString() << "\n";
     mFavIcon = lastResortURI.toString();
 }
 

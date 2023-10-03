@@ -37,6 +37,7 @@ set(PROJECT_SOURCES
         src/widgets/WidgetPropertiesPaneFeed.cpp
         src/widgets/WidgetPropertiesPaneFolder.cpp
         src/widgets/WidgetPropertiesPaneSource.cpp
+        src/delegates/ItemDelegateDiscoveredFeed.cpp
         src/delegates/ItemDelegateSource.cpp
         src/delegates/ItemDelegatePost.cpp
         src/delegates/ItemDelegateLog.cpp
@@ -79,6 +80,7 @@ set(PROJECT_SOURCES
         include/widgets/WidgetPropertiesPaneFeed.h
         include/widgets/WidgetPropertiesPaneFolder.h
         include/widgets/WidgetPropertiesPaneSource.h
+        include/delegates/ItemDelegateDiscoveredFeed.h
         include/delegates/ItemDelegateSource.h
         include/delegates/ItemDelegatePost.h
         include/delegates/ItemDelegateLog.h

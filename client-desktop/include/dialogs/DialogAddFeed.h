@@ -19,8 +19,11 @@
 #ifndef ZAPFR_CLIENT_DIALOGADDFEED_H
 #define ZAPFR_CLIENT_DIALOGADDFEED_H
 
+#include <QAbstractButton>
+
 #include "../ClientGlobal.h"
 #include "DialogWithSourcesAndFolders.h"
+#include "ZapFR/FeedDiscovery.h"
 
 namespace Ui
 {
@@ -43,12 +46,35 @@ namespace ZapFR
             DialogAddFeed(DialogAddFeed&&) = delete;
             DialogAddFeed& operator=(DialogAddFeed&&) = delete;
 
-            QString url() const;
-
             void reset(uint64_t selectedSourceID, uint64_t selectedFolderID);
+            std::vector<std::string> feedURLsToAdd() const;
+
+            enum Column
+            {
+                CheckboxCol = 0,
+                TypeCol = 1,
+                TitleCol = 2,
+                URLCol = 3,
+            };
+
+            enum Role
+            {
+                URL = Qt::ItemDataRole::UserRole + 1,
+                IsChecked = Qt::ItemDataRole::UserRole + 2,
+            };
+
+          private slots:
+            void discoverFeeds();
 
           private:
             Ui::DialogAddFeed* ui;
+            QAbstractButton* mAddFeedButton{nullptr};
+            std::unique_ptr<QStandardItemModel> mDiscoveredFeedsModel{nullptr};
+
+            QString url() const;
+            void addDiscoveredFeed(const ZapFR::Engine::DiscoveredFeed& discoveredFeed);
+            void clearDiscoveredFeeds();
+            void updateAddButtonState();
         };
     } // namespace Client
 } // namespace ZapFR

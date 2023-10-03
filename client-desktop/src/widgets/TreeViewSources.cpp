@@ -1251,9 +1251,10 @@ void ZapFR::Client::TreeViewSources::addFeed()
                     if (result == QDialog::DialogCode::Accepted)
                     {
                         auto sourceID = mDialogAddFeed->selectedSourceID();
-                        auto url = mDialogAddFeed->url().toStdString();
                         auto folderID = mDialogAddFeed->selectedFolderID();
-                        if (!url.empty())
+
+                        const auto& urls = mDialogAddFeed->feedURLsToAdd();
+                        for (const auto& url : urls)
                         {
                             ZapFR::Engine::Agent::getInstance()->queueAddFeed(sourceID, url, folderID,
                                                                               [&](uint64_t affectedSourceID, uint64_t newFeedID)
