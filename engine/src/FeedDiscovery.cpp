@@ -38,7 +38,15 @@ ZapFR::Engine::FeedDiscovery::FeedDiscovery(const std::string& url) : mURL(url)
 
     Poco::Net::HTTPCredentials creds; // TODO
     auto uri = Poco::URI(url);
-    auto html = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+    std::string html;
+    try
+    {
+        html = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+    }
+    catch (...)
+    {
+        return;
+    }
 
     if (interpretAsYoutubeSource(uri, html))
     {
