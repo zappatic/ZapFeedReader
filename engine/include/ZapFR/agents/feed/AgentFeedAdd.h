@@ -20,6 +20,7 @@
 #define ZAPFR_ENGINE_AGENTFEEDADD_H
 
 #include "ZapFR/AgentRunnable.h"
+#include "ZapFR/base/Feed.h"
 
 namespace ZapFR
 {
@@ -28,7 +29,7 @@ namespace ZapFR
         class AgentFeedAdd : public AgentRunnable
         {
           public:
-            explicit AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, uint64_t)> finishedCallback);
+            explicit AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, ZapFR::Engine::Feed*)> finishedCallback);
             virtual ~AgentFeedAdd() = default;
 
             void payload(Source* source) override;
@@ -37,7 +38,7 @@ namespace ZapFR
           private:
             std::string mURL{0};
             uint64_t mFolderID{0};
-            std::function<void(uint64_t, uint64_t)> mFinishedCallback{};
+            std::function<void(uint64_t, ZapFR::Engine::Feed*)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

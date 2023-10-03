@@ -142,7 +142,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote:
     return {};
 }
 
-uint64_t ZapFR::Engine::SourceRemote::addFeed(const std::string& url, uint64_t folder)
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::addFeed(const std::string& url, uint64_t folder)
 {
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
@@ -160,10 +160,10 @@ uint64_t ZapFR::Engine::SourceRemote::addFeed(const std::string& url, uint64_t f
         auto o = root.extract<Poco::JSON::Object::Ptr>();
         if (!o.isNull())
         {
-            return o->getValue<uint64_t>(JSON::Feed::ID);
+            return FeedRemote::fromJSON(this, o);
         }
     }
-    return 0;
+    return {};
 }
 
 std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)

@@ -33,7 +33,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceDummy::
     throw std::runtime_error("Not implemented");
 }
 
-uint64_t ZapFR::Engine::SourceDummy::addFeed(const std::string& /*url*/, uint64_t /*folder*/)
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceDummy::addFeed(const std::string& /*url*/, uint64_t /*folder*/)
 {
     throw std::runtime_error("Not implemented");
 }

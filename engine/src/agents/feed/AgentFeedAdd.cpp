@@ -18,16 +18,18 @@
 
 #include "ZapFR/agents/feed/AgentFeedAdd.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFeedAdd::AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, uint64_t)> finishedCallback)
+ZapFR::Engine::AgentFeedAdd::AgentFeedAdd(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, ZapFR::Engine::Feed*)> finishedCallback)
     : AgentRunnable(sourceID), mURL(url), mFolderID(folder), mFinishedCallback(finishedCallback)
 {
 }
 
 void ZapFR::Engine::AgentFeedAdd::payload(Source* source)
 {
-    uint64_t feedID = source->addFeed(mURL, mFolderID);
-    mFinishedCallback(mSourceID, feedID);
+    const auto& feed = source->addFeed(mURL, mFolderID);
+    if (feed.has_value())
+    {
+        mFinishedCallback(mSourceID, feed.value().get());
+    }
 }

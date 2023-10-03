@@ -21,7 +21,7 @@
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFeedRemove::AgentFeedRemove(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentFeedRemove::AgentFeedRemove(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
     : AgentRunnable(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
 {
 }
@@ -29,5 +29,5 @@ ZapFR::Engine::AgentFeedRemove::AgentFeedRemove(uint64_t sourceID, uint64_t feed
 void ZapFR::Engine::AgentFeedRemove::payload(Source* source)
 {
     source->removeFeed(mFeedID);
-    mFinishedCallback();
+    mFinishedCallback(mSourceID, mFeedID);
 }

@@ -28,7 +28,7 @@ namespace ZapFR
         class AgentFeedRemove : public AgentRunnable
         {
           public:
-            explicit AgentFeedRemove(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback);
+            explicit AgentFeedRemove(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             virtual ~AgentFeedRemove() = default;
 
             void payload(Source* source) override;
@@ -36,7 +36,7 @@ namespace ZapFR
 
           private:
             uint64_t mFeedID{0};
-            std::function<void()> mFinishedCallback{};
+            std::function<void(uint64_t, uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

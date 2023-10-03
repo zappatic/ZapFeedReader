@@ -156,7 +156,7 @@ namespace ZapFR
             void importOPML();
             void exportOPML();
 
-            void feedAdded(uint64_t sourceID, uint64_t feedID);
+            void feedAdded(uint64_t sourceID, QStandardItem* feedItem);
 
           private:
             MainWindow* mMainWindow{nullptr};

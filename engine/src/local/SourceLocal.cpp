@@ -66,30 +66,28 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::
     }
 }
 
-uint64_t ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder)
+std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceLocal::addFeed(const std::string& url, uint64_t folder)
 {
     Log::log(LogLevel::Info, fmt::format("Adding feed at {}", url));
 
-    uint64_t feedID{0};
     try
     {
-        auto feed = FeedLocal::create(this, url, url, folder);
-        feedID = feed->id();
+        return FeedLocal::create(this, url, url, folder);
     }
     catch (const Poco::Exception& e)
     {
-        Log::log(LogLevel::Error, e.displayText(), feedID);
+        Log::log(LogLevel::Error, e.displayText());
     }
     catch (const std::runtime_error& e)
     {
-        Log::log(LogLevel::Error, e.what(), feedID);
+        Log::log(LogLevel::Error, e.what());
     }
     catch (...)
     {
-        Log::log(LogLevel::Error, "Unknown exception while adding feed", feedID);
+        Log::log(LogLevel::Error, "Unknown exception while adding feed");
     }
 
-    return feedID;
+    return {};
 }
 
 std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceLocal::moveFeed(uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder)
@@ -574,10 +572,10 @@ std::unordered_set<uint64_t> ZapFR::Engine::SourceLocal::importOPML(const std::s
     for (const auto& feedEntry : feedEntries)
     {
         auto subfolderID = createFolderHierarchy(parentFolderID, feedEntry.folderHierarchy);
-        auto feedID = addFeed(feedEntry.url, subfolderID);
-        if (feedID != 0)
+        const auto& feed = addFeed(feedEntry.url, subfolderID);
+        if (feed.has_value())
         {
-            feedIDs.insert(feedID);
+            feedIDs.insert(feed.value()->id());
         }
     }
 

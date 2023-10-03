@@ -182,7 +182,7 @@ void ZapFR::Engine::Agent::queueRefreshSource(uint64_t sourceID, std::function<v
     enqueue(std::make_unique<AgentSourceRefresh>(sourceID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueAddFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueAddFeed(uint64_t sourceID, const std::string& url, uint64_t folder, std::function<void(uint64_t, Feed*)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFeedAdd>(sourceID, url, folder, finishedCallback));
 }
@@ -213,7 +213,7 @@ void ZapFR::Engine::Agent::queueGetSource(uint64_t sourceID, std::function<void(
     enqueue(std::make_unique<AgentSourceGet>(sourceID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueRemoveFeed(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentFeedRemove>(sourceID, feedID, finishedCallback));
 }

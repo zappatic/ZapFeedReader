@@ -1273,8 +1273,11 @@ void ZapFR::Client::TreeViewSources::addFeed()
                         for (const auto& url : urls)
                         {
                             ZapFR::Engine::Agent::getInstance()->queueAddFeed(sourceID, url, folderID,
-                                                                              [&](uint64_t affectedSourceID, uint64_t newFeedID)
-                                                                              { QMetaObject::invokeMethod(this, [=, this]() { feedAdded(affectedSourceID, newFeedID); }); });
+                                                                              [&](uint64_t affectedSourceID, ZapFR::Engine::Feed* newFeed)
+                                                                              {
+                                                                                  auto feedItem = createFeedStandardItem(affectedSourceID, newFeed);
+                                                                                  QMetaObject::invokeMethod(this, [=, this]() { feedAdded(affectedSourceID, feedItem); });
+                                                                              });
                         }
                     }
                 });
@@ -1285,22 +1288,53 @@ void ZapFR::Client::TreeViewSources::addFeed()
     mDialogAddFeed->open();
 }
 
-void ZapFR::Client::TreeViewSources::feedAdded(uint64_t sourceID, uint64_t feedID)
+void ZapFR::Client::TreeViewSources::feedAdded(uint64_t sourceID, QStandardItem* feedItem)
 {
-    reload();
-    ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
-        sourceID, feedID,
-        [&](uint64_t affectedSourceID, ZapFR::Engine::Feed* refreshedFeed)
+    auto doRefresh{false};
+    auto parentFolderID = feedItem->data(Role::ParentFolderID).toULongLong();
+    if (parentFolderID == 0)
+    {
+        auto sourceItem = findSourceStandardItem(sourceID);
+        if (sourceItem != nullptr)
         {
-            auto id = refreshedFeed->id();
-            auto unreadCount = refreshedFeed->unreadCount();
-            auto error = refreshedFeed->lastRefreshError();
-            auto title = refreshedFeed->title();
-            auto iconHash = refreshedFeed->iconHash();
-            auto iconData = refreshedFeed->iconData();
-            QMetaObject::invokeMethod(this,
-                                      [=, this]() { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
-        });
+            sourceItem->appendRow(feedItem);
+            doRefresh = true;
+        }
+        else
+        {
+            delete feedItem;
+        }
+    }
+    else
+    {
+        auto folderItem = findFolderStandardItem(sourceID, parentFolderID);
+        if (folderItem != nullptr)
+        {
+            folderItem->appendRow(feedItem);
+            doRefresh = true;
+        }
+        else
+        {
+            delete feedItem;
+        }
+    }
+
+    if (doRefresh)
+    {
+        ZapFR::Engine::Agent::getInstance()->queueRefreshFeed(
+            sourceID, feedItem->data(Role::ID).toULongLong(),
+            [&](uint64_t affectedSourceID, ZapFR::Engine::Feed* refreshedFeed)
+            {
+                auto id = refreshedFeed->id();
+                auto unreadCount = refreshedFeed->unreadCount();
+                auto error = refreshedFeed->lastRefreshError();
+                auto title = refreshedFeed->title();
+                auto iconHash = refreshedFeed->iconHash();
+                auto iconData = refreshedFeed->iconData();
+                QMetaObject::invokeMethod(this, [=, this]()
+                                          { feedRefreshed(affectedSourceID, id, unreadCount, error.has_value() ? error.value() : "", title, iconHash, iconData); });
+            });
+    }
 }
 
 void ZapFR::Client::TreeViewSources::removeFeed()
@@ -1324,12 +1358,24 @@ void ZapFR::Client::TreeViewSources::removeFeed()
             auto sourceID = index.data(Role::ParentSourceID).toULongLong();
             auto feedID = index.data(Role::ID).toULongLong();
             ZapFR::Engine::Agent::getInstance()->queueRemoveFeed(sourceID, feedID,
-                                                                 [&]()
+                                                                 [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
                                                                  {
                                                                      QMetaObject::invokeMethod(this,
                                                                                                [=, this]()
                                                                                                {
-                                                                                                   reload();
+                                                                                                   auto sourceItem = findSourceStandardItem(affectedSourceID);
+                                                                                                   if (sourceItem != nullptr)
+                                                                                                   {
+                                                                                                       auto feedItems = findFeedStandardItems(sourceItem, {{affectedFeedID}});
+                                                                                                       for (const auto& feedItem : feedItems)
+                                                                                                       {
+                                                                                                           auto feedParent = feedItem->parent();
+                                                                                                           if (feedParent != nullptr)
+                                                                                                           {
+                                                                                                               feedParent->removeRow(feedItem->row());
+                                                                                                           }
+                                                                                                       }
+                                                                                                   }
                                                                                                    mMainWindow->getUI()->tableViewPosts->clearPosts();
                                                                                                    mMainWindow->setStatusBarMessage(tr("Feed removed"));
                                                                                                });
