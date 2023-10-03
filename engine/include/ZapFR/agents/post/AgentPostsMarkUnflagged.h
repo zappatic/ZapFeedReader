@@ -29,8 +29,9 @@ namespace ZapFR
         class AgentPostsMarkUnflagged : public AgentRunnable
         {
           public:
-            explicit AgentPostsMarkUnflagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
-                                             const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback);
+            explicit AgentPostsMarkUnflagged(
+                uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs, const std::unordered_set<FlagColor>& flagColors,
+                std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&, const std::unordered_set<FlagColor>&)> finishedCallback);
             virtual ~AgentPostsMarkUnflagged() = default;
 
             void payload(Source* source) override;
@@ -39,7 +40,7 @@ namespace ZapFR
           private:
             std::vector<std::tuple<uint64_t, uint64_t>> mFeedAndPostIDs{};
             std::unordered_set<FlagColor> mFlagColors;
-            std::function<void()> mFinishedCallback{};
+            std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&, const std::unordered_set<FlagColor>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR

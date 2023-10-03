@@ -325,14 +325,16 @@ void ZapFR::Engine::Agent::queueGetFeedLogs(uint64_t sourceID, uint64_t feedID, 
     enqueue(std::make_unique<AgentFeedGetLogs>(sourceID, feedID, perPage, page, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkPostsFlagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
-                                                 const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkPostsFlagged(
+    uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs, const std::unordered_set<FlagColor>& flagColors,
+    std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&, const std::unordered_set<FlagColor>&)> finishedCallback)
 {
     enqueue(std::make_unique<AgentPostsMarkFlagged>(sourceID, feedAndPostIDs, flagColors, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkPostsUnflagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
-                                                   const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkPostsUnflagged(
+    uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs, const std::unordered_set<FlagColor>& flagColors,
+    std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&, const std::unordered_set<FlagColor>&)> finishedCallback)
 {
     enqueue(std::make_unique<AgentPostsMarkUnflagged>(sourceID, feedAndPostIDs, flagColors, finishedCallback));
 }

@@ -433,9 +433,13 @@ void ZapFR::Client::TableViewPosts::mouseReleaseEvent(QMouseEvent* event)
             auto sourceID = index.data(Role::SourceID).toULongLong();
             auto feedID = index.data(Role::FeedID).toULongLong();
             auto postID = index.data(Role::ID).toULongLong();
-            emit clearAllFlagsRequested(sourceID, feedID, postID);
 
-            qobject_cast<QStandardItemModel*>(model())->itemFromIndex(index)->setData(QVariantList(), Role::AppliedFlags);
+            ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(
+                sourceID, {{feedID, postID}}, ZapFR::Engine::Flag::allFlagColors(),
+                [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs,
+                    const std::unordered_set<ZapFR::Engine::FlagColor>& affectedFlagColors)
+                { QMetaObject::invokeMethod(this, [=, this]() { updatePostsFlags(false, affectedSourceID, affectedFeedAndPostIDs, affectedFlagColors); }); });
+
             return;
         }
         else
@@ -482,22 +486,25 @@ void ZapFR::Client::TableViewPosts::processFlagToggle(ZapFR::Engine::FlagColor f
     auto sourceID = index.data(Role::SourceID).toULongLong();
     auto feedID = index.data(Role::FeedID).toULongLong();
     auto postID = index.data(Role::ID).toULongLong();
-    auto flags = index.data(Role::AppliedFlags).toList();
 
     switch (flagStyle)
     {
         case Utilities::FlagStyle::Filled:
         {
-            emit postMarkedFlagged(sourceID, feedID, postID, flagColor);
-            flags << QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(flagColor));
-            qobject_cast<QStandardItemModel*>(model())->itemFromIndex(index)->setData(flags, Role::AppliedFlags);
+            ZapFR::Engine::Agent::getInstance()->queueMarkPostsFlagged(
+                sourceID, {{feedID, postID}}, {flagColor},
+                [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs,
+                    const std::unordered_set<ZapFR::Engine::FlagColor>& affectedFlagColors)
+                { QMetaObject::invokeMethod(this, [=, this]() { updatePostsFlags(true, affectedSourceID, affectedFeedAndPostIDs, affectedFlagColors); }); });
             break;
         }
         case Utilities::FlagStyle::Unfilled:
         {
-            emit postMarkedUnflagged(sourceID, feedID, postID, flagColor);
-            flags.removeIf([&](const QVariant& v) { return flagColor == static_cast<ZapFR::Engine::FlagColor>(v.toInt()); });
-            qobject_cast<QStandardItemModel*>(model())->itemFromIndex(index)->setData(flags, Role::AppliedFlags);
+            ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(
+                sourceID, {{feedID, postID}}, {flagColor},
+                [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs,
+                    const std::unordered_set<ZapFR::Engine::FlagColor>& affectedFlagColors)
+                { QMetaObject::invokeMethod(this, [=, this]() { updatePostsFlags(false, affectedSourceID, affectedFeedAndPostIDs, affectedFlagColors); }); });
             break;
         }
     }
@@ -606,7 +613,7 @@ void ZapFR::Client::TableViewPosts::postsMarkedRead(uint64_t sourceID, const std
         uniqueFeedIDs.insert(feedID);
         uniquePostIDs.insert(postID);
     }
-    updatePostsReadStatus(true, uniquePostIDs);
+    updatePostsReadStatus(true, sourceID, uniquePostIDs);
 
     for (const auto& feedID : uniqueFeedIDs)
     {
@@ -633,7 +640,7 @@ void ZapFR::Client::TableViewPosts::postsMarkedUnread(uint64_t sourceID, const s
         uniqueFeedIDs.insert(feedID);
         uniquePostIDs.insert(postID);
     }
-    updatePostsReadStatus(false, uniquePostIDs);
+    updatePostsReadStatus(false, sourceID, uniquePostIDs);
 
     for (const auto& feedID : uniqueFeedIDs)
     {
@@ -663,30 +670,16 @@ void ZapFR::Client::TableViewPosts::postsMarkedUnread(uint64_t sourceID, const s
     mMainWindow->setStatusBarMessage(tr("Post(s) marked as unread"));
 }
 
-void ZapFR::Client::TableViewPosts::postsMarkedFlagged(bool doReloadPosts)
-{
-    mMainWindow->getUI()->frameFlagFilters->reload(true);
-    if (doReloadPosts)
-    {
-        reload();
-    }
-    mMainWindow->setStatusBarMessage(tr("Post(s) marked as flagged"));
-}
-
-void ZapFR::Client::TableViewPosts::postsMarkedUnflagged(bool doReloadPosts)
-{
-    mMainWindow->getUI()->frameFlagFilters->reload(true);
-    if (doReloadPosts)
-    {
-        reload();
-    }
-    mMainWindow->setStatusBarMessage(tr("Post(s) marked as unflagged"));
-}
-
-void ZapFR::Client::TableViewPosts::updatePostsReadStatus(bool markAsRead, const std::optional<std::unordered_set<uint64_t>>& postIDs)
+void ZapFR::Client::TableViewPosts::updatePostsReadStatus(bool markAsRead, uint64_t sourceID, const std::optional<std::unordered_set<uint64_t>>& postIDs)
 {
     for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
     {
+        auto index = mItemModelPosts->index(i, 0);
+        if (index.data(Role::SourceID).toULongLong() != sourceID)
+        {
+            continue;
+        }
+
         auto setUnreadStatus{false};
         if (!postIDs.has_value())
         {
@@ -694,7 +687,6 @@ void ZapFR::Client::TableViewPosts::updatePostsReadStatus(bool markAsRead, const
         }
         else
         {
-            auto index = mItemModelPosts->index(i, 0);
             setUnreadStatus = postIDs.value().contains(index.data(Role::ID).toULongLong());
         }
 
@@ -707,6 +699,58 @@ void ZapFR::Client::TableViewPosts::updatePostsReadStatus(bool markAsRead, const
             }
         }
     }
+}
+
+void ZapFR::Client::TableViewPosts::updatePostsFlags(bool markFlagged, uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
+                                                     const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors)
+{
+    mMainWindow->getUI()->frameFlagFilters->reload(true);
+
+    auto [currentSourceID, currentFeedID] = mMainWindow->getUI()->treeViewSources->getCurrentlySelectedSourceAndFeedID();
+    if (currentSourceID != sourceID)
+    {
+        return;
+    }
+
+    for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
+    {
+        auto index = mItemModelPosts->index(i, Column::FlagCol);
+
+        auto found{false};
+        for (const auto& [checkFeedID, checkPostID] : feedAndPostIDs)
+        {
+            if (checkFeedID == index.data(Role::FeedID).toULongLong() && checkPostID == index.data(Role::ID).toULongLong())
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            continue;
+        }
+
+        auto flags = index.data(Role::AppliedFlags).toList();
+        if (markFlagged)
+        {
+            for (const auto& flagColor : flagColors)
+            {
+                auto flagVariant = QVariant(static_cast<std::underlying_type_t<ZapFR::Engine::FlagColor>>(flagColor));
+                if (!flags.contains(flagVariant))
+                {
+                    flags << flagVariant;
+                }
+            }
+            mItemModelPosts->itemFromIndex(index)->setData(flags, Role::AppliedFlags);
+        }
+        else
+        {
+            flags.removeIf([&](const QVariant& v) { return flagColors.contains(static_cast<ZapFR::Engine::FlagColor>(v.toInt())); });
+            mItemModelPosts->itemFromIndex(index)->setData(flags, Role::AppliedFlags);
+        }
+    }
+
+    mMainWindow->setStatusBarMessage(markFlagged ? tr("Post(s) marked as flagged") : tr("Post(s) marked as unflagged"));
 }
 
 void ZapFR::Client::TableViewPosts::markAsRead()
@@ -730,7 +774,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                          mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
                                                                                                              affectedSourceID, {affectedFeedID}, false, 0);
                                                                                                          mCurrentPostPage = 1;
-                                                                                                         updatePostsReadStatus(true, {});
+                                                                                                         updatePostsReadStatus(true, affectedSourceID, {});
                                                                                                          mMainWindow->getUI()->tableViewScriptFolders->reload(true);
                                                                                                          mMainWindow->setStatusBarMessage(tr("Feed marked as read"));
                                                                                                      });
@@ -749,7 +793,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                            mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
                                                                                                                affectedSourceID, affectedFeedIDs, false, 0);
                                                                                                            mCurrentPostPage = 1;
-                                                                                                           updatePostsReadStatus(true, {});
+                                                                                                           updatePostsReadStatus(true, affectedSourceID, {});
                                                                                                            mMainWindow->getUI()->tableViewScriptFolders->reload(true);
                                                                                                            mMainWindow->setStatusBarMessage(tr("Folder marked as read"));
                                                                                                        });
@@ -767,7 +811,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                            mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
                                                                                                                affectedSourceID, {}, true, 0);
                                                                                                            mCurrentPostPage = 1;
-                                                                                                           updatePostsReadStatus(true, {});
+                                                                                                           updatePostsReadStatus(true, affectedSourceID, {});
                                                                                                            mMainWindow->getUI()->tableViewScriptFolders->reload(true);
                                                                                                            mMainWindow->setStatusBarMessage(tr("Source marked as read"));
                                                                                                        });
@@ -813,8 +857,11 @@ void ZapFR::Client::TableViewPosts::markPostSelectionFlagged()
     if (feedAndPostIDs.size() > 0)
     {
         auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueMarkPostsFlagged(sourceID, feedAndPostIDs, {flagColor},
-                                                                   [&]() { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedFlagged(true); }); });
+        ZapFR::Engine::Agent::getInstance()->queueMarkPostsFlagged(
+            sourceID, feedAndPostIDs, {flagColor},
+            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs,
+                const std::unordered_set<ZapFR::Engine::FlagColor>& affectedFlagColors)
+            { QMetaObject::invokeMethod(this, [=, this]() { updatePostsFlags(true, affectedSourceID, affectedFeedAndPostIDs, affectedFlagColors); }); });
     }
 }
 
@@ -836,8 +883,11 @@ void ZapFR::Client::TableViewPosts::markPostSelectionUnflagged()
     if (feedAndPostIDs.size() > 0)
     {
         auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, feedAndPostIDs, flagColors,
-                                                                     [&]() { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedUnflagged(true); }); });
+        ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(
+            sourceID, feedAndPostIDs, flagColors,
+            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs,
+                const std::unordered_set<ZapFR::Engine::FlagColor>& affectedFlagColors)
+            { QMetaObject::invokeMethod(this, [=, this]() { updatePostsFlags(false, affectedSourceID, affectedFeedAndPostIDs, affectedFlagColors); }); });
     }
 }
 
@@ -1146,27 +1196,6 @@ void ZapFR::Client::TableViewPosts::connectStuff()
                         mMainWindow->getUI()->statusbar->clearMessage();
                     }
                 }
-            });
-
-    connect(this, &TableViewPosts::postMarkedFlagged,
-            [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
-            {
-                ZapFR::Engine::Agent::getInstance()->queueMarkPostsFlagged(sourceID, {{feedID, postID}}, {flagColor},
-                                                                           [&]() { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedFlagged(false); }); });
-            });
-
-    connect(this, &TableViewPosts::postMarkedUnflagged,
-            [&](uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor)
-            {
-                ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, {{feedID, postID}}, {flagColor},
-                                                                             [&]() { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedUnflagged(false); }); });
-            });
-
-    connect(this, &TableViewPosts::clearAllFlagsRequested,
-            [&](uint64_t sourceID, uint64_t feedID, uint64_t postID)
-            {
-                ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnflagged(sourceID, {{feedID, postID}}, ZapFR::Engine::Flag::allFlagColors(),
-                                                                             [&]() { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedUnflagged(false); }); });
             });
 }
 

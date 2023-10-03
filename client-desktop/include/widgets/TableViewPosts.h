@@ -84,11 +84,6 @@ namespace ZapFR
                 AppliedFlags = Qt::ItemDataRole::UserRole + 7,
             };
 
-          signals:
-            void postMarkedFlagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor);
-            void postMarkedUnflagged(uint64_t sourceID, uint64_t feedID, uint64_t postID, ZapFR::Engine::FlagColor flagColor);
-            void clearAllFlagsRequested(uint64_t sourceID, uint64_t feedID, uint64_t postID);
-
           private slots:
             void processFlagToggle(ZapFR::Engine::FlagColor flagColor, Utilities::FlagStyle flagStyle);
 
@@ -132,8 +127,6 @@ namespace ZapFR
             std::vector<std::tuple<uint64_t, uint64_t>> selectedPostIDs() const;
 
             void postReadyToBeShown(const QString& html, const std::vector<ZapFR::Engine::Post::Enclosure>& enclosures);
-            void postsMarkedFlagged(bool reloadPosts);
-            void postsMarkedUnflagged(bool reloadPosts);
             void postsMarkedUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs);
             void postsAssignedToScriptFolder(uint64_t sourceID, uint64_t scriptFolderID);
             void postsRemovedFromScriptFolder(uint64_t sourceID, uint64_t scriptFolderID);
@@ -147,7 +140,9 @@ namespace ZapFR
 
             void openSelectedPostsInExternalBrowser(const std::function<void(const QString&)>& openHandler);
             void clear();
-            void updatePostsReadStatus(bool markAsRead, const std::optional<std::unordered_set<uint64_t>>& postIDs);
+            void updatePostsReadStatus(bool markAsRead, uint64_t sourceID, const std::optional<std::unordered_set<uint64_t>>& postIDs);
+            void updatePostsFlags(bool markFlagged, uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
+                                  const std::unordered_set<ZapFR::Engine::FlagColor>& flagColors);
 
             static constexpr uint64_t msPostsPerPage{100};
         };

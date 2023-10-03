@@ -22,8 +22,9 @@
 #include "ZapFR/base/Post.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentPostsMarkUnflagged::AgentPostsMarkUnflagged(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs,
-                                                                const std::unordered_set<FlagColor>& flagColors, std::function<void()> finishedCallback)
+ZapFR::Engine::AgentPostsMarkUnflagged::AgentPostsMarkUnflagged(
+    uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs, const std::unordered_set<FlagColor>& flagColors,
+    std::function<void(uint64_t, const std::vector<std::tuple<uint64_t, uint64_t>>&, const std::unordered_set<FlagColor>&)> finishedCallback)
     : AgentRunnable(sourceID), mFeedAndPostIDs(feedAndPostIDs), mFlagColors(flagColors), mFinishedCallback(finishedCallback)
 {
 }
@@ -31,5 +32,5 @@ ZapFR::Engine::AgentPostsMarkUnflagged::AgentPostsMarkUnflagged(uint64_t sourceI
 void ZapFR::Engine::AgentPostsMarkUnflagged::payload(Source* source)
 {
     source->setPostsFlagStatus(false, mFlagColors, mFeedAndPostIDs);
-    mFinishedCallback();
+    mFinishedCallback(mSourceID, mFeedAndPostIDs, mFlagColors);
 }
