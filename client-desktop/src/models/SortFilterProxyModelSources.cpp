@@ -247,6 +247,7 @@ Poco::JSON::Object ZapFR::Client::SortFilterProxyModelSources::serializeItem(con
     o.set("Type", indexToSerialize.data(TreeViewSources::Role::Type).toULongLong());
     o.set("ID", indexToSerialize.data(TreeViewSources::Role::ID).toULongLong());
     o.set("ParentSourceID", indexToSerialize.data(TreeViewSources::Role::ParentSourceID).toULongLong());
+    o.set("UnreadCount", indexToSerialize.data(TreeViewSources::Role::UnreadCount).toULongLong());
     o.set("DisplayUnreadCountBadge", indexToSerialize.data(TreeViewSources::Role::DisplayUnreadCountBadge).toBool());
     o.set("ParentFolderID", indexToSerialize.data(TreeViewSources::Role::ParentFolderID).toULongLong());
     auto error = indexToSerialize.data(TreeViewSources::Role::Error);
@@ -280,6 +281,7 @@ QStandardItem* ZapFR::Client::SortFilterProxyModelSources::unserializeItem(const
     item->setData(QVariant::fromValue<uint64_t>(o->getValue<uint64_t>("Type")), TreeViewSources::Role::Type);
     item->setData(QVariant::fromValue<uint64_t>(o->getValue<uint64_t>("ID")), TreeViewSources::Role::ID);
     item->setData(QVariant::fromValue<uint64_t>(o->getValue<uint64_t>("ParentSourceID")), TreeViewSources::Role::ParentSourceID);
+    item->setData(QVariant::fromValue<uint64_t>(o->getValue<uint64_t>("UnreadCount")), TreeViewSources::Role::UnreadCount);
     item->setData(QVariant::fromValue<bool>(o->getValue<bool>("DisplayUnreadCountBadge")), TreeViewSources::Role::DisplayUnreadCountBadge);
     item->setData(QVariant::fromValue<uint64_t>(o->getValue<uint64_t>("ParentFolderID")), TreeViewSources::Role::ParentFolderID);
     if (o->has("Error"))
