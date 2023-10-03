@@ -600,23 +600,13 @@ std::vector<std::tuple<uint64_t, uint64_t>> ZapFR::Client::TableViewPosts::selec
 void ZapFR::Client::TableViewPosts::postsMarkedRead(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs)
 {
     std::unordered_set<uint64_t> uniqueFeedIDs{};
-
+    std::unordered_set<uint64_t> uniquePostIDs{};
     for (const auto& [feedID, postID] : postIDs)
     {
         uniqueFeedIDs.insert(feedID);
-        for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
-        {
-            auto index = mItemModelPosts->index(i, 0);
-            if (index.data(Role::ID).toULongLong() == postID)
-            {
-                for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
-                {
-                    auto item = mItemModelPosts->item(i, col);
-                    item->setData(QVariant::fromValue<bool>(true), Role::IsRead);
-                }
-            }
-        }
+        uniquePostIDs.insert(postID);
     }
+    updatePostsReadStatus(true, uniquePostIDs);
 
     for (const auto& feedID : uniqueFeedIDs)
     {
@@ -637,23 +627,13 @@ void ZapFR::Client::TableViewPosts::postsMarkedRead(uint64_t sourceID, const std
 void ZapFR::Client::TableViewPosts::postsMarkedUnread(uint64_t sourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& postIDs)
 {
     std::unordered_set<uint64_t> uniqueFeedIDs{};
-
+    std::unordered_set<uint64_t> uniquePostIDs{};
     for (const auto& [feedID, postID] : postIDs)
     {
         uniqueFeedIDs.insert(feedID);
-        for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
-        {
-            auto index = mItemModelPosts->index(i, 0);
-            if (index.data(Role::ID).toULongLong() == postID)
-            {
-                for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
-                {
-                    auto item = mItemModelPosts->item(i, col);
-                    item->setData(QVariant::fromValue<bool>(false), Role::IsRead);
-                }
-            }
-        }
+        uniquePostIDs.insert(postID);
     }
+    updatePostsReadStatus(false, uniquePostIDs);
 
     for (const auto& feedID : uniqueFeedIDs)
     {
@@ -703,6 +683,32 @@ void ZapFR::Client::TableViewPosts::postsMarkedUnflagged(bool doReloadPosts)
     mMainWindow->setStatusBarMessage(tr("Post(s) marked as unflagged"));
 }
 
+void ZapFR::Client::TableViewPosts::updatePostsReadStatus(bool markAsRead, const std::optional<std::unordered_set<uint64_t>>& postIDs)
+{
+    for (int32_t i = 0; i < mItemModelPosts->rowCount(); ++i)
+    {
+        auto setUnreadStatus{false};
+        if (!postIDs.has_value())
+        {
+            setUnreadStatus = true;
+        }
+        else
+        {
+            auto index = mItemModelPosts->index(i, 0);
+            setUnreadStatus = postIDs.value().contains(index.data(Role::ID).toULongLong());
+        }
+
+        if (setUnreadStatus)
+        {
+            for (int32_t col = 0; col < mItemModelPosts->columnCount(); ++col)
+            {
+                auto item = mItemModelPosts->item(i, col);
+                item->setData(QVariant::fromValue<bool>(markAsRead), Role::IsRead);
+            }
+        }
+    }
+}
+
 void ZapFR::Client::TableViewPosts::markAsRead()
 {
     auto index = mMainWindow->treeViewSources()->currentIndex();
@@ -724,7 +730,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                          mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
                                                                                                              affectedSourceID, {affectedFeedID}, false, 0);
                                                                                                          mCurrentPostPage = 1;
-                                                                                                         reload();
+                                                                                                         updatePostsReadStatus(true, {});
                                                                                                          mMainWindow->getUI()->tableViewScriptFolders->reload(true);
                                                                                                          mMainWindow->setStatusBarMessage(tr("Feed marked as read"));
                                                                                                      });
@@ -743,7 +749,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                            mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
                                                                                                                affectedSourceID, affectedFeedIDs, false, 0);
                                                                                                            mCurrentPostPage = 1;
-                                                                                                           reload();
+                                                                                                           updatePostsReadStatus(true, {});
                                                                                                            mMainWindow->getUI()->tableViewScriptFolders->reload(true);
                                                                                                            mMainWindow->setStatusBarMessage(tr("Folder marked as read"));
                                                                                                        });
@@ -761,7 +767,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                            mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
                                                                                                                affectedSourceID, {}, true, 0);
                                                                                                            mCurrentPostPage = 1;
-                                                                                                           reload();
+                                                                                                           updatePostsReadStatus(true, {});
                                                                                                            mMainWindow->getUI()->tableViewScriptFolders->reload(true);
                                                                                                            mMainWindow->setStatusBarMessage(tr("Source marked as read"));
                                                                                                        });

@@ -20,6 +20,7 @@
 #define ZAPFR_CLIENT_TABLEVIEWPOSTS_H
 
 #include <QStandardItemModel>
+#include <unordered_set>
 
 #include "Utilities.h"
 #include "ZapFR/Flag.h"
@@ -146,6 +147,7 @@ namespace ZapFR
 
             void openSelectedPostsInExternalBrowser(const std::function<void(const QString&)>& openHandler);
             void clear();
+            void updatePostsReadStatus(bool markAsRead, const std::optional<std::unordered_set<uint64_t>>& postIDs);
 
             static constexpr uint64_t msPostsPerPage{100};
         };
