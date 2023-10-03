@@ -28,9 +28,6 @@
 #include "./ui_MainWindow.h"
 #include "FeedIconCache.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/base/Feed.h"
-#include "ZapFR/base/Folder.h"
-#include "ZapFR/base/Source.h"
 #include "delegates/ItemDelegateSource.h"
 #include "dialogs/DialogAddFeed.h"
 #include "dialogs/DialogAddFolder.h"
@@ -153,6 +150,75 @@ void ZapFR::Client::TreeViewSources::mouseDoubleClickEvent(QMouseEvent* event)
     TreeViewPaletteCorrected::mouseDoubleClickEvent(event);
 }
 
+QStandardItem* ZapFR::Client::TreeViewSources::createSourceStandardItem(ZapFR::Engine::Source* source)
+{
+    auto sourceItem = new QStandardItem(QString::fromUtf8(source->title()));
+    sourceItem->setData(QVariant::fromValue<uint64_t>(EntryType::Source), Role::Type);
+    sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), Role::ID);
+    sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), Role::ParentSourceID);
+    sourceItem->setData(QVariant::fromValue<uint64_t>(source->sortOrder()), Role::SortOrder);
+    sourceItem->setData(QString::fromUtf8(source->type()), Role::SourceType);
+    const auto& lastError = source->lastError();
+    if (!lastError.empty())
+    {
+        auto errorQString = QString::fromUtf8(lastError);
+        sourceItem->setData(errorQString, Role::Error);
+        sourceItem->setData(errorQString, Qt::ToolTipRole);
+    }
+    return sourceItem;
+}
+
+QStandardItem* ZapFR::Client::TreeViewSources::createFolderStandardItem(uint64_t sourceID, ZapFR::Engine::Folder* folder,
+                                                                        std::unordered_map<uint64_t, QStandardItem*>* folderIDToIDMap)
+{
+    auto folderItem = new QStandardItem(QString::fromUtf8(folder->title()));
+    folderItem->setData(QVariant::fromValue<uint64_t>(EntryType::Folder), Role::Type);
+    folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), Role::ID);
+    folderItem->setData(QVariant::fromValue<uint64_t>(folder->parentID()), Role::ParentFolderID);
+    folderItem->setData(QVariant::fromValue<uint64_t>(sourceID), Role::ParentSourceID);
+    folderItem->setData(QVariant::fromValue<uint64_t>(folder->sortOrder()), Role::SortOrder);
+    if (folderIDToIDMap != nullptr)
+    {
+        (*folderIDToIDMap)[folder->id()] = folderItem;
+    }
+
+    for (const auto& subfolder : folder->subfolders())
+    {
+        folderItem->appendRow(createFolderStandardItem(sourceID, subfolder.get(), folderIDToIDMap));
+    }
+
+    return folderItem;
+}
+
+QStandardItem* ZapFR::Client::TreeViewSources::createFeedStandardItem(uint64_t sourceID, ZapFR::Engine::Feed* feed)
+{
+    auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
+    feedItem->setData(QVariant::fromValue<uint64_t>(EntryType::Feed), Role::Type);
+    feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), Role::ID);
+    feedItem->setData(QVariant::fromValue<uint64_t>(sourceID), Role::ParentSourceID);
+    feedItem->setData(QVariant::fromValue<uint64_t>(feed->folder()), Role::ParentFolderID);
+    auto unreadCount = feed->unreadCount();
+    feedItem->setData(QVariant::fromValue<uint64_t>(unreadCount), Role::UnreadCount);
+    if (unreadCount >= 999)
+    {
+        feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
+    }
+    if (mMainWindow->currentContentPane() == ContentPane::Posts)
+    {
+        feedItem->setData(true, Role::DisplayUnreadCountBadge);
+    }
+    auto feedError = feed->lastRefreshError();
+    if (feedError.has_value())
+    {
+        feedItem->setData(QString::fromUtf8(feedError.value()), Role::Error);
+        feedItem->setData(QString::fromUtf8(feedError.value()), Qt::ToolTipRole);
+    }
+    feedItem->setData(QString::fromUtf8(feed->url()), Role::FeedURL);
+    feedItem->setData(QString::fromUtf8(feed->link()), Role::FeedLink);
+    feedItem->setData(QVariant::fromValue<uint64_t>(feed->sortOrder()), Role::SortOrder);
+    return feedItem;
+}
+
 void ZapFR::Client::TreeViewSources::reload()
 {
     mMainWindow->getUI()->progressBarSources->setVisible(true);
@@ -177,42 +243,14 @@ void ZapFR::Client::TreeViewSources::reload()
             {
                 // lambda to recursively create folder items
                 std::unordered_map<uint64_t, QStandardItem*> folderIDToItemMapping; // a map to quickly look up folder items when adding feed items
-                std::function<void(ZapFR::Engine::Folder*, uint64_t, QStandardItem*)> createFolderItems;
-                createFolderItems = [&](ZapFR::Engine::Folder* folder, uint64_t currentSourceID, QStandardItem* parentItem)
-                {
-                    auto folderItem = new QStandardItem(QString::fromUtf8(folder->title()));
-                    folderItem->setData(QVariant::fromValue<uint64_t>(EntryType::Folder), Role::Type);
-                    folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), Role::ID);
-                    folderItem->setData(QVariant::fromValue<uint64_t>(folder->parentID()), Role::ParentFolderID);
-                    folderItem->setData(QVariant::fromValue<uint64_t>(currentSourceID), Role::ParentSourceID);
-                    folderItem->setData(QVariant::fromValue<uint64_t>(folder->sortOrder()), Role::SortOrder);
-                    parentItem->appendRow(folderItem);
 
-                    for (const auto& subfolder : folder->subfolders())
-                    {
-                        createFolderItems(subfolder.get(), currentSourceID, folderItem);
-                    }
-                    folderIDToItemMapping[folder->id()] = folderItem;
-                };
                 // create the parent source item
-                auto sourceItem = new QStandardItem(QString::fromUtf8(retrievedSource->title()));
-                sourceItem->setData(QVariant::fromValue<uint64_t>(EntryType::Source), Role::Type);
-                sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), Role::ID);
-                sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), Role::ParentSourceID);
-                sourceItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->sortOrder()), Role::SortOrder);
-                sourceItem->setData(QString::fromUtf8(retrievedSource->type()), Role::SourceType);
-                const auto& lastError = retrievedSource->lastError();
-                if (!lastError.empty())
-                {
-                    auto errorQString = QString::fromUtf8(lastError);
-                    sourceItem->setData(errorQString, Role::Error);
-                    sourceItem->setData(errorQString, Qt::ToolTipRole);
-                }
+                auto sourceItem = createSourceStandardItem(retrievedSource);
 
                 // add all the folders and subfolders
                 for (const auto& folder : rootFolders)
                 {
-                    createFolderItems(folder, retrievedSource->id(), sourceItem);
+                    sourceItem->appendRow(createFolderStandardItem(retrievedSource->id(), folder, &folderIDToItemMapping));
                 }
 
                 // add all the feeds
@@ -227,31 +265,9 @@ void ZapFR::Client::TreeViewSources::reload()
                     }
 
                     // create the feed item
-                    auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
-                    feedItem->setData(QVariant::fromValue<uint64_t>(EntryType::Feed), Role::Type);
-                    feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), Role::ID);
-                    feedItem->setData(QVariant::fromValue<uint64_t>(retrievedSource->id()), Role::ParentSourceID);
-                    feedItem->setData(QVariant::fromValue<uint64_t>(folderID), Role::ParentFolderID);
-                    auto unreadCount = feed->unreadCount();
-                    feedItem->setData(QVariant::fromValue<uint64_t>(unreadCount), Role::UnreadCount);
-                    if (unreadCount >= 999)
-                    {
-                        feedItem->setToolTip(tr("%1 unread").arg(unreadCount));
-                    }
-                    if (mMainWindow->currentContentPane() == ContentPane::Posts)
-                    {
-                        feedItem->setData(true, Role::DisplayUnreadCountBadge);
-                    }
-                    auto feedError = feed->lastRefreshError();
-                    if (feedError.has_value())
-                    {
-                        feedItem->setData(QString::fromUtf8(feedError.value()), Role::Error);
-                        feedItem->setData(QString::fromUtf8(feedError.value()), Qt::ToolTipRole);
-                    }
-                    feedItem->setData(QString::fromUtf8(feed->url()), Role::FeedURL);
-                    feedItem->setData(QString::fromUtf8(feed->link()), Role::FeedLink);
-                    feedItem->setData(QVariant::fromValue<uint64_t>(feed->sortOrder()), Role::SortOrder);
+                    auto feedItem = createFeedStandardItem(retrievedSource->id(), feed);
 
+                    // cache the feed icon
                     if (!FeedIconCache::isCached(retrievedSource->id(), feed->id()) || !FeedIconCache::isSameHash(retrievedSource->id(), feed->id(), feed->iconHash()))
                     {
                         auto iconData = feed->iconData();

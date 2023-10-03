@@ -26,6 +26,9 @@
 #include <QStandardItemModel>
 #include <QTimer>
 
+#include "ZapFR/base/Feed.h"
+#include "ZapFR/base/Folder.h"
+#include "ZapFR/base/Source.h"
 #include "widgets/TreeViewPaletteCorrected.h"
 
 namespace ZapFR
@@ -202,6 +205,9 @@ namespace ZapFR
 
             void connectStuff();
             void createContextMenus();
+            QStandardItem* createSourceStandardItem(ZapFR::Engine::Source* source);
+            QStandardItem* createFolderStandardItem(uint64_t sourceID, ZapFR::Engine::Folder* folder, std::unordered_map<uint64_t, QStandardItem*>* folderIDToIDMap = nullptr);
+            QStandardItem* createFeedStandardItem(uint64_t sourceID, ZapFR::Engine::Feed* feed);
         };
     } // namespace Client
 } // namespace ZapFR
