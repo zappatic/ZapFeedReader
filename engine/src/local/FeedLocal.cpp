@@ -27,12 +27,12 @@
 #include <Poco/StreamCopier.h>
 
 #include "ZapFR/Database.h"
-#include "ZapFR/FavIconParser.h"
-#include "ZapFR/FeedFetcher.h"
-#include "ZapFR/FeedParser.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/base/Script.h"
+#include "ZapFR/feed_handling/FavIconParser.h"
+#include "ZapFR/feed_handling/FeedFetcher.h"
+#include "ZapFR/feed_handling/FeedParser.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/PostLocal.h"
 #include "ZapFR/local/ScriptLocal.h"
@@ -167,8 +167,13 @@ void ZapFR::Engine::FeedLocal::refresh()
     {
         FeedFetcher ff;
         const auto& parsedFeed = ff.parseURL(mURL, mID, mConditionalGETInfo);
-        if (parsedFeed.has_value() && parsedFeed.value() != nullptr)
+        if (parsedFeed.has_value())
         {
+            if (parsedFeed.value() == nullptr)
+            {
+                throw std::runtime_error("Feed type not recognized");
+            }
+
             const auto& guid = parsedFeed.value()->guid();
             const auto& title = parsedFeed.value()->title();
             const auto& subtitle = parsedFeed.value()->subtitle();

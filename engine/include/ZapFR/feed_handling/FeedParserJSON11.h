@@ -16,8 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FEEDPARSERATOM10_H
-#define ZAPFR_ENGINE_FEEDPARSERATOM10_H
+#ifndef ZAPFR_ENGINE_FEEDPARSERJSON11_H
+#define ZAPFR_ENGINE_FEEDPARSERJSON11_H
 
 #include "FeedParser.h"
 
@@ -25,11 +25,13 @@ namespace ZapFR
 {
     namespace Engine
     {
-        class FeedParserATOM10 : public FeedParser
+        class FeedParserJSON11 : public FeedParser
         {
           public:
-            FeedParserATOM10(Poco::XML::Document* xmlDoc, const std::string& url);
-            virtual ~FeedParserATOM10() = default;
+            FeedParserJSON11(const std::string& url);
+            virtual ~FeedParserJSON11() = default;
+
+            void setRootObj(Poco::JSON::Object::Ptr o) { mRootObj = o; }
 
             std::string guid() const override;
             std::string title() const override;
@@ -41,8 +43,13 @@ namespace ZapFR
             std::string iconURL() const override;
 
             std::vector<Item> items() const override;
+
+          protected:
+            Poco::JSON::Object::Ptr mRootObj{nullptr};
+
+            std::string getAuthors(Poco::JSON::Array::Ptr authorsArr) const;
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FEEDPARSERATOM10_H
+#endif // ZAPFR_ENGINE_FEEDPARSERJSON11_H

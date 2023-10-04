@@ -20,10 +20,10 @@
 #include <fmt/core.h>
 
 #include "ZapFR/Database.h"
-#include "ZapFR/FeedFetcher.h"
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/OPMLParser.h"
+#include "ZapFR/feed_handling/FeedFetcher.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/FolderLocal.h"
 #include "ZapFR/local/PostLocal.h"

@@ -6,14 +6,15 @@ target_sources(zapfeedreader-engine PRIVATE
     Database.cpp
     Log.cpp
     OPMLParser.cpp
-    FeedDiscovery.cpp
-    FeedFetcher.cpp
-    FeedParser.cpp
-    FeedParserRSS10.cpp
-    FeedParserRSS20.cpp
-    FeedParserATOM10.cpp
-    FavIconParser.cpp
     Flag.cpp
+    feed_handling/FeedDiscovery.cpp
+    feed_handling/FeedFetcher.cpp
+    feed_handling/FeedParserATOM10.cpp
+    feed_handling/FeedParserJSON11.cpp
+    feed_handling/FeedParserRSS10.cpp
+    feed_handling/FeedParserRSS20.cpp
+    feed_handling/FeedParserXML.cpp
+    feed_handling/FavIconParser.cpp
     agents/AgentMonitorFeedRefreshCompletion.cpp
     agents/AgentMonitorSourceReloadCompletion.cpp
     agents/feed/AgentFeedAdd.cpp

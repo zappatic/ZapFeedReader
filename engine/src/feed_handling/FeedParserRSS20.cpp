@@ -21,9 +21,9 @@
 #include <Poco/MD5Engine.h>
 #include <Poco/UUIDGenerator.h>
 
-#include "ZapFR/FeedParserRSS20.h"
+#include "ZapFR/feed_handling/FeedParserRSS20.h"
 
-ZapFR::Engine::FeedParserRSS20::FeedParserRSS20(Poco::XML::Document* xmlDoc, const std::string& url) : FeedParser(xmlDoc, url)
+ZapFR::Engine::FeedParserRSS20::FeedParserRSS20(const std::string& url) : FeedParserXML(url)
 {
 }
 

@@ -23,8 +23,8 @@
 #include <Poco/SAX/SAXParser.h>
 #include <Poco/URI.h>
 
-#include "ZapFR/FavIconParser.h"
 #include "ZapFR/Helpers.h"
+#include "ZapFR/feed_handling/FavIconParser.h"
 
 ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t associatedFeedID) : mURL(url), mFavIcon("")
 {

@@ -20,19 +20,13 @@
 #include <Poco/DOM/NodeList.h>
 #include <Poco/XML/XMLWriter.h>
 
-#include "ZapFR/FeedParser.h"
+#include "ZapFR/feed_handling/FeedParserXML.h"
 
-ZapFR::Engine::FeedParser::FeedParser(Poco::XML::Document* xmlDoc, const std::string& url) : mXMLDoc(xmlDoc), mURL(url)
+ZapFR::Engine::FeedParserXML::FeedParserXML(const std::string& url) : FeedParser(url)
 {
-    mURI = Poco::URI(url);
 }
 
-std::string ZapFR::Engine::FeedParser::url() const noexcept
-{
-    return mURL;
-}
-
-std::string ZapFR::Engine::FeedParser::fetchNodeValue(const std::string& nodeName) const
+std::string ZapFR::Engine::FeedParserXML::fetchNodeValue(const std::string& nodeName) const
 {
     auto node = mXMLDoc->documentElement()->getNodeByPath(nodeName);
     if (node != nullptr)
@@ -42,7 +36,7 @@ std::string ZapFR::Engine::FeedParser::fetchNodeValue(const std::string& nodeNam
     return "";
 }
 
-std::string ZapFR::Engine::FeedParser::fetchNodeValue(Poco::XML::Node* parent, const std::string& nodeName) const
+std::string ZapFR::Engine::FeedParserXML::fetchNodeValue(Poco::XML::Node* parent, const std::string& nodeName) const
 {
     auto node = parent->getNodeByPath(nodeName);
     if (node != nullptr)
@@ -52,7 +46,7 @@ std::string ZapFR::Engine::FeedParser::fetchNodeValue(Poco::XML::Node* parent, c
     return "";
 }
 
-std::string ZapFR::Engine::FeedParser::fetchNodeValueNS(Poco::XML::Node* parent, const std::string& nodeName, const Poco::XML::Node::NSMap& nsMap) const
+std::string ZapFR::Engine::FeedParserXML::fetchNodeValueNS(Poco::XML::Node* parent, const std::string& nodeName, const Poco::XML::Node::NSMap& nsMap) const
 {
     auto node = parent->getNodeByPathNS(nodeName, nsMap);
     if (node != nullptr)
@@ -62,7 +56,7 @@ std::string ZapFR::Engine::FeedParser::fetchNodeValueNS(Poco::XML::Node* parent,
     return "";
 }
 
-std::string ZapFR::Engine::FeedParser::fetchNodeValueInnerXML(Poco::XML::Node* parent, const std::string& nodeName) const
+std::string ZapFR::Engine::FeedParserXML::fetchNodeValueInnerXML(Poco::XML::Node* parent, const std::string& nodeName) const
 {
     auto node = parent->getNodeByPath(nodeName);
     if (node != nullptr)
@@ -92,7 +86,7 @@ std::string ZapFR::Engine::FeedParser::fetchNodeValueInnerXML(Poco::XML::Node* p
     return "";
 }
 
-Poco::XML::Node* ZapFR::Engine::FeedParser::fetchNode(Poco::XML::Node* parent, const std::string& nodeName) const
+Poco::XML::Node* ZapFR::Engine::FeedParserXML::fetchNode(Poco::XML::Node* parent, const std::string& nodeName) const
 {
     return parent->getNodeByPath(nodeName);
 }

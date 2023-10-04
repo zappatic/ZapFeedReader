@@ -16,20 +16,20 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FEEDPARSERRSS20_H
-#define ZAPFR_ENGINE_FEEDPARSERRSS20_H
+#ifndef ZAPFR_ENGINE_FEEDPARSERATOM10_H
+#define ZAPFR_ENGINE_FEEDPARSERATOM10_H
 
-#include "FeedParser.h"
+#include "FeedParserXML.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class FeedParserRSS20 : public FeedParser
+        class FeedParserATOM10 : public FeedParserXML
         {
           public:
-            FeedParserRSS20(Poco::XML::Document* xmlDoc, const std::string& url);
-            virtual ~FeedParserRSS20() = default;
+            FeedParserATOM10(const std::string& url);
+            virtual ~FeedParserATOM10() = default;
 
             std::string guid() const override;
             std::string title() const override;
@@ -45,4 +45,4 @@ namespace ZapFR
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FEEDPARSERRSS20_H
+#endif // ZAPFR_ENGINE_FEEDPARSERATOM10_H

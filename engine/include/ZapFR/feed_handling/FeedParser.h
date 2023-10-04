@@ -31,14 +31,12 @@ namespace ZapFR
         class FeedParser
         {
           public:
-            FeedParser(Poco::XML::Document* xmlDoc, const std::string& url);
+            FeedParser(const std::string& url) : mURI(Poco::URI(url)) {}
             virtual ~FeedParser() = default;
             FeedParser(const FeedParser& e) = delete;
             FeedParser& operator=(const FeedParser&) = delete;
             FeedParser(FeedParser&&) = delete;
             FeedParser& operator=(FeedParser&&) = delete;
-
-            std::string url() const noexcept;
 
             virtual std::string guid() const = 0;
             virtual std::string title() const = 0;
@@ -65,15 +63,7 @@ namespace ZapFR
             virtual std::vector<Item> items() const = 0;
 
           protected:
-            Poco::XML::Document* mXMLDoc{nullptr};
-            std::string mURL{""};
             Poco::URI mURI{};
-
-            std::string fetchNodeValue(const std::string& nodeName) const;
-            std::string fetchNodeValue(Poco::XML::Node* parent, const std::string& nodeName) const;
-            std::string fetchNodeValueNS(Poco::XML::Node* parent, const std::string& nodeName, const Poco::XML::Node::NSMap& nsMap) const;
-            std::string fetchNodeValueInnerXML(Poco::XML::Node* parent, const std::string& nodeName) const;
-            Poco::XML::Node* fetchNode(Poco::XML::Node* parent, const std::string& nodeName) const;
         };
     } // namespace Engine
 } // namespace ZapFR

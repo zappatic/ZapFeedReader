@@ -23,7 +23,7 @@
 
 #include "../ClientGlobal.h"
 #include "DialogWithSourcesAndFolders.h"
-#include "ZapFR/FeedDiscovery.h"
+#include "ZapFR/feed_handling/FeedDiscovery.h"
 
 namespace Ui
 {

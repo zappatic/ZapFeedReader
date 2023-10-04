@@ -21,9 +21,9 @@
 
 #include <Poco/DOM/NodeList.h>
 
-#include "ZapFR/FeedParserATOM10.h"
+#include "ZapFR/feed_handling/FeedParserATOM10.h"
 
-ZapFR::Engine::FeedParserATOM10::FeedParserATOM10(Poco::XML::Document* xmlDoc, const std::string& url) : FeedParser(xmlDoc, url)
+ZapFR::Engine::FeedParserATOM10::FeedParserATOM10(const std::string& url) : FeedParserXML(url)
 {
 }
 

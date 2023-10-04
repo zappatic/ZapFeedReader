@@ -1,6 +1,6 @@
 /*
     ZapFeedReader - RSS/Atom feed reader
-    Copyright (C) 1023-present  Kasper Nauwelaerts (zapfr at zappatic dot net)
+    Copyright (C) 2023-present  Kasper Nauwelaerts (zapfr at zappatic dot net)
 
     ZapFeedReader is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,20 +16,20 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_FEEDPARSERRSS10_H
-#define ZAPFR_ENGINE_FEEDPARSERRSS10_H
+#ifndef ZAPFR_ENGINE_FEEDPARSERRSS20_H
+#define ZAPFR_ENGINE_FEEDPARSERRSS20_H
 
-#include "FeedParser.h"
+#include "FeedParserXML.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class FeedParserRSS10 : public FeedParser
+        class FeedParserRSS20 : public FeedParserXML
         {
           public:
-            FeedParserRSS10(Poco::XML::Document* xmlDoc, const std::string& url);
-            virtual ~FeedParserRSS10() = default;
+            FeedParserRSS20(const std::string& url);
+            virtual ~FeedParserRSS20() = default;
 
             std::string guid() const override;
             std::string title() const override;
@@ -45,4 +45,4 @@ namespace ZapFR
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_FEEDPARSERRSS10_H
+#endif // ZAPFR_ENGINE_FEEDPARSERRSS20_H

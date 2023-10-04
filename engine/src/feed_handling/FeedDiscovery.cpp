@@ -25,8 +25,8 @@
 #include <Poco/SAX/Attributes.h>
 #include <Poco/SAX/SAXParser.h>
 
-#include "ZapFR/FeedDiscovery.h"
 #include "ZapFR/Helpers.h"
+#include "ZapFR/feed_handling/FeedDiscovery.h"
 
 ZapFR::Engine::FeedDiscovery::FeedDiscovery(const std::string& url) : mURL(url)
 {
@@ -97,31 +97,54 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsYoutubeSource(const Poco::URI& uri
     return false;
 }
 
-bool ZapFR::Engine::FeedDiscovery::interpretAsDirectFeedLink([[maybe_unused]] const Poco::URI& uri, const std::string& html)
+bool ZapFR::Engine::FeedDiscovery::interpretAsDirectFeedLink([[maybe_unused]] const Poco::URI& uri, const std::string& data)
 {
-    DocumentElementExtractorSaxParser handler;
-    FeedDiscoverySaxErrorHandler errorHandler;
-    try
+    if (data.at(0) == '<')
     {
-        Poco::XML::SAXParser parser;
-        parser.setContentHandler(&handler);
-        parser.setErrorHandler(&errorHandler);
-        parser.parseString(html);
+        DocumentElementExtractorSaxParser handler;
+        FeedDiscoverySaxErrorHandler errorHandler;
+        try
+        {
+            Poco::XML::SAXParser parser;
+            parser.setContentHandler(&handler);
+            parser.setErrorHandler(&errorHandler);
+            parser.parseString(data);
 
-        const auto& documentElementTitle = handler.documentElementTitle();
-        if (Poco::icompare(documentElementTitle, "rss") == 0 || Poco::icompare(documentElementTitle, "rdf") == 0)
-        {
-            mDiscoveredFeeds.emplace_back("RSS Feed", uri.toString(), DiscoveredFeed::Type::RSS);
-            return true;
+            const auto& documentElementTitle = handler.documentElementTitle();
+            if (Poco::icompare(documentElementTitle, "rss") == 0 || Poco::icompare(documentElementTitle, "rdf") == 0)
+            {
+                mDiscoveredFeeds.emplace_back("RSS Feed", uri.toString(), DiscoveredFeed::Type::RSS);
+                return true;
+            }
+            else if (Poco::icompare(documentElementTitle, "feed") == 0)
+            {
+                mDiscoveredFeeds.emplace_back("Atom Feed", uri.toString(), DiscoveredFeed::Type::Atom);
+                return true;
+            }
         }
-        else if (Poco::icompare(documentElementTitle, "feed") == 0)
+        catch (...)
         {
-            mDiscoveredFeeds.emplace_back("Atom Feed", uri.toString(), DiscoveredFeed::Type::Atom);
-            return true;
         }
     }
-    catch (...)
+    else if (data.at(0) == '{')
     {
+        Poco::JSON::Parser parser;
+        auto root = parser.parse(data);
+        auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+        if (!rootObj.isNull())
+        {
+            auto version = rootObj->getValue<std::string>("version");
+            if (Poco::icompare(version, "https://jsonfeed.org/version/1.1") == 0 || Poco::icompare(version, "https://jsonfeed.org/version/1") == 0)
+            {
+                std::string feedTitle = "JSON feed";
+                if (rootObj->has("title"))
+                {
+                    feedTitle = rootObj->getValue<std::string>("title");
+                }
+                mDiscoveredFeeds.emplace_back(feedTitle, uri.toString(), DiscoveredFeed::Type::JSON);
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -218,6 +241,10 @@ void ZapFR::Engine::HTMLRelAlternateFeedExtractorSaxParser::startElement(const P
                     t = DiscoveredFeed::Type::Atom;
                 }
                 else if (Poco::icompare(typeValue, "application/json") == 0)
+                {
+                    t = DiscoveredFeed::Type::JSON;
+                }
+                else if (Poco::icompare(typeValue, "application/feed+json") == 0)
                 {
                     t = DiscoveredFeed::Type::JSON;
                 }

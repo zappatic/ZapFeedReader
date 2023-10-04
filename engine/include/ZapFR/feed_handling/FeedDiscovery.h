@@ -58,7 +58,7 @@ namespace ZapFR
             std::vector<DiscoveredFeed> mDiscoveredFeeds{};
 
             bool interpretAsYoutubeSource(const Poco::URI& uri, const std::string& html);
-            bool interpretAsDirectFeedLink(const Poco::URI& uri, const std::string& html);
+            bool interpretAsDirectFeedLink(const Poco::URI& uri, const std::string& data);
             bool interpretAsHTMLWithRelAlternateLinks(const Poco::URI& uri, const std::string& html);
 
             void postProcessFeeds();
