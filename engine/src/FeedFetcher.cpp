@@ -25,20 +25,26 @@
 #include "ZapFR/FeedParserRSS20.h"
 #include "ZapFR/Helpers.h"
 
-std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseURL(const std::string& url, uint64_t associatedFeedID)
+std::optional<std::unique_ptr<ZapFR::Engine::FeedParser>> ZapFR::Engine::FeedFetcher::parseURL(const std::string& url, uint64_t associatedFeedID,
+                                                                                               std::optional<std::string> conditionalGETInfo)
 {
     Poco::Net::HTTPCredentials creds;
     auto uri = Poco::URI(url);
-    auto xml = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID);
-    return parseString(xml, url);
+    const auto& [data, newConditionalGETInfo] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID, conditionalGETInfo);
+    mConditionalGETInfo = newConditionalGETInfo;
+    if (data.empty())
+    {
+        return {};
+    }
+    return parseString(data, url);
 }
 
-std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseString(const std::string& xml, const std::string& originalURL)
+std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseString(const std::string& data, const std::string& originalURL)
 {
-    mXML = xml;
+    mData = data;
 
     Poco::XML::DOMParser parser;
-    auto xmlDoc = parser.parseString(xml);
+    auto xmlDoc = parser.parseString(data);
 
     auto docEl = xmlDoc->documentElement();
     if (docEl->nodeName() == "rss")
@@ -61,9 +67,4 @@ std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseStri
         throw std::runtime_error("Unkown feed type");
     }
     return nullptr;
-}
-
-std::string ZapFR::Engine::FeedFetcher::xml() const noexcept
-{
-    return mXML;
 }

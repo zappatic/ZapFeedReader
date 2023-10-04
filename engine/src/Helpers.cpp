@@ -21,6 +21,7 @@
 
 #include <Poco/Base64Decoder.h>
 #include <Poco/Base64Encoder.h>
+#include <Poco/JSON/Parser.h>
 #include <Poco/Net/Context.h>
 #include <Poco/Net/HTMLForm.h>
 #include <Poco/Net/HTTPRequest.h>
@@ -83,8 +84,9 @@ std::string ZapFR::Engine::Helpers::joinIDNumbers(const std::vector<uint64_t>& s
     }
 }
 
-std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std::string& method, Poco::Net::HTTPCredentials& credentials,
-                                                       const std::map<std::string, std::string>& parameters, std::optional<uint64_t> associatedFeedID)
+std::tuple<std::string, std::string> ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std::string& method, Poco::Net::HTTPCredentials& credentials,
+                                                                                const std::map<std::string, std::string>& parameters, std::optional<uint64_t> associatedFeedID,
+                                                                                std::optional<std::string> conditionalGetInfo)
 {
     {
         std::lock_guard<std::mutex> lock(gsSSLContextMutex);
@@ -180,6 +182,23 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std
         request.set("Authorization", fmt::format("Basic {}", b64Stream.str()));
     }
 
+    if (conditionalGetInfo.has_value())
+    {
+        Poco::JSON::Parser parser;
+        auto root = parser.parse(conditionalGetInfo.value());
+        auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+        auto lastModified = rootObj->getValue<std::string>("l");
+        auto eTag = rootObj->getValue<std::string>("e");
+        if (!lastModified.empty())
+        {
+            request.set("If-Modified-Since", lastModified);
+        }
+        if (!eTag.empty())
+        {
+            request.set("If-None-Match", eTag);
+        }
+    }
+
     if (method == Poco::Net::HTTPRequest::HTTP_POST || method == Poco::Net::HTTPRequest::HTTP_PATCH)
     {
         Poco::Net::HTMLForm form;
@@ -202,29 +221,44 @@ std::string ZapFR::Engine::Helpers::performHTTPRequest(Poco::URI& url, const std
     std::string resultStr;
     Poco::StreamCopier::copyToString(responseStream, resultStr);
 
-    if (status == 301)
+    if (status == Poco::Net::HTTPResponse::HTTP_MOVED_PERMANENTLY)
     {
         auto newURL = ensureRedirectLocationIsAbsolute(url, response.get("Location"));
         Log::log(LogLevel::Info, fmt::format("Moved permanently to {}", newURL.toString()), associatedFeedID);
         // TODO: limit amount of redirects
         return performHTTPRequest(newURL, method, credentials, parameters, associatedFeedID);
     }
-    else if (status == 302)
+    else if (status == Poco::Net::HTTPResponse::HTTP_FOUND)
     {
         auto newURL = ensureRedirectLocationIsAbsolute(url, response.get("Location"));
         Log::log(LogLevel::Info, fmt::format("Moved temporarily to {}", newURL.toString()), associatedFeedID);
         // TODO: limit amount of redirects
         return performHTTPRequest(newURL, method, credentials, parameters, associatedFeedID);
     }
+    else if (status == Poco::Net::HTTPResponse::HTTP_NOT_MODIFIED)
+    {
+        resultStr = "";
+    }
     else if (status == 401)
     {
         throw std::runtime_error("HTTP status 401 Unauthorized; invalid or no credentials provided");
     }
 
-    if (status < 200 || status > 299)
+    if ((status < Poco::Net::HTTPResponse::HTTP_OK || status >= Poco::Net::HTTPResponse::HTTP_MULTIPLE_CHOICES) && status != Poco::Net::HTTPResponse::HTTP_NOT_MODIFIED)
     {
         throw std::runtime_error(fmt::format("HTTP status {} received for {} {}", static_cast<uint32_t>(response.getStatus()), method, url.toString()));
     }
 
-    return resultStr;
+    std::string receivedConditionalGETInfo;
+    if (response.has("Last-Modified") || response.has("ETag"))
+    {
+        Poco::JSON::Object cgiObj;
+        cgiObj.set("l", response.get("Last-Modified", ""));
+        cgiObj.set("e", response.get("ETag", ""));
+        std::stringstream ss;
+        Poco::JSON::Stringifier::stringify(cgiObj, ss);
+        receivedConditionalGETInfo = ss.str();
+    }
+
+    return std::make_tuple(resultStr, receivedConditionalGETInfo);
 }

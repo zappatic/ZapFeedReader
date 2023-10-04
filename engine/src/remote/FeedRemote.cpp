@@ -56,7 +56,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         params["searchFilter"] = searchFilter;
         params["flagColor"] = Flag::nameForFlagColor(flagColor);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -91,7 +91,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedRemote::g
         std::map<std::string, std::string> params;
         params["feedID"] = std::to_string(mID);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -112,7 +112,7 @@ void ZapFR::Engine::FeedRemote::refresh()
         uri.setPath(fmt::format("/feed/{}/refresh", mID));
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -154,7 +154,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
         params["perPage"] = std::to_string(perPage);
         params["page"] = std::to_string(page);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();

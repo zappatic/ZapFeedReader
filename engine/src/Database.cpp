@@ -68,7 +68,7 @@ void ZapFR::Engine::Database::upgrade()
             {
                 static std::vector<std::function<void()>> upgradeFunctions{[]() { /* nop, there is no db version 0 */ },
                                                                            []() { /* nop, version 1 should have been installed with installDBSchemaV1 */ },
-                                                                           std::bind(&Database::upgradeToDBSchemaV2, this)};
+                                                                           std::bind(&Database::upgradeToDBSchemaV2, this), std::bind(&Database::upgradeToDBSchemaV3, this)};
 
                 for (auto i = currentDBVersion + 1; i <= ZapFR::Engine::DBVersion; ++i)
                 {
@@ -260,4 +260,10 @@ void ZapFR::Engine::Database::upgradeToDBSchemaV2()
 {
     (*mSession) << "ALTER TABLE posts ADD thumbnail TEXT", now;
     (*mSession) << "UPDATE config SET VALUE='2' WHERE key='db_schema_version'", now;
+}
+
+void ZapFR::Engine::Database::upgradeToDBSchemaV3()
+{
+    (*mSession) << "ALTER TABLE feeds ADD conditionalGETInfo TEXT", now;
+    (*mSession) << "UPDATE config SET VALUE='3' WHERE key='db_schema_version'", now;
 }

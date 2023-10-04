@@ -73,6 +73,7 @@ namespace ZapFR
             const std::optional<uint64_t>& refreshInterval() { return mRefreshInterval; }
             const std::unordered_map<Statistic, std::string>& statistics() { return mStatistics; }
             const std::vector<ThumbnailData>& thumbnailData() { return mThumbnailData; }
+            const std::optional<std::string>& conditionalGETInfo() const noexcept { return mConditionalGETInfo; }
 
             void setURL(const std::string& url) { mURL = url; }
             void setIconURL(const std::string& iconURL) { mIconURL = iconURL; }
@@ -93,6 +94,7 @@ namespace ZapFR
             void setLastRefreshError(const std::optional<std::string>& e) { mLastRefreshError = e; }
             void setRefreshInterval(std::optional<uint64_t> ri) { mRefreshInterval = ri; }
             void setStatistics(const std::unordered_map<Statistic, std::string>& stats) { mStatistics = stats; }
+            void setConditionalGETInfo(const std::string& cgi) { mConditionalGETInfo = cgi; }
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                                       FlagColor flagColor) = 0;
@@ -134,6 +136,7 @@ namespace ZapFR
             uint64_t mUnreadCount{0};
             std::unordered_map<Statistic, std::string> mStatistics{};
             std::vector<ThumbnailData> mThumbnailData{};
+            std::optional<std::string> mConditionalGETInfo{};
 
             bool mDataFetched{false};
         };

@@ -54,7 +54,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         params["searchFilter"] = searchFilter;
         params["flagColor"] = Flag::nameForFlagColor(flagColor);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();

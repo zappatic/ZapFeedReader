@@ -20,6 +20,7 @@
 #define ZAPFR_ENGINE_FEEDFETCHER_H
 
 #include <memory>
+#include <optional>
 
 namespace ZapFR
 {
@@ -33,13 +34,14 @@ namespace ZapFR
             FeedFetcher() = default;
             virtual ~FeedFetcher() = default;
 
-            std::unique_ptr<FeedParser> parseURL(const std::string& url, uint64_t associatedFeedID);
+            std::optional<std::unique_ptr<FeedParser>> parseURL(const std::string& url, uint64_t associatedFeedID, std::optional<std::string> conditionalGETInfo);
             std::unique_ptr<FeedParser> parseString(const std::string& xml, const std::string& originalURL);
 
-            std::string xml() const noexcept;
+            const std::string& conditionalGETInfo() const noexcept { return mConditionalGETInfo; }
 
           private:
-            std::string mXML{""};
+            std::string mData{""};
+            std::string mConditionalGETInfo{""};
         };
     } // namespace Engine
 } // namespace ZapFR

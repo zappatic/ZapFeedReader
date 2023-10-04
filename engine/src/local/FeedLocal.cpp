@@ -120,6 +120,7 @@ void ZapFR::Engine::FeedLocal::fetchData()
     if (!mDataFetched)
     {
         Poco::Nullable<std::string> lastRefreshError;
+        Poco::Nullable<std::string> cgi;
         Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
         selectStmt << "SELECT url"
                       ",folder"
@@ -133,14 +134,19 @@ void ZapFR::Engine::FeedLocal::fetchData()
                       ",lastChecked"
                       ",lastRefreshError"
                       ",sortOrder"
+                      ",conditionalGETInfo"
                       " FROM feeds"
                       " WHERE id=?",
             use(mID), into(mURL), into(mFolderID), into(mGuid), into(mTitle), into(mSubtitle), into(mLink), into(mDescription), into(mLanguage), into(mCopyright),
-            into(mLastChecked), into(lastRefreshError), into(mSortOrder), now;
+            into(mLastChecked), into(lastRefreshError), into(mSortOrder), into(cgi), now;
         mDataFetched = true;
         if (!lastRefreshError.isNull())
         {
             mLastRefreshError = lastRefreshError.value();
+        }
+        if (!cgi.isNull())
+        {
+            mConditionalGETInfo = cgi.value();
         }
     }
 }
@@ -160,21 +166,24 @@ void ZapFR::Engine::FeedLocal::refresh()
     try
     {
         FeedFetcher ff;
-        auto parsedFeed = ff.parseURL(mURL, mID);
-        auto guid = parsedFeed->guid();
-        auto title = parsedFeed->title();
-        auto subtitle = parsedFeed->subtitle();
-        auto link = parsedFeed->link();
-        auto description = parsedFeed->description();
-        auto language = parsedFeed->language();
-        auto copyright = parsedFeed->copyright();
-        auto iconURL = parsedFeed->iconURL();
+        const auto& parsedFeed = ff.parseURL(mURL, mID, mConditionalGETInfo);
+        if (parsedFeed.has_value() && parsedFeed.value() != nullptr)
+        {
+            const auto& guid = parsedFeed.value()->guid();
+            const auto& title = parsedFeed.value()->title();
+            const auto& subtitle = parsedFeed.value()->subtitle();
+            const auto& link = parsedFeed.value()->link();
+            const auto& description = parsedFeed.value()->description();
+            const auto& language = parsedFeed.value()->language();
+            const auto& copyright = parsedFeed.value()->copyright();
+            const auto& iconURL = parsedFeed.value()->iconURL();
 
-        update(iconURL, guid, title, subtitle, link, description, language, copyright);
-        processItems(parsedFeed.get());
+            update(iconURL, guid, title, subtitle, link, description, language, copyright, ff.conditionalGETInfo());
+            processItems(parsedFeed.value().get());
 
-        refreshIcon();
-        fetchUnreadCount();
+            refreshIcon();
+            fetchUnreadCount();
+        }
     }
     catch (const Poco::Exception& e)
     {
@@ -322,7 +331,8 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
         {
             Poco::Net::HTTPCredentials creds; // TODO
             auto uri = Poco::URI(iconURLToQuery);
-            mIconData = Helpers::performHTTPRequest(uri, "GET", creds, {}, mID);
+            std::string cgi;
+            std::tie(mIconData, cgi) = Helpers::performHTTPRequest(uri, "GET", creds, {}, mID);
         }
         catch (...) // we ignore errors here because a missing favicon shouldn't put the feed in error state
         {
@@ -539,8 +549,14 @@ void ZapFR::Engine::FeedLocal::updateAndLogLastRefreshError(const std::string& e
 }
 
 void ZapFR::Engine::FeedLocal::update(const std::string& iconURL, const std::string& guid, const std::string& title, const std::string& subtitle, const std::string& link,
-                                      const std::string& description, const std::string& language, const std::string& copyright)
+                                      const std::string& description, const std::string& language, const std::string& copyright, const std::string& conditionalGETInfo)
 {
+    Poco::Nullable<std::string> pocoCGI;
+    if (!conditionalGETInfo.empty())
+    {
+        pocoCGI = conditionalGETInfo;
+    }
+
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
     updateStmt << "UPDATE feeds SET "
                   " iconURL=?"
@@ -551,8 +567,9 @@ void ZapFR::Engine::FeedLocal::update(const std::string& iconURL, const std::str
                   ",description=?"
                   ",language=?"
                   ",copyright=?"
+                  ",conditionalGETInfo=?"
                   " WHERE id=?",
-        useRef(iconURL), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright), use(mID), now;
+        useRef(iconURL), useRef(guid), useRef(title), useRef(subtitle), useRef(link), useRef(description), useRef(language), useRef(copyright), useRef(pocoCGI), use(mID), now;
 
     setIconURL(iconURL);
     setGuid(guid);
@@ -562,6 +579,7 @@ void ZapFR::Engine::FeedLocal::update(const std::string& iconURL, const std::str
     setDescription(description);
     setLanguage(language);
     setCopyright(copyright);
+    setConditionalGETInfo(conditionalGETInfo);
 }
 
 void ZapFR::Engine::FeedLocal::updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds)
@@ -693,6 +711,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
     Poco::Nullable<std::string> lastRefreshError;
     Poco::Nullable<uint64_t> refreshInterval;
     uint64_t sortOrder;
+    Poco::Nullable<std::string> conditionalGETInfo;
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
 
@@ -714,6 +733,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
           ",feeds.lastRefreshError"
           ",feeds.refreshInterval"
           ",feeds.sortOrder"
+          ",feeds.conditionalGETInfo"
           " FROM feeds";
     if (!whereClause.empty())
     {
@@ -748,6 +768,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
     selectStmt.addExtract(into(lastRefreshError));
     selectStmt.addExtract(into(refreshInterval));
     selectStmt.addExtract(into(sortOrder));
+    selectStmt.addExtract(into(conditionalGETInfo));
 
     while (!selectStmt.done())
     {
@@ -776,6 +797,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::quer
                 f->setRefreshInterval(refreshInterval.value());
             }
             f->setSortOrder(sortOrder);
+            if (!conditionalGETInfo.isNull())
+            {
+                f->setConditionalGETInfo(conditionalGETInfo.value());
+            }
             f->fetchUnreadCount();
             f->setDataFetched(true);
 
@@ -819,6 +844,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
     Poco::Nullable<std::string> lastRefreshError;
     Poco::Nullable<uint64_t> refreshInterval;
     uint64_t sortOrder;
+    Poco::Nullable<std::string> conditionalGETInfo;
 
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
 
@@ -840,6 +866,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
           ",feeds.lastRefreshError"
           ",feeds.refreshInterval"
           ",feeds.sortOrder"
+          ",feeds.conditionalGETInfo"
           " FROM feeds";
     if (!whereClause.empty())
     {
@@ -872,6 +899,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
     selectStmt.addExtract(into(lastRefreshError));
     selectStmt.addExtract(into(refreshInterval));
     selectStmt.addExtract(into(sortOrder));
+    selectStmt.addExtract(into(conditionalGETInfo));
 
     selectStmt.execute();
 
@@ -901,6 +929,10 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::FeedLocal::qu
             f->setRefreshInterval(refreshInterval.value());
         }
         f->setSortOrder(sortOrder);
+        if (!conditionalGETInfo.isNull())
+        {
+            f->setConditionalGETInfo(conditionalGETInfo.value());
+        }
         if ((fetchInfo & Source::FetchInfo::FeedUnreadCount) == Source::FetchInfo::FeedUnreadCount)
         {
             f->fetchUnreadCount();

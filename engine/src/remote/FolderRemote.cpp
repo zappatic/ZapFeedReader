@@ -57,7 +57,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
 
         try
         {
-            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+            const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
             auto parser = Poco::JSON::Parser();
             auto root = parser.parse(json);
             auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -95,7 +95,7 @@ std::unordered_set<uint64_t> ZapFR::Engine::FolderRemote::markAsRead()
         uri.setPath(fmt::format("/folder/{}/mark-as-read", mID));
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootArr = root.extract<Poco::JSON::Array::Ptr>();
@@ -128,7 +128,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
         params["perPage"] = std::to_string(perPage);
         params["page"] = std::to_string(page);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -200,7 +200,7 @@ std::tuple<const std::unordered_map<uint64_t, uint64_t>, const std::unordered_ma
             }
         }
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();

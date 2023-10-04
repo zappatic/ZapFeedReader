@@ -70,7 +70,7 @@ namespace ZapFR
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
 
             void update(const std::string& iconURL, const std::string& guid, const std::string& title, const std::string& subtitle, const std::string& link,
-                        const std::string& description, const std::string& language, const std::string& copyright);
+                        const std::string& description, const std::string& language, const std::string& copyright, const std::string& conditionalGETInfo);
 
           private:
             static std::string msIconDir;

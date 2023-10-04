@@ -33,8 +33,9 @@ namespace ZapFR
             static void splitString(const std::string& sourceString, char delimiter, std::vector<std::string>& outSubstrings);
             static std::string joinString(const std::vector<std::string>& sourceVector, const char* delimiter);
             static std::string joinIDNumbers(const std::vector<uint64_t>& sourceVector, const char* delimiter);
-            static std::string performHTTPRequest(Poco::URI& url, const std::string& method, Poco::Net::HTTPCredentials& credentials,
-                                                  const std::map<std::string, std::string>& parameters, std::optional<uint64_t> associatedFeedID = {});
+            static std::tuple<std::string, std::string> performHTTPRequest(Poco::URI& url, const std::string& method, Poco::Net::HTTPCredentials& credentials,
+                                                                           const std::map<std::string, std::string>& parameters, std::optional<uint64_t> associatedFeedID = {},
+                                                                           std::optional<std::string> conditionalGetInfo = {});
         };
     } // namespace Engine
 } // namespace ZapFR

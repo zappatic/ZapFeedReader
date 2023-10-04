@@ -41,7 +41,8 @@ ZapFR::Engine::FeedDiscovery::FeedDiscovery(const std::string& url) : mURL(url)
     std::string html;
     try
     {
-        html = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        std::string cgi;
+        std::tie(html, cgi) = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
     }
     catch (...)
     {

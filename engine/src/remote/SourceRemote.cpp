@@ -84,7 +84,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote::g
             params["fetchIcons"] = "true";
         }
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto feedArr = root.extract<Poco::JSON::Array::Ptr>();
@@ -125,7 +125,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote:
                 params["getUnreadCount"] = "true";
             }
 
-            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+            const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
             auto parser = Poco::JSON::Parser();
             auto root = parser.parse(json);
             auto feedObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -154,7 +154,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Feed>> ZapFR::Engine::SourceRemote:
         params["url"] = url;
         params["folder"] = std::to_string(folder);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto o = root.extract<Poco::JSON::Object::Ptr>();
@@ -180,7 +180,7 @@ std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::moveFeed(uin
         params["parentFolderID"] = std::to_string(newFolder);
         params["sortOrder"] = std::to_string(newSortOrder);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto arr = root.extract<Poco::JSON::Array::Ptr>();
@@ -231,7 +231,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemote:
             params["getSubfolders"] = "true";
         }
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto folderArr = root.extract<Poco::JSON::Array::Ptr>();
@@ -265,7 +265,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Folder>> ZapFR::Engine::SourceRemot
             params["getStatistics"] = "true";
         }
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto folderObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -289,7 +289,7 @@ std::tuple<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::addFolder(const std:
         params["title"] = title;
         params["parentFolderID"] = std::to_string(parentID);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto o = root.extract<Poco::JSON::Object::Ptr>();
@@ -315,7 +315,7 @@ std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::moveFolder(u
         params["parentFolderID"] = std::to_string(newParent);
         params["sortOrder"] = std::to_string(newSortOrder);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto arr = root.extract<Poco::JSON::Array::Ptr>();
@@ -369,7 +369,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         params["searchFilter"] = searchFilter;
         params["flagColor"] = Flag::nameForFlagColor(flagColor);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -531,7 +531,7 @@ std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::getUnreadCou
         uri.setPath("/unread-counts");
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -572,7 +572,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
         params["perPage"] = std::to_string(perPage);
         params["page"] = std::to_string(page);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -604,7 +604,7 @@ std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceRemote::getUse
         uri.setPath("/used-flag-colors");
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootArr = root.extract<Poco::JSON::Array::Ptr>();
@@ -637,7 +637,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::SourceR
         uri.setPath("/scriptfolders");
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto scriptFolderArr = root.extract<Poco::JSON::Array::Ptr>();
@@ -663,7 +663,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::Sourc
             uri.setPath(fmt::format("/scriptfolder/{}", id));
             auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+            const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
             auto parser = Poco::JSON::Parser();
             auto root = parser.parse(json);
             auto scriptFolderObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -720,7 +720,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceRemote:
         uri.setPath("/scripts");
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto scriptArr = root.extract<Poco::JSON::Array::Ptr>();
@@ -746,7 +746,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Script>> ZapFR::Engine::SourceRemot
             uri.setPath(fmt::format("/script/{}", scriptID));
             auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-            auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+            const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
             auto parser = Poco::JSON::Parser();
             auto root = parser.parse(json);
             auto scriptObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -811,7 +811,7 @@ std::unordered_set<uint64_t> ZapFR::Engine::SourceRemote::importOPML(const std::
         params["opml"] = opml;
         params["parentFolderID"] = std::to_string(parentFolderID);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootArr = root.extract<Poco::JSON::Array::Ptr>();
@@ -837,7 +837,7 @@ void ZapFR::Engine::SourceRemote::fetchStatistics()
         uri.setPath("/statistics");
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-        auto json = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto statsObj = root.extract<Poco::JSON::Object::Ptr>();
@@ -856,7 +856,7 @@ void ZapFR::Engine::SourceRemote::fetchStatistics()
 
 void ZapFR::Engine::SourceRemote::fetchThumbnailData()
 {
-    // nop, this data is given received with the getPosts call
+    // nop, this data is received with the getPosts call
 }
 
 void ZapFR::Engine::SourceRemote::clearLogs()

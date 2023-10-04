@@ -35,7 +35,7 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
 
     Poco::Net::HTTPCredentials creds; // TODO
     auto uri = Poco::URI(url);
-    auto html = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID);
+    const auto& [html, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID);
 
     // exception for YouTube: extract the channel image from the ytInitialData variable
     if (Poco::endsWith(uri.getHost(), std::string("youtube.com")))
