@@ -108,7 +108,7 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
     }
 
     // try to extract all <link ...> tags from the original html, and parse that, to avoid xml errors elsewhere in the doc
-    static auto linkRegex = Poco::RegularExpression("(<link.*?>)", Poco::RegularExpression::RE_GLOBAL);
+    static auto linkRegex = Poco::RegularExpression("(<link.*?>)");
     Poco::RegularExpression::MatchVec matches;
     size_t offset{0};
     std::stringstream fakeXML;
