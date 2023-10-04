@@ -49,11 +49,6 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPalett
     mItemModelPosts = std::make_unique<QStandardItemModel>(this);
     setModel(mItemModelPosts.get());
 
-    horizontalHeader()->resizeSection(Column::UnreadCol, 50);
-    horizontalHeader()->resizeSection(Column::FlagCol, 40);
-    horizontalHeader()->resizeSection(Column::FeedCol, 40);
-    horizontalHeader()->resizeSection(Column::DateCol, 180);
-
     mPopupFlagChooser = std::make_unique<PopupFlagChooser>(this);
     mPostWebEnginePage = std::make_unique<WebEnginePagePost>(this);
 
@@ -263,6 +258,16 @@ void ZapFR::Client::TableViewPosts::clear()
     int32_t columnWidthFlag = horizontalHeader()->sectionSize(Column::FlagCol);
     int32_t columnWidthFeed = horizontalHeader()->sectionSize(Column::FeedCol);
     int32_t columnWidthDate = horizontalHeader()->sectionSize(Column::DateCol);
+
+    static bool firstRun{true};
+    if (firstRun)
+    {
+        columnWidthUnread = 50;
+        columnWidthFlag = 40;
+        columnWidthFeed = 40;
+        columnWidthDate = 180;
+        firstRun = false;
+    }
 
     mItemModelPosts->clear();
 
