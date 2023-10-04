@@ -2016,29 +2016,30 @@ void ZapFR::Client::TreeViewSources::connectStuff()
 
     mUpdateRemoteSourceBadgesTimer = std::make_unique<QTimer>(this);
     mUpdateRemoteSourceBadgesTimer->setInterval(30 * 1000);
-    connect(mUpdateRemoteSourceBadgesTimer.get(), &QTimer::timeout,
-            [&]()
-            {
-                uint64_t currentlySelectedSourceID{0};
-                auto index = currentIndex();
-                if (index.isValid())
-                {
-                    currentlySelectedSourceID = index.data(Role::ParentSourceID).toULongLong();
-                }
-
-                auto sources = ZapFR::Engine::Source::getSources(ZapFR::Engine::ServerIdentifier::Remote);
-                for (const auto& source : sources)
-                {
-                    ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(
-                        source->id(), [&](uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
-                        { QMetaObject::invokeMethod(this, [=, this]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
-                    if (source->id() == currentlySelectedSourceID)
-                    {
-                        mMainWindow->getUI()->tableViewScriptFolders->reload();
-                    }
-                }
-            });
+    connect(mUpdateRemoteSourceBadgesTimer.get(), &QTimer::timeout, [&]() { refreshBadges(); });
     mUpdateRemoteSourceBadgesTimer->start();
+}
+
+void ZapFR::Client::TreeViewSources::refreshBadges()
+{
+    uint64_t currentlySelectedSourceID{0};
+    auto index = currentIndex();
+    if (index.isValid())
+    {
+        currentlySelectedSourceID = index.data(Role::ParentSourceID).toULongLong();
+    }
+
+    auto sources = ZapFR::Engine::Source::getSources(ZapFR::Engine::ServerIdentifier::Remote);
+    for (const auto& source : sources)
+    {
+        ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(
+            source->id(), [&](uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
+            { QMetaObject::invokeMethod(this, [=, this]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
+        if (source->id() == currentlySelectedSourceID)
+        {
+            mMainWindow->getUI()->tableViewScriptFolders->reload();
+        }
+    }
 }
 
 void ZapFR::Client::TreeViewSources::createContextMenus()

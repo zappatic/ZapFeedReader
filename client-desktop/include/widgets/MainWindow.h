@@ -83,6 +83,7 @@ namespace ZapFR
 
           protected:
             void closeEvent(QCloseEvent* event) override;
+            void showEvent(QShowEvent* event) override;
 
           private:
             Ui::MainWindow* ui;

@@ -70,6 +70,7 @@ namespace ZapFR
             std::unordered_set<QStandardItem*> findFeedStandardItems(QStandardItem* sourceItem, const std::optional<std::unordered_set<uint64_t>>& feedIDs);
 
             void setUnreadBadgesShown(bool b);
+            void refreshBadges();
             void setAllowDragAndDrop(bool b);
             void agentErrorOccurred(uint64_t sourceID, const std::string& errorMessage);
             void updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount);

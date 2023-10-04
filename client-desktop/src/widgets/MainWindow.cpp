@@ -196,6 +196,11 @@ void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* event)
     }
 }
 
+void ZapFR::Client::MainWindow::showEvent([[maybe_unused]] QShowEvent* event)
+{
+    ui->treeViewSources->refreshBadges();
+}
+
 void ZapFR::Client::MainWindow::saveSettings() const
 {
     QJsonObject root;
