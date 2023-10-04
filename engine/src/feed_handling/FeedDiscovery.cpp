@@ -37,7 +37,16 @@ ZapFR::Engine::FeedDiscovery::FeedDiscovery(const std::string& url) : mURL(url)
     }
 
     Poco::Net::HTTPCredentials creds; // TODO
-    auto uri = Poco::URI(url);
+    Poco::URI uri;
+    if (!url.starts_with("http"))
+    {
+        uri = Poco::URI("https://" + url);
+    }
+    else
+    {
+        uri = Poco::URI(url);
+    }
+
     std::string html;
     try
     {
