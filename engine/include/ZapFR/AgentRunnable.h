@@ -70,6 +70,7 @@ namespace ZapFR
                 ScriptFolderAdd,
                 ScriptFolderAssignPosts,
                 ScriptFolderGetPosts,
+                ScriptFolderMarkRead,
                 ScriptFolderRemove,
                 ScriptFolderRemovePosts,
                 ScriptFoldersGet,

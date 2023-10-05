@@ -38,6 +38,7 @@ namespace ZapFR
 
             void fetchThumbnailData();
 
+            std::unordered_set<uint64_t> markAsRead() override;
             void update(const std::string& title, bool showTotal, bool showUnread) override;
 
             static std::vector<std::unique_ptr<ScriptFolder>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,

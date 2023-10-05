@@ -179,9 +179,9 @@ void ZapFR::Client::TableViewPosts::reload()
             {
                 populatePosts();
             }
-            mMainWindow->updateToolbar();
         }
     }
+    mMainWindow->updateToolbar();
 }
 
 void ZapFR::Client::TableViewPosts::populatePosts(const QList<QList<QStandardItem*>>& posts, uint64_t pageNumber, uint64_t totalPostCount,
@@ -760,6 +760,29 @@ void ZapFR::Client::TableViewPosts::updatePostsFlags(bool markFlagged, uint64_t 
 
 void ZapFR::Client::TableViewPosts::markAsRead()
 {
+    // check if we currently have a scriptfolder selected first
+    auto sfIndex = mMainWindow->getUI()->tableViewScriptFolders->currentIndex();
+    if (sfIndex.isValid())
+    {
+        auto sourceID = sfIndex.data(TableViewScriptFolders::Role::SourceID).toULongLong();
+        auto scriptFolderID = sfIndex.data(TableViewScriptFolders::Role::ID).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueMarkScriptFolderRead(sourceID, scriptFolderID,
+                                                                       [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> affectedFeedIDs)
+                                                                       {
+                                                                           QMetaObject::invokeMethod(this,
+                                                                                                     [=, this]()
+                                                                                                     {
+                                                                                                         mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(
+                                                                                                             affectedSourceID, affectedFeedIDs, false, 0);
+                                                                                                         mCurrentPostPage = 1;
+                                                                                                         updatePostsReadStatus(true, affectedSourceID, {});
+                                                                                                         mMainWindow->getUI()->tableViewScriptFolders->reload(true);
+                                                                                                         mMainWindow->setStatusBarMessage(tr("Script folder marked as read"));
+                                                                                                     });
+                                                                       });
+        return;
+    }
+
     auto index = mMainWindow->treeViewSources()->currentIndex();
     if (index.isValid())
     {

@@ -95,6 +95,32 @@ void ZapFR::Engine::ScriptFolderRemote::update(const std::string& title, bool sh
     }
 }
 
+std::unordered_set<uint64_t> ZapFR::Engine::ScriptFolderRemote::markAsRead()
+{
+    std::unordered_set<uint64_t> feedIDs;
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath(fmt::format("/scriptfolder/{}/mark-as-read", mID));
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootArr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!rootArr.isNull())
+        {
+            for (size_t i = 0; i < rootArr->size(); ++i)
+            {
+                auto feedID = rootArr->getElement<uint64_t>(static_cast<uint32_t>(i));
+                feedIDs.insert(feedID);
+            }
+        }
+    }
+    return feedIDs;
+}
+
 std::unique_ptr<ZapFR::Engine::ScriptFolder> ZapFR::Engine::ScriptFolderRemote::fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o)
 {
     auto scriptFolderID = o->getValue<uint64_t>(JSON::ScriptFolder::ID);

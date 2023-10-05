@@ -54,6 +54,7 @@
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderAdd.h"
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderAssignPosts.h"
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderGetPosts.h"
+#include "ZapFR/agents/scriptfolder/AgentScriptFolderMarkRead.h"
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderRemove.h"
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderRemovePosts.h"
 #include "ZapFR/agents/scriptfolder/AgentScriptFolderUpdate.h"
@@ -397,6 +398,11 @@ void ZapFR::Engine::Agent::queueUpdateScriptFolder(uint64_t sourceID, uint64_t s
 void ZapFR::Engine::Agent::queueRemoveScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentScriptFolderRemove>(sourceID, scriptFolderID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMarkScriptFolderRead(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentScriptFolderMarkRead>(sourceID, scriptFolderID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback)

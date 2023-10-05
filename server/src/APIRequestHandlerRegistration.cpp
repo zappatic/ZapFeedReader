@@ -454,6 +454,18 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Marks all posts in the script folder as read, returns the affected feedIDs)");
+				entry->setMethod("POST");
+				entry->setPath(R"(^\/scriptfolder/([0-9]+)/mark-as-read$)", R"(/scriptfolder/<scriptFolderID>/mark-as-read)");
+				entry->addURIParameter({R"(scriptFolderID)", R"(The id of the script folder to mark as read)"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Array)");
+				entry->setHandler(ZapFR::Server::APIHandler_scriptfolder_markasread);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Scriptfolders)", R"(Removes a script folder)");
 				entry->setMethod("DELETE");
 				entry->setPath(R"(^\/scriptfolder/([0-9]+)$)", R"(/scriptfolder/<scriptFolderID>)");

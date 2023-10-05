@@ -771,6 +771,12 @@ void ZapFR::Client::MainWindow::updateToolbar()
                 }
             }
 
+            auto sfIndex = ui->tableViewScriptFolders->currentIndex();
+            if (sfIndex.isValid())
+            {
+                markAsReadCaption = tr("Mark script folder as read");
+            }
+
             if (parentSourceHasError)
             {
                 showSearchField = false;

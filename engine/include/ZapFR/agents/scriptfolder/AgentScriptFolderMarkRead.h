@@ -16,30 +16,31 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_SCRIPTFOLDERREMOTE_H
-#define ZAPFR_ENGINE_SCRIPTFOLDERREMOTE_H
+#ifndef ZAPFR_ENGINE_AGENTSCRIPTFOLDERMARKREAD_H
+#define ZAPFR_ENGINE_AGENTSCRIPTFOLDERMARKREAD_H
 
-#include "ZapFR/base/ScriptFolder.h"
+#include <unordered_set>
+
+#include "ZapFR/AgentRunnable.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class ScriptFolderRemote : public ScriptFolder
+        class AgentScriptFolderMarkRead : public AgentRunnable
         {
           public:
-            explicit ScriptFolderRemote(uint64_t id, Source* parentSource);
-            ~ScriptFolderRemote() = default;
+            explicit AgentScriptFolderMarkRead(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
+            virtual ~AgentScriptFolderMarkRead() = default;
 
-            std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                              FlagColor flagColor) override;
+            void payload(Source* source) override;
+            Type type() const noexcept override { return Type::ScriptFolderMarkRead; }
 
-            std::unordered_set<uint64_t> markAsRead() override;
-            void update(const std::string& title, bool showTotal, bool showUnread) override;
-
-            static std::unique_ptr<ScriptFolder> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);
+          private:
+            uint64_t mScriptFolderID{0};
+            std::function<void(uint64_t, std::unordered_set<uint64_t>)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_SCRIPTFOLDERREMOTE_H
+#endif // ZAPFR_ENGINE_AGENTSCRIPTFOLDERMARKREAD_H

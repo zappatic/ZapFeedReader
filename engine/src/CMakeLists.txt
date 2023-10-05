@@ -48,6 +48,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/scriptfolder/AgentScriptFolderAdd.cpp
     agents/scriptfolder/AgentScriptFolderAssignPosts.cpp
     agents/scriptfolder/AgentScriptFolderGetPosts.cpp
+    agents/scriptfolder/AgentScriptFolderMarkRead.cpp
     agents/scriptfolder/AgentScriptFolderRemove.cpp
     agents/scriptfolder/AgentScriptFolderRemovePosts.cpp
     agents/scriptfolder/AgentScriptFolderUpdate.cpp

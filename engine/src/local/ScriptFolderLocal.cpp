@@ -132,6 +132,34 @@ void ZapFR::Engine::ScriptFolderLocal::fetchThumbnailData()
     }
 }
 
+std::unordered_set<uint64_t> ZapFR::Engine::ScriptFolderLocal::markAsRead()
+{
+    // see what feed IDs are affected
+    std::unordered_set<uint64_t> affectedFeedIDs;
+    uint64_t feedID{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT DISTINCT(posts.feedID) FROM posts WHERE posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)",
+        use(mID), into(feedID), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            affectedFeedIDs.insert(feedID);
+        }
+    }
+
+    // mark the posts in the script folder as read
+    std::vector<std::string> whereClause;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+
+    whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)");
+    bindings.emplace_back(useRef(mID, "scriptFolderID"));
+
+    PostLocal::updateIsRead(true, whereClause, bindings);
+
+    return affectedFeedIDs;
+}
+
 std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptFolderLocal::queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause,
                                                                                                           const std::string& orderClause, const std::string& limitClause,
                                                                                                           const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)

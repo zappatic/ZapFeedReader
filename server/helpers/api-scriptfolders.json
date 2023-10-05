@@ -133,5 +133,22 @@
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"
+  },
+  "scriptfolder-markasread": {
+    "section": "Scriptfolders",
+    "description": "Marks all posts in the script folder as read, returns the affected feedIDs",
+    "method": "POST",
+    "path": "^\\/scriptfolder/([0-9]+)/mark-as-read$",
+    "prettyPath": "/scriptfolder/<scriptFolderID>/mark-as-read",
+    "uriParameters": [
+      {
+        "name": "scriptFolderID",
+        "description": "The id of the script folder to mark as read"
+      }
+    ],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
   }
 }
