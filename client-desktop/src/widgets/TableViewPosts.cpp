@@ -1204,7 +1204,7 @@ void ZapFR::Client::TableViewPosts::connectStuff()
                     if (!url.isEmpty())
                     {
                         QUrl uri(url);
-                        if (uri.scheme() != "zapfr")
+                        if (uri.scheme() != "zapfr" && !url.startsWith("javascript:markAsRead("))
                         {
                             mMainWindow->getUI()->statusbar->showMessage(url);
                         }
