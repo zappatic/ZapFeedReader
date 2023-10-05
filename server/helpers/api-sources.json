@@ -41,7 +41,13 @@
     "path": "^\\/mark-as-read$",
     "prettyPath": "/mark-as-read",
     "uriParameters": [],
-    "parameters": [],
+    "parameters": [
+      {
+        "name": "maxPostID",
+        "required": true,
+        "description": "The highest post ID to mark as read"
+      }
+    ],
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"

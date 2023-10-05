@@ -103,7 +103,7 @@ namespace ZapFR
             void queueGetUsedFlagColors(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_set<FlagColor>&)> finishedCallback);
 
             // feed manipulation
-            void queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback);
+            void queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, uint64_t maxPostID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueMoveFeed(uint64_t sourceID, uint64_t feedID, uint64_t newFolder, uint64_t newSortOrder,
                                std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
             void queueGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback);
@@ -116,7 +116,7 @@ namespace ZapFR
                                  std::function<void()> finishedCallback);
 
             // folder manipulation
-            void queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
+            void queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, uint64_t maxPostID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
             void queueMoveFolder(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder,
                                  std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
             void queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title,
@@ -130,7 +130,7 @@ namespace ZapFR
                 std::function<void(uint64_t, uint64_t, const std::unordered_map<uint64_t, uint64_t>&, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
 
             // source manipulation
-            void queueMarkSourceRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
+            void queueMarkSourceRead(uint64_t sourceID, uint64_t maxPostID, std::function<void(uint64_t)> finishedCallback);
             void queueRefreshSource(uint64_t sourceID, std::function<void(uint64_t, Feed*)> finishedCallback);
 
             // log manipulation
@@ -147,7 +147,8 @@ namespace ZapFR
             void queueUpdateScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title, bool showTotal, bool showUnread,
                                          std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueRemoveScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, uint64_t)> finishedCallback);
-            void queueMarkScriptFolderRead(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
+            void queueMarkScriptFolderRead(uint64_t sourceID, uint64_t scriptFolderID, uint64_t maxPostID,
+                                           std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
 
             // scripts
             void queueGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback);

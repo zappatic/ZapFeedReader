@@ -30,7 +30,8 @@ namespace ZapFR
         class AgentScriptFolderMarkRead : public AgentRunnable
         {
           public:
-            explicit AgentScriptFolderMarkRead(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
+            explicit AgentScriptFolderMarkRead(uint64_t sourceID, uint64_t scriptFolderID, uint64_t maxPostID,
+                                               std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
             virtual ~AgentScriptFolderMarkRead() = default;
 
             void payload(Source* source) override;
@@ -38,6 +39,7 @@ namespace ZapFR
 
           private:
             uint64_t mScriptFolderID{0};
+            uint64_t mMaxPostID{0};
             std::function<void(uint64_t, std::unordered_set<uint64_t>)> mFinishedCallback{};
         };
     } // namespace Engine

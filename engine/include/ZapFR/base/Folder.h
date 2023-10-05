@@ -69,7 +69,7 @@ namespace ZapFR
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
                                                                                       FlagColor flagColor) = 0;
-            virtual std::unordered_set<uint64_t> markAsRead() = 0;
+            virtual std::unordered_set<uint64_t> markAsRead(uint64_t maxPostID) = 0;
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;
             virtual void clearLogs() = 0;

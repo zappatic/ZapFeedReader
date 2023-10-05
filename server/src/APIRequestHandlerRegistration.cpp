@@ -111,6 +111,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/feed/([0-9]+)/mark-as-read$)", R"(/feed/<feedID>/mark-as-read)");
 				entry->addURIParameter({R"(feedID)", R"(The id of the feed to mark as read)"});
+				entry->addBodyParameter({R"(maxPostID)", true, R"(The highest post ID to mark as read)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
@@ -226,6 +227,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/folder/([0-9]+)/mark-as-read$)", R"(/folder/<folderID>/mark-as-read)");
 				entry->addURIParameter({R"(folderID)", R"(The id of the folder to mark as read)"});
+				entry->addBodyParameter({R"(maxPostID)", true, R"(The highest post ID to mark as read)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Array)");
@@ -458,6 +460,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/scriptfolder/([0-9]+)/mark-as-read$)", R"(/scriptfolder/<scriptFolderID>/mark-as-read)");
 				entry->addURIParameter({R"(scriptFolderID)", R"(The id of the script folder to mark as read)"});
+				entry->addBodyParameter({R"(maxPostID)", true, R"(The highest post ID to mark as read)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Array)");
@@ -553,6 +556,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Marks all posts in the source as read)");
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/mark-as-read$)", R"(/mark-as-read)");
+				entry->addBodyParameter({R"(maxPostID)", true, R"(The highest post ID to mark as read)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");

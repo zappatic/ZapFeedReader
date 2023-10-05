@@ -22,8 +22,9 @@
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFolderMarkRead::AgentFolderMarkRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
-    : AgentRunnable(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentFolderMarkRead::AgentFolderMarkRead(uint64_t sourceID, uint64_t folderID, uint64_t maxPostID,
+                                                        std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
+    : AgentRunnable(sourceID), mFolderID(folderID), mMaxPostID(maxPostID), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -33,7 +34,7 @@ void ZapFR::Engine::AgentFolderMarkRead::payload(Source* source)
     auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
     if (folder.has_value())
     {
-        feedIDs = folder.value()->markAsRead();
+        feedIDs = folder.value()->markAsRead(mMaxPostID);
     }
     mFinishedCallback(mSourceID, feedIDs);
 }

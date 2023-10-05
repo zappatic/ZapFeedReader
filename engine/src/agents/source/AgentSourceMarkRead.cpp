@@ -21,13 +21,13 @@
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentSourceMarkRead::AgentSourceMarkRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback)
-    : AgentRunnable(sourceID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentSourceMarkRead::AgentSourceMarkRead(uint64_t sourceID, uint64_t maxPostID, std::function<void(uint64_t)> finishedCallback)
+    : AgentRunnable(sourceID), mMaxPostID(maxPostID), mFinishedCallback(finishedCallback)
 {
 }
 
 void ZapFR::Engine::AgentSourceMarkRead::payload(Source* source)
 {
-    source->markAsRead();
+    source->markAsRead(mMaxPostID);
     mFinishedCallback(mSourceID);
 }

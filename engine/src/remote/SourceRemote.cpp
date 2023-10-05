@@ -418,7 +418,7 @@ void ZapFR::Engine::SourceRemote::unserializeThumbnailData(std::vector<Thumbnail
     }
 }
 
-void ZapFR::Engine::SourceRemote::markAsRead()
+void ZapFR::Engine::SourceRemote::markAsRead(uint64_t maxPostID)
 {
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
@@ -426,7 +426,10 @@ void ZapFR::Engine::SourceRemote::markAsRead()
         uri.setPath("/mark-as-read");
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
-        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
+        std::map<std::string, std::string> params;
+        params["maxPostID"] = std::to_string(maxPostID);
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
     }
 }
 

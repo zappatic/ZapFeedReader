@@ -118,7 +118,13 @@
     "uriParameters": [
       { "name": "feedID", "description": "The id of the feed to mark as read" }
     ],
-    "parameters": [],
+    "parameters": [
+      {
+        "name": "maxPostID",
+        "required": true,
+        "description": "The highest post ID to mark as read"
+      }
+    ],
     "requireCredentials": true,
     "contentType": "application/json",
     "jsonOutput": "Object"

@@ -81,7 +81,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     throw std::runtime_error("Not implemented");
 }
 
-void ZapFR::Engine::SourceDummy::markAsRead()
+void ZapFR::Engine::SourceDummy::markAsRead(uint64_t /*maxPostID*/)
 {
     throw std::runtime_error("Not implemented");
 }

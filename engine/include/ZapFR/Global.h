@@ -196,6 +196,7 @@ namespace ZapFR
                 constexpr const char UnreadCounts[]{"unreadCounts"};
                 constexpr const char FeedError[]{"error"};
                 constexpr const char FeedErrors[]{"feedErrors"};
+                constexpr const char HighestPostID[]{"highestPostID"};
             }; // namespace SourceStatus
 
         }; // namespace JSON

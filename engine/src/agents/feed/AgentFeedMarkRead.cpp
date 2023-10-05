@@ -21,8 +21,8 @@
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFeedMarkRead::AgentFeedMarkRead(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
-    : AgentRunnable(sourceID), mFeedID(feedID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentFeedMarkRead::AgentFeedMarkRead(uint64_t sourceID, uint64_t feedID, uint64_t maxPostID, std::function<void(uint64_t, uint64_t)> finishedCallback)
+    : AgentRunnable(sourceID), mFeedID(feedID), mMaxPostID(maxPostID), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -31,7 +31,7 @@ void ZapFR::Engine::AgentFeedMarkRead::payload(Source* source)
     auto feed = source->getFeed(mFeedID, ZapFR::Engine::Source::FetchInfo::None);
     if (feed.has_value())
     {
-        feed.value()->markAsRead();
+        feed.value()->markAsRead(mMaxPostID);
     }
     mFinishedCallback(mSourceID, mFeedID);
 }

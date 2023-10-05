@@ -30,6 +30,9 @@
 //	URI parameters:
 //		feedID - The id of the feed to mark as read - apiRequest->pathComponentAt(1)
 //
+//	Parameters:
+//		maxPostID (REQD) - The highest post ID to mark as read - apiRequest->parameter("maxPostID")
+//
 //	Content-Type: application/json
 //	JSON output: Object
 //
@@ -38,9 +41,13 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_markasread([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto feedIDStr = apiRequest->pathComponentAt(1);
+    const auto maxPostIDStr = apiRequest->parameter("maxPostID");
 
     uint64_t feedID{0};
     Poco::NumberParser::tryParseUnsigned64(feedIDStr, feedID);
+
+    uint64_t maxPostID{0};
+    Poco::NumberParser::tryParseUnsigned64(maxPostIDStr, maxPostID);
 
     if (feedID != 0)
     {
@@ -50,7 +57,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_markasread([[
             auto feed = source.value()->getFeed(feedID, ZapFR::Engine::Source::FetchInfo::None);
             if (feed.has_value())
             {
-                feed.value()->markAsRead();
+                feed.value()->markAsRead(maxPostID);
             }
         }
     }

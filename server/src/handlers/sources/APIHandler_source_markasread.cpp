@@ -26,6 +26,9 @@
 //	Marks all posts in the source as read
 //	/mark-as-read (POST)
 //
+//	Parameters:
+//		maxPostID (REQD) - The highest post ID to mark as read - apiRequest->parameter("maxPostID")
+//
 //	Content-Type: application/json
 //	JSON output: Object
 //
@@ -33,10 +36,15 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_markasread([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
+    const auto maxPostIDStr = apiRequest->parameter("maxPostID");
+
+    uint64_t maxPostID{0};
+    Poco::NumberParser::tryParseUnsigned64(maxPostIDStr, maxPostID);
+
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        source.value()->markAsRead();
+        source.value()->markAsRead(maxPostID);
     }
 
     Poco::JSON::Object o;

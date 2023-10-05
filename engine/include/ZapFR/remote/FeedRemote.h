@@ -39,7 +39,7 @@ namespace ZapFR
             void clearLogs() override;
 
             void refresh() override;
-            void markAsRead() override;
+            void markAsRead(uint64_t maxPostID) override;
 
             void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) override;
             void fromJSON(const Poco::JSON::Object::Ptr o);

@@ -30,6 +30,9 @@
 //	URI parameters:
 //		folderID - The id of the folder to mark as read - apiRequest->pathComponentAt(1)
 //
+//	Parameters:
+//		maxPostID (REQD) - The highest post ID to mark as read - apiRequest->parameter("maxPostID")
+//
 //	Content-Type: application/json
 //	JSON output: Array
 //
@@ -38,9 +41,13 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_markasread([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto folderIDStr = apiRequest->pathComponentAt(1);
+    const auto maxPostIDStr = apiRequest->parameter("maxPostID");
 
     uint64_t folderID{0};
     Poco::NumberParser::tryParseUnsigned64(folderIDStr, folderID);
+
+    uint64_t maxPostID{0};
+    Poco::NumberParser::tryParseUnsigned64(maxPostIDStr, maxPostID);
 
     Poco::JSON::Array arr;
 
@@ -52,7 +59,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_markasread(
             auto folder = source.value()->getFolder(folderID, ZapFR::Engine::Source::FetchInfo::None);
             if (folder.has_value())
             {
-                auto feedIDs = folder.value()->markAsRead();
+                auto feedIDs = folder.value()->markAsRead(maxPostID);
                 for (const auto& feedID : feedIDs)
                 {
                     arr.add(feedID);

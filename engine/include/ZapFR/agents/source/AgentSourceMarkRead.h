@@ -28,13 +28,14 @@ namespace ZapFR
         class AgentSourceMarkRead : public AgentRunnable
         {
           public:
-            explicit AgentSourceMarkRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback);
+            explicit AgentSourceMarkRead(uint64_t sourceID, uint64_t maxPostID, std::function<void(uint64_t)> finishedCallback);
             virtual ~AgentSourceMarkRead() = default;
 
             void payload(Source* source) override;
             Type type() const noexcept override { return Type::SourceMarkRead; }
 
           private:
+            uint64_t mMaxPostID{0};
             std::function<void(uint64_t)> mFinishedCallback{};
         };
     } // namespace Engine

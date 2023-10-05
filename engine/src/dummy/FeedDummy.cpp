@@ -38,7 +38,7 @@ void ZapFR::Engine::FeedDummy::refresh()
     throw std::runtime_error("Not implemented");
 }
 
-void ZapFR::Engine::FeedDummy::markAsRead()
+void ZapFR::Engine::FeedDummy::markAsRead(uint64_t /*maxPostID*/)
 {
     throw std::runtime_error("Not implemented");
 }

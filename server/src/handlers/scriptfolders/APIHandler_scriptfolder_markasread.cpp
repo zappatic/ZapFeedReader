@@ -30,6 +30,9 @@
 //	URI parameters:
 //		scriptFolderID - The id of the script folder to mark as read - apiRequest->pathComponentAt(1)
 //
+//	Parameters:
+//		maxPostID (REQD) - The highest post ID to mark as read - apiRequest->parameter("maxPostID")
+//
 //	Content-Type: application/json
 //	JSON output: Array
 //
@@ -38,9 +41,13 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_markasread([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto scriptFolderIDStr = apiRequest->pathComponentAt(1);
+    const auto maxPostIDStr = apiRequest->parameter("maxPostID");
 
     uint64_t scriptFolderID{0};
     Poco::NumberParser::tryParseUnsigned64(scriptFolderIDStr, scriptFolderID);
+
+    uint64_t maxPostID{0};
+    Poco::NumberParser::tryParseUnsigned64(maxPostIDStr, maxPostID);
 
     Poco::JSON::Array arr;
 
@@ -52,7 +59,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_marka
             auto scriptFolder = source.value()->getScriptFolder(scriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
             if (scriptFolder.has_value())
             {
-                auto feedIDs = scriptFolder.value()->markAsRead();
+                auto feedIDs = scriptFolder.value()->markAsRead(maxPostID);
                 for (const auto& feedID : feedIDs)
                 {
                     arr.add(feedID);

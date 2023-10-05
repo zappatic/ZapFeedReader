@@ -22,9 +22,9 @@
 #include "ZapFR/base/ScriptFolder.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentScriptFolderMarkRead::AgentScriptFolderMarkRead(uint64_t sourceID, uint64_t scriptFolderID,
+ZapFR::Engine::AgentScriptFolderMarkRead::AgentScriptFolderMarkRead(uint64_t sourceID, uint64_t scriptFolderID, uint64_t maxPostID,
                                                                     std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
-    : AgentRunnable(sourceID), mScriptFolderID(scriptFolderID), mFinishedCallback(finishedCallback)
+    : AgentRunnable(sourceID), mScriptFolderID(scriptFolderID), mMaxPostID(maxPostID), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -34,7 +34,7 @@ void ZapFR::Engine::AgentScriptFolderMarkRead::payload(Source* source)
     auto scriptFolder = source->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
     if (scriptFolder.has_value())
     {
-        feedIDs = scriptFolder.value()->markAsRead();
+        feedIDs = scriptFolder.value()->markAsRead(mMaxPostID);
     }
     mFinishedCallback(mSourceID, feedIDs);
 }

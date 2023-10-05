@@ -95,7 +95,7 @@ void ZapFR::Engine::ScriptFolderRemote::update(const std::string& title, bool sh
     }
 }
 
-std::unordered_set<uint64_t> ZapFR::Engine::ScriptFolderRemote::markAsRead()
+std::unordered_set<uint64_t> ZapFR::Engine::ScriptFolderRemote::markAsRead(uint64_t maxPostID)
 {
     std::unordered_set<uint64_t> feedIDs;
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
@@ -105,7 +105,10 @@ std::unordered_set<uint64_t> ZapFR::Engine::ScriptFolderRemote::markAsRead()
         uri.setPath(fmt::format("/scriptfolder/{}/mark-as-read", mID));
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
-        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
+        std::map<std::string, std::string> params;
+        params["maxPostID"] = std::to_string(maxPostID);
+
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
         auto parser = Poco::JSON::Parser();
         auto root = parser.parse(json);
         auto rootArr = root.extract<Poco::JSON::Array::Ptr>();

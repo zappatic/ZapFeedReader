@@ -123,7 +123,7 @@ void ZapFR::Engine::FeedRemote::refresh()
     }
 }
 
-void ZapFR::Engine::FeedRemote::markAsRead()
+void ZapFR::Engine::FeedRemote::markAsRead(uint64_t maxPostID)
 {
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
     auto uri = remoteSource->remoteURL();
@@ -132,7 +132,10 @@ void ZapFR::Engine::FeedRemote::markAsRead()
         uri.setPath(fmt::format("/feed/{}/mark-as-read", mID));
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
-        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, {});
+        std::map<std::string, std::string> params;
+        params["maxPostID"] = std::to_string(maxPostID);
+
+        Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
     }
 }
 

@@ -218,9 +218,9 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(count, std::move(posts));
 }
 
-void ZapFR::Engine::SourceLocal::markAsRead()
+void ZapFR::Engine::SourceLocal::markAsRead(uint64_t maxPostID)
 {
-    PostLocal::updateIsRead(true, {}, {});
+    PostLocal::updateIsRead(true, {"posts.id <= ?"}, {use(maxPostID, "maxPostID")});
 }
 
 void ZapFR::Engine::SourceLocal::setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs)
@@ -392,6 +392,8 @@ Poco::JSON::Object ZapFR::Engine::SourceLocal::getStatus()
         feedErrorsArr.add(feObj);
     }
     o.set(JSON::SourceStatus::FeedErrors, feedErrorsArr);
+
+    o.set(JSON::SourceStatus::HighestPostID, PostLocal::highestID());
 
     return o;
 }

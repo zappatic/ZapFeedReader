@@ -151,7 +151,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(count, std::move(posts));
 }
 
-std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAsRead()
+std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAsRead(uint64_t maxPostID)
 {
     auto feedIDs = feedIDsInFoldersAndSubfolders();
     auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDs, ",");
@@ -160,7 +160,7 @@ std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAsRead()
         return {};
     }
 
-    PostLocal::updateIsRead(true, {Poco::format("posts.feedID IN (%s)", joinedFeedIDs)}, {});
+    PostLocal::updateIsRead(true, {Poco::format("posts.feedID IN (%s)", joinedFeedIDs), "posts.id <= ?"}, {use(maxPostID, "maxPostID")});
 
     return std::unordered_set<uint64_t>(feedIDs.begin(), feedIDs.end());
 }

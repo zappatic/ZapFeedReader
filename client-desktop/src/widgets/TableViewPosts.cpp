@@ -751,12 +751,15 @@ void ZapFR::Client::TableViewPosts::updatePostsFlags(bool markFlagged, uint64_t 
 void ZapFR::Client::TableViewPosts::markAsRead()
 {
     // check if we currently have a scriptfolder selected first
-    auto sfIndex = mMainWindow->getUI()->tableViewScriptFolders->currentIndex();
+    auto ui = mMainWindow->getUI();
+    auto maxPostID = ui->treeViewSources->highestPostID();
+
+    auto sfIndex = ui->tableViewScriptFolders->currentIndex();
     if (sfIndex.isValid())
     {
         auto sourceID = sfIndex.data(TableViewScriptFolders::Role::SourceID).toULongLong();
         auto scriptFolderID = sfIndex.data(TableViewScriptFolders::Role::ID).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueMarkScriptFolderRead(sourceID, scriptFolderID,
+        ZapFR::Engine::Agent::getInstance()->queueMarkScriptFolderRead(sourceID, scriptFolderID, maxPostID,
                                                                        [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> affectedFeedIDs)
                                                                        {
                                                                            QMetaObject::invokeMethod(this,
@@ -783,7 +786,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
             case TreeViewSources::EntryType::Feed:
             {
                 auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID,
+                ZapFR::Engine::Agent::getInstance()->queueMarkFeedRead(sourceID, feedID, maxPostID,
                                                                        [&](uint64_t affectedSourceID, uint64_t affectedFeedID)
                                                                        {
                                                                            QMetaObject::invokeMethod(this,
@@ -802,7 +805,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
             case TreeViewSources::EntryType::Folder:
             {
                 auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID,
+                ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID, maxPostID,
                                                                          [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> affectedFeedIDs)
                                                                          {
                                                                              QMetaObject::invokeMethod(this,
@@ -820,7 +823,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
             }
             case TreeViewSources::EntryType::Source:
             {
-                ZapFR::Engine::Agent::getInstance()->queueMarkSourceRead(sourceID,
+                ZapFR::Engine::Agent::getInstance()->queueMarkSourceRead(sourceID, maxPostID,
                                                                          [&](uint64_t affectedSourceID)
                                                                          {
                                                                              QMetaObject::invokeMethod(this,

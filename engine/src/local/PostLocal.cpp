@@ -466,3 +466,11 @@ void ZapFR::Engine::PostLocal::replaceEnclosures(uint64_t postID, const std::vec
         insertStmt << "INSERT INTO post_enclosures (postID, url, size, mimetype) VALUES (?, ?, ?, ?)", use(postID), useRef(e.url), use(size), useRef(e.mimeType), now;
     }
 }
+
+uint64_t ZapFR::Engine::PostLocal::highestID()
+{
+    uint64_t maxID{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT MAX(id) FROM posts", into(maxID), now;
+    return maxID;
+}

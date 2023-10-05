@@ -282,19 +282,26 @@ void ZapFR::Engine::Agent::queueMarkPostsUnread(uint64_t sourceID, const std::ve
     enqueue(std::make_unique<AgentPostsMarkUnread>(sourceID, feedAndPostIDs, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkFeedRead(uint64_t sourceID, uint64_t feedID, uint64_t maxPostID, std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentFeedMarkRead>(sourceID, feedID, finishedCallback));
+    enqueue(std::make_unique<AgentFeedMarkRead>(sourceID, feedID, maxPostID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, uint64_t maxPostID,
+                                               std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentFolderMarkRead>(sourceID, folderID, finishedCallback));
+    enqueue(std::make_unique<AgentFolderMarkRead>(sourceID, folderID, maxPostID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueMarkSourceRead(uint64_t sourceID, std::function<void(uint64_t)> finishedCallback)
+void ZapFR::Engine::Agent::queueMarkSourceRead(uint64_t sourceID, uint64_t maxPostID, std::function<void(uint64_t)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentSourceMarkRead>(sourceID, finishedCallback));
+    enqueue(std::make_unique<AgentSourceMarkRead>(sourceID, maxPostID, finishedCallback));
+}
+
+void ZapFR::Engine::Agent::queueMarkScriptFolderRead(uint64_t sourceID, uint64_t scriptFolderID, uint64_t maxPostID,
+                                                     std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
+{
+    enqueue(std::make_unique<AgentScriptFolderMarkRead>(sourceID, scriptFolderID, maxPostID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback)
@@ -398,11 +405,6 @@ void ZapFR::Engine::Agent::queueUpdateScriptFolder(uint64_t sourceID, uint64_t s
 void ZapFR::Engine::Agent::queueRemoveScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, uint64_t)> finishedCallback)
 {
     enqueue(std::make_unique<AgentScriptFolderRemove>(sourceID, scriptFolderID, finishedCallback));
-}
-
-void ZapFR::Engine::Agent::queueMarkScriptFolderRead(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback)
-{
-    enqueue(std::make_unique<AgentScriptFolderMarkRead>(sourceID, scriptFolderID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback)

@@ -47,7 +47,7 @@ namespace ZapFR
             void fetchStatistics();
             void fetchThumbnailData();
             void refresh() override;
-            void markAsRead() override;
+            void markAsRead(uint64_t maxPostID) override;
             void refreshIcon();
             void removeIcon();
 

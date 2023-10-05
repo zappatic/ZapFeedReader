@@ -60,6 +60,7 @@ namespace ZapFR
             QStandardItemModel* sourcesItemModel() const noexcept { return mItemModelSources.get(); }
             uint64_t previouslySelectedSourceID() const noexcept { return mPreviouslySelectedSourceID; }
             void setPreviouslySelectedSourceID(uint64_t sID) noexcept { mPreviouslySelectedSourceID = sID; }
+            uint64_t highestPostID() const noexcept { return mHighestPostID; }
 
             std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFolderID() const;
             std::tuple<uint64_t, uint64_t> getCurrentlySelectedSourceAndFeedID() const;
@@ -194,6 +195,8 @@ namespace ZapFR
             uint64_t mPreviouslySelectedSourceID{0};
             std::unique_ptr<QJsonObject> mReloadExpansionSelectionState{nullptr};
             DisplayMode mDisplayMode{DisplayMode::ShowAll};
+
+            uint64_t mHighestPostID{0};
 
             void preserveExpansionSelectionState();
             void restoreExpansionSelectionState();

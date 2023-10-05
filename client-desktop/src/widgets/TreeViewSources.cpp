@@ -886,6 +886,12 @@ void ZapFR::Client::TreeViewSources::remoteSourceStatusReceived(uint64_t affecte
         auto rootChild = rootParent->child(i);
         updateBadges(rootChild);
     }
+
+    // set the highest post id
+    if (statusObj.has(ZapFR::Engine::JSON::SourceStatus::HighestPostID))
+    {
+        mHighestPostID = statusObj.getValue<uint64_t>(ZapFR::Engine::JSON::SourceStatus::HighestPostID);
+    }
 }
 
 QStandardItem* ZapFR::Client::TreeViewSources::findSourceStandardItem(uint64_t sourceID)
@@ -2033,6 +2039,7 @@ void ZapFR::Client::TreeViewSources::connectStuff()
                             localUI->frameFlagFilters->reload();
                             localUI->tableViewScriptFolders->reload();
                             localUI->tableViewPosts->updateActivePostFilter();
+                            refreshBadges();
                             break;
                         }
                         case ContentPane::Logs:
