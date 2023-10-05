@@ -45,10 +45,10 @@ bool ZapFR::Client::WebEnginePagePost::acceptNavigationRequest(const QUrl& url, 
         }
         case QWebEnginePage::NavigationTypeLinkClicked:
         {
-            if (url.scheme() == "zapfr" && url.host() == "viewpostandmarkunread")
+            if (url.scheme() == "zapfr")
             {
                 auto q = QUrlQuery(url);
-                if (q.hasQueryItem("postID") && q.hasQueryItem("feedID") && q.hasQueryItem("sourceID") && q.hasQueryItem("link"))
+                if (q.hasQueryItem("postID") && q.hasQueryItem("feedID") && q.hasQueryItem("sourceID"))
                 {
                     bool ok;
                     uint64_t postID = q.queryItemValue("postID").toUInt(&ok);
@@ -67,19 +67,32 @@ bool ZapFR::Client::WebEnginePagePost::acceptNavigationRequest(const QUrl& url, 
                         return false;
                     }
 
-                    auto link = QString(QByteArray::fromBase64(q.queryItemValue("link").toUtf8()));
-                    if (!link.isEmpty())
+                    if (url.host() == "viewpostandmarkunread" && q.hasQueryItem("link"))
                     {
-                        QDesktopServices::openUrl(link);
-                    }
+                        auto link = QString(QByteArray::fromBase64(q.queryItemValue("link").toUtf8()));
+                        if (!link.isEmpty())
+                        {
+                            QDesktopServices::openUrl(link);
+                        }
 
-                    ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(sourceID, {{feedID, postID}},
-                                                                            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs)
-                                                                            {
-                                                                                auto tableVieWPosts = qobject_cast<TableViewPosts*>(parent());
-                                                                                QMetaObject::invokeMethod(
-                                                                                    this, [=]() { tableVieWPosts->postsMarkedRead(affectedSourceID, feedAndPostIDs); });
-                                                                            });
+                        ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(
+                            sourceID, {{feedID, postID}},
+                            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs)
+                            {
+                                auto tableVieWPosts = qobject_cast<TableViewPosts*>(parent());
+                                QMetaObject::invokeMethod(this, [=]() { tableVieWPosts->postsMarkedRead(affectedSourceID, feedAndPostIDs); });
+                            });
+                    }
+                    else if (url.host() == "markunread")
+                    {
+                        ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(
+                            sourceID, {{feedID, postID}},
+                            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& feedAndPostIDs)
+                            {
+                                auto tableVieWPosts = qobject_cast<TableViewPosts*>(parent());
+                                QMetaObject::invokeMethod(this, [=]() { tableVieWPosts->postsMarkedRead(affectedSourceID, feedAndPostIDs); });
+                            });
+                    }
                 }
             }
             else
