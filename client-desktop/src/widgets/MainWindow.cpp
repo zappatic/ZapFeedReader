@@ -994,8 +994,11 @@ void ZapFR::Client::MainWindow::connectStuff()
                         ui->tableViewScriptFolders->setVisible(true);
                         ui->treeViewSources->setAllowDragAndDrop(true);
                         ui->treeViewSources->setUnreadBadgesShown(true);
-                        ui->tableViewPosts->setPage(1);
-                        ui->tableViewPosts->reload();
+                        if (ui->treeViewSources->displayMode() == TreeViewSources::DisplayMode::ShowAll)
+                        {
+                            ui->tableViewPosts->setPage(1);
+                            ui->tableViewPosts->reload();
+                        }
                         ui->treeViewSources->setPreviouslySelectedSourceID(0);
                         ui->frameFlagFilters->reload();
                         ui->treeViewSources->setDisplayMode(TreeViewSources::DisplayMode::ShowAll);

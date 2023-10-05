@@ -283,7 +283,7 @@ void ZapFR::Client::TreeViewSources::reload()
                     }
                     parentItem->appendRow(feedItem);
                 }
-                QMetaObject::invokeMethod(this, [=, this]() { populateSources(retrievedSource->id(), sourceItem); });
+                QMetaObject::invokeMethod(this, [=, this]() { mItemModelSources->appendRow(sourceItem); });
             });
     }
 
@@ -333,21 +333,17 @@ void ZapFR::Client::TreeViewSources::reload()
                                               setCurrentIndex(mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(toSelect)));
                                           }
 
+                                          restoreExpansionSelectionState();
                                           mMainWindow->getUI()->progressBarSources->setVisible(false);
                                       });
         });
-}
-
-void ZapFR::Client::TreeViewSources::populateSources(uint64_t /*sourceID*/, QStandardItem* sourceItem)
-{
-    mItemModelSources->appendRow(sourceItem);
-    restoreExpansionSelectionState(sourceItem);
 }
 
 void ZapFR::Client::TreeViewSources::preserveExpansionSelectionState()
 {
     // we skip the first expansion preservation to make sure the initial expansion data (loaded from the settings)
     // are not overwritten on the first reload() call, when the sources aren't populated yet
+    static bool isFirstExpansionPreservation{true};
     if (!isFirstExpansionPreservation && mDisplayMode == DisplayMode::ShowAll)
     {
         mReloadExpansionSelectionState = std::make_unique<QJsonObject>();
@@ -369,7 +365,7 @@ void ZapFR::Client::TreeViewSources::preserveExpansionSelectionState()
     isFirstExpansionPreservation = false;
 }
 
-void ZapFR::Client::TreeViewSources::restoreExpansionSelectionState(QStandardItem* /*sourceItem*/)
+void ZapFR::Client::TreeViewSources::restoreExpansionSelectionState()
 {
     if (mReloadExpansionSelectionState != nullptr && mDisplayMode == DisplayMode::ShowAll)
     {
@@ -404,6 +400,7 @@ void ZapFR::Client::TreeViewSources::restoreExpansionSelectionState(QStandardIte
             };
             selectIndex(mItemModelSources->invisibleRootItem());
         }
+        mReloadExpansionSelectionState = nullptr;
     }
 }
 
@@ -605,7 +602,7 @@ void ZapFR::Client::TreeViewSources::setDisplayMode(DisplayMode dm)
             // so that the entire tree is populated
             mProxyModelSources->setDisplayMode(dm);
             mDisplayMode = dm;
-            restoreExpansionSelectionState(nullptr);
+            restoreExpansionSelectionState();
             mItemModelSources->setHorizontalHeaderItem(0, new QStandardItem(tr("Sources & Feeds")));
             break;
         }
