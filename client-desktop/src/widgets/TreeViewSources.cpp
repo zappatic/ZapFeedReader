@@ -1517,7 +1517,7 @@ void ZapFR::Client::TreeViewSources::feedRefreshed(uint64_t sourceID, uint64_t f
             }
         }
     }
-    mMainWindow->getUI()->tableViewScriptFolders->reload(true);
+    mMainWindow->getUI()->tableViewScriptFolders->refreshBadges();
     mMainWindow->getUI()->frameFlagFilters->reload(true);
 }
 
@@ -2037,7 +2037,7 @@ void ZapFR::Client::TreeViewSources::refreshBadges()
             { QMetaObject::invokeMethod(this, [=, this]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
         if (source->id() == currentlySelectedSourceID)
         {
-            mMainWindow->getUI()->tableViewScriptFolders->reload();
+            mMainWindow->getUI()->tableViewScriptFolders->refreshBadges();
         }
     }
 }

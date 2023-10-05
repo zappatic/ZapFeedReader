@@ -44,7 +44,7 @@ namespace ZapFR
 
             void setMainWindow(MainWindow* mw) noexcept { mMainWindow = mw; }
             void reload(bool forceReload = false);
-            void updateBadges(uint64_t sourceID, const std::unordered_map<uint64_t, std::tuple<uint64_t, uint64_t>>& totalAndUnreadCounts);
+            void refreshBadges();
             QAction* actionAddScriptFolder() const noexcept { return mActionAddScriptFolder.get(); }
             QAction* actionEditScriptFolder() const noexcept { return mActionEditScriptFolder.get(); }
             QAction* actionRemoveScriptFolder() const noexcept { return mActionRemoveScriptFolder.get(); }

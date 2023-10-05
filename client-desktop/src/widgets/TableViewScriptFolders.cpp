@@ -147,34 +147,55 @@ void ZapFR::Client::TableViewScriptFolders::populateScriptFolders(uint64_t sourc
     }
 }
 
-void ZapFR::Client::TableViewScriptFolders::updateBadges(uint64_t sourceID, const std::unordered_map<uint64_t, std::tuple<uint64_t, uint64_t>>& totalAndUnreadCounts)
+void ZapFR::Client::TableViewScriptFolders::refreshBadges()
 {
-    for (int32_t i = 0; i < mItemModelScriptFolders->rowCount(); ++i)
+    auto treeViewIndex = mMainWindow->treeViewSources()->currentIndex();
+    if (treeViewIndex.isValid())
     {
-        auto index = mItemModelScriptFolders->index(i, 0);
-        if (index.isValid())
-        {
-            auto item = mItemModelScriptFolders->itemFromIndex(index);
-            if (sourceID == item->data(Role::SourceID).toULongLong())
+        auto sourceID = treeViewIndex.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+
+        ZapFR::Engine::Agent::getInstance()->queueGetScriptFolders(
+            sourceID,
+            [&](uint64_t affectedSourceID, const std::vector<ZapFR::Engine::ScriptFolder*>& updatedScriptFolders)
             {
-                if (item->data(Role::ShowTotal).toBool())
+                std::unordered_map<uint64_t, std::tuple<uint64_t, uint64_t>> counts;
+                for (const auto& scriptFolder : updatedScriptFolders)
                 {
-                    item->setData(QVariant::fromValue<uint64_t>(0), Role::TotalPostCount);
-                }
-                if (item->data(Role::ShowUnread).toBool())
-                {
-                    item->setData(QVariant::fromValue<uint64_t>(0), Role::TotalUnreadCount);
+                    counts[scriptFolder->id()] = std::make_tuple(scriptFolder->totalPostCount(), scriptFolder->totalUnreadCount());
                 }
 
-                auto currentScriptFolderID = item->data(Role::ID).toULongLong();
-                if (totalAndUnreadCounts.contains(currentScriptFolderID))
-                {
-                    auto [newTotalCount, newUnreadCount] = totalAndUnreadCounts.at(currentScriptFolderID);
-                    item->setData(QVariant::fromValue<uint64_t>(newTotalCount), Role::TotalPostCount);
-                    item->setData(QVariant::fromValue<uint64_t>(newUnreadCount), Role::TotalUnreadCount);
-                }
-            }
-        }
+                QMetaObject::invokeMethod(this,
+                                          [=, this]()
+                                          {
+                                              for (int32_t i = 0; i < mItemModelScriptFolders->rowCount(); ++i)
+                                              {
+                                                  auto index = mItemModelScriptFolders->index(i, 0);
+                                                  if (index.isValid())
+                                                  {
+                                                      auto item = mItemModelScriptFolders->itemFromIndex(index);
+                                                      if (affectedSourceID == item->data(Role::SourceID).toULongLong())
+                                                      {
+                                                          if (item->data(Role::ShowTotal).toBool())
+                                                          {
+                                                              item->setData(QVariant::fromValue<uint64_t>(0), Role::TotalPostCount);
+                                                          }
+                                                          if (item->data(Role::ShowUnread).toBool())
+                                                          {
+                                                              item->setData(QVariant::fromValue<uint64_t>(0), Role::TotalUnreadCount);
+                                                          }
+
+                                                          auto currentScriptFolderID = item->data(Role::ID).toULongLong();
+                                                          if (counts.contains(currentScriptFolderID))
+                                                          {
+                                                              auto [newTotalCount, newUnreadCount] = counts.at(currentScriptFolderID);
+                                                              item->setData(QVariant::fromValue<uint64_t>(newTotalCount), Role::TotalPostCount);
+                                                              item->setData(QVariant::fromValue<uint64_t>(newUnreadCount), Role::TotalUnreadCount);
+                                                          }
+                                                      }
+                                                  }
+                                              }
+                                          });
+            });
     }
 }
 

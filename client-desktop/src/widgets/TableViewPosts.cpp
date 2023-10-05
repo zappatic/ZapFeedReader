@@ -632,7 +632,8 @@ void ZapFR::Client::TableViewPosts::postsMarkedRead(uint64_t sourceID, const std
             });
     }
 
-    mMainWindow->getUI()->tableViewScriptFolders->reload(true);
+    mMainWindow->getUI()->tableViewScriptFolders->refreshBadges();
+
     // no statusbar update here, as it's called just for clicking/reading a post in the table, which would be distracting
 }
 
@@ -659,18 +660,7 @@ void ZapFR::Client::TableViewPosts::postsMarkedUnread(uint64_t sourceID, const s
             });
     }
 
-    ZapFR::Engine::Agent::getInstance()->queueGetScriptFolders(
-        sourceID,
-        [&](uint64_t affectedSourceID, const std::vector<ZapFR::Engine::ScriptFolder*>& updatedScriptFolders)
-        {
-            std::unordered_map<uint64_t, std::tuple<uint64_t, uint64_t>> counts;
-            for (const auto& scriptFolder : updatedScriptFolders)
-            {
-                counts[scriptFolder->id()] = std::make_tuple(scriptFolder->totalPostCount(), scriptFolder->totalUnreadCount());
-            }
-
-            QMetaObject::invokeMethod(this, [=, this]() { mMainWindow->getUI()->tableViewScriptFolders->updateBadges(affectedSourceID, counts); });
-        });
+    mMainWindow->getUI()->tableViewScriptFolders->refreshBadges();
 
     mMainWindow->setStatusBarMessage(tr("Post(s) marked as unread"));
 }
@@ -776,7 +766,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                              affectedSourceID, affectedFeedIDs, false, 0);
                                                                                                          mCurrentPostPage = 1;
                                                                                                          updatePostsReadStatus(true, affectedSourceID, {});
-                                                                                                         mMainWindow->getUI()->tableViewScriptFolders->reload(true);
+                                                                                                         mMainWindow->getUI()->tableViewScriptFolders->refreshBadges();
                                                                                                          mMainWindow->setStatusBarMessage(tr("Script folder marked as read"));
                                                                                                      });
                                                                        });
@@ -803,7 +793,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                              affectedSourceID, {affectedFeedID}, false, 0);
                                                                                                          mCurrentPostPage = 1;
                                                                                                          updatePostsReadStatus(true, affectedSourceID, {});
-                                                                                                         mMainWindow->getUI()->tableViewScriptFolders->reload(true);
+                                                                                                         mMainWindow->getUI()->tableViewScriptFolders->refreshBadges();
                                                                                                          mMainWindow->setStatusBarMessage(tr("Feed marked as read"));
                                                                                                      });
                                                                        });
@@ -822,7 +812,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                                affectedSourceID, affectedFeedIDs, false, 0);
                                                                                                            mCurrentPostPage = 1;
                                                                                                            updatePostsReadStatus(true, affectedSourceID, {});
-                                                                                                           mMainWindow->getUI()->tableViewScriptFolders->reload(true);
+                                                                                                           mMainWindow->getUI()->tableViewScriptFolders->refreshBadges();
                                                                                                            mMainWindow->setStatusBarMessage(tr("Folder marked as read"));
                                                                                                        });
                                                                          });
@@ -840,7 +830,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
                                                                                                                affectedSourceID, {}, true, 0);
                                                                                                            mCurrentPostPage = 1;
                                                                                                            updatePostsReadStatus(true, affectedSourceID, {});
-                                                                                                           mMainWindow->getUI()->tableViewScriptFolders->reload(true);
+                                                                                                           mMainWindow->getUI()->tableViewScriptFolders->refreshBadges();
                                                                                                            mMainWindow->setStatusBarMessage(tr("Source marked as read"));
                                                                                                        });
                                                                          });
