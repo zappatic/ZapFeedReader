@@ -84,7 +84,7 @@ namespace ZapFR
                 SourceGetLogs,
                 SourceGetPosts,
                 SourceGetTree,
-                SourceGetUnreadCounts,
+                SourceGetStatus,
                 SourceGetUsedFlagColors,
                 SourceImportOPML,
                 SourceMarkRead,

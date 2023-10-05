@@ -786,12 +786,43 @@ bool ZapFR::Client::TreeViewSources::doesSourceHaveError(uint64_t sourceID)
     return false;
 }
 
-void ZapFR::Client::TreeViewSources::remoteSourceUnreadCountsReceived(uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
+void ZapFR::Client::TreeViewSources::remoteSourceStatusReceived(uint64_t affectedSourceID, const Poco::JSON::Object& statusObj)
 {
+    // unserialize the feed unread counts to an unordered_map
+    std::unordered_map<uint64_t, uint64_t> unreadCounts;
+    if (statusObj.has(ZapFR::Engine::JSON::SourceStatus::UnreadCounts))
+    {
+        auto unreadCountArr = statusObj.getArray(ZapFR::Engine::JSON::SourceStatus::UnreadCounts);
+        if (!unreadCountArr.isNull())
+        {
+            for (size_t i = 0; i < unreadCountArr->size(); ++i)
+            {
+                auto ucObj = unreadCountArr->getObject(static_cast<uint32_t>(i));
+                unreadCounts[ucObj->getValue<uint64_t>(ZapFR::Engine::JSON::SourceStatus::FeedID)] = ucObj->getValue<uint64_t>(ZapFR::Engine::JSON::SourceStatus::UnreadCount);
+            }
+        }
+    }
+
+    // unserialize the feed errors to an unordered_map
+    std::unordered_map<uint64_t, std::string> feedErrors;
+    if (statusObj.has(ZapFR::Engine::JSON::SourceStatus::FeedErrors))
+    {
+        auto feedErrorsArr = statusObj.getArray(ZapFR::Engine::JSON::SourceStatus::FeedErrors);
+        if (!feedErrorsArr.isNull())
+        {
+            for (size_t i = 0; i < feedErrorsArr->size(); ++i)
+            {
+                auto feObj = feedErrorsArr->getObject(static_cast<uint32_t>(i));
+                feedErrors[feObj->getValue<uint64_t>(ZapFR::Engine::JSON::SourceStatus::FeedID)] = feObj->getValue<std::string>(ZapFR::Engine::JSON::SourceStatus::FeedError);
+            }
+        }
+    }
+
     // clang complains about directly using structured binding inside the lambda below, so circumvent with std::tie (supposedly fixed in clang16)
     uint64_t currentlySelectedSourceID{0}, currentlySelectedFeedID{0};
     std::tie(currentlySelectedSourceID, currentlySelectedFeedID) = getCurrentlySelectedSourceAndFeedID();
 
+    // update the badges and feed errors in the tree view
     std::function<void(QStandardItem*)> updateBadges;
     updateBadges = [&](QStandardItem* parent)
     {
@@ -806,18 +837,32 @@ void ZapFR::Client::TreeViewSources::remoteSourceUnreadCountsReceived(uint64_t a
                     auto parentFeedID = parent->data(Role::ID).toULongLong();
                     auto previousUnreadCount = parent->data(Role::UnreadCount).toULongLong();
                     parent->setData(QVariant::fromValue<uint64_t>(0), Role::UnreadCount);
-                    for (const auto& [feedID, unreadCount] : unreadCounts)
+                    // update the unread count badge
+                    if (unreadCounts.contains(parentFeedID))
                     {
-                        if (feedID == parentFeedID)
+                        auto unreadCount = unreadCounts.at(parentFeedID);
+                        parent->setData(QVariant::fromValue<uint64_t>(unreadCount), Role::UnreadCount);
+                        if (parentSourceID == currentlySelectedSourceID && parentFeedID == currentlySelectedFeedID && previousUnreadCount != unreadCount)
                         {
-                            parent->setData(QVariant::fromValue<uint64_t>(unreadCount), Role::UnreadCount);
-
-                            if (parentSourceID == currentlySelectedSourceID && feedID == currentlySelectedFeedID && previousUnreadCount != unreadCount)
-                            {
-                                mMainWindow->getUI()->tableViewPosts->reload();
-                            }
-                            break;
+                            mMainWindow->getUI()->tableViewPosts->reload();
                         }
+                    }
+                    else
+                    {
+                        parent->setData(QVariant::fromValue<uint64_t>(0), Role::UnreadCount);
+                    }
+
+                    // update the error
+                    if (feedErrors.contains(parentFeedID))
+                    {
+                        auto feedError = QString::fromUtf8(feedErrors.at(parentFeedID));
+                        parent->setData(feedError, Role::Error);
+                        parent->setData(feedError, Qt::ToolTipRole);
+                    }
+                    else
+                    {
+                        parent->setData(QVariant(), Role::Error);
+                        parent->setData(QVariant(), Qt::ToolTipRole);
                     }
                     break;
                 }
@@ -1915,12 +1960,11 @@ void ZapFR::Client::TreeViewSources::connectStuff()
                             }
                         }
 
-                        ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(
-                            sourceID,
-                            [&](uint64_t /*affectedSourceID*/, const std::unordered_map<uint64_t, uint64_t>& /*unreadCounts*/)
-                            {
-                                // nop
-                            });
+                        ZapFR::Engine::Agent::getInstance()->queueGetSourceStatus(sourceID,
+                                                                                  [&](uint64_t /*affectedSourceID*/, const Poco::JSON::Object& /*status*/)
+                                                                                  {
+                                                                                      // nop
+                                                                                  });
                     }
                 }
             });
@@ -2029,9 +2073,9 @@ void ZapFR::Client::TreeViewSources::refreshBadges()
     auto sources = ZapFR::Engine::Source::getSources(ZapFR::Engine::ServerIdentifier::Remote);
     for (const auto& source : sources)
     {
-        ZapFR::Engine::Agent::getInstance()->queueGetSourceUnreadCount(
-            source->id(), [&](uint64_t affectedSourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts)
-            { QMetaObject::invokeMethod(this, [=, this]() { remoteSourceUnreadCountsReceived(affectedSourceID, unreadCounts); }); });
+        ZapFR::Engine::Agent::getInstance()->queueGetSourceStatus(
+            source->id(), [&](uint64_t affectedSourceID, const Poco::JSON::Object& statusObj)
+            { QMetaObject::invokeMethod(this, [=, this]() { remoteSourceStatusReceived(affectedSourceID, statusObj); }); });
         if (source->id() == currentlySelectedSourceID)
         {
             mMainWindow->getUI()->tableViewScriptFolders->refreshBadges();

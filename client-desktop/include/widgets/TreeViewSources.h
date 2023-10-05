@@ -199,7 +199,7 @@ namespace ZapFR
             void restoreExpansionSelectionState();
             QJsonArray expandedItems() const;
             void expandItems(const QJsonArray& items);
-            void remoteSourceUnreadCountsReceived(uint64_t sourceID, const std::unordered_map<uint64_t, uint64_t>& unreadCounts);
+            void remoteSourceStatusReceived(uint64_t sourceID, const Poco::JSON::Object& statusObj);
             void refreshSourceEntryType(const QModelIndex& index, uint64_t type);
 
             void connectStuff();

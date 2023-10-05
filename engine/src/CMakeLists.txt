@@ -62,7 +62,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/source/AgentSourceGetLogs.cpp
     agents/source/AgentSourceGetPosts.cpp
     agents/source/AgentSourceGetTree.cpp
-    agents/source/AgentSourceGetUnreadCount.cpp
+    agents/source/AgentSourceGetStatus.cpp
     agents/source/AgentSourceGetUsedFlagColors.cpp
     agents/source/AgentSourceImportOPML.cpp
     agents/source/AgentSourceMarkRead.cpp

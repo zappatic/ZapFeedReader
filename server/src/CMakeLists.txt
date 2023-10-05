@@ -56,7 +56,7 @@ target_sources(zapfeedreader-server PRIVATE
 	handlers/scripts/APIHandler_script_update.cpp
 	handlers/scripts/APIHandler_scripts_list.cpp
 	handlers/sources/APIHandler_source_deletelogs.cpp
-	handlers/sources/APIHandler_source_getunreadcounts.cpp
+	handlers/sources/APIHandler_source_getstatus.cpp
 	handlers/sources/APIHandler_source_importopml.cpp
 	handlers/sources/APIHandler_source_markasread.cpp
 	handlers/sources/APIHandler_source_setpostsflagstatus.cpp

@@ -349,6 +349,53 @@ std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceLocal::getUnreadCoun
     return unreadCounts;
 }
 
+std::unordered_map<uint64_t, std::string> ZapFR::Engine::SourceLocal::getFeedErrors()
+{
+    std::unordered_map<uint64_t, std::string> feedErrors;
+
+    uint64_t feedID{0};
+    std::string error{""};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT id, lastRefreshError FROM feeds WHERE lastRefreshError NOT NULL", into(feedID), into(error), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            feedErrors[feedID] = error;
+        }
+    }
+    return feedErrors;
+}
+
+Poco::JSON::Object ZapFR::Engine::SourceLocal::getStatus()
+{
+    Poco::JSON::Object o;
+
+    const auto& unreadCounts = getUnreadCounts();
+    Poco::JSON::Array unreadCountsArr;
+    for (const auto& [feedID, unreadCount] : unreadCounts)
+    {
+        Poco::JSON::Object ucObj;
+        ucObj.set(JSON::SourceStatus::FeedID, feedID);
+        ucObj.set(JSON::SourceStatus::UnreadCount, unreadCount);
+        unreadCountsArr.add(ucObj);
+    }
+    o.set(JSON::SourceStatus::UnreadCounts, unreadCountsArr);
+
+    const auto& feedErrors = getFeedErrors();
+    Poco::JSON::Array feedErrorsArr;
+    for (const auto& [feedID, error] : feedErrors)
+    {
+        Poco::JSON::Object feObj;
+        feObj.set(JSON::SourceStatus::FeedID, feedID);
+        feObj.set(JSON::SourceStatus::FeedError, error);
+        feedErrorsArr.add(feObj);
+    }
+    o.set(JSON::SourceStatus::FeedErrors, feedErrorsArr);
+
+    return o;
+}
+
 void ZapFR::Engine::SourceLocal::fetchThumbnailData()
 {
     mThumbnailData.clear();

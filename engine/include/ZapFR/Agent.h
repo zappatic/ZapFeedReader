@@ -82,7 +82,7 @@ namespace ZapFR
 
             // querying sources
             void queueGetSourceTree(uint64_t sourceID, std::function<void(Source*, const std::vector<Folder*>&, const std::vector<Feed*>&)> finishedCallback);
-            void queueGetSourceUnreadCount(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
+            void queueGetSourceStatus(uint64_t sourceID, std::function<void(uint64_t, const Poco::JSON::Object&)> finishedCallback);
             void queueGetSource(uint64_t sourceID, std::function<void(Source*)> finishedCallback);
 
             // post manipulation

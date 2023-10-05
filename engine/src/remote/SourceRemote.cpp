@@ -521,14 +521,14 @@ void ZapFR::Engine::SourceRemote::assignPostsToScriptFolder(uint64_t scriptFolde
     }
 }
 
-std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::getUnreadCounts()
+Poco::JSON::Object ZapFR::Engine::SourceRemote::getStatus()
 {
-    std::unordered_map<uint64_t, uint64_t> unreadCounts;
+    Poco::JSON::Object statusObj;
 
     auto uri = remoteURL();
     if (mRemoteURLIsValid)
     {
-        uri.setPath("/unread-counts");
+        uri.setPath("/status");
         auto creds = Poco::Net::HTTPCredentials(mRemoteLogin, mRemotePassword);
 
         const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
@@ -537,22 +537,11 @@ std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceRemote::getUnreadCou
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
         if (!rootObj.isNull())
         {
-            std::vector<std::string> keys;
-            rootObj->getNames(keys);
-            for (const auto& key : keys)
-            {
-                uint64_t feedID{0};
-                Poco::NumberParser::tryParseUnsigned64(key, feedID);
-                if (feedID != 0)
-                {
-                    auto count = rootObj->getValue<uint64_t>(key);
-                    unreadCounts[feedID] = count;
-                }
-            }
+            statusObj = *rootObj;
         }
     }
 
-    return unreadCounts;
+    return statusObj;
 }
 
 /* ************************** LOGS STUFF ************************** */

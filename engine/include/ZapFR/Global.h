@@ -189,6 +189,15 @@ namespace ZapFR
                 constexpr const char NewestPost[]{"newestPost"};
             }; // namespace Statistic
 
+            namespace SourceStatus
+            {
+                constexpr const char FeedID[]{"feedID"};
+                constexpr const char UnreadCount[]{"unreadCount"};
+                constexpr const char UnreadCounts[]{"unreadCounts"};
+                constexpr const char FeedError[]{"error"};
+                constexpr const char FeedErrors[]{"feedErrors"};
+            }; // namespace SourceStatus
+
         }; // namespace JSON
 
     } // namespace Engine

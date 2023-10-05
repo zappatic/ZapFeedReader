@@ -23,29 +23,22 @@
 
 // ::API
 //
-//	Retrieves a mapping of feed IDs to unread counts
-//	/unread-counts (GET)
+//	Retrieves the status of the server, containing data to properly synchronize the client
+//	/status (GET)
 //
 //	Content-Type: application/json
 //	JSON output: Object
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_getunreadcounts([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_getstatus([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-
     Poco::JSON::Object o;
 
-    std::unordered_map<uint64_t, uint64_t> unreadCounts;
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
     {
-        unreadCounts = source.value()->getUnreadCounts();
-    }
-
-    for (const auto& [feedID, count] : unreadCounts)
-    {
-        o.set(std::to_string(feedID), count);
+        o = source.value()->getStatus();
     }
 
     Poco::JSON::Stringifier::stringify(o, response.send());

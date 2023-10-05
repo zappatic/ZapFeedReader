@@ -63,8 +63,8 @@
 #include "ZapFR/agents/source/AgentSourceGet.h"
 #include "ZapFR/agents/source/AgentSourceGetLogs.h"
 #include "ZapFR/agents/source/AgentSourceGetPosts.h"
+#include "ZapFR/agents/source/AgentSourceGetStatus.h"
 #include "ZapFR/agents/source/AgentSourceGetTree.h"
-#include "ZapFR/agents/source/AgentSourceGetUnreadCount.h"
 #include "ZapFR/agents/source/AgentSourceGetUsedFlagColors.h"
 #include "ZapFR/agents/source/AgentSourceImportOPML.h"
 #include "ZapFR/agents/source/AgentSourceMarkRead.h"
@@ -357,9 +357,9 @@ void ZapFR::Engine::Agent::queueGetSourceTree(uint64_t sourceID, std::function<v
     enqueue(std::make_unique<AgentSourceGetTree>(sourceID, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueGetSourceUnreadCount(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback)
+void ZapFR::Engine::Agent::queueGetSourceStatus(uint64_t sourceID, std::function<void(uint64_t, const Poco::JSON::Object&)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentSourceGetUnreadCount>(sourceID, finishedCallback));
+    enqueue(std::make_unique<AgentSourceGetStatus>(sourceID, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetFeedUnreadCount(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, uint64_t)> finishedCallback)

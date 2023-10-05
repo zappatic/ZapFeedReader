@@ -64,7 +64,7 @@ namespace ZapFR
             void setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,
                                     const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) override;
             void assignPostsToScriptFolder(uint64_t scriptFolderID, bool assign, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) override;
-            std::unordered_map<uint64_t, uint64_t> getUnreadCounts() override;
+            Poco::JSON::Object getStatus() override;
 
             // log stuff
             std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;

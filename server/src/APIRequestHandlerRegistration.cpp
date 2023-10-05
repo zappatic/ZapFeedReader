@@ -526,13 +526,13 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
-				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Retrieves a mapping of feed IDs to unread counts)");
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Sources)", R"(Retrieves the status of the server, containing data to properly synchronize the client)");
 				entry->setMethod("GET");
-				entry->setPath(R"(^\/unread-counts$)", R"(/unread-counts)");
+				entry->setPath(R"(^\/status$)", R"(/status)");
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
-				entry->setHandler(ZapFR::Server::APIHandler_source_getunreadcounts);
+				entry->setHandler(ZapFR::Server::APIHandler_source_getstatus);
 				msAPIs.emplace_back(std::move(entry));
 			}
 

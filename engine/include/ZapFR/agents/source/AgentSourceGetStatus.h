@@ -16,8 +16,10 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTSOURCEGETUNREADCOUNTS_H
-#define ZAPFR_ENGINE_AGENTSOURCEGETUNREADCOUNTS_H
+#ifndef ZAPFR_ENGINE_AGENTSOURCEGETSTATUS_H
+#define ZAPFR_ENGINE_AGENTSOURCEGETSTATUS_H
+
+#include <Poco/JSON/Object.h>
 
 #include "ZapFR/AgentRunnable.h"
 
@@ -29,20 +31,20 @@ namespace ZapFR
         class Folder;
         class Source;
 
-        class AgentSourceGetUnreadCount : public AgentRunnable
+        class AgentSourceGetStatus : public AgentRunnable
         {
           public:
-            explicit AgentSourceGetUnreadCount(uint64_t sourceID, std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
-            virtual ~AgentSourceGetUnreadCount() = default;
+            explicit AgentSourceGetStatus(uint64_t sourceID, std::function<void(uint64_t, const Poco::JSON::Object&)> finishedCallback);
+            virtual ~AgentSourceGetStatus() = default;
 
             void payload(Source* source) override;
 
-            Type type() const noexcept override { return Type::SourceGetUnreadCounts; }
+            Type type() const noexcept override { return Type::SourceGetStatus; }
 
           private:
-            std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> mFinishedCallback{};
+            std::function<void(uint64_t, const Poco::JSON::Object&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTSOURCEGETUNREADCOUNTS_H
+#endif // ZAPFR_ENGINE_AGENTSOURCEGETSTATUS_H

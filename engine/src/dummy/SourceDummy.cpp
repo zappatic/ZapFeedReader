@@ -129,7 +129,7 @@ void ZapFR::Engine::SourceDummy::assignPostsToScriptFolder(uint64_t scriptFolder
     }
 }
 
-std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceDummy::getUnreadCounts()
+Poco::JSON::Object ZapFR::Engine::SourceDummy::getStatus()
 {
     throw std::runtime_error("Not implemented");
 }

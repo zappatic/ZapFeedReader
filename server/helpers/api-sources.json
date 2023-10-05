@@ -109,12 +109,12 @@
     "contentType": "application/json",
     "jsonOutput": "Array"
   },
-  "source-getunreadcounts": {
+  "source-getstatus": {
     "section": "Sources",
-    "description": "Retrieves a mapping of feed IDs to unread counts",
+    "description": "Retrieves the status of the server, containing data to properly synchronize the client",
     "method": "GET",
-    "path": "^\\/unread-counts$",
-    "prettyPath": "/unread-counts",
+    "path": "^\\/status$",
+    "prettyPath": "/status",
     "uriParameters": [],
     "parameters": [],
     "requireCredentials": true,

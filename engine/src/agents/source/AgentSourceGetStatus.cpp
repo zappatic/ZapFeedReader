@@ -16,20 +16,18 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/source/AgentSourceGetUnreadCount.h"
+#include "ZapFR/agents/source/AgentSourceGetStatus.h"
 #include "ZapFR/Agent.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentSourceGetUnreadCount::AgentSourceGetUnreadCount(uint64_t sourceID,
-                                                                    std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback)
+ZapFR::Engine::AgentSourceGetStatus::AgentSourceGetStatus(uint64_t sourceID, std::function<void(uint64_t, const Poco::JSON::Object&)> finishedCallback)
     : AgentRunnable(sourceID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentSourceGetUnreadCount::payload(Source* source)
+void ZapFR::Engine::AgentSourceGetStatus::payload(Source* source)
 {
-    auto unreadCounts = source->getUnreadCounts();
-    mFinishedCallback(source->id(), unreadCounts);
+    mFinishedCallback(source->id(), source->getStatus());
 }

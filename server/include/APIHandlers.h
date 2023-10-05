@@ -71,7 +71,7 @@ namespace ZapFR
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scriptfolders_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_scripts_list(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_deletelogs(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
-		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_getunreadcounts(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_getstatus(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_importopml(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_markasread(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_setpostsflagstatus(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
