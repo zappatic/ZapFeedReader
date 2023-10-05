@@ -66,9 +66,9 @@ void ZapFR::Engine::Database::upgrade()
         {
             if (currentDBVersion < ZapFR::Engine::DBVersion)
             {
-                static std::vector<std::function<void()>> upgradeFunctions{[]() { /* nop, there is no db version 0 */ },
-                                                                           []() { /* nop, version 1 should have been installed with installDBSchemaV1 */ },
-                                                                           std::bind(&Database::upgradeToDBSchemaV2, this), std::bind(&Database::upgradeToDBSchemaV3, this)};
+                static std::vector<std::function<void()>> upgradeFunctions{
+                    []() { /* nop, there is no db version 0 */ }, []() { /* nop, version 1 should have been installed with installDBSchemaV1 */ },
+                    std::bind(&Database::upgradeToDBSchemaV2, this), std::bind(&Database::upgradeToDBSchemaV3, this), std::bind(&Database::upgradeToDBSchemaV4, this)};
 
                 for (auto i = currentDBVersion + 1; i <= ZapFR::Engine::DBVersion; ++i)
                 {
@@ -266,4 +266,17 @@ void ZapFR::Engine::Database::upgradeToDBSchemaV3()
 {
     (*mSession) << "ALTER TABLE feeds ADD conditionalGETInfo TEXT", now;
     (*mSession) << "UPDATE config SET VALUE='3' WHERE key='db_schema_version'", now;
+}
+
+void ZapFR::Engine::Database::upgradeToDBSchemaV4()
+{
+    (*mSession) << R"(CREATE INDEX scriptfolder_posts_IX_scriptFolderID ON scriptfolder_posts (scriptFolderID))", now;
+    (*mSession) << R"(CREATE INDEX flags_IX_flagID ON flags (flagID))", now;
+    (*mSession) << R"(CREATE INDEX feeds_IX_folder ON feeds (folder))", now;
+    (*mSession) << R"(CREATE INDEX folders_IX_parent ON folders (parent))", now;
+    (*mSession) << R"(CREATE INDEX posts_IX_feedID ON posts (feedID))", now;
+    (*mSession) << R"(CREATE INDEX posts_IX_isRead ON posts (isRead))", now;
+    (*mSession) << R"(CREATE INDEX post_enclosures_IX_postID ON post_enclosures (postID))", now;
+    (*mSession) << R"(CREATE INDEX logs_IX_feedID ON logs (feedID))", now;
+    (*mSession) << "UPDATE config SET VALUE='4' WHERE key='db_schema_version'", now;
 }
