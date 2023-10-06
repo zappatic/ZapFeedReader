@@ -160,7 +160,14 @@ std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAsRead(uint64_t max
         return {};
     }
 
-    PostLocal::updateIsRead(true, {Poco::format("posts.feedID IN (%s)", joinedFeedIDs), "posts.id <= ?"}, {use(maxPostID, "maxPostID")});
+    if (maxPostID == std::numeric_limits<uint64_t>::max())
+    {
+        PostLocal::updateIsRead(true, {Poco::format("posts.feedID IN (%s)", joinedFeedIDs)}, {});
+    }
+    else
+    {
+        PostLocal::updateIsRead(true, {Poco::format("posts.feedID IN (%s)", joinedFeedIDs), "posts.id <= ?"}, {use(maxPostID, "maxPostID")});
+    }
 
     return std::unordered_set<uint64_t>(feedIDs.begin(), feedIDs.end());
 }

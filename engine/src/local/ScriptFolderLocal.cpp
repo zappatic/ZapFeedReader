@@ -154,9 +154,13 @@ std::unordered_set<uint64_t> ZapFR::Engine::ScriptFolderLocal::markAsRead(uint64
     std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
 
     whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)");
-    whereClause.emplace_back("posts.id <= ?");
     bindings.emplace_back(useRef(mID, "scriptFolderID"));
-    bindings.emplace_back(useRef(maxPostID, "maxPostID"));
+
+    if (maxPostID != std::numeric_limits<uint64_t>::max())
+    {
+        whereClause.emplace_back("posts.id <= ?");
+        bindings.emplace_back(useRef(maxPostID, "maxPostID"));
+    }
 
     PostLocal::updateIsRead(true, whereClause, bindings);
 

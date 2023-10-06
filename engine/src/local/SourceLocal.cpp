@@ -220,7 +220,14 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
 
 void ZapFR::Engine::SourceLocal::markAsRead(uint64_t maxPostID)
 {
-    PostLocal::updateIsRead(true, {"posts.id <= ?"}, {use(maxPostID, "maxPostID")});
+    if (maxPostID == std::numeric_limits<uint64_t>::max())
+    {
+        PostLocal::updateIsRead(true, {}, {});
+    }
+    else
+    {
+        PostLocal::updateIsRead(true, {"posts.id <= ?"}, {use(maxPostID, "maxPostID")});
+    }
 }
 
 void ZapFR::Engine::SourceLocal::setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs)

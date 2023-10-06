@@ -890,8 +890,17 @@ void ZapFR::Client::TreeViewSources::remoteSourceStatusReceived(uint64_t affecte
     // set the highest post id
     if (statusObj.has(ZapFR::Engine::JSON::SourceStatus::HighestPostID))
     {
-        mHighestPostID = statusObj.getValue<uint64_t>(ZapFR::Engine::JSON::SourceStatus::HighestPostID);
+        mHighestPostIDs[affectedSourceID] = statusObj.getValue<uint64_t>(ZapFR::Engine::JSON::SourceStatus::HighestPostID);
     }
+}
+
+uint64_t ZapFR::Client::TreeViewSources::highestPostID(uint64_t sourceID) const
+{
+    if (mHighestPostIDs.contains(sourceID))
+    {
+        return mHighestPostIDs.at(sourceID);
+    }
+    return std::numeric_limits<uint64_t>::max();
 }
 
 QStandardItem* ZapFR::Client::TreeViewSources::findSourceStandardItem(uint64_t sourceID)

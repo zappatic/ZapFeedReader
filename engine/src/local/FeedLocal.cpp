@@ -290,7 +290,14 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
 
 void ZapFR::Engine::FeedLocal::markAsRead(uint64_t maxPostID)
 {
-    PostLocal::updateIsRead(true, {"posts.feedID=?", "posts.id <= ?"}, {use(mID, "feedID"), use(maxPostID, "maxPostID")});
+    if (maxPostID == std::numeric_limits<uint64_t>::max())
+    {
+        PostLocal::updateIsRead(true, {"posts.feedID=?"}, {use(mID, "feedID")});
+    }
+    else
+    {
+        PostLocal::updateIsRead(true, {"posts.feedID=?", "posts.id <= ?"}, {use(mID, "feedID"), use(maxPostID, "maxPostID")});
+    }
 }
 
 void ZapFR::Engine::FeedLocal::refreshIcon()

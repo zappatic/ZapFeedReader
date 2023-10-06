@@ -752,12 +752,12 @@ void ZapFR::Client::TableViewPosts::markAsRead()
 {
     // check if we currently have a scriptfolder selected first
     auto ui = mMainWindow->getUI();
-    auto maxPostID = ui->treeViewSources->highestPostID();
 
     auto sfIndex = ui->tableViewScriptFolders->currentIndex();
     if (sfIndex.isValid())
     {
         auto sourceID = sfIndex.data(TableViewScriptFolders::Role::SourceID).toULongLong();
+        auto maxPostID = ui->treeViewSources->highestPostID(sourceID);
         auto scriptFolderID = sfIndex.data(TableViewScriptFolders::Role::ID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkScriptFolderRead(sourceID, scriptFolderID, maxPostID,
                                                                        [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> affectedFeedIDs)
@@ -780,6 +780,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
     if (index.isValid())
     {
         auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+        auto maxPostID = ui->treeViewSources->highestPostID(sourceID);
         auto type = index.data(TreeViewSources::Role::Type).toULongLong();
         switch (type)
         {
