@@ -41,7 +41,7 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_markasread([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto scriptFolderIDStr = apiRequest->pathComponentAt(1);
-    const auto maxPostIDStr = apiRequest->parameter("maxPostID");
+    const auto maxPostIDStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::MaxPostID);
 
     uint64_t scriptFolderID{0};
     Poco::NumberParser::tryParseUnsigned64(scriptFolderIDStr, scriptFolderID);

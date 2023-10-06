@@ -42,8 +42,8 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_get([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto folderIDStr = apiRequest->pathComponentAt(1);
-    const auto getStatistics = (apiRequest->parameter("getStatistics") == "true");
-    const auto getFeedIDs = (apiRequest->parameter("getFeedIDs") == "true");
+    const auto getStatistics = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::GetStatistics) == ZapFR::Engine::HTTPParam::True);
+    const auto getFeedIDs = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::GetFeedIDs) == ZapFR::Engine::HTTPParam::True);
 
     uint64_t folderID{0};
     Poco::NumberParser::tryParseUnsigned64(folderIDStr, folderID);

@@ -71,7 +71,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->setMethod("POST");
 				entry->setPath(R"(^\/feed$)", R"(/feed)");
 				entry->addBodyParameter({R"(url)", true, R"(The url of the feed to add)"});
-				entry->addBodyParameter({R"(folder)", true, R"(The ID of the folder in which to add the new feed)"});
+				entry->addBodyParameter({R"(parentFolderID)", true, R"(The ID of the folder in which to add the new feed)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Object)");
@@ -175,7 +175,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Feeds)", R"(Returns all the feeds within the source)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/feeds$)", R"(/feeds)");
-				entry->addBodyParameter({R"(fetchIcons)", false, R"(Whether to include the base64 encoded icon or not ('true' or 'false') (optional; default=false))"});
+				entry->addBodyParameter({R"(getIcons)", false, R"(Whether to include the base64 encoded icon or not ('true' or 'false') (optional; default=false))"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");
 				entry->setJSONOutput(R"(Array)");

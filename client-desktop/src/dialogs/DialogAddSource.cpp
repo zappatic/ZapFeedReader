@@ -109,9 +109,9 @@ void ZapFR::Client::DialogAddSource::connectionTestFinished(QNetworkReply* reply
             return;
         }
         auto root = json.object();
-        if (root.contains("version"))
+        if (root.contains(ZapFR::Engine::JSON::About::Version))
         {
-            auto serverVersion = root["version"];
+            auto serverVersion = root[ZapFR::Engine::JSON::About::Version];
             if (!serverVersion.isDouble())
             {
                 QMessageBox::warning(this, tr("Invalid server reply"), tr("The server responded with an invalid reply (Unknown version)"));
@@ -130,9 +130,9 @@ void ZapFR::Client::DialogAddSource::connectionTestFinished(QNetworkReply* reply
             return;
         }
 
-        if (root.contains("name"))
+        if (root.contains(ZapFR::Engine::JSON::About::Name))
         {
-            auto name = root["name"];
+            auto name = root[ZapFR::Engine::JSON::About::Name];
             if (name.isString())
             {
                 mServerName = name.toString();

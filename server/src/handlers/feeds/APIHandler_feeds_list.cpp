@@ -28,7 +28,7 @@
 //	/feeds (GET)
 //
 //	Parameters:
-//		fetchIcons - Whether to include the base64 encoded icon or not ('true' or 'false') (optional; default=false) - apiRequest->parameter("fetchIcons")
+//		getIcons - Whether to include the base64 encoded icon or not ('true' or 'false') (optional; default=false) - apiRequest->parameter("getIcons")
 //
 //	Content-Type: application/json
 //	JSON output: Array
@@ -37,7 +37,7 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feeds_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    auto fetchIcons = (apiRequest->parameter("fetchIcons") == "true");
+    auto fetchIcons = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Feed::GetIcons) == ZapFR::Engine::HTTPParam::True);
 
     Poco::JSON::Array a;
 

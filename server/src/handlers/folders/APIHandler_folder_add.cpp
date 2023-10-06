@@ -38,8 +38,8 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_add([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto title = apiRequest->parameter("title");
-    const auto parentFolderIDStr = apiRequest->parameter("parentFolderID");
+    const auto title = apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::Title);
+    const auto parentFolderIDStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::ParentFolderID);
 
     uint64_t parentFolderID{0};
     Poco::NumberParser::tryParseUnsigned64(parentFolderIDStr, parentFolderID);

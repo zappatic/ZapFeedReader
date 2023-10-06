@@ -47,6 +47,5 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_usedflagcol
     }
 
     Poco::JSON::Stringifier::stringify(arr, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

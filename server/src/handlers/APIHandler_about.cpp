@@ -35,8 +35,8 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_about([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     Poco::JSON::Object o;
-    o.set("name", apiRequest->api()->daemon()->configString("zapfr.servername"));
-    o.set("version", ZapFR::Engine::APIVersion);
+    o.set(ZapFR::Engine::JSON::About::Name, apiRequest->api()->daemon()->configString("zapfr.servername"));
+    o.set(ZapFR::Engine::JSON::About::Version, ZapFR::Engine::APIVersion);
 
     Poco::JSON::Stringifier::stringify(o, response.send());
 

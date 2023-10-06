@@ -48,13 +48,13 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto parentType = apiRequest->parameter("parentType");
-    const auto parentIDStr = apiRequest->parameter("parentID");
-    const auto perPageStr = apiRequest->parameter("perPage");
-    const auto pageStr = apiRequest->parameter("page");
-    const auto showOnlyUnread = (apiRequest->parameter("showOnlyUnread") == "true");
-    const auto searchFilter = apiRequest->parameter("searchFilter");
-    const auto flagColorStr = apiRequest->parameter("flagColor");
+    const auto parentType = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::ParentType);
+    const auto parentIDStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::ParentID);
+    const auto perPageStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::PerPage);
+    const auto pageStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::Page);
+    const auto showOnlyUnread = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::ShowOnlyUnread) == ZapFR::Engine::HTTPParam::True);
+    const auto searchFilter = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::SearchFilter);
+    const auto flagColorStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::FlagColor);
 
     ZapFR::Engine::FlagColor flagFilter{ZapFR::Engine::FlagColor::Gray};
     if (!flagColorStr.empty())
@@ -77,7 +77,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
         std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
         std::vector<ZapFR::Engine::ThumbnailData> thumbnailData;
 
-        if (parentType == "feed")
+        if (parentType == ZapFR::Engine::HTTPParam::Post::ParentTypeFeed)
         {
             auto feed = source.value()->getFeed(parentID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
             if (feed.has_value())
@@ -88,7 +88,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
                 thumbnailData = feed.value()->thumbnailData();
             }
         }
-        else if (parentType == "source")
+        else if (parentType == ZapFR::Engine::HTTPParam::Post::ParentTypeSource)
         {
             auto t = source.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, flagFilter);
             postCount = std::get<uint64_t>(t);
@@ -97,7 +97,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
             source.value()->fetchThumbnailData();
             thumbnailData = source.value()->thumbnailData();
         }
-        else if (parentType == "folder")
+        else if (parentType == ZapFR::Engine::HTTPParam::Post::ParentTypeFolder)
         {
             auto folder = source.value()->getFolder(parentID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
             if (folder.has_value())
@@ -108,7 +108,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
                 thumbnailData = folder.value()->thumbnailData();
             }
         }
-        else if (parentType == "scriptfolder")
+        else if (parentType == ZapFR::Engine::HTTPParam::Post::ParentTypeScriptFolder)
         {
             auto scriptFolder = source.value()->getScriptFolder(parentID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
             if (scriptFolder.has_value())
@@ -129,8 +129,8 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
         {
             postsArr.add(post->toJSON());
         }
-        o.set("posts", postsArr);
-        o.set("count", postCount);
+        o.set(ZapFR::Engine::JSON::Post::Posts, postsArr);
+        o.set(ZapFR::Engine::JSON::Post::Count, postCount);
 
         Poco::JSON::Array tdArr;
         for (const auto& td : thumbnailData)
@@ -153,7 +153,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
             tdObj.set(ZapFR::Engine::JSON::ThumbnailData::Posts, tdpArr);
             tdArr.add(tdObj);
         }
-        o.set("thumbnaildata", tdArr);
+        o.set(ZapFR::Engine::JSON::Post::ThumbnailData, tdArr);
     }
 
     Poco::JSON::Stringifier::stringify(o, response.send());

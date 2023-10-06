@@ -38,8 +38,8 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folders_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto parentFolderIDStr = apiRequest->parameter("parentFolderID");
-    const auto getSubfolders = apiRequest->parameter("getSubfolders") == "true";
+    const auto parentFolderIDStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::ParentFolderID);
+    const auto getSubfolders = apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::GetSubfolders) == ZapFR::Engine::HTTPParam::True;
 
     uint64_t parentFolderID{0};
     Poco::NumberParser::tryParseUnsigned64(parentFolderIDStr, parentFolderID);

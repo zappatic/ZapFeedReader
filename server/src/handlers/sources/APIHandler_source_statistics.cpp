@@ -33,7 +33,6 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_statistics([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-
     Poco::JSON::Object o;
 
     auto source = ZapFR::Engine::Source::getSource(1);

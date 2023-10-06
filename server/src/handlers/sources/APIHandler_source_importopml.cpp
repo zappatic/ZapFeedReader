@@ -38,8 +38,8 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_importopml([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto opml = apiRequest->parameter("opml");
-    const auto parentFolderIDStr = apiRequest->parameter("parentFolderID");
+    const auto opml = apiRequest->parameter(ZapFR::Engine::HTTPParam::Source::OPML);
+    const auto parentFolderIDStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Source::ParentFolderID);
 
     uint64_t parentFolderID{0};
     Poco::NumberParser::tryParseUnsigned64(parentFolderIDStr, parentFolderID);
@@ -60,6 +60,5 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_importopml(
     }
 
     Poco::JSON::Stringifier::stringify(arr, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

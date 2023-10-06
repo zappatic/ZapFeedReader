@@ -42,7 +42,7 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_post_get([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto postIDStr = apiRequest->pathComponentAt(1);
-    const auto feedIDStr = apiRequest->parameter("feedID");
+    const auto feedIDStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::FeedID);
 
     uint64_t postID{0};
     Poco::NumberParser::tryParseUnsigned64(postIDStr, postID);

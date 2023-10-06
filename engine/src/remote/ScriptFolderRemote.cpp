@@ -46,13 +46,13 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
         std::map<std::string, std::string> params;
-        params["parentType"] = "scriptfolder";
-        params["parentID"] = std::to_string(mID);
-        params["perPage"] = std::to_string(perPage);
-        params["page"] = std::to_string(page);
-        params["showOnlyUnread"] = showOnlyUnread ? "true" : "false";
-        params["searchFilter"] = searchFilter;
-        params["flagColor"] = Flag::nameForFlagColor(flagColor);
+        params[HTTPParam::Post::ParentType] = HTTPParam::Post::ParentTypeScriptFolder;
+        params[HTTPParam::Post::ParentID] = std::to_string(mID);
+        params[HTTPParam::Post::PerPage] = std::to_string(perPage);
+        params[HTTPParam::Post::Page] = std::to_string(page);
+        params[HTTPParam::Post::ShowOnlyUnread] = showOnlyUnread ? HTTPParam::True : HTTPParam::False;
+        params[HTTPParam::Post::SearchFilter] = searchFilter;
+        params[HTTPParam::Post::FlagColor] = Flag::nameForFlagColor(flagColor);
 
         const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
@@ -60,8 +60,8 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
         if (!rootObj.isNull())
         {
-            postCount = rootObj->getValue<uint64_t>("count");
-            auto postArr = rootObj->getArray("posts");
+            postCount = rootObj->getValue<uint64_t>(JSON::Post::Count);
+            auto postArr = rootObj->getArray(JSON::Post::Posts);
             if (!postArr.isNull())
             {
                 for (size_t i = 0; i < postArr->size(); ++i)
@@ -69,7 +69,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
                     auto postObj = postArr->getObject(static_cast<uint32_t>(i));
                     posts.emplace_back(PostRemote::createFromJSON(postObj));
                 }
-                SourceRemote::unserializeThumbnailData(mThumbnailData, rootObj->getArray("thumbnaildata"));
+                SourceRemote::unserializeThumbnailData(mThumbnailData, rootObj->getArray(JSON::Post::ThumbnailData));
             }
         }
     }
@@ -87,9 +87,9 @@ void ZapFR::Engine::ScriptFolderRemote::update(const std::string& title, bool sh
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
         std::map<std::string, std::string> params;
-        params["title"] = title;
-        params["showTotal"] = showTotal ? "true" : "false";
-        params["showUnread"] = showUnread ? "true" : "false";
+        params[HTTPParam::ScriptFolder::Title] = title;
+        params[HTTPParam::ScriptFolder::ShowTotal] = showTotal ? HTTPParam::True : HTTPParam::False;
+        params[HTTPParam::ScriptFolder::ShowUnread] = showUnread ? HTTPParam::True : HTTPParam::False;
 
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_PATCH, creds, params);
     }
@@ -106,7 +106,7 @@ std::unordered_set<uint64_t> ZapFR::Engine::ScriptFolderRemote::markAsRead(uint6
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
         std::map<std::string, std::string> params;
-        params["maxPostID"] = std::to_string(maxPostID);
+        params[HTTPParam::Post::MaxPostID] = std::to_string(maxPostID);
 
         const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
         auto parser = Poco::JSON::Parser();

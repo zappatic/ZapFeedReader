@@ -36,7 +36,7 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_markasread([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto maxPostIDStr = apiRequest->parameter("maxPostID");
+    const auto maxPostIDStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::MaxPostID);
 
     uint64_t maxPostID{0};
     Poco::NumberParser::tryParseUnsigned64(maxPostIDStr, maxPostID);
@@ -48,9 +48,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_markasread(
     }
 
     Poco::JSON::Object o;
-    o.set("success", true);
-
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

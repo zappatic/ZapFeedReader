@@ -41,8 +41,8 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_move([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto folderIDStr = apiRequest->pathComponentAt(1);
-    const auto sortOrderStr = apiRequest->parameter("sortOrder");
-    const auto parentFolderIDStr = apiRequest->parameter("parentFolderID");
+    const auto sortOrderStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::SortOrder);
+    const auto parentFolderIDStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::ParentFolderID);
 
     uint64_t folderID{0};
     uint64_t sortOrder{0};
@@ -62,8 +62,8 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_move([[mayb
             for (const auto& [affectedFolderID, affectedSortOrder] : affectedFolders)
             {
                 Poco::JSON::Object o;
-                o.set("folderID", affectedFolderID);
-                o.set("sortOrder", affectedSortOrder);
+                o.set(ZapFR::Engine::JSON::Folder::ID, affectedFolderID);
+                o.set(ZapFR::Engine::JSON::Folder::SortOrder, affectedSortOrder);
                 arr.add(o);
             }
         }

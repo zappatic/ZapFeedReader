@@ -19,9 +19,9 @@
 #include "API.h"
 #include "APIHandlers.h"
 #include "APIRequest.h"
+#include "ZapFR/Log.h"
 #include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Folder.h"
-#include "ZapFR/Log.h"
 #include "ZapFR/base/Source.h"
 
 // ::API
@@ -42,10 +42,10 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_logs_list([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto parentType = apiRequest->parameter("parentType");
-    const auto parentIDStr = apiRequest->parameter("parentID");
-    const auto perPageStr = apiRequest->parameter("perPage");
-    const auto pageStr = apiRequest->parameter("page");
+    const auto parentType = apiRequest->parameter(ZapFR::Engine::HTTPParam::Log::ParentType);
+    const auto parentIDStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Log::ParentID);
+    const auto perPageStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Log::PerPage);
+    const auto pageStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Log::Page);
 
     uint64_t perPage{1000};
     uint64_t page{1};
@@ -62,7 +62,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_logs_list([[maybe_
         uint64_t logCount{0};
 
         std::vector<std::unique_ptr<ZapFR::Engine::Log>> logs;
-        if (parentType == "feed")
+        if (parentType == ZapFR::Engine::HTTPParam::Log::ParentTypeFeed)
         {
             auto feed = source.value()->getFeed(parentID, ZapFR::Engine::Source::FetchInfo::None);
             if (feed.has_value())
@@ -72,13 +72,13 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_logs_list([[maybe_
                 logs = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Log>>>(t));
             }
         }
-        else if (parentType == "source")
+        else if (parentType == ZapFR::Engine::HTTPParam::Log::ParentTypeSource)
         {
             auto t = source.value()->getLogs(perPage, page);
             logCount = std::get<uint64_t>(t);
             logs = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Log>>>(t));
         }
-        else if (parentType == "folder")
+        else if (parentType == ZapFR::Engine::HTTPParam::Log::ParentTypeFolder)
         {
             auto folder = source.value()->getFolder(parentID, ZapFR::Engine::Source::FetchInfo::None);
             if (folder.has_value())
@@ -97,8 +97,8 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_logs_list([[maybe_
         {
             arr.add(log->toJSON());
         }
-        o.set("logs", arr);
-        o.set("count", logCount);
+        o.set(ZapFR::Engine::JSON::Log::Logs, arr);
+        o.set(ZapFR::Engine::JSON::Log::Count, logCount);
     }
 
     Poco::JSON::Stringifier::stringify(o, response.send());

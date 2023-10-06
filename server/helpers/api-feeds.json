@@ -8,7 +8,7 @@
     "uriParameters": [],
     "parameters": [
       {
-        "name": "fetchIcons",
+        "name": "getIcons",
         "required": false,
         "description": "Whether to include the base64 encoded icon or not ('true' or 'false') (optional; default=false)"
       }
@@ -61,7 +61,7 @@
         "description": "The url of the feed to add"
       },
       {
-        "name": "folder",
+        "name": "parentFolderID",
         "required": true,
         "description": "The ID of the folder in which to add the new feed"
       }

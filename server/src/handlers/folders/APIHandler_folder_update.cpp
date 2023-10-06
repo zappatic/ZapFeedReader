@@ -41,7 +41,7 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_update([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto folderIDStr = apiRequest->pathComponentAt(1);
-    const auto newTitle = apiRequest->parameter("newTitle");
+    const auto newTitle = apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::NewTitle);
 
     uint64_t folderID{0};
     Poco::NumberParser::tryParseUnsigned64(folderIDStr, folderID);
@@ -60,9 +60,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_update([[ma
     }
 
     Poco::JSON::Object o;
-    o.set("success", true);
-
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

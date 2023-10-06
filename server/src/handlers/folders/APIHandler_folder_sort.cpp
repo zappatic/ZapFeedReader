@@ -41,7 +41,7 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_sort([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto folderIDStr = apiRequest->pathComponentAt(1);
-    const auto sortMethodStr = apiRequest->parameter("sortMethod");
+    const auto sortMethodStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Folder::SortMethod);
 
     uint64_t folderID{0};
     Poco::NumberParser::tryParseUnsigned64(folderIDStr, folderID);
@@ -49,7 +49,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_folder_sort([[mayb
     auto sortMethod = ZapFR::Engine::SortMethod::AlphabeticallyAscending;
     if (!sortMethodStr.empty())
     {
-        if (sortMethodStr == "alphaAsc")
+        if (sortMethodStr == ZapFR::Engine::HTTPParam::Folder::SortMethodAlphabeticallyAscending)
         {
             sortMethod = ZapFR::Engine::SortMethod::AlphabeticallyAscending;
         }

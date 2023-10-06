@@ -38,9 +38,9 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_add([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto title = apiRequest->parameter("title");
-    const auto showTotal = apiRequest->parameter("showTotal") == "true";
-    const auto showUnread = apiRequest->parameter("showUnread") == "true";
+    const auto title = apiRequest->parameter(ZapFR::Engine::HTTPParam::ScriptFolder::Title);
+    const auto showTotal = apiRequest->parameter(ZapFR::Engine::HTTPParam::ScriptFolder::ShowTotal) == ZapFR::Engine::HTTPParam::True;
+    const auto showUnread = apiRequest->parameter(ZapFR::Engine::HTTPParam::ScriptFolder::ShowUnread) == ZapFR::Engine::HTTPParam::True;
 
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
@@ -49,9 +49,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_add([
     }
 
     Poco::JSON::Object o;
-    o.set("success", true);
-
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

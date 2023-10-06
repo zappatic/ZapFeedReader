@@ -42,6 +42,5 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_getstatus([
     }
 
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

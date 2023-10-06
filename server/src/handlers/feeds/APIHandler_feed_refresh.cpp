@@ -43,7 +43,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_refresh([[may
     Poco::NumberParser::tryParseUnsigned64(feedIDStr, feedID);
 
     Poco::JSON::Object o;
-    auto refreshSuccessful{false};
     if (feedID != 0)
     {
         auto source = ZapFR::Engine::Source::getSource(1);
@@ -58,9 +57,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_refresh([[may
         }
     }
 
-    o.set("success", refreshSuccessful);
-
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

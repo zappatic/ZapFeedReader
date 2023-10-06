@@ -147,6 +147,9 @@ namespace ZapFR
                 constexpr const char EnclosureURL[]{"url"};
                 constexpr const char EnclosureMimeType[]{"mimeType"};
                 constexpr const char EnclosureSize[]{"size"};
+                constexpr const char Posts[]{"posts"};
+                constexpr const char Count[]{"count"};
+                constexpr const char ThumbnailData[]{"thumbnailData"};
             }; // namespace Post
 
             namespace ScriptFolder
@@ -167,6 +170,8 @@ namespace ZapFR
                 constexpr const char Message[]{"message"};
                 constexpr const char FeedID[]{"feedID"};
                 constexpr const char FeedTitle[]{"feedTitle"};
+                constexpr const char Logs[]{"logs"};
+                constexpr const char Count[]{"count"};
             }; // namespace Log
 
             namespace Script
@@ -199,7 +204,109 @@ namespace ZapFR
                 constexpr const char HighestPostID[]{"highestPostID"};
             }; // namespace SourceStatus
 
+            namespace About
+            {
+                constexpr const char Name[]{"name"};
+                constexpr const char Version[]{"version"};
+            }; // namespace About
+
         }; // namespace JSON
+
+        namespace HTTPParam
+        {
+            constexpr const char True[]{"true"};
+            constexpr const char False[]{"false"};
+
+            namespace Feed
+            {
+                constexpr const char URL[]{"url"};
+                constexpr const char GetData[]{"getData"};
+                constexpr const char GetStatistics[]{"getStatistics"};
+                constexpr const char GetUnreadCount[]{"getUnreadCount"};
+                constexpr const char SortOrder[]{"sortOrder"};
+                constexpr const char ParentFolderID[]{"parentFolderID"};
+                constexpr const char RefreshInterval[]{"refreshInterval"};
+                constexpr const char GetIcons[]{"getIcons"};
+
+            }; // namespace Feed
+
+            namespace Folder
+            {
+                constexpr const char Title[]{"title"};
+                constexpr const char ParentFolderID[]{"parentFolderID"};
+                constexpr const char FolderID[]{"folderID"};
+                constexpr const char GetStatistics[]{"getStatistics"};
+                constexpr const char GetFeedIDs[]{"getFeedIDs"};
+                constexpr const char SortOrder[]{"sortOrder"};
+                constexpr const char SortMethod[]{"sortMethod"};
+                constexpr const char SortMethodAlphabeticallyAscending[]{"alphaAsc"};
+                constexpr const char NewTitle[]{"newTitle"};
+                constexpr const char GetSubfolders[]{"getSubfolders"};
+            }; // namespace Folder
+
+            namespace Log
+            {
+                constexpr const char ParentType[]{"parentType"};
+                constexpr const char ParentTypeSource[]{"source"};
+                constexpr const char ParentTypeFeed[]{"feed"};
+                constexpr const char ParentTypeFolder[]{"folder"};
+                constexpr const char ParentID[]{"parentID"};
+                constexpr const char PerPage[]{"perPage"};
+                constexpr const char Page[]{"page"};
+            }; // namespace Log
+
+            namespace Post
+            {
+                constexpr const char FeedID[]{"feedID"};
+                constexpr const char MaxPostID[]{"maxPostID"};
+                constexpr const char ParentType[]{"parentType"};
+                constexpr const char ParentTypeSource[]{"source"};
+                constexpr const char ParentTypeFeed[]{"feed"};
+                constexpr const char ParentTypeFolder[]{"folder"};
+                constexpr const char ParentTypeScriptFolder[]{"scriptfolder"};
+                constexpr const char ParentID[]{"parentID"};
+                constexpr const char PerPage[]{"perPage"};
+                constexpr const char Page[]{"page"};
+                constexpr const char ShowOnlyUnread[]{"showOnlyUnread"};
+                constexpr const char SearchFilter[]{"searchFilter"};
+                constexpr const char FlagColor[]{"flagColor"};
+            }; // namespace Post
+
+            namespace ScriptFolder
+            {
+                constexpr const char Title[]{"title"};
+                constexpr const char ShowTotal[]{"showTotal"};
+                constexpr const char ShowUnread[]{"showUnread"};
+                constexpr const char FeedsAndPostIDs[]{"feedsAndPostIDs"};
+                constexpr const char FeedID[]{"feedID"};
+                constexpr const char PostID[]{"postID"};
+                constexpr const char Assign[]{"assign"};
+
+            }; // namespace ScriptFolder
+
+            namespace Script
+            {
+                constexpr const char Type[]{"type"};
+                constexpr const char Title[]{"title"};
+                constexpr const char IsEnabled[]{"isEnabled"};
+                constexpr const char RunOnEvents[]{"runOnEvents"};
+                constexpr const char RunOnFeedIDs[]{"runOnFeedIDs"};
+                constexpr const char Script[]{"script"};
+            }; // namespace Script
+
+            namespace Source
+            {
+                constexpr const char OPML[]{"opml"};
+                constexpr const char ParentFolderID[]{"parentFolderID"};
+                constexpr const char MarkFlagged[]{"markFlagged"};
+                constexpr const char FlagColors[]{"flagColors"};
+                constexpr const char FeedsAndPostIDs[]{"feedsAndPostIDs"};
+                constexpr const char FeedID[]{"feedID"};
+                constexpr const char PostID[]{"postID"};
+                constexpr const char MarkAsRead[]{"markAsRead"};
+            }; // namespace Source
+
+        }; // namespace HTTPParam
 
     } // namespace Engine
 } // namespace ZapFR

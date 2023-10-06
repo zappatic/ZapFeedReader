@@ -48,13 +48,13 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
         std::map<std::string, std::string> params;
-        params["parentType"] = "feed";
-        params["parentID"] = std::to_string(mID);
-        params["perPage"] = std::to_string(perPage);
-        params["page"] = std::to_string(page);
-        params["showOnlyUnread"] = showOnlyUnread ? "true" : "false";
-        params["searchFilter"] = searchFilter;
-        params["flagColor"] = Flag::nameForFlagColor(flagColor);
+        params[HTTPParam::Post::ParentType] = HTTPParam::Post::ParentTypeFeed;
+        params[HTTPParam::Post::ParentID] = std::to_string(mID);
+        params[HTTPParam::Post::PerPage] = std::to_string(perPage);
+        params[HTTPParam::Post::Page] = std::to_string(page);
+        params[HTTPParam::Post::ShowOnlyUnread] = showOnlyUnread ? HTTPParam::True : HTTPParam::False;
+        params[HTTPParam::Post::SearchFilter] = searchFilter;
+        params[HTTPParam::Post::FlagColor] = Flag::nameForFlagColor(flagColor);
 
         const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
@@ -62,8 +62,8 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
         if (!rootObj.isNull())
         {
-            postCount = rootObj->getValue<uint64_t>("count");
-            auto postArr = rootObj->getArray("posts");
+            postCount = rootObj->getValue<uint64_t>(JSON::Post::Count);
+            auto postArr = rootObj->getArray(JSON::Post::Posts);
             if (!postArr.isNull())
             {
                 for (size_t i = 0; i < postArr->size(); ++i)
@@ -72,7 +72,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
                     posts.emplace_back(PostRemote::createFromJSON(postObj));
                 }
             }
-            SourceRemote::unserializeThumbnailData(mThumbnailData, rootObj->getArray("thumbnaildata"));
+            SourceRemote::unserializeThumbnailData(mThumbnailData, rootObj->getArray(JSON::Post::ThumbnailData));
         }
     }
 
@@ -89,7 +89,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::FeedRemote::g
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
         std::map<std::string, std::string> params;
-        params["feedID"] = std::to_string(mID);
+        params[HTTPParam::Post::FeedID] = std::to_string(mID);
 
         const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
@@ -133,7 +133,7 @@ void ZapFR::Engine::FeedRemote::markAsRead(uint64_t maxPostID)
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
         std::map<std::string, std::string> params;
-        params["maxPostID"] = std::to_string(maxPostID);
+        params[HTTPParam::Post::MaxPostID] = std::to_string(maxPostID);
 
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_POST, creds, params);
     }
@@ -152,10 +152,10 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
         std::map<std::string, std::string> params;
-        params["parentType"] = "feed";
-        params["parentID"] = std::to_string(mID);
-        params["perPage"] = std::to_string(perPage);
-        params["page"] = std::to_string(page);
+        params[HTTPParam::Log::ParentType] = HTTPParam::Log::ParentTypeFeed;
+        params[HTTPParam::Log::ParentID] = std::to_string(mID);
+        params[HTTPParam::Log::PerPage] = std::to_string(perPage);
+        params[HTTPParam::Log::Page] = std::to_string(page);
 
         const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
         auto parser = Poco::JSON::Parser();
@@ -163,8 +163,8 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
         if (!rootObj.isNull())
         {
-            logCount = rootObj->getValue<uint64_t>("count");
-            auto logArr = rootObj->getArray("logs");
+            logCount = rootObj->getValue<uint64_t>(JSON::Log::Count);
+            auto logArr = rootObj->getArray(JSON::Log::Logs);
             if (!logArr.isNull())
             {
                 for (size_t i = 0; i < logArr->size(); ++i)
@@ -201,11 +201,11 @@ void ZapFR::Engine::FeedRemote::updateProperties(const std::string& feedURL, std
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
         std::map<std::string, std::string> params;
-        params["url"] = feedURL;
-        params["refreshInterval"] = "";
+        params[HTTPParam::Feed::URL] = feedURL;
+        params[HTTPParam::Feed::RefreshInterval] = "";
         if (refreshIntervalInSeconds.has_value())
         {
-            params["refreshInterval"] = std::to_string(refreshIntervalInSeconds.value());
+            params[HTTPParam::Feed::RefreshInterval] = std::to_string(refreshIntervalInSeconds.value());
         }
 
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_PATCH, creds, params);

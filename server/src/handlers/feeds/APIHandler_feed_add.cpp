@@ -29,7 +29,7 @@
 //
 //	Parameters:
 //		url (REQD) - The url of the feed to add - apiRequest->parameter("url")
-//		folder (REQD) - The ID of the folder in which to add the new feed - apiRequest->parameter("folder")
+//		parentFolderID (REQD) - The ID of the folder in which to add the new feed - apiRequest->parameter("parentFolderID")
 //
 //	Content-Type: application/json
 //	JSON output: Object
@@ -38,8 +38,8 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_add([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto url = apiRequest->parameter("url");
-    const auto folderStr = apiRequest->parameter("folder");
+    const auto url = apiRequest->parameter(ZapFR::Engine::HTTPParam::Feed::URL);
+    const auto folderStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Feed::ParentFolderID);
 
     uint64_t folderID{0};
     Poco::NumberParser::tryParseUnsigned64(folderStr, folderID);

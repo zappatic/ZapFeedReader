@@ -43,8 +43,8 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_assignposts([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto scriptFolderIDStr = apiRequest->pathComponentAt(1);
-    const auto feedsAndPostIDsStr = apiRequest->parameter("feedsAndPostIDs");
-    const auto assign = (apiRequest->parameter("assign") == "true");
+    const auto feedsAndPostIDsStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::ScriptFolder::FeedsAndPostIDs);
+    const auto assign = (apiRequest->parameter(ZapFR::Engine::HTTPParam::ScriptFolder::Assign) == ZapFR::Engine::HTTPParam::True);
 
     uint64_t scriptFolderID{0};
     Poco::NumberParser::tryParseUnsigned64(scriptFolderIDStr, scriptFolderID);
@@ -64,10 +64,10 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_assig
                 for (size_t i = 0; i < rootArr->size(); ++i)
                 {
                     auto obj = rootArr->getObject(static_cast<uint32_t>(i));
-                    if (obj->has("feedID") && obj->has("postID"))
+                    if (obj->has(ZapFR::Engine::HTTPParam::ScriptFolder::FeedID) && obj->has(ZapFR::Engine::HTTPParam::ScriptFolder::PostID))
                     {
-                        auto feedID = obj->getValue<uint64_t>("feedID");
-                        auto postID = obj->getValue<uint64_t>("postID");
+                        auto feedID = obj->getValue<uint64_t>(ZapFR::Engine::HTTPParam::ScriptFolder::FeedID);
+                        auto postID = obj->getValue<uint64_t>(ZapFR::Engine::HTTPParam::ScriptFolder::PostID);
                         tuples.emplace_back(std::make_tuple(feedID, postID));
                     }
                 }
@@ -81,9 +81,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_scriptfolder_assig
     }
 
     Poco::JSON::Object o;
-    o.set("success", true);
-
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

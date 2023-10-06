@@ -42,8 +42,8 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_update([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto feedIDStr = apiRequest->pathComponentAt(1);
-    const auto url = apiRequest->parameter("url");
-    const auto refreshIntervalStr = apiRequest->parameter("refreshInterval");
+    const auto url = apiRequest->parameter(ZapFR::Engine::HTTPParam::Feed::URL);
+    const auto refreshIntervalStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Feed::RefreshInterval);
 
     uint64_t feedID{0};
     Poco::NumberParser::tryParseUnsigned64(feedIDStr, feedID);
@@ -74,9 +74,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_update([[mayb
     }
 
     Poco::JSON::Object o;
-    o.set("success", true);
-
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

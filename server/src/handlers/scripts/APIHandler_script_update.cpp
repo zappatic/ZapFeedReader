@@ -46,12 +46,12 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_script_update([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto scriptIDStr = apiRequest->pathComponentAt(1);
-    const auto type = apiRequest->parameter("type");
-    const auto title = apiRequest->parameter("title");
-    const auto isEnabled = (apiRequest->parameter("isEnabled") == "true");
-    const auto runOnEventsStr = apiRequest->parameter("runOnEvents");
-    const auto runOnFeedIDsStr = apiRequest->parameter("runOnFeedIDs");
-    const auto scriptContents = apiRequest->parameter("script");
+    const auto type = apiRequest->parameter(ZapFR::Engine::HTTPParam::Script::Type);
+    const auto title = apiRequest->parameter(ZapFR::Engine::HTTPParam::Script::Title);
+    const auto isEnabled = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Script::IsEnabled) == ZapFR::Engine::HTTPParam::True);
+    const auto runOnEventsStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Script::RunOnEvents);
+    const auto runOnFeedIDsStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Script::RunOnFeedIDs);
+    const auto scriptContents = apiRequest->parameter(ZapFR::Engine::HTTPParam::Script::Script);
 
     uint64_t scriptID{0};
     Poco::NumberParser::tryParseUnsigned64(scriptIDStr, scriptID);
@@ -77,9 +77,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_script_update([[ma
         }
     }
     Poco::JSON::Object o;
-    o.set("success", true);
-
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

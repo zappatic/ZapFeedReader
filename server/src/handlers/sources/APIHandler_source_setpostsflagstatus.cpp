@@ -41,9 +41,9 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_setpostsflagstatus([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
-    const auto markFlagged = (apiRequest->parameter("markFlagged") == "true");
-    const auto flagColorsStr = apiRequest->parameter("flagColors");
-    const auto feedsAndPostIDsStr = apiRequest->parameter("feedsAndPostIDs");
+    const auto markFlagged = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Source::MarkFlagged) == ZapFR::Engine::HTTPParam::True);
+    const auto flagColorsStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Source::FlagColors);
+    const auto feedsAndPostIDsStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Source::FeedsAndPostIDs);
 
     auto source = ZapFR::Engine::Source::getSource(1);
     if (source.has_value())
@@ -61,10 +61,10 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_setpostsfla
                 for (size_t i = 0; i < rootArr->size(); ++i)
                 {
                     auto obj = rootArr->getObject(static_cast<uint32_t>(i));
-                    if (obj->has("feedID") && obj->has("postID"))
+                    if (obj->has(ZapFR::Engine::HTTPParam::Source::FeedID) && obj->has(ZapFR::Engine::HTTPParam::Source::PostID))
                     {
-                        auto feedID = obj->getValue<uint64_t>("feedID");
-                        auto postID = obj->getValue<uint64_t>("postID");
+                        auto feedID = obj->getValue<uint64_t>(ZapFR::Engine::HTTPParam::Source::FeedID);
+                        auto postID = obj->getValue<uint64_t>(ZapFR::Engine::HTTPParam::Source::PostID);
                         tuples.emplace_back(std::make_tuple(feedID, postID));
                     }
                 }
@@ -100,9 +100,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_setpostsfla
     }
 
     Poco::JSON::Object o;
-    o.set("success", true);
-
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

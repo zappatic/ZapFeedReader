@@ -40,12 +40,12 @@ void ZapFR::Engine::ScriptRemote::update(Type /*type*/, const std::string& title
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
 
         std::map<std::string, std::string> params;
-        params["type"] = Script::msTypeLuaIdentifier; // forced to lua
-        params["title"] = title;
-        params["isEnabled"] = enabled ? "true" : "false";
-        params["runOnEvents"] = Script::runOnEventsString(events);
-        params["runOnFeedIDs"] = Script::runOnFeedIDsString(feedIDs);
-        params["script"] = script;
+        params[HTTPParam::Script::Type] = Script::msTypeLuaIdentifier; // forced to lua
+        params[HTTPParam::Script::Title] = title;
+        params[HTTPParam::Script::IsEnabled] = enabled ? HTTPParam::True : HTTPParam::False;
+        params[HTTPParam::Script::RunOnEvents] = Script::runOnEventsString(events);
+        params[HTTPParam::Script::RunOnFeedIDs] = Script::runOnFeedIDsString(feedIDs);
+        params[HTTPParam::Script::Script] = script;
 
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_PATCH, creds, params);
     }

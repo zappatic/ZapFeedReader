@@ -40,9 +40,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_source_deletelogs(
     }
 
     Poco::JSON::Object o;
-    o.set("success", true);
-
     Poco::JSON::Stringifier::stringify(o, response.send());
-
     return Poco::Net::HTTPResponse::HTTP_OK;
 }

@@ -43,9 +43,9 @@
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_feed_get([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     const auto feedIDStr = apiRequest->pathComponentAt(1);
-    const auto getData = (apiRequest->parameter("getData") == "true");
-    const auto getStatistics = (apiRequest->parameter("getStatistics") == "true");
-    const auto getUnreadCount = (apiRequest->parameter("getUnreadCount") == "true");
+    const auto getData = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Feed::GetData) == ZapFR::Engine::HTTPParam::True);
+    const auto getStatistics = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Feed::GetStatistics) == ZapFR::Engine::HTTPParam::True);
+    const auto getUnreadCount = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Feed::GetUnreadCount) == ZapFR::Engine::HTTPParam::True);
 
     uint64_t feedID{0};
     Poco::NumberParser::tryParseUnsigned64(feedIDStr, feedID);
