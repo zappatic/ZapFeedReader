@@ -266,6 +266,20 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
             parsedDate.makeUTC(tzDiff);
             item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
 
+            auto categoryNodes = entryEl->getElementsByTagName("category");
+            for (size_t j = 0; j < categoryNodes->length(); ++j)
+            {
+                auto categoryNode = categoryNodes->item(j);
+                if (categoryNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
+                {
+                    auto categoryEl = dynamic_cast<Poco::XML::Element*>(categoryNode);
+                    if (categoryEl->hasAttribute("term"))
+                    {
+                        item.categories.emplace_back(categoryEl->getAttribute("term"));
+                    }
+                }
+            }
+
             items.emplace_back(item);
         }
     }

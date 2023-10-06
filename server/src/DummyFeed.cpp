@@ -22,6 +22,8 @@
 
 #include <Poco/DateTimeFormat.h>
 #include <Poco/DateTimeFormatter.h>
+#include <Poco/JSON/Object.h>
+#include <Poco/JSON/Stringifier.h>
 
 #include "DummyFeed.h"
 
@@ -53,7 +55,7 @@ std::string ZapFR::Server::DummyFeed::getRSS20()
     std::stringstream ss;
 
 #ifdef DEBUG
-    ss << R"(<?xml version="1.0"?>)"
+    ss << R"(<?xml version="1.0" encoding="utf-8"?>)"
        << R"(<rss version="2.0">)"
        << R"(   <channel>)"
        << R"(       <title>ZapFeedReader RSS 2.0 dummy feed</title>)"
@@ -74,6 +76,67 @@ std::string ZapFR::Server::DummyFeed::getRSS20()
     ss << R"(</rss>)";
 #endif
 
+    return ss.str();
+}
+
+std::string ZapFR::Server::DummyFeed::getATOM10()
+{
+    std::stringstream ss;
+
+#ifdef DEBUG
+    ss << R"(<?xml version="1.0" encoding="utf-8"?>)"
+       << R"(<feed xmlns="http://www.w3.org/2005/Atom">)"
+       << R"(   <title>ZapFeedReader Atom 1.0 dummy feed</title>)"
+       << R"(   <link>https://zapfeedreader.zappatic.net</link>)"
+       << R"(   <id>https://zapfeedreader.zappatic.net</id>)"
+       << fmt::format(R"(   <updated>{}</updated>)", Poco::DateTimeFormatter::format(Poco::DateTime(), Poco::DateTimeFormat::ISO8601_FORMAT));
+
+    for (const auto& entry : mEntries)
+    {
+        ss << "<entry>";
+        ss << fmt::format("<title>{}</title>", entry.title);
+        ss << fmt::format("<summary>{}</summary>", entry.content);
+        ss << fmt::format("<updated>{}</updated>", Poco::DateTimeFormatter::format(entry.datePublished, Poco::DateTimeFormat::ISO8601_FORMAT));
+        ss << fmt::format("<id>{}</id>", entry.guid);
+        ss << R"(<category term="Test category 1" />)";
+        ss << R"(<category term="Test category 2" />)";
+        ss << "</entry>";
+    }
+
+    ss << R"(</feed>)";
+#endif
+
+    return ss.str();
+}
+
+std::string ZapFR::Server::DummyFeed::getJSON11()
+{
+    Poco::JSON::Object o;
+
+    o.set("version", "https://jsonfeed.org/version/1.1");
+    o.set("title", "ZapFeedReader JSON 1.1 dummy feed");
+    o.set("home_page_url", "https://zapfeedreader.zappatic.net");
+
+    Poco::JSON::Array itemArr;
+    for (const auto& entry : mEntries)
+    {
+        Poco::JSON::Object entryObj;
+        entryObj.set("id", entry.guid);
+        entryObj.set("title", entry.title);
+        entryObj.set("content_html", entry.content);
+        entryObj.set("date_published", Poco::DateTimeFormatter::format(entry.datePublished, Poco::DateTimeFormat::ISO8601_FORMAT));
+
+        Poco::JSON::Array tagsArr;
+        tagsArr.add("Category 1");
+        tagsArr.add("Category 2");
+        entryObj.set("tags", tagsArr);
+
+        itemArr.add(entryObj);
+    }
+    o.set("items", itemArr);
+
+    std::stringstream ss;
+    Poco::JSON::Stringifier::stringify(o, ss);
     return ss.str();
 }
 

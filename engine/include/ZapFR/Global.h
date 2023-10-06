@@ -59,7 +59,7 @@ namespace ZapFR
             std::vector<ThumbnailDataPost> posts{};
         };
 
-        constexpr uint64_t DBVersion{4};
+        constexpr uint64_t DBVersion{5};
         constexpr uint64_t APIVersion{1};
         constexpr uint64_t DefaultFeedAutoRefreshInterval{15 * 60};
         constexpr uint16_t DefaultServerPort{16016};
@@ -152,6 +152,9 @@ namespace ZapFR
                 constexpr const char Posts[]{"posts"};
                 constexpr const char Count[]{"count"};
                 constexpr const char ThumbnailData[]{"thumbnailData"};
+                constexpr const char Categories[]{"categories"};
+                constexpr const char CategoryID[]{"id"};
+                constexpr const char CategoryTitle[]{"title"};
             }; // namespace Post
 
             namespace ScriptFolder

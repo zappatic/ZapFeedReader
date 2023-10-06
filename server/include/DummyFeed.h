@@ -21,7 +21,6 @@
 
 #include <vector>
 
-
 namespace ZapFR
 {
     namespace Server
@@ -36,6 +35,8 @@ namespace ZapFR
             static DummyFeed* getInstance();
 
             std::string getRSS20();
+            std::string getATOM10();
+            std::string getJSON11();
 
             struct Entry
             {

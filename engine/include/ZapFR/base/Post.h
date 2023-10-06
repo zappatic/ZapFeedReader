@@ -47,6 +47,15 @@ namespace ZapFR
                 uint64_t size{0};
             };
 
+            struct Category
+            {
+                Category() = default;
+                Category(uint64_t catID, const std::string& catTitle) : id(catID), title(catTitle) {}
+
+                uint64_t id;
+                std::string title;
+            };
+
             const uint64_t& id() const noexcept { return mID; }
             const uint64_t& feedID() const noexcept { return mFeedID; }
             const std::string& feedTitle() const noexcept { return mFeedTitle; }
@@ -62,6 +71,7 @@ namespace ZapFR
             const std::string& thumbnail() const noexcept { return mThumbnail; }
             const std::unordered_set<FlagColor>& flagColors() { return mFlagColors; }
             const std::vector<Enclosure>& enclosures() { return mEnclosures; }
+            const std::vector<Category>& categories() { return mCategories; }
 
             void setIsRead(bool b) { mIsRead = b; }
             void setFeedID(uint64_t feedID) { mFeedID = feedID; }
@@ -80,6 +90,8 @@ namespace ZapFR
             void addEnclosure(const std::string& url, const std::string& mimeType, uint64_t size) { mEnclosures.emplace_back(url, mimeType, size); }
             void updateEnclosure(uint64_t index, const std::string& url, const std::string& mimeType, uint64_t size);
             void removeEnclosure(uint64_t index); // TODO: removing by index is not good, needs to be on unique id, because if you loop over enclosures it messes up
+            void addCategory(const Category& cat) { mCategories.emplace_back(cat); }
+            bool hasCategory(const std::string& title) const;
 
             virtual Poco::JSON::Object toJSON();
             virtual void fromJSON(const Poco::JSON::Object::Ptr o);
@@ -100,6 +112,7 @@ namespace ZapFR
             std::string mThumbnail{""};
             std::unordered_set<FlagColor> mFlagColors{};
             std::vector<Enclosure> mEnclosures{};
+            std::vector<Category> mCategories{};
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -243,7 +243,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         if (existingPost.has_value()) // UPDATE in case it does
         {
             dynamic_cast<PostLocal*>(existingPost.value().get())
-                ->update(item.title, item.link, item.content, item.author, item.commentsURL, item.guid, item.datePublished, item.thumbnail, item.enclosures);
+                ->update(item.title, item.link, item.content, item.author, item.commentsURL, item.guid, item.datePublished, item.thumbnail, item.enclosures, item.categories);
 
             if (scriptsRanOnUpdatePost.size() > 0)
             {
@@ -258,6 +258,28 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
                 if (!isDifferent && (existingPost.value()->datePublished() != item.datePublished)) { isDifferent = true; }
                 if (!isDifferent && (existingPost.value()->thumbnail() != item.thumbnail)) { isDifferent = true; }
                 // clang-format on
+
+                // TODO:  enclosures!
+
+                // check if categories differ
+                if (!isDifferent)
+                {
+                    if (item.categories.size() != existingPost.value()->categories().size())
+                    {
+                        isDifferent = true;
+                    }
+                    else
+                    {
+                        for (const auto& newCat : item.categories)
+                        {
+                            if (!existingPost.value()->hasCategory(newCat))
+                            {
+                                isDifferent = true;
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 if (isDifferent)
                 {
@@ -275,7 +297,7 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
         else // INSERT in case it doesn't
         {
             auto post = PostLocal::create(mID, mTitle, item.title, item.link, item.content, item.author, item.commentsURL, item.guid, item.datePublished, item.thumbnail,
-                                          item.enclosures);
+                                          item.enclosures, item.categories);
 
             if (scriptsRanOnNewPost.size() > 0)
             {

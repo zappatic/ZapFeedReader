@@ -178,6 +178,16 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
             item.datePublished = "";
         }
 
+        auto categoryNodes = dynamic_cast<Poco::XML::Element*>(itemNode)->getElementsByTagName("category");
+        for (size_t j = 0; j < categoryNodes->length(); ++j)
+        {
+            auto categoryNode = categoryNodes->item(j);
+            if (categoryNode->nodeType() == Poco::XML::Node::ELEMENT_NODE)
+            {
+                item.categories.emplace_back(categoryNode->innerText());
+            }
+        }
+
         items.emplace_back(item);
     }
     itemList->release();

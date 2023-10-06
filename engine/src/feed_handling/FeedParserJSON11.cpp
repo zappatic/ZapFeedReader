@@ -184,7 +184,14 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserJSON11::it
             item.author = topLevelAuthors;
         }
 
-        // TODO: tags (categories)
+        if (itemObj->has("tags"))
+        {
+            auto tagArr = itemObj->getArray("tags");
+            for (size_t j = 0; j < tagArr->size(); ++j)
+            {
+                item.categories.emplace_back(tagArr->getElement<std::string>(static_cast<uint32_t>(j)));
+            }
+        }
 
         items.emplace_back(item);
     }

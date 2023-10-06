@@ -28,6 +28,7 @@
 
 #include "./ui_MainWindow.h"
 #include "FeedIconCache.h"
+#include "ZapFR/Helpers.h"
 #include "widgets/MainWindow.h"
 #include "widgets/WebEngineViewPost.h"
 
@@ -145,7 +146,7 @@ QString ZapFR::Client::WebEngineViewPost::postStyles() const
                         "\n"
                         "a { color: %4; }\n"
                         ".zapfr_title { color: %3; font-size: 1.4em; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0; user-select:none; }\n"
-                        ".zapfr_infoheader { font-size: 0.75em; display: flex; gap: 10px; }\n"
+                        ".zapfr_infoheader { font-size: 0.75em; display: flex; gap: 10px; margin-bottom: 5px; }\n"
                         ".zapfr_infoheader_separator { display: inline-block; margin-right: 10px; }\n"
                         ".zapfr_divider { margin-bottom: 30px; height: 1px; border: none; color: %3; background-color: %3; }\n"
                         ".zapfr_thumbnail_feedheader { color: %3; font-size: 1.4em; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0;\n"
@@ -210,6 +211,7 @@ QString ZapFR::Client::WebEngineViewPost::postHTMLTemplate() const
             [if POST.AUTHOR]<div><span class="zapfr_infoheader_separator">|</span>[I18N.AUTHOR]: [POST.AUTHOR]</div>[/if]
             [if POST.COMMENTS_URL]<div><span class="zapfr_infoheader_separator">|</span><a href="[POST.COMMENTS_URL]">[I18N.VIEWCOMMENTS]</a></div>[/if]
         </div>
+        [if POST.CATEGORIES]<div class="zapfr_infoheader"><div>[I18N.CATEGORIES]: [POST.CATEGORIES]</div></div>[/if]
         <hr class="zapfr_divider">
         [POST.CONTENT]
     </body>
@@ -241,6 +243,14 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForPost(ZapFR::Engine::Post* po
     replacers["I18N.PUBLISHED"] = tr("Published");
     replacers["I18N.AUTHOR"] = tr("Author");
     replacers["I18N.VIEWCOMMENTS"] = tr("View comments");
+    replacers["I18N.CATEGORIES"] = tr("Categories");
+
+    std::vector<std::string> cats;
+    for (const auto& cat : post->categories())
+    {
+        cats.emplace_back(cat.title);
+    }
+    replacers["POST.CATEGORIES"] = QString::fromUtf8(ZapFR::Engine::Helpers::joinString(cats, ", "));
 
     auto postHTML = postHTMLTemplate();
     for (const auto& [key, value] : replacers)

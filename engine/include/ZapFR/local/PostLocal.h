@@ -43,7 +43,8 @@ namespace ZapFR
             void unassignFromScriptFolder(uint64_t scriptFolderID);
 
             void update(const std::string& title, const std::string& link, const std::string& content, const std::string& author, const std::string& commentsURL,
-                        const std::string& guid, const std::string& datePublished, const std::string& thumbnail, const std::vector<Enclosure>& enclosures);
+                        const std::string& guid, const std::string& datePublished, const std::string& thumbnail, const std::vector<Enclosure>& enclosures,
+                        const std::vector<std::string>& categories);
 
             static std::vector<std::unique_ptr<Post>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
                                                                     const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
@@ -51,18 +52,22 @@ namespace ZapFR
                                                                     const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static uint64_t queryCount(const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
 
+            static void queryCategories(Post* post);
+
             static void updateIsRead(bool isRead, const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
 
             static uint64_t highestID();
 
             static std::unique_ptr<Post> create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link, const std::string& content,
                                                 const std::string& author, const std::string& commentsURL, const std::string& guid, const std::string& datePublished,
-                                                const std::string& thumbnail, const std::vector<Enclosure>& enclosures);
+                                                const std::string& thumbnail, const std::vector<Enclosure>& enclosures, const std::vector<std::string>& categories);
 
           private:
             static std::mutex msCreatePostMutex;
+            static std::mutex msCreateCategoryMutex;
 
             static void replaceEnclosures(uint64_t postID, const std::vector<Enclosure>& enclosures);
+            static void replaceCategories(uint64_t postID, uint64_t feedID, const std::vector<std::string>& categories);
         };
     } // namespace Engine
 } // namespace ZapFR

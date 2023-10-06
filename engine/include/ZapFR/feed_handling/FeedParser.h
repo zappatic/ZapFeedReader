@@ -58,6 +58,7 @@ namespace ZapFR
                 std::string datePublished{""};
                 std::string thumbnail{""};
                 std::vector<Post::Enclosure> enclosures{};
+                std::vector<std::string> categories{};
             };
 
             virtual std::vector<Item> items() const = 0;

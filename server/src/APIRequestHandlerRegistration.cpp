@@ -57,6 +57,26 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Dummy feed)", R"(Retrieves the Atom 1.0 dummy feed)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/dummy-feed/atom10$)", R"(/dummy-feed/atom10)");
+				entry->setRequiresCredentials(false);
+				entry->setContentType(R"(application/atom+xml)");
+				entry->setHandler(ZapFR::Server::APIHandler_dummyfeed_get_atom10);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Dummy feed)", R"(Retrieves the JSON 1.1 dummy feed)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/dummy-feed/json11$)", R"(/dummy-feed/json11)");
+				entry->setRequiresCredentials(false);
+				entry->setContentType(R"(application/feed+json)");
+				entry->setHandler(ZapFR::Server::APIHandler_dummyfeed_get_json11);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Dummy feed)", R"(Retrieves the RSS 2.0 dummy feed)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/dummy-feed/rss20$)", R"(/dummy-feed/rss20)");

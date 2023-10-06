@@ -25,6 +25,7 @@
 using namespace Poco::Data::Keywords;
 
 std::mutex ZapFR::Engine::PostLocal::msCreatePostMutex{};
+std::mutex ZapFR::Engine::PostLocal::msCreateCategoryMutex{};
 
 ZapFR::Engine::PostLocal::PostLocal(uint64_t id) : Post(id)
 {
@@ -186,6 +187,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
                 }
             }
 
+            queryCategories(p.get());
+
             posts.emplace_back(std::move(p));
         }
     }
@@ -301,6 +304,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
             }
         }
 
+        queryCategories(p.get());
+
         return p;
     }
 
@@ -333,6 +338,26 @@ uint64_t ZapFR::Engine::PostLocal::queryCount(const std::vector<std::string>& wh
     return postCount;
 }
 
+void ZapFR::Engine::PostLocal::queryCategories(Post* post)
+{
+    auto postID = post->id();
+    Category cat;
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT post_categories.categoryID"
+                  ",categories.title"
+                  " FROM post_categories"
+                  " LEFT JOIN categories ON categories.id = post_categories.categoryID"
+                  " WHERE post_categories.postID=?",
+        use(postID), into(cat.id), into(cat.title), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            post->addCategory(cat);
+        }
+    }
+}
+
 void ZapFR::Engine::PostLocal::updateIsRead(bool isRead, const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
 {
     Poco::Data::Statement updateStmt(*(Database::getInstance()->session()));
@@ -359,7 +384,8 @@ void ZapFR::Engine::PostLocal::updateIsRead(bool isRead, const std::vector<std::
 }
 
 void ZapFR::Engine::PostLocal::update(const std::string& title, const std::string& link, const std::string& content, const std::string& author, const std::string& commentsURL,
-                                      const std::string& guid, const std::string& datePublished, const std::string& thumbnail, const std::vector<Enclosure>& enclosures)
+                                      const std::string& guid, const std::string& datePublished, const std::string& thumbnail, const std::vector<Enclosure>& enclosures,
+                                      const std::vector<std::string>& categories)
 {
     Poco::Nullable<std::string> thumbnailNullable;
     if (!thumbnail.empty())
@@ -382,12 +408,13 @@ void ZapFR::Engine::PostLocal::update(const std::string& title, const std::strin
     updateStmt.execute();
 
     replaceEnclosures(mID, enclosures);
+    replaceCategories(mID, mFeedID, categories);
 }
 
 std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link,
                                                                       const std::string& content, const std::string& author, const std::string& commentsURL,
                                                                       const std::string& guid, const std::string& datePublished, const std::string& thumbnail,
-                                                                      const std::vector<Enclosure>& enclosures)
+                                                                      const std::vector<Enclosure>& enclosures, const std::vector<std::string>& categories)
 {
     Poco::Nullable<std::string> thumbnailNullable;
     if (!thumbnail.empty())
@@ -418,6 +445,7 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
     }
 
     replaceEnclosures(postID, enclosures);
+    replaceCategories(postID, feedID, categories);
 
     auto p = std::make_unique<PostLocal>(postID);
     p->setFeedID(feedID);
@@ -451,6 +479,8 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
         p->addEnclosure(e);
     }
 
+    queryCategories(p.get());
+
     return p;
 }
 
@@ -464,6 +494,33 @@ void ZapFR::Engine::PostLocal::replaceEnclosures(uint64_t postID, const std::vec
         Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
         auto size = e.size; // otherwise poco complains with use(e.size) :/
         insertStmt << "INSERT INTO post_enclosures (postID, url, size, mimetype) VALUES (?, ?, ?, ?)", use(postID), useRef(e.url), use(size), useRef(e.mimeType), now;
+    }
+}
+
+void ZapFR::Engine::PostLocal::replaceCategories(uint64_t postID, uint64_t feedID, const std::vector<std::string>& categories)
+{
+    Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << "DELETE FROM post_categories WHERE postID=?", use(postID), now;
+
+    for (const auto& catTitle : categories)
+    {
+        uint64_t catID{0};
+        Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+        selectStmt << "SELECT id FROM categories WHERE feedID=? AND title=?", into(catID), use(feedID), useRef(catTitle), now;
+        if (catID == 0)
+        {
+            Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+            insertStmt << "INSERT INTO categories (title, feedID) VALUES (?, ?)", useRef(catTitle), use(feedID);
+            {
+                const std::lock_guard<std::mutex> lock(msCreateCategoryMutex);
+                insertStmt.execute();
+                Poco::Data::Statement selectInsertRowIDStmt(*(Database::getInstance()->session()));
+                selectInsertRowIDStmt << "SELECT last_insert_rowid()", into(catID), now;
+            }
+        }
+
+        Poco::Data::Statement insertStmt(*(Database::getInstance()->session()));
+        insertStmt << "INSERT INTO post_categories (postID, categoryID) VALUES (?, ?)", use(postID), use(catID), now;
     }
 }
 

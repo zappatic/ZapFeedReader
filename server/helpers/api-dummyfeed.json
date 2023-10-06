@@ -10,6 +10,28 @@
     "requireCredentials": false,
     "contentType": "application/rss+xml"
   },
+  "dummyfeed-get-atom10": {
+    "section": "Dummy feed",
+    "description": "Retrieves the Atom 1.0 dummy feed",
+    "method": "GET",
+    "path": "^\\/dummy-feed/atom10$",
+    "prettyPath": "/dummy-feed/atom10",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": false,
+    "contentType": "application/atom+xml"
+  },
+  "dummyfeed-get-json11": {
+    "section": "Dummy feed",
+    "description": "Retrieves the JSON 1.1 dummy feed",
+    "method": "GET",
+    "path": "^\\/dummy-feed/json11$",
+    "prettyPath": "/dummy-feed/json11",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": false,
+    "contentType": "application/feed+json"
+  },
   "dummyfeed-createpost": {
     "section": "Dummy feed",
     "description": "Adds a dummy post to the dummy feed",

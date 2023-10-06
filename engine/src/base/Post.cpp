@@ -58,6 +58,17 @@ Poco::JSON::Object ZapFR::Engine::Post::toJSON()
         enclosuresArr.add(enclosureObj);
     }
     o.set(JSON::Post::Enclosures, enclosuresArr);
+
+    Poco::JSON::Array categoryArr;
+    for (const auto& cat : mCategories)
+    {
+        Poco::JSON::Object categoryObj;
+        categoryObj.set(JSON::Post::CategoryID, cat.id);
+        categoryObj.set(JSON::Post::CategoryTitle, cat.title);
+        categoryArr.add(categoryObj);
+    }
+    o.set(JSON::Post::Categories, categoryArr);
+
     return o;
 }
 
@@ -93,6 +104,13 @@ void ZapFR::Engine::Post::fromJSON(const Poco::JSON::Object::Ptr o)
         addEnclosure(enclosureObj->getValue<std::string>(JSON::Post::EnclosureURL), enclosureObj->getValue<std::string>(JSON::Post::EnclosureMimeType),
                      enclosureObj->getValue<uint64_t>(JSON::Post::EnclosureSize));
     }
+
+    auto categoryArr = o->getArray(JSON::Post::Categories);
+    for (size_t i = 0; i < categoryArr->size(); ++i)
+    {
+        auto catObj = categoryArr->getObject(static_cast<uint32_t>(i));
+        mCategories.emplace_back(catObj->getValue<uint64_t>(JSON::Post::CategoryID), catObj->getValue<std::string>(JSON::Post::CategoryTitle));
+    }
 }
 
 void ZapFR::Engine::Post::removeEnclosure(uint64_t index)
@@ -112,4 +130,16 @@ void ZapFR::Engine::Post::updateEnclosure(uint64_t index, const std::string& url
         enclosure.mimeType = mimeType;
         enclosure.size = size;
     }
+}
+
+bool ZapFR::Engine::Post::hasCategory(const std::string& title) const
+{
+    for (const auto& cat : mCategories)
+    {
+        if (Poco::icompare(cat.title, title) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
 }
