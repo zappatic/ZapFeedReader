@@ -400,6 +400,7 @@ void ZapFR::Engine::SourceRemote::unserializeThumbnailData(std::vector<Thumbnail
         ThumbnailData td;
         td.feedID = tdObj->getValue<uint64_t>(JSON::ThumbnailData::FeedID);
         td.feedTitle = tdObj->getValue<std::string>(JSON::ThumbnailData::FeedTitle);
+        td.feedLink = tdObj->getValue<std::string>(JSON::ThumbnailData::FeedLink);
 
         auto tdPostsArr = tdObj->getArray(JSON::ThumbnailData::Posts);
         for (size_t j = 0; j < tdPostsArr->size(); ++j)

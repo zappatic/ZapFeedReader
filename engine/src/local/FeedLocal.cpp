@@ -489,6 +489,7 @@ void ZapFR::Engine::FeedLocal::fetchThumbnailData()
         ThumbnailData td;
         td.feedID = mID;
         td.feedTitle = mTitle;
+        td.feedLink = mLink;
         for (const auto& post : posts)
         {
             Poco::DateTime datePublished{};

@@ -154,6 +154,8 @@ QString ZapFR::Client::WebEngineViewPost::postStyles() const
                         ".zapfr_thumbnail_feedicon { max-width: 25px; max-height: 25px; }\n"
                         ".zapfr_thumbnail_grid { display: grid; grid-template-columns: repeat(6, 1fr); grid-column-gap: 10px; grid-row-gap: 20px; margin: 25px 0 25px 0; }\n"
                         ".zapfr_thumbnail_cell { display: flex; flex-direction: column; align-items:center; }\n"
+                        ".zapfr_thumbnail_cell_img { max-width: 200px; max-height: 150px; border-radius: 15px; }\n"
+                        ".zapfr_thumbnail_cell_title { font-size: 0.9em; }\n"
                         ".zapfr_thumbnail_cell_closebtn { display:none; position:absolute; right:0px; top:0px; width:25px; height:25px; }\n"
                         ".zapfr_thumbnail_cell:hover .zapfr_thumbnail_cell_closebtn { display:block; }\n"
                         "\n"
@@ -283,10 +285,18 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForThumbnailData(uint64_t sourc
            << R"(       <path fill="#b5251b" fill-rule="evenodd" clip-rule="evenodd" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM8.96963 8.96965C9.26252 8.67676 9.73739 8.67676 10.0303 8.96965L12 10.9393L13.9696 8.96967C14.2625 8.67678 14.7374 8.67678 15.0303 8.96967C15.3232 9.26256 15.3232 9.73744 15.0303 10.0303L13.0606 12L15.0303 13.9696C15.3232 14.2625 15.3232 14.7374 15.0303 15.0303C14.7374 15.3232 14.2625 15.3232 13.9696 15.0303L12 13.0607L10.0303 15.0303C9.73742 15.3232 9.26254 15.3232 8.96965 15.0303C8.67676 14.7374 8.67676 14.2625 8.96965 13.9697L10.9393 12L8.96963 10.0303C8.67673 9.73742 8.67673 9.26254 8.96963 8.96965Z" />)"
            << R"(   </svg>)"
            << R"(  </svg>)"
-           << R"(</div>)"
-           << R"(<h1 class="zapfr_thumbnail_feedheader">)"
-           << R"(<img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)" << QString::fromUtf8(td.feedTitle) << "</h1>"
-           << R"(<div class="zapfr_thumbnail_grid">)";
+           << R"(</div>)";
+        if (!td.feedLink.empty())
+        {
+            ss << R"(<a class="zapfr_thumbnail_feedheader" href=")" << QString::fromUtf8(td.feedLink) << R"(">)"
+               << R"(       <img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)" << QString::fromUtf8(td.feedTitle) << R"(</a>)";
+        }
+        else
+        {
+            ss << R"(<h1 class="zapfr_thumbnail_feedheader">)"
+               << R"(       <img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)" << QString::fromUtf8(td.feedTitle) << R"(</h1>)";
+        }
+        ss << R"(<div class="zapfr_thumbnail_grid">)";
         for (const auto& tdp : td.posts)
         {
             auto qbaLink = QByteArray(tdp.link.c_str(), static_cast<ssize_t>(tdp.link.length()));
@@ -304,12 +314,12 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForThumbnailData(uint64_t sourc
                << R"(               </a>)"
                << R"(           </div>)"
                << R"(           <a href=")" << openURL << R"(">)"
-               << R"(               <img src=")" << QString::fromUtf8(tdp.thumbnail) << R"(" alt="" width="250" />)"
+               << R"(               <img class="zapfr_thumbnail_cell_img" src=")" << QString::fromUtf8(tdp.thumbnail) << R"(" alt="" />)"
                << R"(           </a>)"
                << R"(       </div>)"
                << R"(   </div>)"
                << R"(   <div style="text-align:center;">)"
-               << R"(       <a href=")" << openURL << R"(">)" << QString::fromUtf8(tdp.title) << R"(       </a>)"
+               << R"(       <a class="zapfr_thumbnail_cell_title" href=")" << openURL << R"(">)" << QString::fromUtf8(tdp.title) << R"(       </a>)"
                << R"(     </div>)"
                << R"(</div>)";
         }

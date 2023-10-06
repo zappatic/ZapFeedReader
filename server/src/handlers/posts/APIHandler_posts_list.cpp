@@ -138,6 +138,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
             Poco::JSON::Object tdObj;
             tdObj.set(ZapFR::Engine::JSON::ThumbnailData::FeedID, td.feedID);
             tdObj.set(ZapFR::Engine::JSON::ThumbnailData::FeedTitle, td.feedTitle);
+            tdObj.set(ZapFR::Engine::JSON::ThumbnailData::FeedLink, td.feedLink);
 
             Poco::JSON::Array tdpArr;
             for (const auto& post : td.posts)

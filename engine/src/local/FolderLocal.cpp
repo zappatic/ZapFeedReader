@@ -247,12 +247,12 @@ void ZapFR::Engine::FolderLocal::fetchThumbnailData()
 
     auto posts = PostLocal::queryMultiple(whereClause, "", "LIMIT 250", {});
 
-    std::unordered_map<uint64_t, std::string> feedIDToTitleMap;
+    std::unordered_map<uint64_t, std::tuple<std::string, std::string>> feedIDToTitleAndLinkMap;
     std::unordered_map<uint64_t, std::vector<Post*>> feedIDToPosts;
     for (const auto& post : posts)
     {
         auto feedID = post->feedID();
-        feedIDToTitleMap[feedID] = post->feedTitle();
+        feedIDToTitleAndLinkMap[feedID] = std::make_tuple(post->feedTitle(), post->feedLink());
         if (!feedIDToPosts.contains(feedID))
         {
             feedIDToPosts[feedID] = {};
@@ -262,18 +262,20 @@ void ZapFR::Engine::FolderLocal::fetchThumbnailData()
 
     // sort by title of the feed
     std::vector<std::tuple<uint64_t, std::string>> feedIDToTitleVector;
-    for (const auto& [feedID, feedTitle] : feedIDToTitleMap)
+    for (const auto& [feedID, feedData] : feedIDToTitleAndLinkMap)
     {
-        feedIDToTitleVector.emplace_back(feedID, feedTitle);
+        feedIDToTitleVector.emplace_back(feedID, std::get<0>(feedData));
     }
     std::sort(feedIDToTitleVector.begin(), feedIDToTitleVector.end(),
               [](const std::tuple<uint64_t, std::string>& a, const std::tuple<uint64_t, std::string>& b) { return Poco::icompare(std::get<1>(a), std::get<1>(b)) < 0; });
 
-    for (const auto& [feedID, feedTitle] : feedIDToTitleVector)
+    for (const auto& [feedID, dummy] : feedIDToTitleVector)
     {
         ThumbnailData td;
         td.feedID = feedID;
+        const auto& [feedTitle, feedLink] = feedIDToTitleAndLinkMap.at(feedID);
         td.feedTitle = feedTitle;
+        td.feedLink = feedLink;
         for (const auto& post : feedIDToPosts.at(feedID))
         {
             Poco::DateTime datePublished{};

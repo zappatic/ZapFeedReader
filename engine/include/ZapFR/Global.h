@@ -55,6 +55,7 @@ namespace ZapFR
         {
             uint64_t feedID{0};
             std::string feedTitle{""};
+            std::string feedLink{""};
             std::vector<ThumbnailDataPost> posts{};
         };
 
@@ -84,6 +85,7 @@ namespace ZapFR
             {
                 constexpr const char FeedID[]{"feedID"};
                 constexpr const char FeedTitle[]{"feedTitle"};
+                constexpr const char FeedLink[]{"feedLink"};
                 constexpr const char PostLink[]{"link"};
                 constexpr const char PostID[]{"postID"};
                 constexpr const char PostThumbnail[]{"thumbnail"};
