@@ -31,6 +31,9 @@ ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) :
 {
     setItemDelegate(new ItemDelegateScriptFolder(this));
 
+    mItemModelScriptFolders = std::make_unique<QStandardItemModel>(this);
+    setModel(mItemModelScriptFolders.get());
+
     mActionAddScriptFolder = std::make_unique<QAction>(tr("Add script folder"), this);
     mActionEditScriptFolder = std::make_unique<QAction>(tr("Edit script folder"), this);
     mActionRemoveScriptFolder = std::make_unique<QAction>(tr("Remove script folder"), this);
@@ -50,6 +53,11 @@ ZapFR::Client::TableViewScriptFolders::TableViewScriptFolders(QWidget* parent) :
 
 void ZapFR::Client::TableViewScriptFolders::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
+    if (mMainWindow == nullptr)
+    {
+        return;
+    }
+
     auto ui = mMainWindow->getUI();
 
     QTableView::selectionChanged(selected, deselected);
@@ -119,8 +127,7 @@ void ZapFR::Client::TableViewScriptFolders::reload(bool forceReload)
 void ZapFR::Client::TableViewScriptFolders::populateScriptFolders(uint64_t sourceID, const QList<QList<QStandardItem*>>& scriptFolders)
 {
     mMainWindow->treeViewSources()->setPreviouslySelectedSourceID(sourceID);
-    mItemModelScriptFolders = std::make_unique<QStandardItemModel>(this);
-    setModel(mItemModelScriptFolders.get());
+    mItemModelScriptFolders->clear();
     auto headerItem = new QStandardItem(tr("Script folders"));
     headerItem->setTextAlignment(Qt::AlignLeft);
     mItemModelScriptFolders->setHorizontalHeaderItem(Column::TitleCol, headerItem);

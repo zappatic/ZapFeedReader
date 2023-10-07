@@ -205,7 +205,12 @@ void ZapFR::Client::MainWindow::closeEvent(QCloseEvent* event)
 
 void ZapFR::Client::MainWindow::showEvent([[maybe_unused]] QShowEvent* event)
 {
-    ui->treeViewSources->refreshBadges();
+    static auto isFirstShowEvent{true};
+    if (!isFirstShowEvent)
+    {
+        ui->treeViewSources->refreshBadges();
+        isFirstShowEvent = false;
+    }
 }
 
 void ZapFR::Client::MainWindow::saveSettings() const
