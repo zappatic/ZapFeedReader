@@ -16,32 +16,30 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTFOLDERMARKREAD_H
-#define ZAPFR_ENGINE_AGENTFOLDERMARKREAD_H
+#ifndef ZAPFR_CLIENT_COMBOBOXWITHPOPUPSIGNAL_H
+#define ZAPFR_CLIENT_COMBOBOXWITHPOPUPSIGNAL_H
 
-#include <unordered_set>
-
-#include "ZapFR/AgentRunnable.h"
+#include <QComboBox>
 
 namespace ZapFR
 {
-    namespace Engine
+    namespace Client
     {
-        class AgentFolderMarkRead : public AgentRunnable
+        class ComboBoxWithPopupSignal : public QComboBox
         {
+            Q_OBJECT
+
           public:
-            explicit AgentFolderMarkRead(uint64_t sourceID, uint64_t folderID, uint64_t maxPostID, std::function<void(uint64_t, std::vector<uint64_t>)> finishedCallback);
-            virtual ~AgentFolderMarkRead() = default;
+            explicit ComboBoxWithPopupSignal(QWidget* parent = nullptr) : QComboBox(parent) {}
+            ~ComboBoxWithPopupSignal() = default;
 
-            void payload(Source* source) override;
-            Type type() const noexcept override { return Type::FolderMarkRead; }
+          signals:
+            void popUp();
 
-          private:
-            uint64_t mFolderID{0};
-            uint64_t mMaxPostID{0};
-            std::function<void(uint64_t, std::vector<uint64_t>)> mFinishedCallback{};
+          protected:
+            void mousePressEvent([[maybe_unused]] QMouseEvent* event) override { emit popUp(); }
         };
-    } // namespace Engine
+    } // namespace Client
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTFOLDERMARKREAD_H
+#endif // ZAPFR_CLIENT_COMBOBOXWITHPOPUPSIGNAL_H

@@ -991,7 +991,7 @@ QStandardItem* ZapFR::Client::TreeViewSources::findFolderStandardItem(uint64_t s
     return foundFolderItem;
 }
 
-std::unordered_set<QStandardItem*> ZapFR::Client::TreeViewSources::findFeedStandardItems(QStandardItem* sourceItem, const std::optional<std::unordered_set<uint64_t>>& feedIDs)
+std::unordered_set<QStandardItem*> ZapFR::Client::TreeViewSources::findFeedStandardItems(QStandardItem* sourceItem, const std::optional<std::vector<uint64_t>>& feedIDs)
 {
     std::unordered_set<QStandardItem*> feedItems;
 
@@ -1015,9 +1015,13 @@ std::unordered_set<QStandardItem*> ZapFR::Client::TreeViewSources::findFeedStand
                 auto id = parent->data(Role::ID).toULongLong();
                 if (feedIDs.has_value())
                 {
-                    if (feedIDs.value().contains(id))
+                    for (const auto& feedID : feedIDs.value())
                     {
-                        feedItems.insert(parent);
+                        if (feedID == id)
+                        {
+                            feedItems.insert(parent);
+                            break;
+                        }
                     }
                 }
                 else // empty feedIDs means add all feed items
@@ -1578,7 +1582,7 @@ void ZapFR::Client::TreeViewSources::feedRefreshed(uint64_t sourceID, uint64_t f
     mMainWindow->getUI()->frameFlagFilters->reload(true);
 }
 
-void ZapFR::Client::TreeViewSources::updateFeedUnreadCountBadge(uint64_t sourceID, std::unordered_set<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount)
+void ZapFR::Client::TreeViewSources::updateFeedUnreadCountBadge(uint64_t sourceID, std::vector<uint64_t> feedIDs, bool markEntireSourceAsRead, uint64_t unreadCount)
 {
     auto sourceItem = findSourceStandardItem(sourceID);
     if (sourceItem == nullptr)

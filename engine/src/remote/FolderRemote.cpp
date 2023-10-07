@@ -33,8 +33,8 @@ ZapFR::Engine::FolderRemote::FolderRemote(uint64_t id, uint64_t parentFolderID, 
 {
 }
 
-std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FolderRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                                                                                              const std::string& searchFilter, FlagColor flagColor)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>>
+ZapFR::Engine::FolderRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor)
 {
     std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
     uint64_t postCount{0};
@@ -53,6 +53,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         params[HTTPParam::Post::Page] = std::to_string(page);
         params[HTTPParam::Post::ShowOnlyUnread] = showOnlyUnread ? HTTPParam::True : HTTPParam::False;
         params[HTTPParam::Post::SearchFilter] = searchFilter;
+        params[HTTPParam::Post::CategoryFilter] = std::to_string(categoryFilterID);
         params[HTTPParam::Post::FlagColor] = Flag::nameForFlagColor(flagColor);
 
         try
@@ -85,9 +86,9 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(postCount, std::move(posts));
 }
 
-std::unordered_set<uint64_t> ZapFR::Engine::FolderRemote::markAsRead(uint64_t maxPostID)
+std::vector<uint64_t> ZapFR::Engine::FolderRemote::markAsRead(uint64_t maxPostID)
 {
-    std::unordered_set<uint64_t> affectedFeedIDs;
+    std::vector<uint64_t> affectedFeedIDs;
     auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
     auto uri = remoteSource->remoteURL();
     if (remoteSource->remoteURLIsValid())
@@ -106,7 +107,7 @@ std::unordered_set<uint64_t> ZapFR::Engine::FolderRemote::markAsRead(uint64_t ma
         {
             for (size_t i = 0; i < rootArr->size(); ++i)
             {
-                affectedFeedIDs.insert(rootArr->getElement<uint64_t>(static_cast<uint32_t>(i)));
+                affectedFeedIDs.emplace_back(rootArr->getElement<uint64_t>(static_cast<uint32_t>(i)));
             }
         }
     }
@@ -163,6 +164,38 @@ void ZapFR::Engine::FolderRemote::clearLogs()
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_DELETE, creds, {});
     }
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::FolderRemote::getCategories()
+{
+    std::vector<std::unique_ptr<ZapFR::Engine::Category>> categories;
+
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath("/categories");
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        std::map<std::string, std::string> params;
+        params[HTTPParam::Category::ParentType] = HTTPParam::Category::ParentTypeFolder;
+        params[HTTPParam::Category::ParentID] = std::to_string(mID);
+
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootArr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!rootArr.isNull())
+        {
+            for (size_t i = 0; i < rootArr->size(); ++i)
+            {
+                auto catObj = rootArr->getObject(static_cast<uint32_t>(i));
+                categories.emplace_back(Category::fromJSON(catObj));
+            }
+        }
+    }
+
+    return categories;
 }
 
 void ZapFR::Engine::FolderRemote::update(const std::string& newTitle)

@@ -1,7 +1,7 @@
 {
   "posts-list": {
     "section": "Posts",
-    "description": "Returns all the posts belonging to a feed, folder or source with various filters applied",
+    "description": "Returns all the posts belonging to a feed, folder, source or script folder with various filters applied",
     "method": "GET",
     "path": "^\\/posts$",
     "prettyPath": "/posts",
@@ -10,12 +10,12 @@
       {
         "name": "parentType",
         "required": true,
-        "description": "The type (source, folder, feed) to retrieve posts for"
+        "description": "The type (source, folder, feed, scriptfolder) to retrieve posts for"
       },
       {
         "name": "parentID",
         "required": false,
-        "description": "The ID of the parent type (feedID or folderID); n/a in case of 'source'"
+        "description": "The ID of the parent type (feedID, folderID or scriptFolderID); n/a in case of 'source'"
       },
       {
         "name": "perPage",
@@ -36,6 +36,11 @@
         "name": "searchFilter",
         "required": false,
         "description": "An optional search filter to apply"
+      },
+      {
+        "name": "categoryFilter",
+        "required": false,
+        "description": "An optional category filter to apply (the ID of the cat to match)"
       },
       {
         "name": "flagColor",

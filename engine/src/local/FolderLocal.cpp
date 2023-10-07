@@ -106,8 +106,8 @@ void ZapFR::Engine::FolderLocal::fetchStatistics()
     }
 }
 
-std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                                                                                             const std::string& searchFilter, FlagColor flagColor)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>>
+ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor)
 {
     auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
     if (joinedFeedIDs.empty())
@@ -135,6 +135,12 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
     }
+    if (categoryFilterID != 0)
+    {
+        whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM post_categories WHERE categoryID=?)");
+        bindingsPostQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
+        bindingsCountQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
+    }
     if (flagColor != FlagColor::Gray)
     {
         whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM flags WHERE flagID=?)");
@@ -151,7 +157,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     return std::make_tuple(count, std::move(posts));
 }
 
-std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAsRead(uint64_t maxPostID)
+std::vector<uint64_t> ZapFR::Engine::FolderLocal::markAsRead(uint64_t maxPostID)
 {
     auto feedIDs = feedIDsInFoldersAndSubfolders();
     auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDs, ",");
@@ -169,7 +175,7 @@ std::unordered_set<uint64_t> ZapFR::Engine::FolderLocal::markAsRead(uint64_t max
         PostLocal::updateIsRead(true, {Poco::format("posts.feedID IN (%s)", joinedFeedIDs), "posts.id <= ?"}, {use(maxPostID, "maxPostID")});
     }
 
-    return std::unordered_set<uint64_t>(feedIDs.begin(), feedIDs.end());
+    return feedIDs;
 }
 
 std::vector<uint64_t> ZapFR::Engine::FolderLocal::folderAndSubfolderIDs() const
@@ -322,6 +328,21 @@ void ZapFR::Engine::FolderLocal::clearLogs()
 
     Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
     deleteStmt << Poco::format("DELETE FROM logs WHERE feedID IN (%s)", joinedFeedIDs), now;
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::FolderLocal::getCategories()
+{
+    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
+    if (joinedFeedIDs.empty())
+    {
+        return {};
+    }
+
+    std::vector<std::string> whereClause;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+
+    whereClause.emplace_back(Poco::format("categories.feedID IN (%s)", joinedFeedIDs));
+    return Category::queryMultiple(whereClause, "ORDER BY categories.title ASC", "", {});
 }
 
 uint64_t ZapFR::Engine::FolderLocal::nextSortOrder(uint64_t folderID)

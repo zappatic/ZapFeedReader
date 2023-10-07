@@ -25,6 +25,7 @@
 
 #include "ZapFR/Flag.h"
 #include "ZapFR/Global.h"
+#include "ZapFR/base/Category.h"
 
 namespace ZapFR
 {
@@ -97,10 +98,12 @@ namespace ZapFR
             void setConditionalGETInfo(const std::string& cgi) { mConditionalGETInfo = cgi; }
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                                      FlagColor flagColor) = 0;
+                                                                                      uint64_t categoryFilterID, FlagColor flagColor) = 0;
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;
+
+            virtual std::vector<std::unique_ptr<ZapFR::Engine::Category>> getCategories() = 0;
 
             virtual void updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds) = 0;
             virtual void refresh() = 0;

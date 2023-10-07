@@ -60,6 +60,7 @@ set(PROJECT_SOURCES
         include/FeedIconCache.h
         include/SyntaxHighlighterLua.h
         include/Utilities.h
+        include/widgets/ComboBoxWithPopupSignal.h
         include/widgets/FrameFlagFilters.h
         include/widgets/MainWindow.h
         include/widgets/WebEnginePagePost.h

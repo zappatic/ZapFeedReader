@@ -16,25 +16,30 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/scriptfolder/AgentScriptFolderMarkRead.h"
+#include "ZapFR/agents/scriptfolder/AgentScriptFolderGetCategories.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/base/Feed.h"
 #include "ZapFR/base/ScriptFolder.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentScriptFolderMarkRead::AgentScriptFolderMarkRead(uint64_t sourceID, uint64_t scriptFolderID, uint64_t maxPostID,
-                                                                    std::function<void(uint64_t, std::vector<uint64_t>)> finishedCallback)
-    : AgentRunnable(sourceID), mScriptFolderID(scriptFolderID), mMaxPostID(maxPostID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentScriptFolderGetCategories::AgentScriptFolderGetCategories(uint64_t sourceID, uint64_t scriptFolderID,
+                                                                              std::function<void(uint64_t, uint64_t, const std::vector<Category*>&)> finishedCallback)
+    : AgentRunnable(sourceID), mScriptFolderID(scriptFolderID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentScriptFolderMarkRead::payload(Source* source)
+void ZapFR::Engine::AgentScriptFolderGetCategories::payload(Source* source)
 {
-    std::vector<uint64_t> feedIDs;
+
     auto scriptFolder = source->getScriptFolder(mScriptFolderID, ZapFR::Engine::Source::FetchInfo::None);
     if (scriptFolder.has_value())
     {
-        feedIDs = scriptFolder.value()->markAsRead(mMaxPostID);
+        std::vector<Category*> catPointers;
+        const auto& cats = scriptFolder.value()->getCategories();
+        for (const auto& cat : cats)
+        {
+            catPointers.emplace_back(cat.get());
+        }
+
+        mFinishedCallback(mSourceID, mScriptFolderID, catPointers);
     }
-    mFinishedCallback(mSourceID, feedIDs);
 }

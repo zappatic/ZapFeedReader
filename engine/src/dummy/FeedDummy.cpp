@@ -23,7 +23,8 @@ ZapFR::Engine::FeedDummy::FeedDummy(uint64_t id, Source* parentSource) : Feed(id
 }
 
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FeedDummy::getPosts(uint64_t /*perPage*/, uint64_t /*page*/, bool /*showOnlyUnread*/,
-                                                                                                           const std::string& /*searchFilter*/, FlagColor /*flagColor*/)
+                                                                                                           const std::string& /*searchFilter*/, uint64_t /*categoryFilterID*/,
+                                                                                                           FlagColor /*flagColor*/)
 {
     throw std::runtime_error("Not implemented");
 }
@@ -54,6 +55,11 @@ void ZapFR::Engine::FeedDummy::clearLogs()
 }
 
 void ZapFR::Engine::FeedDummy::updateProperties(const std::string& /*feedURL*/, std::optional<uint64_t> /*refreshIntervalInSeconds*/)
+{
+    throw std::runtime_error("Not implemented");
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::FeedDummy::getCategories()
 {
     throw std::runtime_error("Not implemented");
 }

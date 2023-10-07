@@ -1,0 +1,25 @@
+{
+  "categories-list": {
+    "section": "Categories",
+    "description": "Returns all the categories belonging to a feed, folder, source or script folder",
+    "method": "GET",
+    "path": "^\\/categories$",
+    "prettyPath": "/categories",
+    "uriParameters": [],
+    "parameters": [
+      {
+        "name": "parentType",
+        "required": true,
+        "description": "The type (source, folder, feed, scriptfolder) to retrieve categories for"
+      },
+      {
+        "name": "parentID",
+        "required": false,
+        "description": "The ID of the parent type (feedID, folderID or scriptFolderID); n/a in case of 'source'"
+      }
+    ],
+    "requireCredentials": true,
+    "contentType": "application/json",
+    "jsonOutput": "Array"
+  }
+}

@@ -32,11 +32,13 @@ namespace ZapFR
             virtual ~FeedRemote() = default;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                              FlagColor flagColor) override;
+                                                                              uint64_t categoryFilterID, FlagColor flagColor) override;
             std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) override;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
             void clearLogs() override;
+
+            std::vector<std::unique_ptr<ZapFR::Engine::Category>> getCategories() override;
 
             void refresh() override;
             void markAsRead(uint64_t maxPostID) override;

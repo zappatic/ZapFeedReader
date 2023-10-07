@@ -56,14 +56,25 @@ namespace ZapFR
 
             // querying posts
             void queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                   FlagColor flagColor,
+                                   uint64_t categoryFilterID, FlagColor flagColor,
                                    std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
             void queueGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                     uint64_t categoryFilterID, FlagColor flagColor,
+                                     std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
+            void queueGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID,
                                      FlagColor flagColor,
                                      std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
-            void queueGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, FlagColor flagColor,
-                                     std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
+            void queueGetScriptFolderPosts(uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+                                           uint64_t categoryFilterID, FlagColor flagColor,
+                                           std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
             void queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback);
+
+            // querying categories
+            void queueGetFeedCategories(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, const std::vector<Category*>&)> finishedCallback);
+            void queueGetFolderCategories(uint64_t sourceID, uint64_t folderID, std::function<void(uint64_t, uint64_t, const std::vector<Category*>&)> finishedCallback);
+            void queueGetSourceCategories(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Category*>&)> finishedCallback);
+            void queueGetScriptFolderCategories(uint64_t sourceID, uint64_t scriptFolderID,
+                                                std::function<void(uint64_t, uint64_t, const std::vector<Category*>&)> finishedCallback);
 
             // querying logs
             void queueGetSourceLogs(uint64_t sourceID, uint64_t perPage, uint64_t page,
@@ -116,7 +127,7 @@ namespace ZapFR
                                  std::function<void()> finishedCallback);
 
             // folder manipulation
-            void queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, uint64_t maxPostID, std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
+            void queueMarkFolderRead(uint64_t sourceID, uint64_t folderID, uint64_t maxPostID, std::function<void(uint64_t, std::vector<uint64_t>)> finishedCallback);
             void queueMoveFolder(uint64_t sourceID, uint64_t folderID, uint64_t newFolder, uint64_t newSortOrder,
                                  std::function<void(uint64_t, const std::unordered_map<uint64_t, uint64_t>&)> finishedCallback);
             void queueAddFolder(uint64_t sourceID, uint64_t parentFolderID, const std::string& title,
@@ -140,15 +151,12 @@ namespace ZapFR
 
             // script folders
             void queueGetScriptFolders(uint64_t sourceID, std::function<void(uint64_t, const std::vector<ScriptFolder*>&)> finishedCallback);
-            void queueGetScriptFolderPosts(uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                           FlagColor flagColor,
-                                           std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
             void queueAddScriptFolder(uint64_t sourceID, const std::string& title, bool showTotal, bool showUnread, std::function<void(uint64_t)> finishedCallback);
             void queueUpdateScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, const std::string& title, bool showTotal, bool showUnread,
                                          std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueRemoveScriptFolder(uint64_t sourceID, uint64_t scriptFolderID, std::function<void(uint64_t, uint64_t)> finishedCallback);
             void queueMarkScriptFolderRead(uint64_t sourceID, uint64_t scriptFolderID, uint64_t maxPostID,
-                                           std::function<void(uint64_t, std::unordered_set<uint64_t>)> finishedCallback);
+                                           std::function<void(uint64_t, std::vector<uint64_t>)> finishedCallback);
 
             // scripts
             void queueGetScripts(uint64_t sourceID, std::function<void(uint64_t, const std::vector<Script*>&)> finishedCallback);

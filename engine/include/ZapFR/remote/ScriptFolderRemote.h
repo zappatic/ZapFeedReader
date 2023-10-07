@@ -32,9 +32,11 @@ namespace ZapFR
             ~ScriptFolderRemote() = default;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                              FlagColor flagColor) override;
+                                                                              uint64_t categoryFilterID, FlagColor flagColor) override;
 
-            std::unordered_set<uint64_t> markAsRead(uint64_t maxPostID) override;
+            std::vector<std::unique_ptr<ZapFR::Engine::Category>> getCategories() override;
+
+            std::vector<uint64_t> markAsRead(uint64_t maxPostID) override;
             void update(const std::string& title, bool showTotal, bool showUnread) override;
 
             static std::unique_ptr<ScriptFolder> fromJSON(Source* parentSource, const Poco::JSON::Object::Ptr o);

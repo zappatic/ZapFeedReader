@@ -23,6 +23,7 @@
 #include "ZapFR/Helpers.h"
 #include "ZapFR/Log.h"
 #include "ZapFR/OPMLParser.h"
+#include "ZapFR/base/Category.h"
 #include "ZapFR/feed_handling/FeedFetcher.h"
 #include "ZapFR/local/FeedLocal.h"
 #include "ZapFR/local/FolderLocal.h"
@@ -181,8 +182,8 @@ uint64_t ZapFR::Engine::SourceLocal::createFolderHierarchy(uint64_t parentID, co
 }
 
 /* ************************** POST STUFF ************************** */
-std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::SourceLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                                                                                             const std::string& searchFilter, FlagColor flagColor)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>>
+ZapFR::Engine::SourceLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor)
 {
     std::vector<std::string> whereClause;
     std::vector<Poco::Data::AbstractBinding::Ptr> bindingsPostQuery;
@@ -201,6 +202,12 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+    }
+    if (categoryFilterID != 0)
+    {
+        whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM post_categories WHERE categoryID=?)");
+        bindingsPostQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
+        bindingsCountQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
     }
     if (flagColor != FlagColor::Gray)
     {
@@ -499,6 +506,12 @@ std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceLocal::getUsed
     }
 
     return flags;
+}
+
+/* ************************** CATEGORY STUFF ************************** */
+std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::SourceLocal::getCategories()
+{
+    return Category::queryMultiple({}, "ORDER BY categories.title ASC", "", {});
 }
 
 /* ************************** SCRIPT FOLDER STUFF ************************** */

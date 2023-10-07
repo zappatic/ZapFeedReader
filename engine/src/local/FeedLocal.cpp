@@ -48,8 +48,8 @@ ZapFR::Engine::FeedLocal::FeedLocal(uint64_t id, Source* parentSource) : Feed(id
 {
 }
 
-std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FeedLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                                                                                           const std::string& searchFilter, FlagColor flagColor)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>>
+ZapFR::Engine::FeedLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor)
 {
     std::vector<std::string> whereClause;
     std::vector<Poco::Data::AbstractBinding::Ptr> bindingsPostQuery;
@@ -72,6 +72,12 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+    }
+    if (categoryFilterID != 0)
+    {
+        whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM post_categories WHERE categoryID=?)");
+        bindingsPostQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
+        bindingsCountQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
     }
     if (flagColor != FlagColor::Gray)
     {
@@ -448,6 +454,16 @@ void ZapFR::Engine::FeedLocal::clearLogs()
 {
     Poco::Data::Statement deleteStmt(*(Database::getInstance()->session()));
     deleteStmt << "DELETE FROM logs WHERE feedID=?", use(mID), now;
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::FeedLocal::getCategories()
+{
+    std::vector<std::string> whereClause;
+    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+
+    whereClause.emplace_back("categories.feedID=?");
+    bindings.emplace_back(use(mID, "feedID"));
+    return Category::queryMultiple(whereClause, "ORDER BY categories.title ASC", "", bindings);
 }
 
 void ZapFR::Engine::FeedLocal::fetchStatistics()

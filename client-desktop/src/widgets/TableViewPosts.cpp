@@ -130,6 +130,7 @@ void ZapFR::Client::TableViewPosts::reload()
     };
 
     auto searchFilter = mMainWindow->searchQuery().toStdString();
+    const auto& [categoryFilterID, categoryFilterName] = mMainWindow->categoryFilter();
 
     // preserve the current selection
     mPreviouslySelectedPostIDs.clear();
@@ -149,7 +150,7 @@ void ZapFR::Client::TableViewPosts::reload()
         auto sourceID = index.data(TableViewScriptFolders::Role::SourceID).toULongLong();
         auto scriptFolderID = index.data(TableViewScriptFolders::Role::ID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
-                                                                       mFlagFilter, processPosts);
+                                                                       categoryFilterID, mFlagFilter, processPosts);
     }
     else
     {
@@ -161,19 +162,19 @@ void ZapFR::Client::TableViewPosts::reload()
             if (type == TreeViewSources::EntryType::Feed)
             {
                 auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
-                                                                       processPosts);
+                ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
+                                                                       categoryFilterID, mFlagFilter, processPosts);
             }
             else if (type == TreeViewSources::EntryType::Folder)
             {
                 auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
-                                                                         processPosts);
+                ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
+                                                                         categoryFilterID, mFlagFilter, processPosts);
             }
             else if (type == TreeViewSources::EntryType::Source)
             {
-                ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, mFlagFilter,
-                                                                         processPosts);
+                ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, categoryFilterID,
+                                                                         mFlagFilter, processPosts);
             }
             else
             {
@@ -626,8 +627,8 @@ void ZapFR::Client::TableViewPosts::postsMarkedRead(uint64_t sourceID, const std
             sourceID, feedID,
             [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t unreadCount)
             {
-                std::unordered_set<uint64_t> feedIDs;
-                feedIDs.insert(affectedFeedID);
+                std::vector<uint64_t> feedIDs;
+                feedIDs.emplace_back(affectedFeedID);
                 QMetaObject::invokeMethod(this, [=, this]() { mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
             });
     }
@@ -654,8 +655,8 @@ void ZapFR::Client::TableViewPosts::postsMarkedUnread(uint64_t sourceID, const s
             sourceID, feedID,
             [&](uint64_t affectedSourceID, uint64_t affectedFeedID, uint64_t unreadCount)
             {
-                std::unordered_set<uint64_t> feedIDs;
-                feedIDs.insert(affectedFeedID);
+                std::vector<uint64_t> feedIDs;
+                feedIDs.emplace_back(affectedFeedID);
                 QMetaObject::invokeMethod(this, [=, this]() { mMainWindow->treeViewSources()->updateFeedUnreadCountBadge(affectedSourceID, feedIDs, false, unreadCount); });
             });
     }
@@ -760,7 +761,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
         auto maxPostID = ui->treeViewSources->highestPostID(sourceID);
         auto scriptFolderID = sfIndex.data(TableViewScriptFolders::Role::ID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkScriptFolderRead(sourceID, scriptFolderID, maxPostID,
-                                                                       [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> affectedFeedIDs)
+                                                                       [&](uint64_t affectedSourceID, std::vector<uint64_t> affectedFeedIDs)
                                                                        {
                                                                            QMetaObject::invokeMethod(this,
                                                                                                      [=, this]()
@@ -807,7 +808,7 @@ void ZapFR::Client::TableViewPosts::markAsRead()
             {
                 auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
                 ZapFR::Engine::Agent::getInstance()->queueMarkFolderRead(sourceID, folderID, maxPostID,
-                                                                         [&](uint64_t affectedSourceID, std::unordered_set<uint64_t> affectedFeedIDs)
+                                                                         [&](uint64_t affectedSourceID, std::vector<uint64_t> affectedFeedIDs)
                                                                          {
                                                                              QMetaObject::invokeMethod(this,
                                                                                                        [=, this]()
@@ -975,13 +976,15 @@ void ZapFR::Client::TableViewPosts::updateActivePostFilter()
     auto ui = mMainWindow->getUI();
 
     auto searchQuery = mMainWindow->searchQuery();
+    const auto& [categoryFilterID, categoryFilterName] = mMainWindow->categoryFilter();
     auto selectedScriptFolder = ui->tableViewScriptFolders->currentIndex();
 
     auto isScriptFolderFilterActive{selectedScriptFolder.isValid()};
     auto isFlagFilterActive{mFlagFilter != ZapFR::Engine::FlagColor::Gray};
     auto isOnlyUnreadFilterActive{mShowOnlyUnreadPosts};
     auto isTextSearchFilterActive{!searchQuery.isEmpty()};
-    auto isOtherFilterActive{isScriptFolderFilterActive || isOnlyUnreadFilterActive || isTextSearchFilterActive};
+    auto isCategoryFilterActive{categoryFilterID != 0};
+    auto isOtherFilterActive{isScriptFolderFilterActive || isOnlyUnreadFilterActive || isTextSearchFilterActive || isCategoryFilterActive};
 
     ui->labelActiveFilter->setVisible(isFlagFilterActive || isOtherFilterActive);
     ui->labelActiveFilterFlag->setVisible(isFlagFilterActive);
@@ -1003,6 +1006,10 @@ void ZapFR::Client::TableViewPosts::updateActivePostFilter()
     if (isTextSearchFilterActive)
     {
         otherFilters << tr("Search '%1'").arg(searchQuery);
+    }
+    if (isCategoryFilterActive)
+    {
+        otherFilters << tr("Category '%1'").arg(categoryFilterName);
     }
 
     if (isOtherFilterActive)

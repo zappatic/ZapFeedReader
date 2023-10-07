@@ -34,11 +34,13 @@ namespace ZapFR
             virtual ~FolderLocal() = default;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                              FlagColor flagColor) override;
-            std::unordered_set<uint64_t> markAsRead(uint64_t maxPostID) override;
+                                                                              uint64_t categoryFilterID, FlagColor flagColor) override;
+            std::vector<uint64_t> markAsRead(uint64_t maxPostID) override;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) override;
             void clearLogs() override;
+
+            std::vector<std::unique_ptr<ZapFR::Engine::Category>> getCategories() override;
 
             void update(const std::string& newTitle) override;
             std::tuple<const std::unordered_map<uint64_t, uint64_t>, const std::unordered_map<uint64_t, uint64_t>> sort(SortMethod sortMethod) override;

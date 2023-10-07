@@ -68,7 +68,8 @@ void ZapFR::Engine::Database::upgrade()
             static std::vector<std::function<void()>> upgradeFunctions{
                 []() { /* nop, there is no db version 0 */ },    []() { /* nop, version 1 should have been installed with installDBSchemaV1 */ },
                 std::bind(&Database::upgradeToDBSchemaV2, this), std::bind(&Database::upgradeToDBSchemaV3, this),
-                std::bind(&Database::upgradeToDBSchemaV4, this), std::bind(&Database::upgradeToDBSchemaV5, this)};
+                std::bind(&Database::upgradeToDBSchemaV4, this), std::bind(&Database::upgradeToDBSchemaV5, this),
+                std::bind(&Database::upgradeToDBSchemaV6, this)};
 
             for (auto i = currentDBVersion + 1; i <= ZapFR::Engine::DBVersion; ++i)
             {
@@ -297,4 +298,10 @@ void ZapFR::Engine::Database::upgradeToDBSchemaV5()
         now;
 
     (*mSession) << "UPDATE config SET VALUE='5' WHERE key='db_schema_version'", now;
+}
+
+void ZapFR::Engine::Database::upgradeToDBSchemaV6()
+{
+    (*mSession) << R"(CREATE INDEX post_categories_IX_categoryID ON post_categories (categoryID))", now;
+    (*mSession) << "UPDATE config SET VALUE='6' WHERE key='db_schema_version'", now;
 }

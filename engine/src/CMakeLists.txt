@@ -20,6 +20,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/feed/AgentFeedAdd.cpp
     agents/feed/AgentFeedClearLogs.cpp
     agents/feed/AgentFeedGet.cpp
+    agents/feed/AgentFeedGetCategories.cpp
     agents/feed/AgentFeedGetLogs.cpp
     agents/feed/AgentFeedGetPosts.cpp
     agents/feed/AgentFeedGetUnreadCount.cpp
@@ -31,6 +32,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/folder/AgentFolderAdd.cpp
     agents/folder/AgentFolderClearLogs.cpp
     agents/folder/AgentFolderGet.cpp
+    agents/folder/AgentFolderGetCategories.cpp
     agents/folder/AgentFolderGetLogs.cpp
     agents/folder/AgentFolderGetPosts.cpp
     agents/folder/AgentFolderMarkRead.cpp
@@ -52,6 +54,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/scriptfolder/AgentScriptFolderRemove.cpp
     agents/scriptfolder/AgentScriptFolderRemovePosts.cpp
     agents/scriptfolder/AgentScriptFolderUpdate.cpp
+    agents/scriptfolder/AgentScriptFolderGetCategories.cpp
     agents/scriptfolder/AgentScriptFoldersGet.cpp
     agents/script/AgentScriptAdd.cpp
     agents/script/AgentScriptRemove.cpp
@@ -59,6 +62,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/script/AgentScriptsGet.cpp
     agents/source/AgentSourceClearLogs.cpp
     agents/source/AgentSourceGet.cpp
+    agents/source/AgentSourceGetCategories.cpp
     agents/source/AgentSourceGetLogs.cpp
     agents/source/AgentSourceGetPosts.cpp
     agents/source/AgentSourceGetTree.cpp
@@ -67,6 +71,7 @@ target_sources(zapfeedreader-engine PRIVATE
     agents/source/AgentSourceImportOPML.cpp
     agents/source/AgentSourceMarkRead.cpp
     agents/source/AgentSourceRefresh.cpp
+    base/Category.cpp
     base/Source.cpp
     base/Folder.cpp
     base/Feed.cpp

@@ -30,7 +30,8 @@ ZapFR::Engine::ScriptFolderLocal::ScriptFolderLocal(uint64_t id, Source* parentS
 }
 
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::ScriptFolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                                                                                                   const std::string& searchFilter, FlagColor flagColor)
+                                                                                                                   const std::string& searchFilter, uint64_t categoryFilterID,
+                                                                                                                   FlagColor flagColor)
 {
     std::vector<std::string> whereClause;
     std::vector<Poco::Data::AbstractBinding::Ptr> bindingsPostQuery;
@@ -54,6 +55,12 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
         bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
     }
+    if (categoryFilterID != 0)
+    {
+        whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM post_categories WHERE categoryID=?)");
+        bindingsPostQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
+        bindingsCountQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
+    }
     if (flagColor != FlagColor::Gray)
     {
         whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM flags WHERE flagID=?)");
@@ -68,6 +75,29 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     auto posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT ? OFFSET ?", bindingsPostQuery);
     auto count = PostLocal::queryCount(whereClause, bindingsCountQuery);
     return std::make_tuple(count, std::move(posts));
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::ScriptFolderLocal::getCategories()
+{
+    std::vector<uint64_t> catIDsForPosts;
+    uint64_t catID;
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT DISTINCT(categoryID) FROM post_categories WHERE postID IN( SELECT postID FROM scriptfolder_posts WHERE scriptfolder_posts.scriptFolderID=?)",
+        use(mID), into(catID), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            catIDsForPosts.emplace_back(catID);
+        }
+    }
+
+    if (!catIDsForPosts.empty())
+    {
+        auto joinedCatIDs = Helpers::joinIDNumbers(catIDsForPosts, ",");
+        return Category::queryMultiple({Poco::format("categories.id IN (%s)", joinedCatIDs)}, "ORDER BY categories.title ASC", "", {});
+    }
+    return {};
 }
 
 void ZapFR::Engine::ScriptFolderLocal::update(const std::string& title, bool showTotal, bool showUnread)
@@ -134,22 +164,10 @@ void ZapFR::Engine::ScriptFolderLocal::fetchThumbnailData()
     }
 }
 
-std::unordered_set<uint64_t> ZapFR::Engine::ScriptFolderLocal::markAsRead(uint64_t maxPostID)
+std::vector<uint64_t> ZapFR::Engine::ScriptFolderLocal::markAsRead(uint64_t maxPostID)
 {
     // see what feed IDs are affected
-    std::unordered_set<uint64_t> affectedFeedIDs;
-    uint64_t feedID{0};
-    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << "SELECT DISTINCT(posts.feedID) FROM posts WHERE posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?) AND "
-                  "posts.id <= ?",
-        use(mID), use(maxPostID), into(feedID), range(0, 1);
-    while (!selectStmt.done())
-    {
-        if (selectStmt.execute() > 0)
-        {
-            affectedFeedIDs.insert(feedID);
-        }
-    }
+    auto affectedFeedIDs = getFeedIDs(maxPostID);
 
     // mark the posts in the script folder as read
     std::vector<std::string> whereClause;
@@ -166,6 +184,43 @@ std::unordered_set<uint64_t> ZapFR::Engine::ScriptFolderLocal::markAsRead(uint64
 
     PostLocal::updateIsRead(true, whereClause, bindings);
 
+    return affectedFeedIDs;
+}
+
+std::vector<uint64_t> ZapFR::Engine::ScriptFolderLocal::getFeedIDs(uint64_t maxPostID) const
+{
+    std::vector<uint64_t> affectedFeedIDs;
+    uint64_t feedID{0};
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT DISTINCT(posts.feedID)"
+          " FROM posts"
+          " WHERE posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)";
+    if (maxPostID != std::numeric_limits<uint64_t>::max())
+    {
+        ss << "   AND posts.id <= ?";
+    }
+
+    selectStmt << ss.str(), range(0, 1);
+
+    uint64_t id = mID;
+    selectStmt.addBind(use(id));
+    if (maxPostID != std::numeric_limits<uint64_t>::max())
+    {
+        selectStmt.addBind(use(maxPostID));
+    }
+
+    selectStmt.addExtract(into(feedID));
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            affectedFeedIDs.emplace_back(feedID);
+        }
+    }
     return affectedFeedIDs;
 }
 

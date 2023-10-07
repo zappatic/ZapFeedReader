@@ -70,6 +70,8 @@ std::string ZapFR::Server::DummyFeed::getRSS20()
         ss << fmt::format("<description>{}</description>", entry.content);
         ss << fmt::format("<pubDate>{}</pubDate>", Poco::DateTimeFormatter::format(entry.datePublished, Poco::DateTimeFormat::RFC822_FORMAT));
         ss << fmt::format("<guid>{}</guid>", entry.guid);
+        ss << "<category>Category 1</category>";
+        ss << "<category>Category 2</category>";
         ss << "</item>";
     }
 
@@ -98,8 +100,8 @@ std::string ZapFR::Server::DummyFeed::getATOM10()
         ss << fmt::format("<summary>{}</summary>", entry.content);
         ss << fmt::format("<updated>{}</updated>", Poco::DateTimeFormatter::format(entry.datePublished, Poco::DateTimeFormat::ISO8601_FORMAT));
         ss << fmt::format("<id>{}</id>", entry.guid);
-        ss << R"(<category term="Test category 1" />)";
-        ss << R"(<category term="Test category 2" />)";
+        ss << R"(<category term="Category 1" />)";
+        ss << R"(<category term="Category 2" />)";
         ss << "</entry>";
     }
 

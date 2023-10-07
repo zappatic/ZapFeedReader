@@ -16,33 +16,33 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef ZAPFR_ENGINE_AGENTSCRIPTFOLDERMARKREAD_H
-#define ZAPFR_ENGINE_AGENTSCRIPTFOLDERMARKREAD_H
-
-#include <unordered_set>
+#ifndef ZAPFR_ENGINE_AGENTSCRIPTFOLDERGETCATEGORIES_H
+#define ZAPFR_ENGINE_AGENTSCRIPTFOLDERGETCATEGORIES_H
 
 #include "ZapFR/AgentRunnable.h"
+#include "ZapFR/base/Category.h"
 
 namespace ZapFR
 {
     namespace Engine
     {
-        class AgentScriptFolderMarkRead : public AgentRunnable
+        class Log;
+
+        class AgentScriptFolderGetCategories : public AgentRunnable
         {
           public:
-            explicit AgentScriptFolderMarkRead(uint64_t sourceID, uint64_t scriptFolderID, uint64_t maxPostID,
-                                               std::function<void(uint64_t, std::vector<uint64_t>)> finishedCallback);
-            virtual ~AgentScriptFolderMarkRead() = default;
+            explicit AgentScriptFolderGetCategories(uint64_t sourceID, uint64_t scriptFolderID,
+                                                    std::function<void(uint64_t, uint64_t, const std::vector<Category*>&)> finishedCallback);
+            virtual ~AgentScriptFolderGetCategories() = default;
 
             void payload(Source* source) override;
-            Type type() const noexcept override { return Type::ScriptFolderMarkRead; }
+            Type type() const noexcept override { return Type::ScriptFolderGetCategories; }
 
           private:
             uint64_t mScriptFolderID{0};
-            uint64_t mMaxPostID{0};
-            std::function<void(uint64_t, std::vector<uint64_t>)> mFinishedCallback{};
+            std::function<void(uint64_t, uint64_t, const std::vector<Category*>&)> mFinishedCallback{};
         };
     } // namespace Engine
 } // namespace ZapFR
 
-#endif // ZAPFR_ENGINE_AGENTSCRIPTFOLDERMARKREAD_H
+#endif // ZAPFR_ENGINE_AGENTSCRIPTFOLDERGETCATEGORIES_H

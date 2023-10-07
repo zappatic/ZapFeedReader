@@ -20,6 +20,7 @@ target_sources(zapfeedreader-server PRIVATE
 
     handlers/APIHandler_about.cpp
 	handlers/APIHandler_index.cpp
+	handlers/categories/APIHandler_categories_list.cpp
 	handlers/dummy/APIHandler_dummyfeed_createpost.cpp
 	handlers/dummy/APIHandler_dummyfeed_get_atom10.cpp
 	handlers/dummy/APIHandler_dummyfeed_get_json11.cpp

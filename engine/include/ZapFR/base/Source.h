@@ -24,6 +24,7 @@
 #include "Script.h"
 #include "ZapFR/Flag.h"
 #include "ZapFR/Global.h"
+#include "ZapFR/base/Category.h"
 
 namespace ZapFR
 {
@@ -97,7 +98,7 @@ namespace ZapFR
             virtual std::unordered_map<uint64_t, uint64_t> moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) = 0;
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                                      FlagColor flagColor) = 0;
+                                                                                      uint64_t categoryFilterID, FlagColor flagColor) = 0;
             virtual void markAsRead(uint64_t maxPostID) = 0;
             virtual void setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) = 0;
             virtual void setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,
@@ -108,6 +109,7 @@ namespace ZapFR
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;
 
             virtual std::unordered_set<FlagColor> getUsedFlagColors() = 0;
+            virtual std::vector<std::unique_ptr<ZapFR::Engine::Category>> getCategories() = 0;
 
             virtual std::vector<std::unique_ptr<ScriptFolder>> getScriptFolders() = 0;
             virtual std::optional<std::unique_ptr<ScriptFolder>> getScriptFolder(uint64_t id, uint32_t fetchInfo) = 0;

@@ -76,7 +76,8 @@ void ZapFR::Engine::SourceDummy::removeFolder(uint64_t /*folderID*/)
 
 /* ************************** POST STUFF ************************** */
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::SourceDummy::getPosts(uint64_t /*perPage*/, uint64_t /*page*/, bool /*showOnlyUnread*/,
-                                                                                                             const std::string& /*searchFilter*/, FlagColor /*flagColor*/)
+                                                                                                             const std::string& /*searchFilter*/,
+                                                                                                             uint64_t /*categoryFilterID*/, FlagColor /*flagColor*/)
 {
     throw std::runtime_error("Not implemented");
 }
@@ -142,6 +143,12 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::En
 
 /* ************************** FLAG STUFF ************************** */
 std::unordered_set<ZapFR::Engine::FlagColor> ZapFR::Engine::SourceDummy::getUsedFlagColors()
+{
+    throw std::runtime_error("Not implemented");
+}
+
+/* ************************** CATEGORY STUFF ************************** */
+std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::SourceDummy::getCategories()
 {
     throw std::runtime_error("Not implemented");
 }

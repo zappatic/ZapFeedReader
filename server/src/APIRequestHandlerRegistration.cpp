@@ -47,6 +47,19 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Categories)", R"(Returns all the categories belonging to a feed, folder, source or script folder)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/categories$)", R"(/categories)");
+				entry->addBodyParameter({R"(parentType)", true, R"(The type (source, folder, feed, scriptfolder) to retrieve categories for)"});
+				entry->addBodyParameter({R"(parentID)", false, R"(The ID of the parent type (feedID, folderID or scriptFolderID); n/a in case of 'source')"});
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(application/json)");
+				entry->setJSONOutput(R"(Array)");
+				entry->setHandler(ZapFR::Server::APIHandler_categories_list);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
 				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Dummy feed)", R"(Adds a dummy post to the dummy feed)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/dummy-feed/add-post$)", R"(/dummy-feed/add-post)");
@@ -359,15 +372,16 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
-				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Posts)", R"(Returns all the posts belonging to a feed, folder or source with various filters applied)");
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(Posts)", R"(Returns all the posts belonging to a feed, folder, source or script folder with various filters applied)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/posts$)", R"(/posts)");
-				entry->addBodyParameter({R"(parentType)", true, R"(The type (source, folder, feed) to retrieve posts for)"});
-				entry->addBodyParameter({R"(parentID)", false, R"(The ID of the parent type (feedID or folderID); n/a in case of 'source')"});
+				entry->addBodyParameter({R"(parentType)", true, R"(The type (source, folder, feed, scriptfolder) to retrieve posts for)"});
+				entry->addBodyParameter({R"(parentID)", false, R"(The ID of the parent type (feedID, folderID or scriptFolderID); n/a in case of 'source')"});
 				entry->addBodyParameter({R"(perPage)", true, R"(The amount of records per page to retrieve)"});
 				entry->addBodyParameter({R"(page)", true, R"(The page number to retrieve)"});
 				entry->addBodyParameter({R"(showOnlyUnread)", false, R"(Whether to only retrieve unread posts - 'true' or 'false' - optional (default: false))"});
 				entry->addBodyParameter({R"(searchFilter)", false, R"(An optional search filter to apply)"});
+				entry->addBodyParameter({R"(categoryFilter)", false, R"(An optional category filter to apply (the ID of the cat to match))"});
 				entry->addBodyParameter({R"(flagColor)", false, R"(The ID of a flag color to apply as a filter)"});
 				entry->setRequiresCredentials(true);
 				entry->setContentType(R"(application/json)");

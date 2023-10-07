@@ -34,11 +34,13 @@ namespace ZapFR
             ~ScriptFolderLocal() = default;
 
             std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                              FlagColor flagColor) override;
+                                                                              uint64_t categoryFilterID, FlagColor flagColor) override;
+
+            std::vector<std::unique_ptr<ZapFR::Engine::Category>> getCategories() override;
 
             void fetchThumbnailData();
 
-            std::unordered_set<uint64_t> markAsRead(uint64_t maxPostID) override;
+            std::vector<uint64_t> markAsRead(uint64_t maxPostID) override;
             void update(const std::string& title, bool showTotal, bool showUnread) override;
 
             static std::vector<std::unique_ptr<ScriptFolder>> queryMultiple(Source* parentSource, const std::vector<std::string>& whereClause, const std::string& orderClause,
@@ -47,6 +49,9 @@ namespace ZapFR
                                                                             const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static void create(const std::string& title, bool showTotal, bool showUnread);
             static void remove(uint64_t scriptFolderID);
+
+          private:
+            std::vector<uint64_t> getFeedIDs(uint64_t maxPostID) const;
         };
     } // namespace Engine
 } // namespace ZapFR

@@ -49,6 +49,7 @@ namespace
     auto gsPostPaneToolbarSpacerRight{"postPaneToolbarSpacerRight"};
     auto gsPostPaneToolbarSpacerLeft{"postPaneToolbarSpacerLeft"};
     auto gsPostPaneLineEditSearch{"postPaneLineEditSearch"};
+    auto gsPostPaneComboBoxCategories{"postPaneComboBoxCategories"};
     auto gsHamburgerMenuButton{"hamburgerMenuButton"};
 
     // clang-format off
@@ -156,6 +157,12 @@ void ZapFR::Client::MainWindow::initializeUI()
     mLineEditSearch = std::make_unique<LineEditSearch>();
     auto actionSearch = ui->toolBar->insertWidget(actionHamburgerMenu, mLineEditSearch.get());
     actionSearch->setProperty(gsPostPaneLineEditSearch, true);
+
+    // add the cats dropdown to the toolbar
+    mComboBoxCategories = std::make_unique<ComboBoxWithPopupSignal>();
+    mComboBoxCategories->setPlaceholderText(tr("Category"));
+    auto actionFilterCats = ui->toolBar->insertWidget(actionHamburgerMenu, mComboBoxCategories.get());
+    actionFilterCats->setProperty(gsPostPaneComboBoxCategories, true);
 
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewLogs->actionViewLogs());
     ui->toolBar->insertAction(actionHamburgerMenu, ui->tableViewScripts->actionViewScripts());
@@ -810,7 +817,8 @@ void ZapFR::Client::MainWindow::updateToolbar()
 
             for (const auto& action : ui->toolBar->actions())
             {
-                if (action->property(gsPostPaneToolbarSpacerLeft).isValid() || (showSearchField && action->property(gsPostPaneLineEditSearch).isValid()))
+                if (action->property(gsPostPaneToolbarSpacerLeft).isValid() ||
+                    (showSearchField && (action->property(gsPostPaneLineEditSearch).isValid() || action->property(gsPostPaneComboBoxCategories).isValid())))
                 {
                     action->setVisible(true);
                 }
@@ -982,6 +990,14 @@ void ZapFR::Client::MainWindow::connectStuff()
                 ui->tableViewPosts->reload();
             });
 
+    connect(mComboBoxCategories.get(), &ComboBoxWithPopupSignal::popUp, [&]() { reloadCategoriesComboBox(); });
+    connect(mComboBoxCategories.get(), &ComboBoxWithPopupSignal::currentIndexChanged,
+            [&]()
+            {
+                ui->tableViewPosts->updateActivePostFilter();
+                ui->tableViewPosts->reload();
+            });
+
     connect(ui->stackedWidgetContentPanes, &QStackedWidget::currentChanged,
             [&]()
             {
@@ -1065,7 +1081,112 @@ QString ZapFR::Client::MainWindow::searchQuery() const
     return mLineEditSearch->text();
 }
 
+std::tuple<uint64_t, QString> ZapFR::Client::MainWindow::categoryFilter() const
+{
+    auto index = mComboBoxCategories->currentIndex();
+    if (index > -1)
+    {
+        return std::make_tuple(mComboBoxCategories->currentData().toULongLong(), mComboBoxCategories->currentText());
+    }
+    return std::make_tuple(0, "");
+}
+
 void ZapFR::Client::MainWindow::cloneSourceTreeContents(uint64_t sourceID, QStandardItemModel* destination, const std::optional<std::unordered_set<uint64_t>>& feedIDsToCheck)
 {
     ui->treeViewSources->cloneSourceTreeContents(sourceID, destination, feedIDsToCheck);
+}
+
+void ZapFR::Client::MainWindow::reloadCategoriesComboBox()
+{
+    auto scriptFolderIndex = ui->tableViewScriptFolders->currentIndex();
+    if (scriptFolderIndex.isValid())
+    {
+        auto sourceID = scriptFolderIndex.data(TableViewScriptFolders::Role::SourceID).toULongLong();
+        auto scriptFolderID = scriptFolderIndex.data(TableViewScriptFolders::Role::ID).toULongLong();
+        ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderCategories(
+            sourceID, scriptFolderID,
+            [&](uint64_t /*affectedSourceID*/, uint64_t /*affectedFeedID*/, const std::vector<ZapFR::Engine::Category*>& cats)
+            {
+                std::vector<std::tuple<uint64_t, std::string>> catMap;
+                for (const auto& cat : cats)
+                {
+                    catMap.emplace_back(cat->id(), cat->title());
+                }
+
+                QMetaObject::invokeMethod(this, [=, this]() { populateCategories(catMap); });
+            });
+    }
+    else
+    {
+        auto index = ui->treeViewSources->currentIndex();
+        if (index.isValid())
+        {
+            auto type = index.data(TreeViewSources::Role::Type).toULongLong();
+            auto sourceID = index.data(TreeViewSources::Role::ParentSourceID).toULongLong();
+            switch (type)
+            {
+                case TreeViewSources::EntryType::Feed:
+                {
+                    auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
+                    ZapFR::Engine::Agent::getInstance()->queueGetFeedCategories(
+                        sourceID, feedID,
+                        [&](uint64_t /*affectedSourceID*/, uint64_t /*affectedFeedID*/, const std::vector<ZapFR::Engine::Category*>& cats)
+                        {
+                            std::vector<std::tuple<uint64_t, std::string>> catMap;
+                            for (const auto& cat : cats)
+                            {
+                                catMap.emplace_back(cat->id(), cat->title());
+                            }
+
+                            QMetaObject::invokeMethod(this, [=, this]() { populateCategories(catMap); });
+                        });
+                    break;
+                }
+                case TreeViewSources::EntryType::Folder:
+                {
+                    auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
+                    ZapFR::Engine::Agent::getInstance()->queueGetFolderCategories(
+                        sourceID, folderID,
+                        [&](uint64_t /*affectedSourceID*/, uint64_t /*affectedFolderID*/, const std::vector<ZapFR::Engine::Category*>& cats)
+                        {
+                            std::vector<std::tuple<uint64_t, std::string>> catMap;
+                            for (const auto& cat : cats)
+                            {
+                                catMap.emplace_back(cat->id(), cat->title());
+                            }
+
+                            QMetaObject::invokeMethod(this, [=, this]() { populateCategories(catMap); });
+                        });
+                    break;
+                }
+                case TreeViewSources::EntryType::Source:
+                {
+                    ZapFR::Engine::Agent::getInstance()->queueGetSourceCategories(sourceID,
+                                                                                  [&](uint64_t /*affectedSourceID*/, const std::vector<ZapFR::Engine::Category*>& cats)
+                                                                                  {
+                                                                                      std::vector<std::tuple<uint64_t, std::string>> catMap;
+                                                                                      for (const auto& cat : cats)
+                                                                                      {
+                                                                                          catMap.emplace_back(cat->id(), cat->title());
+                                                                                      }
+
+                                                                                      QMetaObject::invokeMethod(this, [=, this]() { populateCategories(catMap); });
+                                                                                  });
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void ZapFR::Client::MainWindow::populateCategories(const std::vector<std::tuple<uint64_t, std::string>>& categories) const
+{
+    mComboBoxCategories->clear();
+    mComboBoxCategories->addItem("", QVariant::fromValue<uint64_t>(0));
+    for (const auto& [catID, catTitle] : categories)
+    {
+        mComboBoxCategories->addItem(QString::fromUtf8(catTitle), QVariant::fromValue<uint64_t>(catID));
+    }
+    mComboBoxCategories->setMaxVisibleItems(20);
+    mComboBoxCategories->showPopup();
 }

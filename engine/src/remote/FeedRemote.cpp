@@ -34,8 +34,8 @@ ZapFR::Engine::FeedRemote::FeedRemote(uint64_t id, Source* parentSource) : Feed(
 {
 }
 
-std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FeedRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                                                                                            const std::string& searchFilter, FlagColor flagColor)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>>
+ZapFR::Engine::FeedRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor)
 {
     std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
     uint64_t postCount{0};
@@ -54,6 +54,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
         params[HTTPParam::Post::Page] = std::to_string(page);
         params[HTTPParam::Post::ShowOnlyUnread] = showOnlyUnread ? HTTPParam::True : HTTPParam::False;
         params[HTTPParam::Post::SearchFilter] = searchFilter;
+        params[HTTPParam::Post::CategoryFilter] = std::to_string(categoryFilterID);
         params[HTTPParam::Post::FlagColor] = Flag::nameForFlagColor(flagColor);
 
         const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
@@ -189,6 +190,38 @@ void ZapFR::Engine::FeedRemote::clearLogs()
         auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
         Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_DELETE, creds, {});
     }
+}
+
+std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::FeedRemote::getCategories()
+{
+    std::vector<std::unique_ptr<ZapFR::Engine::Category>> categories;
+
+    auto remoteSource = dynamic_cast<SourceRemote*>(mParentSource);
+    auto uri = remoteSource->remoteURL();
+    if (remoteSource->remoteURLIsValid())
+    {
+        uri.setPath("/categories");
+        auto creds = Poco::Net::HTTPCredentials(remoteSource->remoteLogin(), remoteSource->remotePassword());
+
+        std::map<std::string, std::string> params;
+        params[HTTPParam::Category::ParentType] = HTTPParam::Category::ParentTypeFeed;
+        params[HTTPParam::Category::ParentID] = std::to_string(mID);
+
+        const auto& [json, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, params);
+        auto parser = Poco::JSON::Parser();
+        auto root = parser.parse(json);
+        auto rootArr = root.extract<Poco::JSON::Array::Ptr>();
+        if (!rootArr.isNull())
+        {
+            for (size_t i = 0; i < rootArr->size(); ++i)
+            {
+                auto catObj = rootArr->getObject(static_cast<uint32_t>(i));
+                categories.emplace_back(Category::fromJSON(catObj));
+            }
+        }
+    }
+
+    return categories;
 }
 
 void ZapFR::Engine::FeedRemote::updateProperties(const std::string& feedURL, std::optional<uint64_t> refreshIntervalInSeconds)

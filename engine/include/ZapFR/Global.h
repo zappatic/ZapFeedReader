@@ -59,7 +59,7 @@ namespace ZapFR
             std::vector<ThumbnailDataPost> posts{};
         };
 
-        constexpr uint64_t DBVersion{5};
+        constexpr uint64_t DBVersion{6};
         constexpr uint64_t APIVersion{1};
         constexpr uint64_t DefaultFeedAutoRefreshInterval{15 * 60};
         constexpr uint16_t DefaultServerPort{16016};
@@ -190,6 +190,12 @@ namespace ZapFR
                 constexpr const char Script[]{"script"};
             }; // namespace Script
 
+            namespace Category
+            {
+                constexpr const char ID[]{"id"};
+                constexpr const char Title[]{"title"};
+            }; // namespace Category
+
             namespace Statistic
             {
                 constexpr const char FeedCount[]{"feedCount"};
@@ -274,6 +280,7 @@ namespace ZapFR
                 constexpr const char Page[]{"page"};
                 constexpr const char ShowOnlyUnread[]{"showOnlyUnread"};
                 constexpr const char SearchFilter[]{"searchFilter"};
+                constexpr const char CategoryFilter[]{"categoryFilter"};
                 constexpr const char FlagColor[]{"flagColor"};
             }; // namespace Post
 
@@ -310,6 +317,16 @@ namespace ZapFR
                 constexpr const char PostID[]{"postID"};
                 constexpr const char MarkAsRead[]{"markAsRead"};
             }; // namespace Source
+
+            namespace Category
+            {
+                constexpr const char ParentType[]{"parentType"};
+                constexpr const char ParentTypeSource[]{"source"};
+                constexpr const char ParentTypeFeed[]{"feed"};
+                constexpr const char ParentTypeFolder[]{"folder"};
+                constexpr const char ParentTypeScriptFolder[]{"scriptfolder"};
+                constexpr const char ParentID[]{"parentID"};
+            } // namespace Category
 
         }; // namespace HTTPParam
 

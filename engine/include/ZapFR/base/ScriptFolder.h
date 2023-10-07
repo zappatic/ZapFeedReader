@@ -23,6 +23,7 @@
 
 #include "ZapFR/Flag.h"
 #include "ZapFR/Global.h"
+#include "ZapFR/base/Category.h"
 
 namespace ZapFR
 {
@@ -56,9 +57,11 @@ namespace ZapFR
             void setTotalUnreadCount(uint64_t p) { mTotalUnreadCount = p; }
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                                      FlagColor flagColor) = 0;
+                                                                                      uint64_t categoryFilterID, FlagColor flagColor) = 0;
 
-            virtual std::unordered_set<uint64_t> markAsRead(uint64_t maxPostID) = 0;
+            virtual std::vector<std::unique_ptr<ZapFR::Engine::Category>> getCategories() = 0;
+
+            virtual std::vector<uint64_t> markAsRead(uint64_t maxPostID) = 0;
             virtual void update(const std::string& title, bool showTotal, bool showUnread) = 0;
 
             virtual Poco::JSON::Object toJSON();

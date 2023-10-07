@@ -21,6 +21,7 @@
 
 #include <thread>
 
+#include <QComboBox>
 #include <QMainWindow>
 #include <QPushButton>
 #include <QStandardItemModel>
@@ -28,6 +29,7 @@
 #include "ClientGlobal.h"
 #include "ZapFR/Flag.h"
 #include "ZapFR/base/Post.h"
+#include "widgets/ComboBoxWithPopupSignal.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -68,6 +70,7 @@ namespace ZapFR
             TreeViewSources* treeViewSources() const noexcept;
             Theme getCurrentColorTheme() const;
             QString searchQuery() const;
+            std::tuple<uint64_t, QString> categoryFilter() const;
             int32_t currentContentPane() const noexcept;
             QString configDir() const;
 
@@ -76,6 +79,7 @@ namespace ZapFR
             void updateToolbar();
             void setContentPane(int32_t contentPaneID) const;
             void cloneSourceTreeContents(uint64_t sourceID, QStandardItemModel* destination, const std::optional<std::unordered_set<uint64_t>>& feedIDsToCheck);
+            void reloadCategoriesComboBox();
 
           private slots:
             void showPreferences();
@@ -94,6 +98,7 @@ namespace ZapFR
             std::unique_ptr<DialogJumpToPage> mDialogJumpToPage{nullptr};
             std::unique_ptr<DialogPreferences> mDialogPreferences{nullptr};
             std::unique_ptr<LineEditSearch> mLineEditSearch{nullptr};
+            std::unique_ptr<ComboBoxWithPopupSignal> mComboBoxCategories{nullptr};
             std::unique_ptr<QPushButton> mHamburgerMenuButton{nullptr};
             std::unique_ptr<QWidget> mToolbarSpacerLeft{nullptr};
             std::unique_ptr<QWidget> mToolbarSpacerRight{nullptr};
@@ -114,6 +119,7 @@ namespace ZapFR
 
             void saveSettings() const;
             void restoreSettings();
+            void populateCategories(const std::vector<std::tuple<uint64_t, std::string>>& categories) const;
 
 #ifdef ZFR_DUMP_PALETTE
             void dumpPalette();

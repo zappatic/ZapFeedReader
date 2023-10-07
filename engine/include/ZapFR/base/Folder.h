@@ -23,6 +23,7 @@
 
 #include "ZapFR/Flag.h"
 #include "ZapFR/Global.h"
+#include "ZapFR/base/Category.h"
 
 namespace ZapFR
 {
@@ -68,11 +69,13 @@ namespace ZapFR
             void appendSubfolder(std::unique_ptr<Folder> subfolder);
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                                      FlagColor flagColor) = 0;
-            virtual std::unordered_set<uint64_t> markAsRead(uint64_t maxPostID) = 0;
+                                                                                      uint64_t categoryFilterID, FlagColor flagColor) = 0;
+            virtual std::vector<uint64_t> markAsRead(uint64_t maxPostID) = 0;
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;
             virtual void clearLogs() = 0;
+
+            virtual std::vector<std::unique_ptr<ZapFR::Engine::Category>> getCategories() = 0;
 
             virtual void update(const std::string& newTitle) = 0;
             virtual std::tuple<const std::unordered_map<uint64_t, uint64_t>, const std::unordered_map<uint64_t, uint64_t>> sort(SortMethod sortMethod) = 0;

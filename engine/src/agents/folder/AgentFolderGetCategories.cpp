@@ -16,25 +16,29 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZapFR/agents/folder/AgentFolderMarkRead.h"
+#include "ZapFR/agents/folder/AgentFolderGetCategories.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Folder.h"
 #include "ZapFR/base/Source.h"
 
-ZapFR::Engine::AgentFolderMarkRead::AgentFolderMarkRead(uint64_t sourceID, uint64_t folderID, uint64_t maxPostID,
-                                                        std::function<void(uint64_t, std::vector<uint64_t>)> finishedCallback)
-    : AgentRunnable(sourceID), mFolderID(folderID), mMaxPostID(maxPostID), mFinishedCallback(finishedCallback)
+ZapFR::Engine::AgentFolderGetCategories::AgentFolderGetCategories(uint64_t sourceID, uint64_t folderID,
+                                                                  std::function<void(uint64_t, uint64_t, const std::vector<Category*>&)> finishedCallback)
+    : AgentRunnable(sourceID), mFolderID(folderID), mFinishedCallback(finishedCallback)
 {
 }
 
-void ZapFR::Engine::AgentFolderMarkRead::payload(Source* source)
+void ZapFR::Engine::AgentFolderGetCategories::payload(Source* source)
 {
-    std::vector<uint64_t> feedIDs;
     auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::None);
     if (folder.has_value())
     {
-        feedIDs = folder.value()->markAsRead(mMaxPostID);
+        std::vector<Category*> catPointers;
+        const auto& cats = folder.value()->getCategories();
+        for (const auto& cat : cats)
+        {
+            catPointers.emplace_back(cat.get());
+        }
+
+        mFinishedCallback(mSourceID, mFolderID, catPointers);
     }
-    mFinishedCallback(mSourceID, feedIDs);
 }
