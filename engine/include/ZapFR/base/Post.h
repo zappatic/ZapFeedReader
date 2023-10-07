@@ -52,8 +52,8 @@ namespace ZapFR
                 Category() = default;
                 Category(uint64_t catID, const std::string& catTitle) : id(catID), title(catTitle) {}
 
-                uint64_t id;
-                std::string title;
+                uint64_t id{0};
+                std::string title{""};
             };
 
             const uint64_t& id() const noexcept { return mID; }
