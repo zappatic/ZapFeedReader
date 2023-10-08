@@ -1,5 +1,9 @@
 add_library(zapfeedreader-engine SHARED)
 
+set_target_properties(zapfeedreader-engine PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
+
+target_compile_options(zapfeedreader-engine PRIVATE -Wall -Wextra -pedantic -Werror -Wconversion -Weffc++ -Wshadow -Wnon-virtual-dtor -Wcast-align -Wunused -Woverloaded-virtual -Wno-uninitialized)
+
 target_include_directories(zapfeedreader-engine PRIVATE include)
 target_include_directories(zapfeedreader-engine SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib/include)
 

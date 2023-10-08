@@ -127,6 +127,10 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
+set_target_properties(zapfeedreader-client PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
+
+target_compile_options(zapfeedreader-client PRIVATE -Wall -Wextra -pedantic -Werror -Wconversion -Weffc++ -Wshadow -Wnon-virtual-dtor -Wcast-align -Wunused -Woverloaded-virtual -Wno-uninitialized)
+
 target_include_directories(zapfeedreader-client PRIVATE include)
 target_include_directories(zapfeedreader-client PRIVATE ../engine/include)
 target_include_directories(zapfeedreader-client SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib/include)

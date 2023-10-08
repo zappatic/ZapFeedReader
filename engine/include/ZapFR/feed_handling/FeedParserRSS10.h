@@ -31,6 +31,8 @@ namespace ZapFR
             FeedParserRSS10(const std::string& url);
             virtual ~FeedParserRSS10() = default;
 
+            Feed::Type type() const noexcept override { return Feed::Type::RSS; }
+
             std::string guid() const override;
             std::string title() const override;
             std::string subtitle() const override;

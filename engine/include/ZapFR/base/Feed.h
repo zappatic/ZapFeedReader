@@ -53,6 +53,14 @@ namespace ZapFR
                 NewestPost,
             };
 
+            enum class Type
+            {
+                RSS,
+                Atom,
+                JSON,
+                Unknown
+            };
+
             const uint64_t& id() const noexcept { return mID; }
             const std::string& url() const noexcept { return mURL; }
             const uint64_t& folder() const noexcept { return mFolderID; }

@@ -33,6 +33,8 @@ namespace ZapFR
 
             void setRootObj(Poco::JSON::Object::Ptr o) { mRootObj = o; }
 
+            Feed::Type type() const noexcept override { return Feed::Type::JSON; }
+
             std::string guid() const override;
             std::string title() const override;
             std::string subtitle() const override;

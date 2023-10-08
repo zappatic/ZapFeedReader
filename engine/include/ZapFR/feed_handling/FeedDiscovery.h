@@ -24,42 +24,39 @@
 #include <Poco/SAX/SAXException.h>
 #include <Poco/URI.h>
 
+#include "ZapFR/base/Feed.h"
+
 namespace ZapFR
 {
     namespace Engine
     {
         struct DiscoveredFeed
         {
-            enum class Type
-            {
-                RSS,
-                Atom,
-                JSON,
-                Unknown
-            };
-
             DiscoveredFeed() = default;
-            DiscoveredFeed(const std::string& feedTitle, const std::string& feedURL, Type feedType) : title(feedTitle), url(feedURL), type(feedType) {}
+            DiscoveredFeed(const std::string& feedTitle, const std::string& feedURL, Feed::Type feedType) : title(feedTitle), url(feedURL), type(feedType) {}
             std::string title{""};
             std::string url{""};
-            Type type{Type::RSS};
+            Feed::Type type{Feed::Type::RSS};
         };
 
         class FeedDiscovery
         {
           public:
             FeedDiscovery(const std::string& url);
+            FeedDiscovery(const std::string& url, const std::string& data);
             virtual ~FeedDiscovery() = default;
 
+            void discover();
             const std::vector<DiscoveredFeed>& discoveredFeeds() const noexcept { return mDiscoveredFeeds; }
 
           private:
-            std::string mURL{""};
+            Poco::URI mURI{""};
+            std::string mData{""};
             std::vector<DiscoveredFeed> mDiscoveredFeeds{};
 
-            bool interpretAsYoutubeSource(const Poco::URI& uri, const std::string& html);
-            bool interpretAsDirectFeedLink(const Poco::URI& uri, const std::string& data);
-            bool interpretAsHTMLWithRelAlternateLinks(const Poco::URI& uri, const std::string& html);
+            bool interpretAsYoutubeSource();
+            bool interpretAsDirectFeedLink();
+            bool interpretAsHTMLWithRelAlternateLinks();
 
             void postProcessFeeds();
         };

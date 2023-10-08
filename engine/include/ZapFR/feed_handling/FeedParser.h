@@ -22,6 +22,7 @@
 #include <Poco/DOM/Document.h>
 #include <Poco/URI.h>
 
+#include "ZapFR/base/Feed.h"
 #include "ZapFR/base/Post.h"
 
 namespace ZapFR
@@ -37,6 +38,8 @@ namespace ZapFR
             FeedParser& operator=(const FeedParser&) = delete;
             FeedParser(FeedParser&&) = delete;
             FeedParser& operator=(FeedParser&&) = delete;
+
+            virtual Feed::Type type() const noexcept = 0;
 
             virtual std::string guid() const = 0;
             virtual std::string title() const = 0;

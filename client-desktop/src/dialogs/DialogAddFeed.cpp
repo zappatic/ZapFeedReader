@@ -105,6 +105,7 @@ void ZapFR::Client::DialogAddFeed::discoverFeeds()
         return;
     }
     auto fd = ZapFR::Engine::FeedDiscovery(url.toStdString());
+    fd.discover();
     const auto& discoveredFeeds = fd.discoveredFeeds();
 
     if (discoveredFeeds.empty())
@@ -122,7 +123,7 @@ void ZapFR::Client::DialogAddFeed::discoverFeeds()
         {
             ZapFR::Engine::DiscoveredFeed forcedFeed;
             forcedFeed.title = tr("Unknown feed").toStdString();
-            forcedFeed.type = ZapFR::Engine::DiscoveredFeed::Type::Unknown;
+            forcedFeed.type = ZapFR::Engine::Feed::Type::Unknown;
             forcedFeed.url = this->url().toStdString();
             addDiscoveredFeed(forcedFeed);
         }
@@ -149,22 +150,22 @@ void ZapFR::Client::DialogAddFeed::addDiscoveredFeed(const ZapFR::Engine::Discov
     QString type;
     switch (discoveredFeed.type)
     {
-        case ZapFR::Engine::DiscoveredFeed::Type::Atom:
+        case ZapFR::Engine::Feed::Type::Atom:
         {
             type = "Atom";
             break;
         }
-        case ZapFR::Engine::DiscoveredFeed::Type::RSS:
+        case ZapFR::Engine::Feed::Type::RSS:
         {
             type = "RSS";
             break;
         }
-        case ZapFR::Engine::DiscoveredFeed::Type::JSON:
+        case ZapFR::Engine::Feed::Type::JSON:
         {
             type = "JSON";
             break;
         }
-        case ZapFR::Engine::DiscoveredFeed::Type::Unknown:
+        case ZapFR::Engine::Feed::Type::Unknown:
         {
             type = "Unknown";
             break;

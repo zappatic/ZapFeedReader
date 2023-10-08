@@ -31,6 +31,8 @@ namespace ZapFR
             FeedParserATOM10(const std::string& url);
             virtual ~FeedParserATOM10() = default;
 
+            Feed::Type type() const noexcept override { return Feed::Type::Atom; }
+
             std::string guid() const override;
             std::string title() const override;
             std::string subtitle() const override;

@@ -28,64 +28,70 @@
 #include "ZapFR/Helpers.h"
 #include "ZapFR/feed_handling/FeedDiscovery.h"
 
-ZapFR::Engine::FeedDiscovery::FeedDiscovery(const std::string& url) : mURL(url)
+ZapFR::Engine::FeedDiscovery::FeedDiscovery(const std::string& url)
 {
-    mDiscoveredFeeds.clear();
     if (url.empty())
     {
         return;
     }
 
     Poco::Net::HTTPCredentials creds; // TODO
-    Poco::URI uri;
     if (!url.starts_with("http"))
     {
-        uri = Poco::URI("https://" + url);
+        mURI = Poco::URI("https://" + url);
     }
     else
     {
-        uri = Poco::URI(url);
+        mURI = Poco::URI(url);
     }
 
-    std::string html;
     try
     {
         std::string cgi;
-        std::tie(html, cgi) = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
+        std::tie(mData, cgi) = Helpers::performHTTPRequest(mURI, Poco::Net::HTTPRequest::HTTP_GET, creds, {});
     }
     catch (...)
     {
         return;
     }
+}
 
-    if (interpretAsYoutubeSource(uri, html))
+ZapFR::Engine::FeedDiscovery::FeedDiscovery(const std::string& url, const std::string& data) : mURI(Poco::URI(url)), mData(data)
+{
+}
+
+void ZapFR::Engine::FeedDiscovery::discover()
+{
+    mDiscoveredFeeds.clear();
+
+    if (interpretAsYoutubeSource())
     {
         return;
     }
 
-    if (interpretAsDirectFeedLink(uri, html))
+    if (interpretAsDirectFeedLink())
     {
         return;
     }
 
-    if (interpretAsHTMLWithRelAlternateLinks(uri, html))
+    if (interpretAsHTMLWithRelAlternateLinks())
     {
         postProcessFeeds();
         return;
     }
 }
 
-bool ZapFR::Engine::FeedDiscovery::interpretAsYoutubeSource(const Poco::URI& uri, const std::string& html)
+bool ZapFR::Engine::FeedDiscovery::interpretAsYoutubeSource()
 {
-    if (Poco::endsWith(uri.getHost(), std::string("youtube.com")))
+    if (Poco::endsWith(mURI.getHost(), std::string("youtube.com")))
     {
         static Poco::RegularExpression titleRegex(R"(<title>(.*?)</title>)");
         static Poco::RegularExpression canonicalURLRegex(R"#(<link rel="canonical" href="(.*?)")#");
         static Poco::RegularExpression channelURLRegex(R"(^https://.*?youtube.com/channel/(.*?)$)");
         Poco::RegularExpression::MatchVec linkMatches;
-        if (canonicalURLRegex.match(html, 0, linkMatches) > 0)
+        if (canonicalURLRegex.match(mData, 0, linkMatches) > 0)
         {
-            auto canonicalURL = html.substr(linkMatches.at(1).offset, linkMatches.at(1).length);
+            auto canonicalURL = mData.substr(linkMatches.at(1).offset, linkMatches.at(1).length);
             Poco::RegularExpression::MatchVec urlMatches;
             if (channelURLRegex.match(canonicalURL, 0, urlMatches) > 0)
             {
@@ -93,12 +99,12 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsYoutubeSource(const Poco::URI& uri
 
                 std::string channelTitle = channelID;
                 Poco::RegularExpression::MatchVec titleMatches;
-                if (titleRegex.match(html, 0, titleMatches) > 0)
+                if (titleRegex.match(mData, 0, titleMatches) > 0)
                 {
-                    channelTitle = html.substr(titleMatches.at(1).offset, titleMatches.at(1).length);
+                    channelTitle = mData.substr(titleMatches.at(1).offset, titleMatches.at(1).length);
                 }
 
-                mDiscoveredFeeds.emplace_back(channelTitle, fmt::format("https://www.youtube.com/feeds/videos.xml?channel_id={}", channelID), DiscoveredFeed::Type::Atom);
+                mDiscoveredFeeds.emplace_back(channelTitle, fmt::format("https://www.youtube.com/feeds/videos.xml?channel_id={}", channelID), Feed::Type::Atom);
                 return true;
             }
         }
@@ -106,9 +112,9 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsYoutubeSource(const Poco::URI& uri
     return false;
 }
 
-bool ZapFR::Engine::FeedDiscovery::interpretAsDirectFeedLink([[maybe_unused]] const Poco::URI& uri, const std::string& data)
+bool ZapFR::Engine::FeedDiscovery::interpretAsDirectFeedLink()
 {
-    if (data.at(0) == '<')
+    if (mData.at(0) == '<')
     {
         DocumentElementExtractorSaxParser handler;
         FeedDiscoverySaxErrorHandler errorHandler;
@@ -117,17 +123,17 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsDirectFeedLink([[maybe_unused]] co
             Poco::XML::SAXParser parser;
             parser.setContentHandler(&handler);
             parser.setErrorHandler(&errorHandler);
-            parser.parseString(data);
+            parser.parseString(mData);
 
             const auto& documentElementTitle = handler.documentElementTitle();
             if (Poco::icompare(documentElementTitle, "rss") == 0 || Poco::icompare(documentElementTitle, "rdf") == 0)
             {
-                mDiscoveredFeeds.emplace_back("RSS Feed", uri.toString(), DiscoveredFeed::Type::RSS);
+                mDiscoveredFeeds.emplace_back("RSS Feed", mURI.toString(), Feed::Type::RSS);
                 return true;
             }
             else if (Poco::icompare(documentElementTitle, "feed") == 0)
             {
-                mDiscoveredFeeds.emplace_back("Atom Feed", uri.toString(), DiscoveredFeed::Type::Atom);
+                mDiscoveredFeeds.emplace_back("Atom Feed", mURI.toString(), Feed::Type::Atom);
                 return true;
             }
         }
@@ -135,10 +141,10 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsDirectFeedLink([[maybe_unused]] co
         {
         }
     }
-    else if (data.at(0) == '{')
+    else if (mData.at(0) == '{')
     {
         Poco::JSON::Parser parser;
-        auto root = parser.parse(data);
+        auto root = parser.parse(mData);
         auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
         if (!rootObj.isNull())
         {
@@ -150,7 +156,7 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsDirectFeedLink([[maybe_unused]] co
                 {
                     feedTitle = rootObj->getValue<std::string>("title");
                 }
-                mDiscoveredFeeds.emplace_back(feedTitle, uri.toString(), DiscoveredFeed::Type::JSON);
+                mDiscoveredFeeds.emplace_back(feedTitle, mURI.toString(), Feed::Type::JSON);
                 return true;
             }
         }
@@ -158,7 +164,7 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsDirectFeedLink([[maybe_unused]] co
     return false;
 }
 
-bool ZapFR::Engine::FeedDiscovery::interpretAsHTMLWithRelAlternateLinks([[maybe_unused]] const Poco::URI& uri, const std::string& html)
+bool ZapFR::Engine::FeedDiscovery::interpretAsHTMLWithRelAlternateLinks()
 {
     // try to locate <link rel="alternate" type="<rss mimetype>" href="..."> with a sax parser
     HTMLRelAlternateFeedExtractorSaxParser handler;
@@ -170,7 +176,7 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsHTMLWithRelAlternateLinks([[maybe_
         Poco::XML::SAXParser parser;
         parser.setContentHandler(&handler);
         parser.setErrorHandler(&errorHandler);
-        parser.parseString(html);
+        parser.parseString(mData);
         saxParsingSuccessful = true;
     }
     catch (...)
@@ -189,9 +195,9 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsHTMLWithRelAlternateLinks([[maybe_
     size_t offset{0};
     std::stringstream fakeXML;
     fakeXML << R"(<?xml version="1.0" encoding="UTF-8"?><links>)";
-    while (linkRegex.match(html, offset, matches) > 0)
+    while (linkRegex.match(mData, offset, matches) > 0)
     {
-        auto link = html.substr(matches.at(1).offset, matches.at(1).length);
+        auto link = mData.substr(matches.at(1).offset, matches.at(1).length);
 
         if (!link.ends_with("/>"))
         {
@@ -239,7 +245,7 @@ void ZapFR::Engine::FeedDiscovery::postProcessFeeds()
     {
         if (!discoveredFeed.url.starts_with("http"))
         {
-            auto uri = Poco::URI(mURL);
+            auto uri = mURI;
             uri.setPathEtc(discoveredFeed.url);
             discoveredFeed.url = uri.toString();
         }
@@ -260,23 +266,23 @@ void ZapFR::Engine::HTMLRelAlternateFeedExtractorSaxParser::startElement(const P
             auto relValue = attrList.getValue(relIndex);
             if (Poco::icompare(relValue, "alternate") == 0)
             {
-                DiscoveredFeed::Type t;
+                Feed::Type t;
                 auto typeValue = attrList.getValue(typeIndex);
                 if (Poco::icompare(typeValue, "application/rss+xml") == 0)
                 {
-                    t = DiscoveredFeed::Type::RSS;
+                    t = Feed::Type::RSS;
                 }
                 else if (Poco::icompare(typeValue, "application/atom+xml") == 0)
                 {
-                    t = DiscoveredFeed::Type::Atom;
+                    t = Feed::Type::Atom;
                 }
                 else if (Poco::icompare(typeValue, "application/json") == 0)
                 {
-                    t = DiscoveredFeed::Type::JSON;
+                    t = Feed::Type::JSON;
                 }
                 else if (Poco::icompare(typeValue, "application/feed+json") == 0)
                 {
-                    t = DiscoveredFeed::Type::JSON;
+                    t = Feed::Type::JSON;
                 }
                 else
                 {
