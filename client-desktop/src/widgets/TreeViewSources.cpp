@@ -1095,8 +1095,13 @@ void ZapFR::Client::TreeViewSources::addFolder()
                                                               [=, this]()
                                                               {
                                                                   // look up the parent folder under which to insert the new folder standard item
-                                                                  auto parentFolderItem = findFolderStandardItem(affectedSourceID, affectedParentID);
-                                                                  if (parentFolderItem != nullptr)
+                                                                  auto parentItem = findFolderStandardItem(affectedSourceID, affectedParentID);
+                                                                  if (parentItem == nullptr)
+                                                                  {
+                                                                      parentItem = findSourceStandardItem(affectedSourceID);
+                                                                  }
+
+                                                                  if (parentItem != nullptr)
                                                                   {
                                                                       // create the new folder standard item and insert it
                                                                       auto folderItem = new QStandardItem(QString::fromUtf8(newTitle));
@@ -1105,10 +1110,10 @@ void ZapFR::Client::TreeViewSources::addFolder()
                                                                       folderItem->setData(QVariant::fromValue<uint64_t>(affectedParentID), Role::ParentFolderID);
                                                                       folderItem->setData(QVariant::fromValue<uint64_t>(affectedSourceID), Role::ParentSourceID);
                                                                       folderItem->setData(QVariant::fromValue<uint64_t>(newSortOrder), Role::SortOrder);
-                                                                      parentFolderItem->appendRow(folderItem);
+                                                                      parentItem->appendRow(folderItem);
 
                                                                       // make sure the parent is expanded if we just created a folder withing an unexpanded parent
-                                                                      auto parentIndex = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(parentFolderItem));
+                                                                      auto parentIndex = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(parentItem));
                                                                       if (!isExpanded(parentIndex))
                                                                       {
                                                                           setExpanded(parentIndex, true);
@@ -1238,16 +1243,21 @@ void ZapFR::Client::TreeViewSources::removeFolder()
                             auto folderItem = findFolderStandardItem(affectedSourceID, affectedFolderID);
                             if (folderItem != nullptr)
                             {
-                                auto parentFolderItem = findFolderStandardItem(affectedSourceID, folderItem->data(Role::ParentFolderID).toULongLong());
-                                if (parentFolderItem != nullptr)
+                                auto parentItem = findFolderStandardItem(affectedSourceID, folderItem->data(Role::ParentFolderID).toULongLong());
+                                if (parentItem == nullptr)
                                 {
-                                    parentFolderItem->removeRow(folderItem->row());
+                                    parentItem = findSourceStandardItem(affectedSourceID);
+                                }
+
+                                if (parentItem != nullptr)
+                                {
+                                    parentItem->removeRow(folderItem->row());
 
                                     // reapply the sortorders
                                     std::vector<std::tuple<uint64_t, QStandardItem*>> sortOrderAndChild;
-                                    for (int32_t i = 0; i < parentFolderItem->rowCount(); ++i)
+                                    for (int32_t i = 0; i < parentItem->rowCount(); ++i)
                                     {
-                                        auto child = parentFolderItem->child(i);
+                                        auto child = parentItem->child(i);
                                         sortOrderAndChild.emplace_back(child->data(Role::SortOrder).toULongLong(), child);
                                     }
                                     std::sort(sortOrderAndChild.begin(), sortOrderAndChild.end(),
