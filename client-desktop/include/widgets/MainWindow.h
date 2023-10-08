@@ -71,6 +71,7 @@ namespace ZapFR
             Theme getCurrentColorTheme() const;
             QString searchQuery() const;
             std::tuple<uint64_t, QString> categoryFilter() const;
+            void clearCategoriesComboBox() const;
             int32_t currentContentPane() const noexcept;
             QString configDir() const;
 
@@ -108,6 +109,7 @@ namespace ZapFR
             std::unique_ptr<QAction> mActionBackToPosts{nullptr};
 
             bool mForceClose{false};
+            mutable bool mReloadingCategoriesComboBox{false};
 
             QString dataDir() const;
             QString settingsFile() const;

@@ -132,7 +132,6 @@ namespace ZapFR
             };
 
           signals:
-            void currentSourceChanged(const QModelIndex&);
             void deletePressed();
             void folderDoubleClicked();
 

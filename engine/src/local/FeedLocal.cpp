@@ -463,7 +463,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::FeedLocal::
 
     whereClause.emplace_back("categories.feedID=?");
     bindings.emplace_back(use(mID, "feedID"));
-    return Category::queryMultiple(whereClause, "ORDER BY categories.title ASC", "", bindings);
+    return Category::queryMultiple(false, whereClause, "ORDER BY categories.title ASC", "", bindings);
 }
 
 void ZapFR::Engine::FeedLocal::fetchStatistics()

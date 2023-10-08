@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <unordered_set>
+
 #include <Poco/Data/RecordSet.h>
 
 #include "ZapFR/Database.h"
@@ -24,8 +26,8 @@
 
 using namespace Poco::Data::Keywords;
 
-std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::Category::queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
-                                                                                             const std::string& limitClause,
+std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::Category::queryMultiple(bool distinctTitles, const std::vector<std::string>& whereClause,
+                                                                                             const std::string& orderClause, const std::string& limitClause,
                                                                                              const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
 {
     std::vector<std::unique_ptr<Category>> categories;
@@ -58,16 +60,87 @@ std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::Category::q
     selectStmt.addExtract(into(id));
     selectStmt.addExtract(into(title));
 
+    std::unordered_set<std::string> seenTitles;
     while (!selectStmt.done())
     {
         if (selectStmt.execute() > 0)
         {
+            if (distinctTitles && seenTitles.contains(Poco::toLower(title)))
+            {
+                continue;
+            }
+
             auto cat = std::make_unique<Category>(id);
             cat->setTitle(title);
             categories.emplace_back(std::move(cat));
+
+            if (distinctTitles)
+            {
+                seenTitles.insert(Poco::toLower(title));
+            }
         }
     }
     return categories;
+}
+
+std::optional<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::Category::querySingle(const std::vector<std::string>& whereClause,
+                                                                                             const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
+{
+    uint64_t id;
+    std::string title;
+
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+
+    std::stringstream ss;
+    ss << "SELECT categories.id"
+          ",categories.title"
+          " FROM categories";
+    if (!whereClause.empty())
+    {
+        ss << " WHERE ";
+        ss << Helpers::joinString(whereClause, " AND ");
+    }
+
+    auto sql = ss.str();
+    selectStmt << sql;
+
+    for (const auto& binding : bindings)
+    {
+        selectStmt.addBind(binding);
+    }
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(title));
+
+    selectStmt.execute();
+
+    auto rs = Poco::Data::RecordSet(selectStmt);
+    if (rs.rowCount() == 1)
+    {
+        auto cat = std::make_unique<Category>(id);
+        cat->setTitle(title);
+        return cat;
+    }
+
+    return {};
+}
+
+std::vector<uint64_t> ZapFR::Engine::Category::getMatchingCategories(const std::string& categoryTitle)
+{
+    std::vector<uint64_t> matchingCategories;
+
+    uint64_t catID{0};
+    Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
+    selectStmt << "SELECT DISTINCT(id) FROM categories WHERE title=? COLLATE NOCASE", into(catID), useRef(categoryTitle), range(0, 1);
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            matchingCategories.emplace_back(catID);
+        }
+    }
+
+    return matchingCategories;
 }
 
 Poco::JSON::Object ZapFR::Engine::Category::toJSON()

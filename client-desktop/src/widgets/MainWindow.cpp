@@ -1000,8 +1000,11 @@ void ZapFR::Client::MainWindow::connectStuff()
     connect(mComboBoxCategories.get(), &ComboBoxWithPopupSignal::currentIndexChanged,
             [&]()
             {
-                ui->tableViewPosts->updateActivePostFilter();
-                ui->tableViewPosts->reload();
+                if (!mReloadingCategoriesComboBox)
+                {
+                    ui->tableViewPosts->updateActivePostFilter();
+                    ui->tableViewPosts->reload();
+                }
             });
 
     connect(ui->stackedWidgetContentPanes, &QStackedWidget::currentChanged,
@@ -1102,8 +1105,15 @@ void ZapFR::Client::MainWindow::cloneSourceTreeContents(uint64_t sourceID, QStan
     ui->treeViewSources->cloneSourceTreeContents(sourceID, destination, feedIDsToCheck);
 }
 
+void ZapFR::Client::MainWindow::clearCategoriesComboBox() const
+{
+    mComboBoxCategories->clear();
+}
+
 void ZapFR::Client::MainWindow::reloadCategoriesComboBox()
 {
+    mReloadingCategoriesComboBox = true;
+
     auto scriptFolderIndex = ui->tableViewScriptFolders->currentIndex();
     if (scriptFolderIndex.isValid())
     {
@@ -1198,4 +1208,5 @@ void ZapFR::Client::MainWindow::populateCategories(const std::vector<std::tuple<
         mComboBoxCategories->clear();
     }
     mComboBoxCategories->showPopup();
+    mReloadingCategoriesComboBox = false;
 }

@@ -78,7 +78,42 @@ void ZapFR::Client::TreeViewSources::setMainWindow(MainWindow* mw) noexcept
 
 void ZapFR::Client::TreeViewSources::currentChanged(const QModelIndex& current, const QModelIndex& /*previous*/)
 {
-    emit currentSourceChanged(current);
+    if (current.isValid())
+    {
+        mMainWindow->clearCategoriesComboBox();
+
+        auto localUI = mMainWindow->getUI();
+        switch (mMainWindow->currentContentPane())
+        {
+            case ContentPane::Posts:
+            {
+                localUI->tableViewScriptFolders->setCurrentIndex(QModelIndex());
+                localUI->tableViewPosts->setPage(1);
+                localUI->tableViewPosts->reload();
+                localUI->frameFlagFilters->reload();
+                localUI->tableViewScriptFolders->reload();
+                localUI->tableViewPosts->updateActivePostFilter();
+                refreshBadges();
+                break;
+            }
+            case ContentPane::Logs:
+            {
+                localUI->tableViewLogs->setCurrentLogPage(1);
+                localUI->tableViewLogs->reload();
+                break;
+            }
+            case ContentPane::Scripts:
+            {
+                localUI->tableViewScripts->reload();
+                break;
+            }
+            case ContentPane::Properties:
+            {
+                reloadPropertiesPane();
+                break;
+            }
+        }
+    }
 }
 
 void ZapFR::Client::TreeViewSources::keyPressEvent(QKeyEvent* event)
@@ -2041,45 +2076,6 @@ void ZapFR::Client::TreeViewSources::connectStuff()
                                     break;
                                 }
                             }
-                        }
-                    }
-                }
-            });
-
-    connect(this, &TreeViewSources::currentSourceChanged,
-            [&](const QModelIndex& index)
-            {
-                if (index.isValid())
-                {
-                    auto localUI = mMainWindow->getUI();
-                    switch (mMainWindow->currentContentPane())
-                    {
-                        case ContentPane::Posts:
-                        {
-                            localUI->tableViewScriptFolders->setCurrentIndex(QModelIndex());
-                            localUI->tableViewPosts->setPage(1);
-                            localUI->tableViewPosts->reload();
-                            localUI->frameFlagFilters->reload();
-                            localUI->tableViewScriptFolders->reload();
-                            localUI->tableViewPosts->updateActivePostFilter();
-                            refreshBadges();
-                            break;
-                        }
-                        case ContentPane::Logs:
-                        {
-                            localUI->tableViewLogs->setCurrentLogPage(1);
-                            localUI->tableViewLogs->reload();
-                            break;
-                        }
-                        case ContentPane::Scripts:
-                        {
-                            localUI->tableViewScripts->reload();
-                            break;
-                        }
-                        case ContentPane::Properties:
-                        {
-                            reloadPropertiesPane();
-                            break;
                         }
                     }
                 }

@@ -57,9 +57,16 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     }
     if (categoryFilterID != 0)
     {
-        whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM post_categories WHERE categoryID=?)");
-        bindingsPostQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
-        bindingsCountQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
+        const auto& cat = Category::querySingle({"categories.id=?"}, {use(categoryFilterID, "id")});
+        if (cat.has_value())
+        {
+            const auto& catIDs = Category::getMatchingCategories(cat.value()->title());
+            if (!catIDs.empty())
+            {
+                auto joinedCatIDs = Helpers::joinIDNumbers(catIDs, ",");
+                whereClause.emplace_back(Poco::format("posts.id IN (SELECT DISTINCT(postID) FROM post_categories WHERE categoryID IN (%s))", joinedCatIDs));
+            }
+        }
     }
     if (flagColor != FlagColor::Gray)
     {
@@ -95,7 +102,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Category>> ZapFR::Engine::ScriptFolde
     if (!catIDsForPosts.empty())
     {
         auto joinedCatIDs = Helpers::joinIDNumbers(catIDsForPosts, ",");
-        return Category::queryMultiple({Poco::format("categories.id IN (%s)", joinedCatIDs)}, "ORDER BY categories.title ASC", "", {});
+        return Category::queryMultiple(true, {Poco::format("categories.id IN (%s)", joinedCatIDs)}, "ORDER BY categories.title ASC", "", {});
     }
     return {};
 }

@@ -19,6 +19,8 @@
 #ifndef ZAPFR_ENGINE_CATEGORY_H
 #define ZAPFR_ENGINE_CATEGORY_H
 
+#include <optional>
+
 #include <Poco/Data/AbstractBinding.h>
 #include <Poco/JSON/Object.h>
 
@@ -44,8 +46,13 @@ namespace ZapFR
             Poco::JSON::Object toJSON();
             static std::unique_ptr<Category> fromJSON(const Poco::JSON::Object::Ptr o);
 
-            static std::vector<std::unique_ptr<Category>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
+            static std::vector<std::unique_ptr<Category>> queryMultiple(bool distinctTitles, const std::vector<std::string>& whereClause, const std::string& orderClause,
                                                                         const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+
+            static std::optional<std::unique_ptr<Category>> querySingle(const std::vector<std::string>& whereClause,
+                                                                        const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+
+            static std::vector<uint64_t> getMatchingCategories(const std::string& categoryTitle);
 
           protected:
             uint64_t mID{0};
