@@ -260,7 +260,21 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
 
             item.guid = fetchNodeValue(entryNode, "id");
 
-            item.datePublished = fetchNodeValue(entryNode, "updated");
+            auto updatedNode = fetchNode(entryNode, "updated");
+            if (updatedNode == nullptr)
+            {
+                // 'updated' is a required node according to the atom spec, but seen missing in the wild, in favor of the optional 'published' node
+                auto publishedNode = fetchNode(entryNode, "published");
+                if (publishedNode != nullptr)
+                {
+                    item.datePublished = publishedNode->innerText();
+                }
+            }
+            else
+            {
+                item.datePublished = updatedNode->innerText();
+            }
+
             int tzDiff;
             auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, item.datePublished, tzDiff); // actually RFC 3339
             parsedDate.makeUTC(tzDiff);
