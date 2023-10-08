@@ -183,6 +183,7 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsHTMLWithRelAlternateLinks([[maybe_
     }
 
     // try to extract all <link ...> tags from the original html, and parse that, to avoid xml errors elsewhere in the doc
+    // the link tags might be unclosed, the attrib values might not have quotes around it, so try to fix that first
     static auto linkRegex = Poco::RegularExpression("(<link.*?>)");
     Poco::RegularExpression::MatchVec matches;
     size_t offset{0};
@@ -190,7 +191,27 @@ bool ZapFR::Engine::FeedDiscovery::interpretAsHTMLWithRelAlternateLinks([[maybe_
     fakeXML << R"(<?xml version="1.0" encoding="UTF-8"?><links>)";
     while (linkRegex.match(html, offset, matches) > 0)
     {
-        fakeXML << html.substr(matches.at(1).offset, matches.at(1).length) << "\n";
+        auto link = html.substr(matches.at(1).offset, matches.at(1).length);
+
+        if (!link.ends_with("/>"))
+        {
+            static Poco::RegularExpression trailingSlashRegex("(>)$");
+            trailingSlashRegex.subst(link, " />");
+        }
+
+        if (!link.ends_with(" />"))
+        {
+            static Poco::RegularExpression trailingSlashAndSpaceRegex(R"((\/>)$)");
+            trailingSlashAndSpaceRegex.subst(link, " />");
+        }
+
+        if (link.find(R"(")") == std::string::npos)
+        {
+            static Poco::RegularExpression attribRegex(R"(\s?(.*?)=(.*?)\s)");
+            attribRegex.subst(link, R"( $1="$2" )", Poco::RegularExpression::RE_GLOBAL);
+        }
+
+        fakeXML << link << "\n";
         offset = matches.at(0).offset + 1;
     }
     fakeXML << "</links>\n";
