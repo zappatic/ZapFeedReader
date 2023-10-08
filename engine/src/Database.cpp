@@ -291,9 +291,9 @@ void ZapFR::Engine::Database::upgradeToDBSchemaV5()
         now;
 
     (*mSession) << "CREATE TABLE IF NOT EXISTS post_categories ("
-                   " postID INTEGER NOT NULL"
+                   " id INTEGER PRIMARY KEY"
+                   ",postID INTEGER NOT NULL"
                    ",categoryID INTEGER NOT NULL"
-                   ",PRIMARY KEY (postID, categoryID)"
                    ")",
         now;
 
