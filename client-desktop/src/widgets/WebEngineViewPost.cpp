@@ -142,7 +142,7 @@ QString ZapFR::Client::WebEngineViewPost::postStyles() const
         }
 
         // clang-format off
-        cache = QString(R"(body { font-family: "%1", sans-serif; font-size: %5px; background-color: %2; color: %3; margin: 2px 25px; })"
+        cache = QString(R"(body { font-family: "%1", sans-serif; font-size: %5px; background-color: %2; color: %3; margin: 2px 25px; max-width: 100vw; })"
                         "\n"
                         "a { color: %4; }\n"
                         ".zapfr_title { color: %3; font-size: 1.4em; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0; user-select:none; }\n"

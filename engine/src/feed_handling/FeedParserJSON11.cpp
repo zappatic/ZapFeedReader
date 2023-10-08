@@ -138,8 +138,14 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserJSON11::it
         else
         {
             auto text = itemObj->getValue<std::string>("content_text");
+
+            // the spec is very clear about only allowing html in the content_html field, yet some people put html in there
+            // seeing as this screws up the layout, force it to show the html as plain text by replacing < and >
+            Poco::replaceInPlace(text, "<", "&lt;");
+            Poco::replaceInPlace(text, ">", "&gt;");
+
             Poco::replaceInPlace(text, "\n", "<br />");
-            item.content = fmt::format("<pre>{}</pre>", text);
+            item.content = fmt::format(R"(<pre style="white-space:pre-wrap;">{}</pre>)", text);
         }
 
         if (itemObj->has("image"))

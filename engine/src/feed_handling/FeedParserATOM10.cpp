@@ -199,7 +199,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
 
                     if (contentType == "text")
                     {
-                        item.content = fmt::format("<pre>{}</pre>", contentEl->innerText());
+                        item.content = fmt::format(R"(<pre style="white-space:pre-wrap;">{}</pre>)", contentEl->innerText());
                     }
                     else
                     {
