@@ -160,6 +160,7 @@ void ZapFR::Client::MainWindow::initializeUI()
 
     // add the cats dropdown to the toolbar
     mComboBoxCategories = std::make_unique<ComboBoxWithPopupSignal>();
+    mComboBoxCategories->setMaxVisibleItems(20);
     mComboBoxCategories->setPlaceholderText(tr("Category"));
     auto actionFilterCats = ui->toolBar->insertWidget(actionHamburgerMenu, mComboBoxCategories.get());
     actionFilterCats->setProperty(gsPostPaneComboBoxCategories, true);
@@ -1192,6 +1193,9 @@ void ZapFR::Client::MainWindow::populateCategories(const std::vector<std::tuple<
     {
         mComboBoxCategories->addItem(QString::fromUtf8(catTitle), QVariant::fromValue<uint64_t>(catID));
     }
-    mComboBoxCategories->setMaxVisibleItems(20);
+    if (mComboBoxCategories->count() == 1)
+    {
+        mComboBoxCategories->clear();
+    }
     mComboBoxCategories->showPopup();
 }
