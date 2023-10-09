@@ -15,3 +15,17 @@ add_subdirectory(engine)
 add_subdirectory(client-desktop)
 add_subdirectory(tests/engine)
 
+if(ENABLE_COVERAGE)
+  find_program(LCOV lcov REQUIRED)
+  find_program(GENHTML genhtml REQUIRED)
+
+  add_custom_target(coverage COMMAND ${LCOV} --directory . --capture --output-file coverage.info 
+                             COMMAND ${LCOV} --remove coverage.info --output-file coverage_filtered.info 
+                                                '/usr/include/*' 
+                                                '/usr/local/include/*'
+                                                '/*/ZapFeedReader/tests/*'
+                                                '/*/ZapFeedReader/3rdParty/*'
+                                                '/*/ZapFeedReader/build/*'
+                             COMMAND ${GENHTML} --demangle-cpp -o coverage coverage_filtered.info
+                             WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()

@@ -26,6 +26,11 @@ target_link_libraries(tests-engine PRIVATE Catch2::Catch2WithMain
                                     zapfeedreader-engine
                                     Poco::Foundation)
 
+if(ENABLE_COVERAGE)
+    target_compile_options(tests-engine PRIVATE -O0 --coverage)
+    target_link_libraries(tests-engine PRIVATE gcov)
+endif()
+
 add_subdirectory(src)
 
 add_custom_target(tests-engine-symlink-input COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/tests/engine/input "${CMAKE_BINARY_DIR}/$<CONFIG>/tests-engine-input")
