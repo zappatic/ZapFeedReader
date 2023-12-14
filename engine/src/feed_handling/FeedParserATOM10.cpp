@@ -293,6 +293,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
                     }
                 }
             }
+            categoryNodes->release();
 
             items.emplace_back(item);
         }

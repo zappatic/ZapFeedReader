@@ -187,6 +187,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS20::ite
                 item.categories.emplace_back(categoryNode->innerText());
             }
         }
+        categoryNodes->release();
 
         items.emplace_back(item);
     }

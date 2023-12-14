@@ -52,7 +52,7 @@ std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseStri
     if (data.at(0) == '<')
     {
         Poco::XML::DOMParser parser;
-        auto xmlDoc = parser.parseString(data);
+        Poco::AutoPtr<Poco::XML::Document> xmlDoc = parser.parseString(data);
 
         auto docEl = xmlDoc->documentElement();
         if (docEl->nodeName() == "rss")

@@ -246,7 +246,8 @@ std::tuple<std::string, std::string> ZapFR::Engine::Helpers::performHTTPRequest(
 
     if ((status < Poco::Net::HTTPResponse::HTTP_OK || status >= Poco::Net::HTTPResponse::HTTP_MULTIPLE_CHOICES) && status != Poco::Net::HTTPResponse::HTTP_NOT_MODIFIED)
     {
-        throw std::runtime_error(fmt::format("HTTP status {} received for {} {}", static_cast<uint32_t>(response.getStatus()), method, url.toString()));
+        auto msg = fmt::format("HTTP status {} received for {} {}", static_cast<uint32_t>(response.getStatus()), method, url.toString());
+        throw std::runtime_error(msg);
     }
 
     std::string receivedConditionalGETInfo;

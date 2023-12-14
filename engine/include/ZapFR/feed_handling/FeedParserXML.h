@@ -35,7 +35,7 @@ namespace ZapFR
             FeedParserXML(FeedParserXML&&) = delete;
             FeedParserXML& operator=(FeedParserXML&&) = delete;
 
-            void setXMLDoc(Poco::XML::Document* xmlDoc) { mXMLDoc = xmlDoc; }
+            void setXMLDoc(Poco::AutoPtr<Poco::XML::Document> xmlDoc) { mXMLDoc = xmlDoc; }
 
           protected:
             std::string fetchNodeValue(const std::string& nodeName) const;
@@ -44,7 +44,7 @@ namespace ZapFR
             std::string fetchNodeValueInnerXML(Poco::XML::Node* parent, const std::string& nodeName) const;
             Poco::XML::Node* fetchNode(Poco::XML::Node* parent, const std::string& nodeName) const;
 
-            Poco::XML::Document* mXMLDoc{nullptr};
+            Poco::AutoPtr<Poco::XML::Document> mXMLDoc{nullptr};
         };
     } // namespace Engine
 } // namespace ZapFR
