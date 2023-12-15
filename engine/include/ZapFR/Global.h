@@ -59,7 +59,7 @@ namespace ZapFR
             std::vector<ThumbnailDataPost> posts{};
         };
 
-        constexpr uint64_t DBVersion{6};
+        constexpr uint64_t DBVersion{7};
         constexpr uint64_t APIVersion{1};
         constexpr uint64_t DefaultFeedAutoRefreshInterval{15 * 60};
         constexpr uint16_t DefaultServerPort{16016};
