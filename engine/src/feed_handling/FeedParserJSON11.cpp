@@ -83,7 +83,7 @@ std::string ZapFR::Engine::FeedParserJSON11::iconURL() const
     {
         return mRootObj->getValue<std::string>("icon");
     }
-    else if (mRootObj->has("icon"))
+    else if (mRootObj->has("favicon"))
     {
         return mRootObj->getValue<std::string>("favicon");
     }
