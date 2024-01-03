@@ -68,8 +68,8 @@ namespace ZapFR
             const std::vector<std::unique_ptr<Folder>>& subfolders() { return mSubfolders; }
             void appendSubfolder(std::unique_ptr<Folder> subfolder);
 
-            virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                                      uint64_t categoryFilterID, FlagColor flagColor) = 0;
+            virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop,
+                                                                                      const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor) = 0;
             virtual std::vector<uint64_t> markAsRead(uint64_t maxPostID) = 0;
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;

@@ -22,10 +22,11 @@
 #include "ZapFR/base/Source.h"
 
 ZapFR::Engine::AgentFolderGetPosts::AgentFolderGetPosts(
-    uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID,
-    FlagColor flagColor, std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
-    : AgentRunnable(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mSearchFilter(searchFilter),
-      mCategoryFilterID(categoryFilterID), mFlagColor(flagColor), mFinishedCallback(finishedCallback)
+    uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop, const std::string& searchFilter,
+    uint64_t categoryFilterID, FlagColor flagColor,
+    std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
+    : AgentRunnable(sourceID), mFolderID(folderID), mPerPage(perPage), mPage(page), mShowOnlyUnread(showOnlyUnread), mShowUnreadPostsAtTop(showUnreadPostsAtTop),
+      mSearchFilter(searchFilter), mCategoryFilterID(categoryFilterID), mFlagColor(flagColor), mFinishedCallback(finishedCallback)
 {
 }
 
@@ -34,7 +35,7 @@ void ZapFR::Engine::AgentFolderGetPosts::payload(Source* source)
     auto folder = source->getFolder(mFolderID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
     if (folder.has_value())
     {
-        auto [postCount, posts] = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mSearchFilter, mCategoryFilterID, mFlagColor);
+        auto [postCount, posts] = folder.value()->getPosts(mPerPage, mPage, mShowOnlyUnread, mShowUnreadPostsAtTop, mSearchFilter, mCategoryFilterID, mFlagColor);
         std::vector<Post*> postPointers;
         for (const auto& post : posts)
         {

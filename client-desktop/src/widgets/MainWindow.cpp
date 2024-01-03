@@ -232,6 +232,7 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(Setting::PostDetectBrowsers, mPreferences->detectBrowsers);
     root.insert(Setting::UIHideLocalSource, mPreferences->hideLocalSource);
     root.insert(Setting::UIMinimizeInsteadOfClose, mPreferences->minimizeInsteadOfClose);
+    root.insert(Setting::UIShowUnreadPostsAtTop, mPreferences->showUnreadPostsAtTop);
     root.insert(Setting::FeedsRefreshBehaviour, mPreferences->refreshBehaviour == RefreshBehaviour::EntireSource ? "entiresource" : "currentselection");
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     root.insert(Setting::FeedsAutoRefreshInterval, static_cast<int32_t>(ar->feedRefreshInterval()));
@@ -312,6 +313,10 @@ void ZapFR::Client::MainWindow::restoreSettings()
                 if (root.contains(Setting::UIMinimizeInsteadOfClose))
                 {
                     mPreferences->minimizeInsteadOfClose = root.value(Setting::UIMinimizeInsteadOfClose).toBool();
+                }
+                if (root.contains(Setting::UIShowUnreadPostsAtTop))
+                {
+                    mPreferences->showUnreadPostsAtTop = root.value(Setting::UIShowUnreadPostsAtTop).toBool();
                 }
                 if (root.contains(Setting::FeedsRefreshBehaviour))
                 {
@@ -915,6 +920,7 @@ void ZapFR::Client::MainWindow::showPreferences()
 
                         mPreferences->hideLocalSource = mDialogPreferences->hideLocalSource();
                         mPreferences->minimizeInsteadOfClose = mDialogPreferences->minimizeInsteadOfClose();
+                        mPreferences->showUnreadPostsAtTop = mDialogPreferences->showUnreadPostsAtTop();
                         ui->treeViewSources->reload();
 
                         mPreferences->refreshBehaviour = mDialogPreferences->refreshBehaviour();

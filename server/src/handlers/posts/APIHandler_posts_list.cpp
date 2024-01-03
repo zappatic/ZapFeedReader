@@ -38,6 +38,7 @@
 //		perPage (REQD) - The amount of records per page to retrieve - apiRequest->parameter("perPage")
 //		page (REQD) - The page number to retrieve - apiRequest->parameter("page")
 //		showOnlyUnread - Whether to only retrieve unread posts - 'true' or 'false' - optional (default: false) - apiRequest->parameter("showOnlyUnread")
+//		showUnreadPostsAtTop - Whether to show the unread posts first - 'true' or 'false' - optional (default: false) - apiRequest->parameter("showUnreadPostsAtTop")
 //		searchFilter - An optional search filter to apply - apiRequest->parameter("searchFilter")
 //		categoryFilter - An optional category filter to apply (the ID of the cat to match) - apiRequest->parameter("categoryFilter")
 //		flagColor - The ID of a flag color to apply as a filter - apiRequest->parameter("flagColor")
@@ -54,6 +55,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
     const auto perPageStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::PerPage);
     const auto pageStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::Page);
     const auto showOnlyUnread = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::ShowOnlyUnread) == ZapFR::Engine::HTTPParam::True);
+    const auto showUnreadPostsAtTop = (apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::ShowUnreadPostsAtTop) == ZapFR::Engine::HTTPParam::True);
     const auto searchFilter = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::SearchFilter);
     const auto categoryFilterStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::CategoryFilter);
     const auto flagColorStr = apiRequest->parameter(ZapFR::Engine::HTTPParam::Post::FlagColor);
@@ -87,7 +89,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
             auto feed = source.value()->getFeed(parentID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
             if (feed.has_value())
             {
-                auto t = feed.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, categoryFilterID, flagFilter);
+                auto t = feed.value()->getPosts(perPage, page, showOnlyUnread, showUnreadPostsAtTop, searchFilter, categoryFilterID, flagFilter);
                 postCount = std::get<uint64_t>(t);
                 posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
                 thumbnailData = feed.value()->thumbnailData();
@@ -95,7 +97,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
         }
         else if (parentType == ZapFR::Engine::HTTPParam::Post::ParentTypeSource)
         {
-            auto t = source.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, categoryFilterID, flagFilter);
+            auto t = source.value()->getPosts(perPage, page, showOnlyUnread, showUnreadPostsAtTop, searchFilter, categoryFilterID, flagFilter);
             postCount = std::get<uint64_t>(t);
             posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
 
@@ -107,7 +109,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
             auto folder = source.value()->getFolder(parentID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
             if (folder.has_value())
             {
-                auto t = folder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, categoryFilterID, flagFilter);
+                auto t = folder.value()->getPosts(perPage, page, showOnlyUnread, showUnreadPostsAtTop, searchFilter, categoryFilterID, flagFilter);
                 postCount = std::get<uint64_t>(t);
                 posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
                 thumbnailData = folder.value()->thumbnailData();
@@ -118,7 +120,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
             auto scriptFolder = source.value()->getScriptFolder(parentID, ZapFR::Engine::Source::FetchInfo::UnreadThumbnailData);
             if (scriptFolder.has_value())
             {
-                auto t = scriptFolder.value()->getPosts(perPage, page, showOnlyUnread, searchFilter, categoryFilterID, flagFilter);
+                auto t = scriptFolder.value()->getPosts(perPage, page, showOnlyUnread, showUnreadPostsAtTop, searchFilter, categoryFilterID, flagFilter);
                 postCount = std::get<uint64_t>(t);
                 posts = std::move(std::get<std::vector<std::unique_ptr<ZapFR::Engine::Post>>>(t));
                 thumbnailData = scriptFolder.value()->thumbnailData();

@@ -23,8 +23,8 @@ ZapFR::Engine::FeedDummy::FeedDummy(uint64_t id, Source* parentSource) : Feed(id
 }
 
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FeedDummy::getPosts(uint64_t /*perPage*/, uint64_t /*page*/, bool /*showOnlyUnread*/,
-                                                                                                           const std::string& /*searchFilter*/, uint64_t /*categoryFilterID*/,
-                                                                                                           FlagColor /*flagColor*/)
+                                                                                                           bool /*showUnreadPostsAtTop*/, const std::string& /*searchFilter*/,
+                                                                                                           uint64_t /*categoryFilterID*/, FlagColor /*flagColor*/)
 {
     throw std::runtime_error("Not implemented");
 }

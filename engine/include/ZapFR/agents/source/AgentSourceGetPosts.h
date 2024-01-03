@@ -33,7 +33,8 @@ namespace ZapFR
         {
           public:
             explicit AgentSourceGetPosts(
-                uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor,
+                uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop, const std::string& searchFilter, uint64_t categoryFilterID,
+                FlagColor flagColor,
                 std::function<void(uint64_t, const std::vector<ZapFR::Engine::Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
             virtual ~AgentSourceGetPosts() = default;
 
@@ -44,6 +45,7 @@ namespace ZapFR
             uint64_t mPerPage{0};
             uint64_t mPage{0};
             bool mShowOnlyUnread{false};
+            bool mShowUnreadPostsAtTop{false};
             std::string mSearchFilter{""};
             uint64_t mCategoryFilterID{0};
             FlagColor mFlagColor{FlagColor::Gray};

@@ -253,32 +253,37 @@ void ZapFR::Engine::Agent::queueUpdateFolder(uint64_t sourceID, uint64_t folder,
     enqueue(std::make_unique<AgentFolderUpdate>(sourceID, folder, newTitle, finishedCallback));
 }
 
-void ZapFR::Engine::Agent::queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                             uint64_t categoryFilterID, FlagColor flagColor,
+void ZapFR::Engine::Agent::queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop,
+                                             const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor,
                                              std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentFeedGetPosts>(sourceID, feedID, perPage, page, showOnlyUnread, searchFilter, categoryFilterID, flagColor, finishedCallback));
+    enqueue(std::make_unique<AgentFeedGetPosts>(sourceID, feedID, perPage, page, showOnlyUnread, showUnreadPostsAtTop, searchFilter, categoryFilterID, flagColor,
+                                                finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetFolderPosts(
-    uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID,
-    FlagColor flagColor, std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
+    uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop, const std::string& searchFilter,
+    uint64_t categoryFilterID, FlagColor flagColor,
+    std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentFolderGetPosts>(sourceID, folderID, perPage, page, showOnlyUnread, searchFilter, categoryFilterID, flagColor, finishedCallback));
+    enqueue(std::make_unique<AgentFolderGetPosts>(sourceID, folderID, perPage, page, showOnlyUnread, showUnreadPostsAtTop, searchFilter, categoryFilterID, flagColor,
+                                                  finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetSourcePosts(
-    uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor,
-    std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
+    uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop, const std::string& searchFilter, uint64_t categoryFilterID,
+    FlagColor flagColor, std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentSourceGetPosts>(sourceID, perPage, page, showOnlyUnread, searchFilter, categoryFilterID, flagColor, finishedCallback));
+    enqueue(std::make_unique<AgentSourceGetPosts>(sourceID, perPage, page, showOnlyUnread, showUnreadPostsAtTop, searchFilter, categoryFilterID, flagColor, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetScriptFolderPosts(
-    uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID,
-    FlagColor flagColor, std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
+    uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop, const std::string& searchFilter,
+    uint64_t categoryFilterID, FlagColor flagColor,
+    std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback)
 {
-    enqueue(std::make_unique<AgentScriptFolderGetPosts>(sourceID, scriptFolderID, perPage, page, showOnlyUnread, searchFilter, categoryFilterID, flagColor, finishedCallback));
+    enqueue(std::make_unique<AgentScriptFolderGetPosts>(sourceID, scriptFolderID, perPage, page, showOnlyUnread, showUnreadPostsAtTop, searchFilter, categoryFilterID,
+                                                        flagColor, finishedCallback));
 }
 
 void ZapFR::Engine::Agent::queueGetFeedCategories(uint64_t sourceID, uint64_t feedID, std::function<void(uint64_t, uint64_t, const std::vector<Category*>&)> finishedCallback)

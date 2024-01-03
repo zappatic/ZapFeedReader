@@ -106,8 +106,9 @@ void ZapFR::Engine::FolderLocal::fetchStatistics()
     }
 }
 
-std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>>
-ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                                                                             bool showUnreadPostsAtTop, const std::string& searchFilter,
+                                                                                                             uint64_t categoryFilterID, FlagColor flagColor)
 {
     auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
     if (joinedFeedIDs.empty())
@@ -159,7 +160,13 @@ ZapFR::Engine::FolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showO
     bindingsPostQuery.emplace_back(use(perPage, "perPage"));
     bindingsPostQuery.emplace_back(use(offset, "offset"));
 
-    auto posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT ? OFFSET ?", bindingsPostQuery);
+    std::string orderClause = "ORDER BY posts.datePublished DESC";
+    if (showUnreadPostsAtTop)
+    {
+        orderClause = "ORDER BY posts.isRead ASC, posts.datePublished DESC";
+    }
+
+    auto posts = PostLocal::queryMultiple(whereClause, orderClause, "LIMIT ? OFFSET ?", bindingsPostQuery);
     auto count = PostLocal::queryCount(whereClause, bindingsCountQuery);
     return std::make_tuple(count, std::move(posts));
 }

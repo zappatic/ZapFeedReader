@@ -55,17 +55,17 @@ namespace ZapFR
             void broadcastError(uint64_t sourceID, const std::string& errorMessage) const;
 
             // querying posts
-            void queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                   uint64_t categoryFilterID, FlagColor flagColor,
+            void queueGetFeedPosts(uint64_t sourceID, uint64_t feedID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop,
+                                   const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor,
                                    std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
-            void queueGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
+            void queueGetFolderPosts(uint64_t sourceID, uint64_t folderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop,
+                                     const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor,
+                                     std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
+            void queueGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop, const std::string& searchFilter,
                                      uint64_t categoryFilterID, FlagColor flagColor,
                                      std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
-            void queueGetSourcePosts(uint64_t sourceID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID,
-                                     FlagColor flagColor,
-                                     std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
-            void queueGetScriptFolderPosts(uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                           uint64_t categoryFilterID, FlagColor flagColor,
+            void queueGetScriptFolderPosts(uint64_t sourceID, uint64_t scriptFolderID, uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop,
+                                           const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor,
                                            std::function<void(uint64_t, const std::vector<Post*>&, uint64_t, uint64_t, const std::vector<ThumbnailData>&)> finishedCallback);
             void queueGetPost(uint64_t sourceID, uint64_t feedID, uint64_t postID, std::function<void(std::unique_ptr<Post>)> finishedCallback);
 

@@ -56,6 +56,7 @@ namespace ZapFR
             bool detectBrowsersEnabled() const;
             bool hideLocalSource() const;
             bool minimizeInsteadOfClose() const;
+            bool showUnreadPostsAtTop() const;
             ZapFR::Engine::LogLevel logLevel() const;
 
             enum Role

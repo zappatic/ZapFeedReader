@@ -97,8 +97,8 @@ namespace ZapFR
             virtual void removeFolder(uint64_t folderID) = 0;
             virtual std::unordered_map<uint64_t, uint64_t> moveFolder(uint64_t folderID, uint64_t newParent, uint64_t newSortOrder) = 0;
 
-            virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                                      uint64_t categoryFilterID, FlagColor flagColor) = 0;
+            virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop,
+                                                                                      const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor) = 0;
             virtual void markAsRead(uint64_t maxPostID) = 0;
             virtual void setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) = 0;
             virtual void setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,

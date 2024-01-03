@@ -87,6 +87,7 @@ void ZapFR::Client::DialogPreferences::reset()
     ui->checkBoxDetectBrowsers->setChecked(mainWindow->preferences()->detectBrowsers);
     ui->checkBoxHideLocalSource->setChecked(mainWindow->preferences()->hideLocalSource);
     ui->checkBoxMinimizeInsteadOfClose->setChecked(mainWindow->preferences()->minimizeInsteadOfClose);
+    ui->checkBoxUnreadPostsAtTop->setChecked(mainWindow->preferences()->showUnreadPostsAtTop);
 
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
     ui->spinBoxAutoRefreshInterval->setValue(static_cast<int32_t>(ar->feedRefreshInterval() / 60));
@@ -184,6 +185,11 @@ bool ZapFR::Client::DialogPreferences::hideLocalSource() const
 bool ZapFR::Client::DialogPreferences::minimizeInsteadOfClose() const
 {
     return ui->checkBoxMinimizeInsteadOfClose->isChecked();
+}
+
+bool ZapFR::Client::DialogPreferences::showUnreadPostsAtTop() const
+{
+    return ui->checkBoxUnreadPostsAtTop->isChecked();
 }
 
 ZapFR::Engine::LogLevel ZapFR::Client::DialogPreferences::logLevel() const

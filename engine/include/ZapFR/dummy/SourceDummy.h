@@ -57,8 +57,8 @@ namespace ZapFR
             std::tuple<uint64_t, uint64_t> addFolder(const std::string& title, uint64_t parentID) override;
 
             // post stuff
-            std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                              uint64_t categoryFilterID, FlagColor flagColor) override;
+            std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop,
+                                                                              const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor) override;
             void markAsRead(uint64_t maxPostID) override;
             void setPostsReadStatus(bool markAsRead, const std::vector<std::tuple<uint64_t, uint64_t>>& feedsAndPostIDs) override;
             void setPostsFlagStatus(bool markFlagged, const std::unordered_set<FlagColor>& flagColors,

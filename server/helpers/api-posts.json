@@ -33,6 +33,11 @@
         "description": "Whether to only retrieve unread posts - 'true' or 'false' - optional (default: false)"
       },
       {
+        "name": "showUnreadPostsAtTop",
+        "required": false,
+        "description": "Whether to show the unread posts first - 'true' or 'false' - optional (default: false)"
+      },
+      {
         "name": "searchFilter",
         "required": false,
         "description": "An optional search filter to apply"

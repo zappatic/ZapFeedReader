@@ -279,6 +279,7 @@ namespace ZapFR
                 constexpr const char PerPage[]{"perPage"};
                 constexpr const char Page[]{"page"};
                 constexpr const char ShowOnlyUnread[]{"showOnlyUnread"};
+                constexpr const char ShowUnreadPostsAtTop[]{"showUnreadPostsAtTop"};
                 constexpr const char SearchFilter[]{"searchFilter"};
                 constexpr const char CategoryFilter[]{"categoryFilter"};
                 constexpr const char FlagColor[]{"flagColor"};

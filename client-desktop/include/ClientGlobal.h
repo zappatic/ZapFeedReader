@@ -37,6 +37,7 @@ namespace ZapFR
             static const QString UIFontSize = "ui.fontsize";
             static const QString UIHideLocalSource = "ui.hidelocalsource";
             static const QString UIMinimizeInsteadOfClose = "ui.minimizeinsteadofclose";
+            static const QString UIShowUnreadPostsAtTop = "ui.showunreadpostsattop";
             static const QString PostFontSize = "post.fontsize";
             static const QString PostDetectBrowsers = "post.detectbrowsers";
             static const QString FeedsRefreshBehaviour = "feeds.refreshbehaviour";
@@ -95,6 +96,7 @@ namespace ZapFR
             bool detectBrowsers{false};
             bool hideLocalSource{false};
             bool minimizeInsteadOfClose{false};
+            bool showUnreadPostsAtTop{false};
         };
 
         static const uint32_t StatusBarDefaultTimeout{2500};

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>673</width>
-    <height>418</height>
+    <height>442</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -182,7 +182,7 @@
               </font>
              </property>
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The post-related context menus will show 'Open in &amp;lt;browser&amp;gt;' for each detected browser&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The post-related context menus will show 'Open in &amp;lt;browser&amp;gt;' for each detected browser.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -208,7 +208,7 @@
               </font>
              </property>
              <property name="text">
-              <string>If you put all your feeds in a remote source, you can check this to hide the local source</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you put all your feeds in a remote source, you can check this to hide the local source.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
@@ -235,6 +235,32 @@
              </property>
              <property name="text">
               <string>When clicking the close button on the main window, minimize instead of exiting the application. Use the 'Exit' menu from the hamburger menu to exit the application.</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="6" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <item>
+            <widget class="QCheckBox" name="checkBoxUnreadPostsAtTop">
+             <property name="text">
+              <string>Show unread posts at the top of the list</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="font">
+              <font>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unread posts can be scattered over multiple pages, when old feed posts get updated. Check this option to keep them always at the top.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>

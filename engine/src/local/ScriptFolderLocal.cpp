@@ -30,8 +30,8 @@ ZapFR::Engine::ScriptFolderLocal::ScriptFolderLocal(uint64_t id, Source* parentS
 }
 
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::ScriptFolderLocal::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
-                                                                                                                   const std::string& searchFilter, uint64_t categoryFilterID,
-                                                                                                                   FlagColor flagColor)
+                                                                                                                   bool showUnreadPostsAtTop, const std::string& searchFilter,
+                                                                                                                   uint64_t categoryFilterID, FlagColor flagColor)
 {
     std::vector<std::string> whereClause;
     std::vector<Poco::Data::AbstractBinding::Ptr> bindingsPostQuery;
@@ -79,7 +79,13 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     bindingsPostQuery.emplace_back(use(perPage, "perPage"));
     bindingsPostQuery.emplace_back(use(offset, "offset"));
 
-    auto posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT ? OFFSET ?", bindingsPostQuery);
+    std::string orderClause = "ORDER BY posts.datePublished DESC";
+    if (showUnreadPostsAtTop)
+    {
+        orderClause = "ORDER BY posts.isRead ASC, posts.datePublished DESC";
+    }
+
+    auto posts = PostLocal::queryMultiple(whereClause, orderClause, "LIMIT ? OFFSET ?", bindingsPostQuery);
     auto count = PostLocal::queryCount(whereClause, bindingsCountQuery);
     return std::make_tuple(count, std::move(posts));
 }

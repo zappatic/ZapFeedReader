@@ -105,8 +105,8 @@ namespace ZapFR
             void setStatistics(const std::unordered_map<Statistic, std::string>& stats) { mStatistics = stats; }
             void setConditionalGETInfo(const std::string& cgi) { mConditionalGETInfo = cgi; }
 
-            virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter,
-                                                                                      uint64_t categoryFilterID, FlagColor flagColor) = 0;
+            virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Post>>> getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, bool showUnreadPostsAtTop,
+                                                                                      const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor) = 0;
             virtual std::optional<std::unique_ptr<Post>> getPost(uint64_t postID) = 0;
 
             virtual std::tuple<uint64_t, std::vector<std::unique_ptr<Log>>> getLogs(uint64_t perPage, uint64_t page) = 0;

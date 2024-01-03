@@ -380,6 +380,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				entry->addBodyParameter({R"(perPage)", true, R"(The amount of records per page to retrieve)"});
 				entry->addBodyParameter({R"(page)", true, R"(The page number to retrieve)"});
 				entry->addBodyParameter({R"(showOnlyUnread)", false, R"(Whether to only retrieve unread posts - 'true' or 'false' - optional (default: false))"});
+				entry->addBodyParameter({R"(showUnreadPostsAtTop)", false, R"(Whether to show the unread posts first - 'true' or 'false' - optional (default: false))"});
 				entry->addBodyParameter({R"(searchFilter)", false, R"(An optional search filter to apply)"});
 				entry->addBodyParameter({R"(categoryFilter)", false, R"(An optional category filter to apply (the ID of the cat to match))"});
 				entry->addBodyParameter({R"(flagColor)", false, R"(The ID of a flag color to apply as a filter)"});

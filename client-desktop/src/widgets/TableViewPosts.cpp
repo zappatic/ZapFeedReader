@@ -149,8 +149,9 @@ void ZapFR::Client::TableViewPosts::reload()
     {
         auto sourceID = index.data(TableViewScriptFolders::Role::SourceID).toULongLong();
         auto scriptFolderID = index.data(TableViewScriptFolders::Role::ID).toULongLong();
-        ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
-                                                                       categoryFilterID, mFlagFilter, processPosts);
+        ZapFR::Engine::Agent::getInstance()->queueGetScriptFolderPosts(sourceID, scriptFolderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
+                                                                       mMainWindow->preferences()->showUnreadPostsAtTop, searchFilter, categoryFilterID, mFlagFilter,
+                                                                       processPosts);
     }
     else
     {
@@ -162,19 +163,22 @@ void ZapFR::Client::TableViewPosts::reload()
             if (type == TreeViewSources::EntryType::Feed)
             {
                 auto feedID = index.data(TreeViewSources::Role::ID).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
-                                                                       categoryFilterID, mFlagFilter, processPosts);
+                ZapFR::Engine::Agent::getInstance()->queueGetFeedPosts(sourceID, feedID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
+                                                                       mMainWindow->preferences()->showUnreadPostsAtTop, searchFilter, categoryFilterID, mFlagFilter,
+                                                                       processPosts);
             }
             else if (type == TreeViewSources::EntryType::Folder)
             {
                 auto folderID = index.data(TreeViewSources::Role::ID).toULongLong();
-                ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter,
-                                                                         categoryFilterID, mFlagFilter, processPosts);
+                ZapFR::Engine::Agent::getInstance()->queueGetFolderPosts(sourceID, folderID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
+                                                                         mMainWindow->preferences()->showUnreadPostsAtTop, searchFilter, categoryFilterID, mFlagFilter,
+                                                                         processPosts);
             }
             else if (type == TreeViewSources::EntryType::Source)
             {
-                ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts, searchFilter, categoryFilterID,
-                                                                         mFlagFilter, processPosts);
+                ZapFR::Engine::Agent::getInstance()->queueGetSourcePosts(sourceID, msPostsPerPage, mCurrentPostPage, mShowOnlyUnreadPosts,
+                                                                         mMainWindow->preferences()->showUnreadPostsAtTop, searchFilter, categoryFilterID, mFlagFilter,
+                                                                         processPosts);
             }
             else
             {

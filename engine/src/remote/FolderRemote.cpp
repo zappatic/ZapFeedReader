@@ -33,8 +33,9 @@ ZapFR::Engine::FolderRemote::FolderRemote(uint64_t id, uint64_t parentFolderID, 
 {
 }
 
-std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>>
-ZapFR::Engine::FolderRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread, const std::string& searchFilter, uint64_t categoryFilterID, FlagColor flagColor)
+std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::Engine::FolderRemote::getPosts(uint64_t perPage, uint64_t page, bool showOnlyUnread,
+                                                                                                              bool showUnreadPostsAtTop, const std::string& searchFilter,
+                                                                                                              uint64_t categoryFilterID, FlagColor flagColor)
 {
     std::vector<std::unique_ptr<ZapFR::Engine::Post>> posts;
     uint64_t postCount{0};
@@ -52,6 +53,7 @@ ZapFR::Engine::FolderRemote::getPosts(uint64_t perPage, uint64_t page, bool show
         params[HTTPParam::Post::PerPage] = std::to_string(perPage);
         params[HTTPParam::Post::Page] = std::to_string(page);
         params[HTTPParam::Post::ShowOnlyUnread] = showOnlyUnread ? HTTPParam::True : HTTPParam::False;
+        params[HTTPParam::Post::ShowUnreadPostsAtTop] = showUnreadPostsAtTop ? HTTPParam::True : HTTPParam::False;
         params[HTTPParam::Post::SearchFilter] = searchFilter;
         params[HTTPParam::Post::CategoryFilter] = std::to_string(categoryFilterID);
         params[HTTPParam::Post::FlagColor] = Flag::nameForFlagColor(flagColor);
