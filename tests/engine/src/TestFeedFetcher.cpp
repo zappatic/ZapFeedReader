@@ -66,3 +66,42 @@ TEST_CASE("Feed Fetcher - detect as JSON", "[feedfetcher]")
     REQUIRE(feedParser != nullptr);
     REQUIRE(feedParser->type() == ZapFR::Engine::Feed::Type::JSON);
 }
+
+TEST_CASE("Feed Fetcher - fetch valid rss from remote site", "[feedfetcher]")
+{
+    auto feedFetcher = ZapFR::Engine::FeedFetcher();
+    const auto& feedParser = feedFetcher.parseURL("https://zapfeedreader.zappatic.net/unittests/rss.xml", 0, {});
+
+    REQUIRE(feedParser.has_value());
+    REQUIRE(feedParser.value()->type() == ZapFR::Engine::Feed::Type::RSS);
+}
+
+TEST_CASE("Feed Fetcher - fetch empty file from remote site", "[feedfetcher]")
+{
+    auto feedFetcher = ZapFR::Engine::FeedFetcher();
+    const auto& feedParser = feedFetcher.parseURL("https://zapfeedreader.zappatic.net/unittests/empty.xml", 0, {});
+
+    REQUIRE(!feedParser.has_value());
+}
+
+TEST_CASE("Feed Fetcher - pass empty string to parseString", "[feedfetcher]")
+{
+    auto feedFetcher = ZapFR::Engine::FeedFetcher();
+    const auto& feedParser = feedFetcher.parseString("", "");
+
+    REQUIRE(feedParser == nullptr);
+}
+
+TEST_CASE("Feed Fetcher - parse unknown feed type", "[feedfetcher]")
+{
+    auto feedFetcher = ZapFR::Engine::FeedFetcher();
+    REQUIRE_THROWS(feedFetcher.parseString(R"(<?xml version="1.0" encoding="utf-8"?><invalid-feed-tag><data></data></invalid-feed-tag>)", ""));
+}
+
+TEST_CASE("Feed Fetcher - parse non-xml/json", "[feedfetcher]")
+{
+    auto feedFetcher = ZapFR::Engine::FeedFetcher();
+    const auto& feedParser = feedFetcher.parseString("?", "");
+
+    REQUIRE(feedParser == nullptr);
+}

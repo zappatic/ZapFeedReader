@@ -63,6 +63,10 @@ ZapFR::Engine::FeedDiscovery::FeedDiscovery(const std::string& url, const std::s
 void ZapFR::Engine::FeedDiscovery::discover()
 {
     mDiscoveredFeeds.clear();
+    if (mData.empty())
+    {
+        return;
+    }
 
     if (interpretAsYoutubeSource())
     {

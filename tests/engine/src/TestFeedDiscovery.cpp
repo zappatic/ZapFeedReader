@@ -34,6 +34,24 @@ TEST_CASE("Feed Discovery on hackernews", "[feeddiscovery]")
     REQUIRE(fd.discoveredFeeds().at(0).type == ZapFR::Engine::Feed::Type::RSS);
 }
 
+TEST_CASE("Feed Discovery on Daring Fireball (link to atom and json)", "[feeddiscovery]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "WebPageDaringFireball.html");
+
+    auto fd = ZapFR::Engine::FeedDiscovery("https://daringfireball.net", input);
+    fd.discover();
+
+    REQUIRE(fd.discoveredFeeds().size() == 2);
+
+    REQUIRE(fd.discoveredFeeds().at(0).title == "");
+    REQUIRE(fd.discoveredFeeds().at(0).url == "https://daringfireball.net/feeds/main");
+    REQUIRE(fd.discoveredFeeds().at(0).type == ZapFR::Engine::Feed::Type::Atom);
+
+    REQUIRE(fd.discoveredFeeds().at(1).title == "");
+    REQUIRE(fd.discoveredFeeds().at(1).url == "https://daringfireball.net/feeds/json");
+    REQUIRE(fd.discoveredFeeds().at(1).type == ZapFR::Engine::Feed::Type::JSON);
+}
+
 TEST_CASE("Feed Discovery on pawelgrzybek.com (no quotes around attribs, unclosed link tags)", "[feeddiscovery]")
 {
     const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "WebPagePawel.html");
@@ -48,6 +66,26 @@ TEST_CASE("Feed Discovery on pawelgrzybek.com (no quotes around attribs, unclose
     REQUIRE(fd.discoveredFeeds().at(1).title == "pawelgrzybek.com");
     REQUIRE(fd.discoveredFeeds().at(1).url == "https://pawelgrzybek.com/feed.json");
     REQUIRE(fd.discoveredFeeds().at(1).type == ZapFR::Engine::Feed::Type::JSON);
+}
+
+TEST_CASE("Feed Discovery with invalid mimetype", "[feeddiscovery]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "WebPageInvalidFeedMimeType.html");
+
+    auto fd = ZapFR::Engine::FeedDiscovery("https://example.com", input);
+    fd.discover();
+
+    REQUIRE(fd.discoveredFeeds().size() == 0);
+}
+
+TEST_CASE("Feed Discovery with invalid link tag in head", "[feeddiscovery]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "WebPageInvalidFeedLinkTag.html");
+
+    auto fd = ZapFR::Engine::FeedDiscovery("https://example.com", input);
+    fd.discover();
+
+    REQUIRE(fd.discoveredFeeds().size() == 0);
 }
 
 TEST_CASE("Feed Discovery on youtube.com", "[feeddiscovery]")
@@ -100,4 +138,38 @@ TEST_CASE("Feed Discovery on direct link to JSON feed", "[feeddiscovery]")
     REQUIRE(fd.discoveredFeeds().at(0).title == "Daring Fireball");
     REQUIRE(fd.discoveredFeeds().at(0).url == "https://daringfireball.net/feeds/json");
     REQUIRE(fd.discoveredFeeds().at(0).type == ZapFR::Engine::Feed::Type::JSON);
+}
+
+TEST_CASE("Feed Discovery with actual http request", "[feeddiscovery]")
+{
+    auto fd = ZapFR::Engine::FeedDiscovery("https://zapfeedreader.zappatic.net/unittests/rss.xml");
+    fd.discover();
+    REQUIRE(fd.discoveredFeeds().size() == 1);
+    REQUIRE(fd.discoveredFeeds().at(0).title == "RSS Feed");
+    REQUIRE(fd.discoveredFeeds().at(0).url == "https://zapfeedreader.zappatic.net/unittests/rss.xml");
+    REQUIRE(fd.discoveredFeeds().at(0).type == ZapFR::Engine::Feed::Type::RSS);
+}
+
+TEST_CASE("Feed Discovery with uri scheme missing", "[feeddiscovery]")
+{
+    auto fd = ZapFR::Engine::FeedDiscovery("zapfeedreader.zappatic.net/unittests/rss.xml");
+    fd.discover();
+    REQUIRE(fd.discoveredFeeds().size() == 1);
+    REQUIRE(fd.discoveredFeeds().at(0).title == "RSS Feed");
+    REQUIRE(fd.discoveredFeeds().at(0).url == "https://zapfeedreader.zappatic.net/unittests/rss.xml");
+    REQUIRE(fd.discoveredFeeds().at(0).type == ZapFR::Engine::Feed::Type::RSS);
+}
+
+TEST_CASE("Feed Discovery with empty http request", "[feeddiscovery]")
+{
+    auto fd = ZapFR::Engine::FeedDiscovery("");
+    fd.discover();
+    REQUIRE(fd.discoveredFeeds().size() == 0);
+}
+
+TEST_CASE("Feed Discovery with throwing/invalid http request", "[feeddiscovery]")
+{
+    auto fd = ZapFR::Engine::FeedDiscovery("https://zapfeedreaderERROR.zappatic.net");
+    fd.discover();
+    REQUIRE(fd.discoveredFeeds().size() == 0);
 }

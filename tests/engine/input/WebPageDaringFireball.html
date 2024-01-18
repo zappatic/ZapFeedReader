@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en"  class="daringfireball-net">
+<head>
+	<meta charset="UTF-8" />
+	<title>Daring Fireball</title>
+
+	<link rel="apple-touch-icon-precomposed" href="/graphics/apple-touch-icon.png" />
+	<link rel="shortcut icon" href="/graphics/favicon.ico?v=005" />
+	<link rel="mask-icon" href="/graphics/dfstar.svg" color="#4a525a">
+	<link rel="stylesheet" type="text/css" media="screen"  href="/css/fireball_screen.css?v1.2022-08-01" />
+	<link rel="stylesheet" type="text/css" media="screen"  href="/css/ie_sucks.php" />
+	<link rel="stylesheet" type="text/css" media="print"   href="/css/fireball_print.css?v01" />
+	<link rel="alternate"  type="application/atom+xml"     href="/feeds/main" />
+	<link rel="alternate"  type="application/json"         href="/feeds/json" />
+	<link rel="me"                                         href="https://mastodon.social/@gruber" />
+	<link rel="me"                                         href="https://mastodon.social/@daringfireball" />
+	<script src="/js/js-global/FancyZoom.js"></script>
+	<script src="/js/js-global/FancyZoomHTML.js"></script>
+</head>
+<body  class="daringfireball-net"  onload="setupZoom()">
+<div id="Box">
+
+<div id="Banner">
+<a href="/" title="Daring Fireball: Home"><img src="/graphics/logos/" alt="Daring Fireball" height="56" /></a>
+</div>
+
+<div id="Sidebar">
+<p>By <strong>John&nbsp;Gruber</strong></p>
+
+<ul><!--&#9733;-->
+<li><a href="/archive/" title="Previous articles.">Archive</a></li><li><script>
+// <![CDATA[
+function ReadCookie(name) {
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0; i < ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1, c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+	}
+	return null;
+}
+var display_linked_list = ReadCookie('displayLinkedList');
+var li_linked = '<a href="/linked/" title="The Linked List.">Linked List<\/a>';
+if (display_linked_list == "hide") {
+	// Linked List is off on home page, so show it in menu:
+	document.write(li_linked + "<\/li>\n<li>");
+}
+else {
+	// Default to not putting separate LL item in sidebar:
+}
+// ]]>
+</script></li>
+<li><a href="/thetalkshow/" title="America’s favorite 3-star podcast.">The Talk Show</a></li>
+<li><a href="https://dithering.fm/" title="Two episodes per week, 15 minutes per episode. Not a minute less, not a minute more.">Dithering</a></li>
+<li><a href="/projects/" title="Software projects, including SmartyPants and Markdown.">Projects</a></li>
+<li><a href="/contact/" title="How to send email or feedback regarding Daring Fireball.">Contact</a></li>
+<li><a href="/colophon/" title="About this site and the tools used to produce it.">Colophon</a></li>
+<li><a href="/feeds/">Feeds / Social</a></li>
+<!-- 
+<li><a href="https://twitter.com/daringfireball">Twitter</a></li>
+ -->
+<li><a href="/feeds/sponsors/">Sponsorship</a></li>
+</ul>
+
+<div id="SidebarMartini">
+<a href="https://hey.com/">
+	<img alt="HEY Calendar" src="/martini/images/hey-calendar-1.png" height="90">
+</a>
+<p><a href="https://hey.com/">HEY Email + Calendar</a> breathe new life into categories that were left for&nbsp;dead.</p>
+</div>
+
+</div> <!-- Sidebar -->
+
+<div id="Main">
+
+<dl class="linkedlist">
+<dt>
+<a href="https://www.bloomberg.com/news/articles/2024-01-17/watching-netflix-on-apple-vision-pro-you-ll-have-to-use-the-web">Netflix Has No App for VisionOS</a>&nbsp;<a class="permalink" title="Permanent link to ‘Netflix Has No App for VisionOS’" href="https://daringfireball.net/linked/2024/01/18/netflix-has-no-app-for-visionos">&#9733;</a>
+</dt>
+<dd>
+<p>Mark Gurman:</p>
+
+<blockquote>
+  <p>Netflix Inc. isn’t planning to launch an app for Apple Inc.’s 
+upcoming Vision Pro headset, marking a high-profile snub of the 
+new technology by the world’s biggest video subscription service. </p>
+
+<p>Rather than designing a Vision Pro app — or even just supporting 
+its existing iPad app on the platform — Netflix is essentially 
+taking a pass. The company, which competes with Apple in 
+streaming, said in a statement that users interested in watching 
+its content on the device can do so from the web. [...]</p>
+
+<p>The fact that Netflix isn’t even willing to support the iPad 
+approach suggests that it’s taking a wait-and-see stance with the 
+headset. It’s also a bit of a reversal for the company, which 
+<a href="https://www.bloomberg.com/news/newsletters/2023-07-23/apple-vision-pro-will-developers-sell-visionos-apps-for-the-3-499-device-lkfg5b1l?sref=9hGJlFio">said in July</a> that it would support its iPad app on the Vision 
+Pro. Even then, though, Netflix didn’t plan to release software 
+specifically for the headset’s operating system, visionOS. </p>
+</blockquote>
+
+<p>“Said in July” links to a report from Gurman himself, <a href="https://www.bloomberg.com/news/newsletters/2023-07-23/apple-vision-pro-will-developers-sell-visionos-apps-for-the-3-499-device-lkfg5b1l?sref=9hGJlFio">which states</a>:</p>
+
+<blockquote>
+  <p>But the biggest streamer of all, Netflix Inc., will take a pass. 
+I’m told that the company has no current plans to develop a native 
+app for the Vision Pro. Of course, Netflix will still let its iPad 
+app run on the headset unmodified. </p>
+</blockquote>
+
+<p>“Of course”!</p>
+
+<p>Here’s the statement from Netflix:</p>
+
+<blockquote>
+  <p>“Our members will be able to enjoy Netflix on the web browser on 
+the Vision Pro, similar to how our members can enjoy Netflix on 
+Macs,” Los Gatos, California-based Netflix said in the statement. </p>
+</blockquote>
+
+<p>Mac users sure do <em>enjoy</em> <a href="https://help.netflix.com/en/node/54816">not being able to download Netflix movies or shows</a> for offline viewing — you know, like in an airplane, one of the most obvious and common places where Vision Pro will be used.</p>
+
+<p>Not having a native VisionOS app is one thing. Apparently having no current plans to make one is another. But it really feels like pure corporate spite — a pissing match — that Netflix is refusing the allow their iPad app to run on VisionOS. The iPad-app-on-Vision experience is actually pretty good, and for streaming apps in particular, ought to be fine. Not impressive, <a href="https://daringfireball.net/linked/2024/01/16/disney-plus-visionos">like the native VisionOS Disney+ app</a>, but just fine. I’ll bet that Netflix is the <em>only</em> major streaming service without an app on VisionOS — iPad or native — on day one. Perhaps Netflix is using this as a negotiating tactic for something in return from Apple?</p>
+
+<p>In addition to the fact that only being available through the web means no offline viewing, it might also mean that VisionOS users will not be able to launch Netflix from their home screens. I’m not sure if VisionOS Safari has an “Add to Home Screen” feature, but if it doesn’t, that’s going to be an annoyance for Vision Pro users who want to watch Netflix. Telling Siri to open “netflix dot com” might be the only way to get there from your home screen.</p>
+
+</dd>
+
+
+</dl>
+
+<h2 class="dateline">Wednesday, 17 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://9to5mac.com/2024/01/17/apple-watch-series-9-ultra-2-without-blood-oxygen-sensor/">Apple Will Begin Selling Series 9 and Ultra Watches With Blood Oxygen Sensors Disabled Tomorrow</a>&nbsp;<a class="permalink" title="Permanent link to ‘Apple Will Begin Selling Series 9 and Ultra Watches With Blood Oxygen Sensors Disabled Tomorrow’" href="https://daringfireball.net/linked/2024/01/17/apple-watch-series-9-ultra-2-disabled-sensors">&#9733;</a>
+</dt>
+<dd>
+<p>Apple, in a statement to Chance Miller at 9to5Mac:</p>
+
+<blockquote>
+  <p>Apple’s appeal is ongoing, and we believe the US Court of Appeals 
+for the Federal Circuit should reverse the USITC’s decision. We 
+strongly disagree with the USITC decision and resulting orders. </p>
+
+<p>Pending the appeal, Apple is taking steps to comply with the 
+ruling while ensuring customers have access to Apple Watch with 
+limited disruption. These steps include introducing a version of 
+Apple Watch Series 9 and Apple Watch Ultra 2 in the United States 
+without the Blood Oxygen feature. There is no impact to Apple 
+Watch units previously purchased that include the Blood Oxygen 
+feature. </p>
+
+<p>Apple Watch Series 9 and Apple Watch Ultra 2 without the Blood 
+Oxygen feature will become available from apple.com starting 6am 
+PT on January 18, and from Apple Stores starting January 18. </p>
+</blockquote>
+
+<p>Without the <em>feature</em> — not without the <em>sensor</em>, <a href="https://daringfireball.net/linked/2024/01/16/apple-workaround-itc-import-ban">as Aaron Tilley of The Wall Street Journal reported</a> in a story that <em>still</em> has not been corrected.</p>
+
+<p>Apple.com’s product pages for <a href="https://www.apple.com/apple-watch-series-9/">Series 9</a> and <a href="https://www.apple.com/apple-watch-ultra-2/">Ultra 2</a> now have <a href="https://daringfireball.net/misc/2024/01/apple-watch-blood-oxygen-feature-banner.png">a prominent banner at the top</a> that reads “Apple Watch Series 9 and Ultra 2 no longer include the blood oxygen feature.”</p>
+
+</dd>
+
+
+<dt>
+<a href="https://twitter.com/games_fray/status/1747504304695484810?s=20">Apple Set to Collect $73 Million in Legal Fees From Epic Games</a>&nbsp;<a class="permalink" title="Permanent link to ‘Apple Set to Collect $73 Million in Legal Fees From Epic Games’" href="https://daringfireball.net/linked/2024/01/17/apple-epic-legal-fees">&#9733;</a>
+</dt>
+<dd>
+<p>Apple, a court filing spotted by <a href="https://twitter.com/Florian4Gamers/status/1738673544572162438">Florian Mueller</a> at Games Fray:</p>
+
+<blockquote>
+  <p>Please take notice that on March 5, 2024 at 10:00 a.m., or as soon 
+thereafter as the matter may be heard by the Court, at the 
+courtroom of the Honorable Yvonne Gonzalez Rogers, [...] Apple 
+Inc. (“Apple”) will and hereby does move that this Court, pursuant 
+to the mandate of the Ninth Circuit, enter judgment ordering Epic 
+Games, Inc. (“Epic”) to pay Apple $73,404,326, plus additional 
+amounts Apple is incurring during this ongoing litigation, under 
+the indemnification provision of the Developer Program License 
+Agreement. </p>
+</blockquote>
+
+<p>This is not simply about Epic having sued Apple and lost; it’s about the fact that this whole saga started with Epic’s Fortnite in-app payment processing stunt, blatantly violating <a href="https://developer.apple.com/support/terms/apple-developer-program-license-agreement/#ADPLA10">the Developer Program License Agreement</a>. This wasn’t like an edge case or technicality; Epic deliberately violated the clear rules of the DPLA as a publicity stunt to launch their antitrust lawsuit. File under “Fucking Around and Finding Out”.</p>
+
+<p>Mueller writes:</p>
+
+<blockquote>
+  <p>Early into the litigation, Epic accepted that if it loses on its 
+antitrust claims (as it did), it owes damages. If Epic had 
+prevailed on antitrust, the contract clause wouldn’t have been 
+enforceable. [...] </p>
+
+<p>Apple does this as a matter of principle. They won’t leave an 
+amount in the tens of millions on the table. And their overall 
+treatment of Epic, such as not putting Fortnite back, is meant to 
+discourage other app makers from challenging Apple and from 
+breaching the DPLA. </p>
+</blockquote>
+
+<p>It’s unsurprising but worth noting that <em>Fortnite</em> is seemingly never coming back to iOS, unless Epic sells the franchise to another company. iOS <em>Fortnite</em> players are like the children in an ugly divorce.</p>
+
+</dd>
+
+
+</dl>
+
+<hr class="ookiaks" />
+
+
+<div class="article">
+<h1><a href="https://daringfireball.net/2024/01/coming_to_grips_with_apples_seemingly_unshakable_sense_of_app_store_entitlement" title="Permanent link to ‘Coming to Grips With Apple’s Seemingly Unshakable Sense of Entitlement to Its Commissions From Third-Party iOS Apps’">Coming to Grips With Apple’s Seemingly Unshakable Sense of Entitlement to Its Commissions From Third-Party iOS Apps</a></h1>
+<h6 class="dateline">Wednesday, 17 January 2024</h6>
+
+<p><a href="https://twitter.com/TimSweeneyEpic/status/1747280541362102287/">Tim Sweeney, on Twitter/X, yesterday at 10:30am</a>:</p>
+
+<blockquote>
+  <p>As of today, developers can begin exercising their 
+court-established right to tell US customers about better prices 
+on the web. These awful Apple-mandated confusion screens are over 
+and done forever. </p>
+</blockquote>
+
+<p>That take didn’t last long.</p>
+
+<p><a href="https://twitter.com/TimSweeneyEpic/status/1747408148799881390">Sweeney, yesterday at 7:00pm</a>, after Apple released <a href="https://daringfireball.net/linked/2024/01/16/apple-guidelines-external-purchase-links">the details of its intended compliance</a> with the anti-steering (<em>anti-anti-steering</em>?) mandate from the Epic v. Apple case:</p>
+
+<blockquote>
+  <p>A quick summary of glaring problems we’ve found so far: </p>
+
+<ol>
+<li>Apple has introduced an anticompetitive new 27% tax on web 
+purchases. Apple has never done this before, and it kills price 
+competition. Developers can’t offer digital items more cheaply 
+on the web after paying a third-party payment processor 3-6% 
+and paying this new 27% Apple Tax.</li>
+</ol>
+
+<p>[Sweeney’s points 2–4, complaining about Apple’s stringent design, 
+presentation, and privacy demands regarding external links, 
+omitted.] </p>
+
+<p>Epic will contest Apple’s bad-faith compliance plan in 
+District Court. </p>
+</blockquote>
+
+<p>Sweeney’s description makes it sound as though Apple is demanding its commission from all web sales for apps and services that have an iOS app. They’re not. They’re only demanding the commission from web sales that occur within 7 days of a user tapping through to the web from <a href="https://developer.apple.com/support/storekit-external-entitlement-us/">the new External Purchase Links entitlement</a> in an app. Any app or service that already sells over the web, without paying a cent to Apple, can continue to do so in exactly the same way.</p>
+
+<p>Also, Apple <em>has</em> done this before: what they announced yesterday is almost exactly in line <a href="https://daringfireball.net/2022/02/going_dutch">with their compliance with Netherlands regulations pertaining to dating apps in 2022</a>.</p>
+
+<p>Before yesterday:</p>
+
+<ul>
+<li>iOS app developers could sell digital content and subscriptions over the web, without paying Apple any commission.</li>
+<li>iOS apps outside <a href="https://daringfireball.net/linked/2021/09/01/apple-anti-steering-relaxation">the “reader” category</a> could not link to, nor even tell users about, those web purchases from within their apps.</li>
+</ul>
+
+<p>After yesterday:</p>
+
+<ul>
+<li>Apps that wish to link to — or, I think, even inform users about — web purchasing options from within their iOS apps must (a) still offer Apple’s IAP for those items; (b) pay Apple its adjusted 27/12 percent commissions on web sales that come from inside iOS apps; (c) send Apple sales data monthly and submit to audits of their sales; and (d) follow Apple’s stringent design edicts for these in-app links to the web.</li>
+<li>Apps that do not link out to their web stores from within their iOS apps using Apple’s new External Purchase Links entitlement can continue whatever they were doing before yesterday. For apps that do nothing new, Apple is collecting nothing new.</li>
+</ul>
+
+<p>I’m only surprised that Sweeney was seemingly surprised by any of this. He genuinely seemed to think that Apple not only would, but <em>had to</em> allow links from within apps to the web for purchases without collecting any commission on those sales, and that developers could present those links however they chose.</p>
+
+<p>I’m glad that Sweeney and Epic plan to contest this, because I’m genuinely curious whether Judge Yvonne Gonzalez Rogers sees Apple’s solution as complying with her injunction against their prior anti-steering rules. But I think it <em>does</em> comply.</p>
+
+<hr />
+
+<p>To be clear, I think Apple should allow apps <em>other than games</em> to just tell users they can pay/buy/subscribe/whatever on the web, without any commission. That the rules which have applied only to “reader” apps since early 2022 should be extended to all apps other than games, perhaps alongside a requirement (which doesn’t apply to “reader” apps) that apps taking advantage of this <em>also</em> offer in-app purchasing.</p>
+
+<p>I’d draw an exception for games — an exception that surely Sweeney would disagree with completely, given that he’s in the games business — because games are different, and hefty un-circumventable revenue commissions to platform owners are clearly standard for the video game industry. The iPhone and iPad are not PCs; they’re consoles for games and apps.</p>
+
+<p>But I’m not sure at all that Apple is doing anything contrary to the law. Sweeney (and other critics of Apple’s stewardship of iOS as a tightly controlled console) believe Apple both shouldn’t and <em>legally can’t</em> comply with the anti-steering injunction this way. I only believe Apple shouldn’t, not that they legally can’t.</p>
+
+<p>Most critics of Apple’s control over all iOS software are seemingly of the view that iPhones and iPads should, on principle, be largely like the Mac, where the App Store is an option, not the only game in town for software distribution. Personally, <a href="https://daringfireball.net/2021/06/annotating_apples_anti-sideloading_white_paper">I am on the record wishing that Apple would allow some sort of “expert” or “developer” mode</a> — chock full of warnings, perhaps even requiring a developer account to enable — that would basically offer the same options for installing third-party software on iOS as there are on the Mac. That’s me, personally, an expert user. But even setting aside every penny of revenue generated by the App Store,<sup id="fnr1-2024-01-17"><a href="#fn1-2024-01-17">1</a></sup> I see and understand many of the reasons why Apple wouldn’t want to do this. There are a lot of Mac users whose Macs are overrun by adware and other scammy software. I’m not talking about viruses or malware, even — but apps that just abuse the largely free-for-all nature of the Mac platform.</p>
+
+<p>Basically, there’s an argument that iOS devices should be more like traditional PCs (including the Mac), on ethical or moral grounds. The “<em>it’s my device, I should decide and control what software runs on it</em>” argument. I get it. But I also get that most consumers’ Windows PCs, and many Macs,<sup id="fnr2-2024-01-17"><a href="#fn2-2024-01-17">2</a></sup> are riddled with bad software (privacy invasive, resource hogging, and all sorts of <a href="https://mjtsai.com/blog/2021/12/22/grammarly-disables-spell-checking-globally/">anti-user shenanigans</a> you’d never think of) that App Store policies forbid. App Store review is far from perfect — I mean come on, <a href="https://daringfireball.net/search/app+store+rejection">that should go without saying</a> — but it is undeniable that adversarial software is not a problem for <em>any</em> typical users on iOS. Nothing you install from the App Store can damage your iPhone or iPad experience. Nothing you install from the App Store is difficult to uninstall if you don’t like it. The same is true of dedicated game consoles like Switch, PlayStation, and Xbox — and to a lesser degree (because Google’s Play Store review seems comparatively lax) for Android.</p>
+
+<p>But the cynical take is that it’s all about the money for Apple. Maybe the cynics are right! Let’s just concede that they are, and that Apple will only make decisions here that benefit its bottom line. My argument remains that Apple <em>should not</em> be pursuing this plan for complying with the anti-steering injunction by collecting commissions from web sales that initiate in-app. Whatever revenue Apple would lose to non-commissioned web sales (for non-games) is not worth the hit they are taking to the company’s brand and reputation — this move reeks of greed and avarice — nor the increased ire and scrutiny of regulators and legislators on the “anti-Big-Tech” hunt.</p>
+
+<p>Apple should have been looking for ways to <em>lessen</em> regulatory and legislative pressure over the past few years, and in today’s climate that’s more true than ever. But instead, their stance has seemingly been “<em>Bring it on.</em>” Confrontational, not conciliatory, conceding not an inch. Rather than take a sure win with <em>most</em> of what they could want, Apple is seemingly hell-bent on trying to keep <em>everything</em>. To win in chess all you need is to capture your opponent’s king. Apple seemingly wants to capture every last piece on the board — even while playing in a tournament where the referees (regulators) are known to look askance at blatant poor sportsmanship (greed).</p>
+
+<p>Apple’s calculus should be to balance its natural desire to book large amounts of revenue from the App Store with policies that to some degree <em>placate</em>, rather than antagonize, regulators and legislators. No matter what the sport, no matter what the letter of the rulebook says, it’s never a good idea to piss off the refs.&nbsp;<a class="permalink" title="Permanent link to ‘Coming to Grips With Apple’s Seemingly Unshakable Sense of Entitlement to Its Commissions From Third-Party iOS Apps’" href="https://daringfireball.net/2024/01/coming_to_grips_with_apples_seemingly_unshakable_sense_of_app_store_entitlement">&#9733;</a></p>
+
+<p><div class="footnotes">
+<hr />
+<ol></p>
+
+<p><li id="fn1-2024-01-17"></p>
+
+<p>That’s a metric buttload of pennies to set aside, to be sure.&nbsp;<a href="#fnr1-2024-01-17"  class="footnoteBackLink"  title="Jump back to footnote 1 in the text.">&#x21A9;&#xFE0E;</a></p>
+
+<p></li></p>
+
+<p><li id="fn2-2024-01-17"></p>
+
+<p>iOS App Store policy critics often point to the Mac as all the evidence they need that Apple could open up software distribution on iOS with no ill effects to users. I wrote about this back in 2021, in a piece titled “<a href="https://daringfireball.net/2021/06/annotating_apples_anti-sideloading_white_paper">Annotating Apple’s Anti-Sideloading White Paper</a>”. Quoting from that column, which begins with a quote from <a href="https://www.apple.com/privacy/docs/Building_a_Trusted_Ecosystem_for_Millions_of_Apps.pdf">Apple’s white paper</a>:</p>
+
+<blockquote>
+  <p>Page 9:</p>
+
+<blockquote>
+  <p>iPhone is used every day by over a billion people — for banking, 
+to manage health data, and to take pictures of their families. 
+This large user base would make an appealing and lucrative target 
+for cybercriminals and scammers, and allowing sideloading would 
+spur a flood of new investment into attacks on iPhone, well 
+beyond the scale of attacks on other platforms like Mac.</p>
+</blockquote>
+
+<p>Here Apple dances around the elephant in the room — the question 
+of why iOS shouldn’t just work like the Mac with regard to non-App 
+Store software. Apple’s deft argument is that there are far fewer 
+Macs than iOS devices, making the Mac a less enticing target for 
+scammers and crooks (including privacy crooks). That’s more or 
+less the argument Windows proponents used to explain the profound 
+prevalence of malware on Windows compared to the Mac back in the 
+day, whilst Apple (and Mac proponents) argued otherwise, that the 
+Mac actually was far more secure at a technical level.</p>
+
+<p>But the truth Apple won’t come out and say is that it’s <em>both</em>. 
+The Mac <em>was</em> more secure by design, but <em>also</em> a far less 
+enticing target because of how many more users were (and still 
+are) on Windows. And, today, iOS <em>is</em> more secure and private than 
+the Mac. That’s the nature of the Mac as a full PC platform.</p>
+
+<p>I’ll admit it: if Mac-style sideloading were added to iOS, I’d 
+enable it, for the same reason I enable installing apps from 
+outside the App Store on my Mac: I trust myself to only install 
+trustworthy software. But it doesn’t make me a hypocrite to say 
+that I think it would be worse for the platform as a whole.</p>
+
+<p>The Mac is fundamentally designed for users who are at least 
+<em>somewhat</em> technically savvy, but tries its best to keep non-savvy 
+users from doing things they shouldn’t. But you can always hurt 
+yourself, sometimes badly, with any true power tool. The iPhone is 
+the converse: designed first and foremost for the non-savvy user, 
+and tries to accommodate power users as best it can within the 
+limits of that primary directive.</p>
+</blockquote>
+
+<p><p>All the more pertinent today, <a href="https://daringfireball.net/2024/01/vestager_cook">as Apple faces down the March 7 deadline for compliance with the E.U.’s Digital Markets Act</a> that ostensibly mandates sideloading on iOS.&nbsp;<a href="#fnr2-2024-01-17"  class="footnoteBackLink"  title="Jump back to footnote 2 in the text.">&#x21A9;&#xFE0E;︎</a>
+</li></p>
+
+<p></ol>
+</div></p>
+
+</div> <!-- article -->
+
+<hr class="ookiaks" />
+
+
+<h2 class="dateline">Tuesday, 16 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://arstechnica.com/gadgets/2024/01/apple-watch-redesigned-without-blood-oxygen-monitoring-to-avoid-import-ban/">Apple’s Workaround for the ITC’s Import Ban on Apple Watch Series 9 and Ultra 2: Disabling the Blood-Oxygen Sensor in Software</a>&nbsp;<a class="permalink" title="Permanent link to ‘Apple’s Workaround for the ITC’s Import Ban on Apple Watch Series 9 and Ultra 2: Disabling the Blood-Oxygen Sensor in Software’" href="https://daringfireball.net/linked/2024/01/16/apple-workaround-itc-import-ban">&#9733;</a>
+</dt>
+<dd>
+<p>Scharon Harding, reporting for Ars Technica:</p>
+
+<blockquote>
+  <p>Apple has developed a backup plan for if the Apple Watch Series 9 
+and Ultra 2 are import banned again. As it currently appeals the 
+US International Trade Commission’s (ITC’s) ruling that its 
+watches violate a patent owned by Masimo, Apple has come up with a 
+software workaround that strips its current smartwatches of their 
+controversial blood oxygen monitoring capabilities. </p>
+</blockquote>
+
+<p>That’s a good summary of Apple’s workaround from a writer who understands what she’s talking about. Apple will disable blood-oxygen monitoring via software.</p>
+
+<p>Compare and contrast with Aaron Tilley’s report for The Wall Street Journal, under the jacktastically-wrong headline “<a href="https://www.wsj.com/tech/apple-watch-ban-united-states-update-cd069ab4">Apple to Remove Blood-Oxygen Sensor From Watch to Avoid U.S. Ban</a>” (<a href="https://apple.news/A0oSSFm6wTy2vmPERu7MhRQ">News+ link</a>):</p>
+
+<blockquote>
+  <p>Apple is removing a blood-oxygen sensor from some of its 
+smartwatches to get around a patent dispute related to the 
+technology, a step likely to avoid further sales disruptions but 
+one that may raise questions about the company’s push into 
+health. [...] </p>
+
+<p>The U.S. Customs and Border Protection agency, which is 
+responsible for enforcing import bans, on Friday approved 
+technical changes to the watches, including the removal of the 
+blood-oxygen sensor, according to a Masimo filing on Monday. A 
+decision on Apple’s request for a permanent stay on the U.S. ban 
+during its appeal is expected in the coming days. </p>
+</blockquote>
+
+<p>Ars includes <a href="https://cdn.arstechnica.net/wp-content/uploads/2024/01/Masimo-letter-January-15.pdf">a link to Masimo’s filing</a>; the WSJ does not. Needless to say, Masimo’s filing does <em>not</em> say that Apple is removing the blood-oxygen sensor from these watches, because they’re not. They’re just disabling the sensors via software for watches sold in the U.S. — the only country where the import ban applies.</p>
+
+<p>This is no little mistake on Tilley’s and the Journal’s part. Disabling a feature via software is one thing, and not that big a deal. Designing, engineering, and manufacturing entirely different hardware models without the physical sensors would be extraordinary. That’s just not how Apple works — they’re not set up to change manufacturing like that. Plus, if Apple merely disables the sensor via software, they can re-enable it via a software update in the future, once the dispute is settled. If they were to start selling Series 9 and Ultra 2 watches that didn’t have the sensor, those watches would <em>never</em> gain the functionality, even after the dispute is settled.</p>
+
+<p>Aaron Tilley isn’t just a tech reporter for the Journal: his entire beat is covering Apple. And he seemingly has no idea how the company functions, because if he did, he’d have quadruple checked this “they’re removing the sensors” take before publishing it. But here it is a day after publication and his report has yet to be corrected. Pure jackassery.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://developer.apple.com/support/storekit-external-entitlement-us/">Post-SCOTUS Ruling, Apple Releases Guidelines for ‘External Purchase Links’ in iOS Apps (Spoiler: They Still Demand the Same Commissions)</a>&nbsp;<a class="permalink" title="Permanent link to ‘Post-SCOTUS Ruling, Apple Releases Guidelines for ‘External Purchase Links’ in iOS Apps (Spoiler: They Still Demand the Same Commissions)’" href="https://daringfireball.net/linked/2024/01/16/apple-guidelines-external-purchase-links">&#9733;</a>
+</dt>
+<dd>
+<p>Apple Developer News:</p>
+
+<blockquote>
+  <p>In addition to using Apple’s convenient, safe, and secure in-app 
+purchase system, apps on the App Store in the United States that 
+offer in-app purchases can also use the StoreKit External 
+Purchase Link Entitlement (US) to include a link to the 
+developer’s website that informs users of other ways to purchase 
+digital goods or services. To use the entitlement, you’ll need to 
+submit a request, enable the entitlement in Xcode, and use 
+required StoreKit APIs. Apple will review your app to ensure it 
+complies with the terms and conditions of the entitlement, as 
+well as the App Store Review Guidelines and the Apple Developer 
+Program License Agreement. [...] </p>
+
+<p>Your app must offer in-app purchases in accordance with the 
+Developer Program License Agreement and App Store Review 
+Guidelines, and may not discourage end-users from making in-app 
+purchases. </p>
+</blockquote>
+
+<p>Apple clearly had these updated guidelines ready to go, pending this week’s decision from the U.S. Supreme Court <a href="https://daringfireball.net/linked/2024/01/16/scotus-epic-apple">rejecting the remaining petitions from Apple and Epic</a>.</p>
+
+<p>Scroll down the page, then scroll some more, and you’ll get to the section on “Commission, transaction reports, and payments”:</p>
+
+<blockquote>
+  <p>Apple is charging a commission on digital purchases initiated 
+within seven days from link out, as described below. This will not 
+capture all transactions that Apple has facilitated through the 
+App Store, but is a reasonable means to account for the 
+substantial value Apple provides developers, including in 
+facilitating linked transactions. </p>
+
+<p>Apple’s commission will be 27% on proceeds you earn from sales 
+(“transactions“) to the user for digital goods or services on your 
+website after a link out (i.e., they tap “Continue” on the system 
+disclosure sheet), provided that the sale was initiated within 
+seven days and the digital goods or services can be used in an 
+app. This includes (a) any applicable taxes and (b) any 
+adjustments for refunds, reversals and chargebacks. For 
+auto-renewing subscriptions, (i) a sale initiated, including with 
+a free trial or offer, within seven days after a link out is a 
+transaction; and (ii) each subsequent auto-renewal after the 
+subscription is initiated is also a transaction.] </p>
+
+<p>If you’re a participant in the Small Business Program, or if the 
+transaction is an auto-renewal in the second year or later of an 
+auto-renewing subscription, the commission will be 12%. </p>
+
+<p>These commission rates apply to all amounts paid by each user net 
+of transaction taxes charged by you. You will be responsible for 
+the collection and remittance of any applicable taxes for sales 
+processed by a third-party payment provider. </p>
+
+<p>If you adopt this entitlement, you will be required to provide 
+transaction reports within 15 calendar days following the end of 
+each calendar month. Even if there were no transactions, you’re 
+required to provide a report stating that is the case. </p>
+</blockquote>
+
+<p>I’ve said it before, I’ll say it again now, and I’m sure I’ll have to say it again in the future: Apple’s 30/15 percent commissions from App Store purchases and subscriptions are <em>not</em> payment processing fees. They <em>include</em> payment processing fees, but most of those commissions are, in Apple’s view, their way of monetizing their intellectual property. And they see the entire iOS platform as their IP.</p>
+
+<p>So developers who want to process payments on their own websites are still on the hook to pay Apple the same effective commissions, minus only 3 percent for the actual payment processing. And the truth is most of the time credit card processing costs more than 3 percent overall, after chargebacks and fraud are taken into consideration. Do more work and save no money — sounds appealing, no?</p>
+
+<p><strong>See also:</strong> <a href="https://www.macrumors.com/2024/01/16/us-app-store-alternative-purchase-option/">MacRumors has PDF copies</a> of Apple’s “notice of compliance” filing, and App Store VP Matthew Fischer’s declaration of compliance, both submitted to Judge Yvonne Gonzalez Rogers.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://thewaltdisneycompany.com/disney-on-apple-vision-pro-ushers-in-a-new-era-of-storytelling-innovation-and-immersive-entertainment/">Disney Has a Good Disney+ App for VisionOS (and, by the Way, I Got Another 30-Minute Hands-On Experience With Vision&#160;Pro)</a>&nbsp;<a class="permalink" title="Permanent link to ‘Disney Has a Good Disney+ App for VisionOS (and, by the Way, I Got Another 30-Minute Hands-On Experience With Vision Pro)’" href="https://daringfireball.net/linked/2024/01/16/disney-plus-visionos">&#9733;</a>
+</dt>
+<dd>
+<p>Disney:</p>
+
+<blockquote>
+  <p>At launch, viewers can transform their space into one of four 
+Disney+ environments, bringing them even closer to the story. Each 
+environment includes animations and sounds that make the space 
+feel alive, and Easter eggs from films and franchises that will 
+surprise and delight fans. </p>
+
+<p>Available only on Apple Vision Pro, Disney+ subscribers will be 
+able to stream the entire catalog — including thousands of TV 
+shows and films, plus access to Hulu content for eligible Disney 
+Bundle subscribers — from iconic environments with vivid details, 
+including: the Disney+ Theater, inspired by the historic El 
+Capitan Theatre in Hollywood; the Scare Floor from Pixar’s 
+Monsters Inc.; Marvel’s Avengers Tower overlooking downtown 
+Manhattan; and the cockpit of Luke Skywalker’s landspeeder facing 
+a binary sunset on the planet Tatooine from the Star Wars galaxy. </p>
+</blockquote>
+
+<p>I got to try this during <a href="https://mastodon.social/@gruber/111767493035111862">another hands-on Vision Pro demo</a> <a href="https://www.threads.net/@gruber/post/C2LKPu5P0Wu">in New York today</a>. (Follow those links to Mastodon and Threads, where I’ve tried to answer every question asked by my followers.)</p>
+
+<p>It’s 100 percent a gimmick, but it’s a really good fun whimsical gimmick, and the detail is extraordinary. It looks like you are there on Tony Stark’s helipad penthouse deck, with a towering view of Manhattan in front of you, and Stark’s apartment behind you. These are 360° environments. The Tatooine view in the landspeeder is right outside Mos Eisley, at dusk.</p>
+
+<p>Does it make the movie you’re watching any better to see it while sitting in an immersive fantasy environment? No, of course not. But it’s a lot of fun, because it’s so intricately detailed and well-done. Did the Mac OS X Aqua user interface make Mac users more productive? Did the original iPhone work better because its interface looked so damn cool? No. But those UIs sure did make Mac OS X and the original iPhone more fun.</p>
+
+<p>I don’t know why people lose sight of the fact that having fun is one of the very best parts of being a human. The Disney+ app for VisionOS is fun.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://twitter.com/timsweeneyepic/status/1747280528745624000?s=61&amp;t=16WqqI8uLOTkQieKK2aS4g">Tim Sweeney on the SCOTUS Ruling</a>&nbsp;<a class="permalink" title="Permanent link to ‘Tim Sweeney on the SCOTUS Ruling’" href="https://daringfireball.net/linked/2024/01/16/sweeney">&#9733;</a>
+</dt>
+<dd>
+<p>Epic CEO Tim Sweeney:</p>
+
+<blockquote>
+  <p>The Supreme Court denied both sides’ appeals of the Epic v. Apple 
+antitrust case. The court battle to open iOS to competing stores 
+and payments is lost in the United States. A sad outcome for all 
+developers. </p>
+
+<p>Now the District Court’s injunction against Apple’s anti-steering 
+rule is in effect, and developers can include in their apps 
+“buttons, external links, or other calls to action that direct 
+customers to purchasing mechanisms, in addition to IAP”. </p>
+
+<p>As of today, developers can begin exercising their 
+court-established right to tell US customers about better prices 
+on the web. </p>
+</blockquote>
+
+<p>It’s sad for Epic, perhaps, and game developers in general, but I think overall this is a good day for developers, and a great day for users. In-app game purchases are already too predatory, as things stand — they’d get far worse if games on iOS were free to circumvent Apple’s system. If a developer wants users to sign up and pay on their website, they can now tell them so, in plain language, in the app.</p>
+
+<p>The truth should never be against the rules. If you need to pay/subscribe on the app’s website, the app should be able to tell you that you need to pay/subscribe on their website.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.theverge.com/2024/1/16/24039983/supreme-court-epic-apple-antitrust-case-rejected">Supreme Court Rejects Petitions in Epic v. Apple Antitrust Case, Largely a Win for Apple</a>&nbsp;<a class="permalink" title="Permanent link to ‘Supreme Court Rejects Petitions in Epic v. Apple Antitrust Case, Largely a Win for Apple’" href="https://daringfireball.net/linked/2024/01/16/scotus-epic-apple">&#9733;</a>
+</dt>
+<dd>
+<p>Adi Robertson, reporting for The Verge:</p>
+
+<blockquote>
+  <p>The Supreme Court has denied a request to hear an antitrust 
+dispute between Apple and <em>Fortnite</em> publisher Epic Games. It 
+<a href="https://www.supremecourt.gov/orders/courtorders/011624zor_e1pf.pdf">rejected two petitions</a>, one from each company, this 
+morning — leaving the case largely, but not entirely, a win for 
+Apple. [...] </p>
+
+<p>Even so, both rulings found that Apple had acted 
+anticompetitively by barring developers from telling users about 
+other payment methods. Apple was ordered to let them allow links 
+and other “calls to action” that would bypass Apple’s payment 
+system, discontinuing what are known as anti-steering policies. 
+But the company spent years delaying parts of the change with 
+legal appeals, <a href="https://www.theverge.com/2023/8/9/23826043/epic-apple-app-store-supreme-court-petition">winning a reprieve while</a> the Supreme Court 
+considered the case. Today’s denial seemingly runs out that 
+clock, requiring Apple to reconsider the future of its 
+anti-steering rules. </p>
+</blockquote>
+
+<p>Apple’s intransigence on these anti-steering provisions has <a href="https://daringfireball.net/2019/01/netflix_itunes_billing">long baffled me</a>. I’ve consistently argued that the rules should be simple: apps that want to accept in-app payments must use Apple’s IAP system, but apps should be free to inform users that they can sign up and pay on the web, outside the app. In-app: Apple’s platform, Apple’s payments system. Out-app: the open web, and apps should be able to steer customers there. If Apple’s in-app purchasing system is so easy to use, so reasonably priced for its benefits, and so trusted by users, it should be able to compete openly with the web. And I think Apple’s in-app payments <em>do</em> compare favorably to leaving an app to pay on the web, especially for games. But with true competition from web purchases that apps can steer users to, Apple’s commission rates, for apps other than games at least, would probably be lower. I’d argue that it’s unhealthy for a company to grow dependent on unnaturally high commissions protected by fiat policies, rather than set through open competition.</p>
+
+<p>Perhaps Apple’s thinking was that they might as well try to hold the line on these anti-steering provisions for as long as they could, thinking that today’s outcome was the worst case scenario. But I think it’s been a bad look for the company for years, and invited additional regulatory scrutiny. Regardless of whether these anti-steering provisions are <em>legally</em> anticompetitive, they’re undeniably anticompetitive in the plain sense of the word. I genuinely believe the Supreme Court has done Apple a favor letting this ruling stand.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.apple.com/newsroom/2024/01/apple-previews-new-entertainment-experiences-launching-with-apple-vision-pro/">Apple Teases New Entertainment Experiences Launching With Vision&#160;Pro</a>&nbsp;<a class="permalink" title="Permanent link to ‘Apple Teases New Entertainment Experiences Launching With Vision Pro’" href="https://daringfireball.net/linked/2024/01/16/visionos-entertainment">&#9733;</a>
+</dt>
+<dd>
+<p>Apple Newsroom, with some new content information for Vision Pro (finally):</p>
+
+<blockquote>
+  <p>With Apple Vision Pro, users can experience Apple Immersive 
+Video, a remarkable new entertainment format pioneered by Apple. 
+Apple Immersive Video features 180-degree 3D 8K recordings 
+captured with Spatial Audio to transport viewers to the center of 
+a place, moment, or story. At launch, users can enjoy a <a href="https://www.apple.com/tv-pr/news/2024/01/apple-tv-unveils-groundbreaking-immersive-originals-from-todays-biggest-storytellers-set-to-debut-on-apple-vision-pro/">curated 
+selection</a> of immersive films and series on the Apple TV app at 
+no additional cost. </p>
+</blockquote>
+
+<p>That link has details about the debut titles:</p>
+
+<ul>
+<li><em>Alicia Keys: Rehearsal Room</em></li>
+<li><em>Adventure</em> — adventure athletes in exotic locations</li>
+<li><em>Wild Life</em></li>
+<li><em>Prehistoric Planet Immersive</em> — “Viewers will transport into the daily lives of dinosaurs, experiencing T-Rex teens crashing a quiet colony of pterosaurs on the beach until mama shows up to break up their party, and an intense battle between raptors and a pride of Triceratops in the forest.”</li>
+</ul>
+
+<p>There’s only a handful of these new immersive experiences, but the main thrust of the Newsroom announcement is to emphasize that Vision Pro is a killer device for watching <em>any</em> movies or TV shows.</p>
+
+</dd>
+
+
+</dl>
+
+<h2 class="dateline">Monday, 15 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://9to5mac.com/2024/01/12/clicks-iphone-hands-on/">Hands-On at CES With the Clicks Keyboard Case for iPhone 15&#160;Pro</a>&nbsp;<a class="permalink" title="Permanent link to ‘Hands-On at CES With the Clicks Keyboard Case for iPhone 15 Pro’" href="https://daringfireball.net/linked/2024/01/15/clicks-hands-on">&#9733;</a>
+</dt>
+<dd>
+<p>Ben Schoon, writing for 9to5Mac:</p>
+
+<blockquote>
+  <p>For a case built for this express purpose, the keys are crucial to 
+get right, and Clicks has nailed it, I think. The keys are rounded 
+and have a bit of space in between each one, but the layout 
+overall feels familiar and well done. The keyboard layout is also 
+specifically designed to be really similar to the default iOS 
+keyboard, which makes it feel all the more familiar. </p>
+
+<p>Each key is also backlit and has an excellent tactile response. 
+That’s the aspect I was most concerned about, and while some of 
+the pre-production models were a little rough, the final version 
+that I was able to test during my hands-on (not pictured) felt 
+<em>perfect</em>. It was clicky and tactile without being loud or too 
+hard to press. [...] </p>
+
+<p>In my brief time using it, I’m very much of the opinion that 
+Clicks is pretty much as good as this concept can be. It’s 
+well-designed, comfortable to use, and hits all of the right 
+notes. </p>
+</blockquote>
+
+</dd>
+
+
+</dl>
+
+<h2 class="dateline">Sunday, 14 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://meh.com/?utm_source=daringfireball&amp;utm_medium=sponsor&amp;utm_campaign=dontwant">Meh</a>&nbsp;<a class="permalink" title="Permanent link to ‘Meh’" href="https://daringfireball.net/linked/2024/01/14/meh">&#9733;</a>
+</dt>
+<dd>
+<p>My thanks to Meh for sponsoring last week at DF. Meh is probably the best — and certainly the funnest — daily deal site on the web. Here’s their pitch, in their words:</p>
+
+<blockquote>
+  <p>You don’t want the daily deal at <a href="https://meh.com/?utm_source=daringfireball&amp;utm_medium=sponsor&amp;utm_campaign=dontwant">meh.com</a> today. </p>
+
+<p>At least, you probably don’t, statistically speaking. But you 
+should go look. Because if you do want it, you really want it, at 
+least for this price. And the cost of checking is, what, 15 
+seconds of your life? </p>
+
+<p>So go to <a href="https://meh.com/?utm_source=daringfireball&amp;utm_medium=sponsor&amp;utm_campaign=dontwant">meh.com</a>. Decide you don’t want what we’re selling. Go 
+back tomorrow. That’s the whole game. </p>
+</blockquote>
+
+</dd>
+
+
+<dt>
+<a href="https://www.ridehome.info/show/techmeme-ride-home/bonus-john-gruber-talks-apple-and-ai/">Yours Truly on the Techmeme Ride Home Podcast</a>&nbsp;<a class="permalink" title="Permanent link to ‘Yours Truly on the Techmeme Ride Home Podcast’" href="https://daringfireball.net/linked/2024/01/14/techmeme-ride-home-vision-pro">&#9733;</a>
+</dt>
+<dd>
+<p>Brian McCullough had me and Chris Messina on the weekend edition of the excellent Techmeme Ride Home podcast to talk about Vision Pro’s launch (and for me and Chris to argue about hashtags). Fun show. You can even <a href="https://www.youtube.com/watch?v=8jBAwMLvB-Q">watch on YouTube</a> if that’s your thing.</p>
+
+</dd>
+
+
+</dl>
+
+<hr class="ookiaks" />
+
+
+<div class="article">
+<h1><a href="https://daringfireball.net/2024/01/vestager_cook" title="Permanent link to ‘Margrethe Vestager Met With Tim Cook Yesterday, But I Doubt Anything Happened’">Margrethe Vestager Met With Tim Cook Yesterday, But I Doubt Anything Happened</a></h1>
+<h6 class="dateline">Saturday, 13 January 2024</h6>
+
+<p>European Commission chief Margrethe Vestager is on the West Coast meeting with U.S. tech executives. Here’s her entire statement on meeting Tim Cook at Apple Park, <a href="https://twitter.com/vestager/status/1745693612262953300">posted on Twitter/X</a> (I’m surprised she posts on a U.S.-based platform, rather than one of the popular E.U. social networks):</p>
+
+<blockquote>
+  <p>2 main points from my meeting w/ @tim_cook @apple ⬇️ </p>
+
+<p>👉 compliance w/ #DMA, e.g. @Apple’s obligation to allow the 
+distribution of #apps outside the @AppStore </p>
+
+<p>👉 ongoing @EU_Competition cases e.g. @AppleMusic </p>
+</blockquote>
+
+<p>There are so many meetings and negotiations where I’d pay a veritable fortune to have been a fly on the wall. Vestager meeting with Cook this week was <em>not</em> one. My guess is that absolutely nothing interesting was said. Nothing but platitudes.</p>
+
+<p>The deadline for compliance with the DMA is March 7, and the big issue for Apple is the App Store: allowing native apps to be installed from outside the store (a.k.a. sideloading), and allowing alternative in-app payment methods. My understanding is that Apple has everything prepared for compliance, but, exactly what that’s going to look like, seemingly no one outside the company knows.</p>
+
+<p>We know nothing about how Apple plans to allow sideloading. I expect that even for users in the E.U., sideloading will be off by default. I also expect that, unlike the Mac, sideloaded apps will still need to be signed by Apple. Will apps distributed through the App Store allow third-party in-app payment processing, or will that only be available to sideloaded apps? I further presume, that just like when Apple complied with Dutch regulations specific to dating apps, third-party apps that implement their own payment processing for in-app purchases will be required to provide Apple with detailed accounting and pay Apple a 27% commission.</p>
+
+<p>Will sideloading <em>only</em> be available within the E.U., or will Apple implement the same policies worldwide? For the most part Apple tries to keep things the same worldwide, but sideloading is such an exception that I expect them to region-lock it to the E.U. Especially given that stipulation that Apple needs to permit sideloaded apps to act as app stores themselves. How is <em>that</em> going to work?</p>
+
+<p>I expect that Apple has designed sideloading in such a way that very few users will enable it. (This seems to be largely the case on Android, which has permitted off-by-default sideloading from its inception.) I also expect that Apple will still demand 27% of in-app purchase revenue from apps that choose to implement their own payment processing.</p>
+
+<p>Basically, I don’t think much will change for E.U. users, or for developers. But a lot of people — including Vestager and the European Commission — expect a <em>lot</em> to change. It’s just not clear at all exactly what Apple needs to allow to comply with the DMA, nor do any of us outside Cupertino have any idea what Apple plans to do. Complying with the <em>letter</em> of the DMA does not mean capitulating to the <em>spirit</em> of the DMA. The idea that Apple is going to roll over and give up on steering their own platform the way they feel best benefits both their own bottom line, and <a href="https://www.apple.com/privacy/docs/Building_a_Trusted_Ecosystem_for_Millions_of_Apps_A_Threat_Analysis_of_Sideloading.pdf">their users’ experience/privacy/security</a>, is naive.</p>
+
+<p>The European Commission expected that the GDPR would result in websites prioritizing the privacy of E.U. users — a better web in Europe than elsewhere. Instead, the result was increased user annoyance under a nonstop daily barrage of consent popovers — a <em>worse</em> web in Europe than elsewhere. I suspect the same will prove true of the DMA and mobile platforms. Fireworks are coming, but it seems like few people know it.&nbsp;<a class="permalink" title="Permanent link to ‘Margrethe Vestager Met With Tim Cook Yesterday, But I Doubt Anything Happened’" href="https://daringfireball.net/2024/01/vestager_cook">&#9733;</a></p>
+
+</div> <!-- article -->
+
+<hr class="ookiaks" />
+
+
+<h2 class="dateline">Saturday, 13 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://www.cnn.com/2024/01/12/business/boeing-faa-manufacturing-oversight/index.html">CNN: ‘FAA Keeps Boeing’s 737 Max 9 Grounded as It Reviews Inspections and Data’</a>&nbsp;<a class="permalink" title="Permanent link to ‘CNN: ‘FAA Keeps Boeing’s 737 Max 9 Grounded as It Reviews Inspections and Data’’" href="https://daringfireball.net/linked/2024/01/13/faa-keeps-737-maxes-grounded">&#9733;</a>
+</dt>
+<dd>
+<p>Pete Muntean, reporting for CNN:</p>
+
+<blockquote>
+  <p>The Federal Aviation Administration said on Friday that after 
+reviewing Boeing’s instructions for inspecting grounded 737 Max 9 
+planes, it has decided to seek more information before allowing 
+the plan to proceed. In a statement, FAA also said it would keep 
+the Boeing 737 Max 9 “grounded until extensive inspection and 
+maintenance is conducted and data from inspections is reviewed.” </p>
+
+<p>The announcement comes exactly one week after the dramatic 
+in-flight incident on Alaska Airlines flight 1282, when a part 
+called a door plug was blown off the side of the plane. [...] 171 
+of the planes remain grounded in the United States as airlines 
+Alaska and United await updated emergency inspection guidance from 
+the FAA. </p>
+</blockquote>
+
+<p><a href="https://www.faa.gov/newsroom/faa-increasing-oversight-boeing-production-and-manufacturing">The FAA, yesterday</a>:</p>
+
+<blockquote>
+  <p>After taking decisive and immediate action to ground approximately 
+171 Boeing 737-9 MAX planes, the Federal Aviation Administration 
+(FAA) today announced new and significant actions to immediately 
+increase its oversight of Boeing production and manufacturing. 
+These actions come one day after the FAA formally notified Boeing 
+that the FAA has launched an investigation into the company as a 
+result of last Friday’s incident on a Boeing Model 737-9 MAX in 
+which the aircraft lost a passenger door plug while in flight. </p>
+</blockquote>
+
+<p>Something has gone deeply wrong at Boeing, a once-great company. This is exactly the sort of situation where government regulators are needed: for issues pertaining to safety.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.seattletimes.com/business/boeing-aerospace/when-hole-opened-on-alaska-flight-1282-a-mom-held-tight-to-her-son/">The Mom and Son Sitting in Front of the Blown Out Window on Alaska Flight 1282</a>&nbsp;<a class="permalink" title="Permanent link to ‘The Mom and Son Sitting in Front of the Blown Out Window on Alaska Flight 1282’" href="https://daringfireball.net/linked/2024/01/13/mom-and-son-alaska-1282">&#9733;</a>
+</dt>
+<dd>
+<p>Dominic Gates, reporting for The Seattle Times last week:</p>
+
+<blockquote>
+  <p>When the Boeing 737 MAX 9’s side blew out explosively on Alaska 
+Airlines Flight 1282 Friday evening, a 15-year-old high school 
+student was in the window seat in the row directly ahead, his 
+shoulder beside the edge of the gaping hole. </p>
+
+<p>His mother, who was seated beside him, in the middle seat of row 
+25, described the moment as a very loud bang, like “a bomb 
+exploding.” </p>
+
+<p>As the air in the passenger cabin rushed out, the Oregon woman 
+turned and saw her son’s seat twisting backward toward the hole, 
+his seat headrest ripped off and sucked into the void, her son’s 
+arms jerked upward. </p>
+
+<p>“He and his seat were pulled back and towards the exterior of the 
+plane in the direction of the hole,” she said. “I reached over and 
+grabbed his body and pulled him towards me over the armrest.” </p>
+
+<p>The boy had been wearing a T-shirt and a V-neck pullover 
+windbreaker. Both were ripped off his body. “I could see his 
+back,” Faye said. “My mind just assumed his shirt had been pulled 
+up by me grabbing him. I did not know that it had been torn off. 
+It didn’t even occur to me.” </p>
+</blockquote>
+
+<p>A harrowing story. If his shirt and pullover were pulled off his body, and his seatbelt headrest sucked through the void, it sure sounds like <em>he</em> was nearly sucked out of the plane. Terrific reporting by Gates, too — the mother’s name is not publicly known, and she was initially resistant to tell her story to the press. She changed her mind only after Alaska Airlines put forth a version of events that made the incident seem far more tame than it clearly was. Good infographics, too.</p>
+
+<p>Unmentioned in the story is whether the passengers near the door plug were wearing their seatbelts. I suspect they all were, perhaps luckily, because the plane had only just taken off and was still ascending to cruise altitude. In years past I’d often leave my seatbelt unbuckled mid-flight, other than when the pilot turned on the mandatory seatbelt light, but a few bouts of out-of-nowhere turbulence over the years changed my mind on that. Never in a million years would I have considered a scenario like this one.</p>
+
+</dd>
+
+
+</dl>
+
+<h2 class="dateline">Friday, 12 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://medium.com/artifact-news/shutting-down-artifact-1e70de46d419">Artifact Is Shutting Down After One Year</a>&nbsp;<a class="permalink" title="Permanent link to ‘Artifact Is Shutting Down After One Year’" href="https://daringfireball.net/linked/2024/01/12/artifact-becomes-an-artifact">&#9733;</a>
+</dt>
+<dd>
+<p>Kevin Systrom:</p>
+
+<blockquote>
+  <p>We’ve made the decision to wind down operations of the Artifact 
+app. We launched a year ago and since then we’ve been working 
+tirelessly to build a great product. We have built something that 
+a core group of users love, but we have concluded that the market 
+opportunity isn’t big enough to warrant continued investment in 
+this way. It’s easy for startups to ignore this reality, but often 
+making the tough call earlier is better for everyone involved. The 
+biggest opportunity cost is time working on newer, bigger and 
+better things that have the ability to reach many millions of 
+people. I am personally excited to continue building new things, 
+though only time will tell what that might be. We live in an 
+exciting time where artificial intelligence is changing just about 
+everything we touch, and the opportunities for new ideas seem 
+limitless. </p>
+
+<p>I am particularly proud of all the work our small team of 8 has 
+accomplished. For instance, our app was recently named the 
+everyday essential app of the year by the Google Play Store. </p>
+</blockquote>
+
+<p>Winning an award on Android is a little like winning the Canadian Football League title. Artifact had great potential — no surprise given its pedigree: Systrom and Mike Krieger are hall of famers for Instagram — but never became a top-tier iOS app.</p>
+
+<p>When it debuted a year ago, <a href="https://daringfireball.net/linked/2023/01/31/artifact">I called it a disappointment</a>:</p>
+
+<blockquote>
+  <p>It’s just <em>ads ads ads</em>, interrupting seemingly every single 
+article, every couple of paragraphs. This same “<em>man, I miss ad 
+blockers</em>” feeling strikes me when I use Apple News too, but Apple 
+News articles have way fewer ads, and better ads, than what I’m 
+seeing so far in articles I read in Artifact. “Like Apple News but 
+worse” is not a good elevator pitch. [...] </p>
+
+<p>Instagram was an instant sensation because it was obviously such a 
+premium experience. Great photos, with cool filters (which filters 
+were necessary to make phone camera pictures look great a decade 
+ago), a simple social concept, all wrapped in a great app. 
+Artifact does feel like a nice app, but the reading experience, at 
+least today, is anything but premium. It feels cheap. And the 
+social aspect isn’t there yet. </p>
+</blockquote>
+
+<p>I stuck with it all year, but have used it less than ever in recent months. In the first half of 2023, Artifact’s suggestions were improving steadily for me, but in recent months the quality of the suggestions dropped off a cliff for me. Lots of clickbait.</p>
+
+<p>They added the social component, with the ability to post articles and add comments, but those features didn’t make the overall product any better. And while the core reading experience improved, it never improved to the point where it was as good as reading in Safari. Their refusal to focus on providing first and foremost a premium <em>reading</em> experience is exemplified by their own blog post announcing their shutdown. It looks <a href="https://daringfireball.net/misc/2024/01/shutting-down-artifact-medium-box-mac.png">like this on MacOS</a>, and <a href="https://daringfireball.net/misc/2024/01/shutting-down-artifact-medium-box-iphone.png">this on iOS</a>. You literally can’t even read the first sentence of the article on the iPhone until you click the little box to dismiss Medium’s dickbox.</p>
+
+</dd>
+
+
+</dl>
+
+<hr class="ookiaks" />
+
+
+<div class="article">
+<h1><a href="https://daringfireball.net/2024/01/al_gore_mac_nerd_internet_pioneer" title="Permanent link to ‘Al Gore, Mac Nerd and Internet Pioneer’">Al Gore, Mac Nerd and Internet Pioneer</a></h1>
+<h6 class="dateline">Friday, 12 January 2024</h6>
+
+<p><a href="https://www.apple.com/newsroom/2003/03/19Former-Vice-President-Al-Gore-Joins-Apples-Board-of-Directors/">Apple press release, on 19 March 2003</a> (about seven months after I started writing Daring Fireball<sup id="fnr1-2024-01-12"><a href="#fn1-2024-01-12">1</a></sup>):</p>
+
+<blockquote>
+  <p>Apple today announced that Albert Gore Jr., the former Vice 
+President of the United States, has joined the Company’s Board of 
+Directors. Mr. Gore was elected at Apple’s board meeting today. </p>
+
+<p>“Al brings an incredible wealth of knowledge and wisdom to Apple 
+from having helped run the largest organization in the world — the United States government — as a Congressman, Senator and our 
+45th Vice President. Al is also an avid Mac user and does his own 
+video editing in Final Cut Pro,” said Steve Jobs, Apple’s CEO. “Al 
+is going to be a terrific Director and we’re excited and honored 
+that he has chosen Apple as his first private sector board to 
+serve on.” </p>
+</blockquote>
+
+<p>I love that the second sentence from Jobs was about how Gore is a Mac enthusiast who uses Final Cut Pro. Compare and contrast with today’s <a href="https://www.apple.com/newsroom/2024/01/wanda-austin-to-join-apples-board-of-directors/">utterly milquetoast statements from Tim Cook and chairman Arthur Levinson</a> about new board member Wanda Austin:</p>
+
+<blockquote>
+  <p>“Wanda has spent decades advancing technology on behalf of 
+humanity, and we’re thrilled to welcome her to Apple’s board of 
+directors,” said Tim Cook, Apple’s CEO. “She’s an extraordinary 
+leader, and her invaluable experience and expertise will support 
+our mission of leaving the world better than we found it.” </p>
+
+<p>“Wanda has long been a leader in unleashing the potential of 
+cutting-edge technology,” said Arthur Levinson, the chair of 
+Apple’s board of directors. “She brings incredible insights and 
+experience to our board, and she will play an important role in 
+helping Apple continue enriching users’ lives around the world.” </p>
+</blockquote>
+
+<p>In 2003 there was one person in the world who could be described as a former vice president of the United States and avid Mac user. (That’s still true today, and that person remains Al Gore.) Cook’s and Levinson’s descriptions of Austin could apply to just about any technology company executive in the world.</p>
+
+<p>Gore’s statement from 2003:</p>
+
+<blockquote>
+  <p>“Steve and his team have done an incredible job in making Apple 
+once again the very best in the world,” said former Vice President 
+Al Gore. “I have been particularly impressed with the new Mac OS X 
+operating system and the company’s commitment to the open source 
+movement. And I am especially looking forward to working with and 
+learning from the great board members who have guided this 
+legendary company’s inspiring resurgence.” </p>
+</blockquote>
+
+<p>In 2003, Mac OS X was the most important product for the future of the company, and the open source movement was one of the major stories of the moment.</p>
+
+<p>Austin’s statement today:</p>
+
+<blockquote>
+  <p>“Like Apple, I’ve always believed in the power of innovation to 
+improve lives, support human potential, and shape a better 
+future,” said Dr. Austin. “I’m honored to join Apple’s board of 
+directors, and I look forward to being part of a company that’s 
+always creating new ways to empower people all over the world.” </p>
+</blockquote>
+
+<p>She could have said the exact same thing about joining the board of <em>any</em> tech company in the world today. If she serves for 20 years, like Gore did (which is unlikely, given that she’s already 70 and Gore is stepping down because of a policy “directors generally may not stand for reelection after reaching age 75”<sup id="fnr2-2024-01-12"><a href="#fn2-2024-01-12">2</a></sup>), no one in the year 2044 is going to look back on her statement above and think, <em>Yeah, that captures what was then the current moment for Apple.</em> Austin may well be a perfect candidate to serve on Apple’s board, but there’s nothing in today’s press release that indicates why.</p>
+
+<p>Gore was widely mocked in the run-up to the 2000 election for supposedly claiming to have “invented the internet”. But he never claimed any such thing. <a href="https://www.snopes.com/fact-check/internet-of-lies/">From Snopes</a>:</p>
+
+<blockquote>
+  <p>The claim that Gore was actually trying to take credit for the 
+“invention” of the Internet was plainly just derisive political 
+posturing that arose out of a close presidential campaign. If, for 
+example, Dwight Eisenhower had said in the mid-1960s that he, 
+while president, “took the initiative in creating the Interstate 
+Highway System,” he would not have been the subject of dozens and 
+dozens of editorials lampooning him for claiming he “invented” the 
+concept of highways or implying that he personally went out and 
+dug ditches across the country to help build the roadway. Everyone 
+would have understood that Eisenhower meant he was a driving force 
+behind the legislation that created the highway system, and this 
+was the very same concept Al Gore was expressing about himself 
+with interview remarks about the Internet. [...] </p>
+
+<p>A <a href="https://amsterdam.nettime.org/Lists-Archives/nettime-l-0009/msg00311.html">spirited defense of Gore’s statement</a> penned by Internet 
+pioneers Robert Kahn and Vinton Cerf (the latter often referred to 
+as the “father of the Internet”) in 2000 noted that “Al Gore was 
+the first political leader to recognize the importance of the 
+Internet and to promote and support its development” and that “No 
+other elected official, to our knowledge, has made a greater 
+contribution [to the Internet] over a longer period of time.” </p>
+</blockquote>
+
+<p>Not a bad endorsement.&nbsp;<a class="permalink" title="Permanent link to ‘Al Gore, Mac Nerd and Internet Pioneer’" href="https://daringfireball.net/2024/01/al_gore_mac_nerd_internet_pioneer">&#9733;</a></p>
+
+<div class="footnotes">
+<hr />
+<ol>
+
+<li id="fn1-2024-01-12">
+<p>No mention of Gore’s appointment to the board in <a href="https://daringfireball.net/2003/03/" title="Daring Fireball Archive: March 2003">my archive for March 2003</a>, but that preceded the existence of the <a href="https://daringfireball.net/linked/">Linked List</a> (my short-form link entries). That month did see what I still consider my best ever one-two shot of back-to-back headlines: “<a href="https://daringfireball.net/2003/03/aliasing">Aliasing</a>” and “<a href="https://daringfireball.net/2003/03/anti-aliasing">Anti-Aliasing</a>”. (There was also an “<a href="https://daringfireball.net/2003/03/anti-anti-aliasing">Anti-Anti-Aliasing</a>”.) But <a href="https://daringfireball.net/2003/03/code_monkey">this one</a>, clearly, was the best piece of the month.&nbsp;<a href="#fnr1-2024-01-12"  class="footnoteBackLink"  title="Jump back to footnote 1 in the text.">&#x21A9;&#xFE0E;</a></p>
+</li>
+
+<li id="fn2-2024-01-12">
+<p>It’s wild to think that Gore, whose ill-fated lost-by-a-hair run for president took place a quarter century ago, has reached the mandatory retirement age for Apple’s board, yet is several years younger than both Joe Biden and Donald Trump.&nbsp;<a href="#fnr2-2024-01-12"  class="footnoteBackLink"  title="Jump back to footnote 2 in the text.">&#x21A9;&#xFE0E;︎</a></p>
+</li>
+
+</ol>
+</div>
+
+</div> <!-- article -->
+
+<hr class="ookiaks" />
+
+
+<h2 class="dateline">Friday, 12 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://www.apple.com/newsroom/2024/01/wanda-austin-to-join-apples-board-of-directors/">Lineup Changes on Apple’s Board of Directors: Al Gore and James Bell Retire; Wanda Austin Joins</a>&nbsp;<a class="permalink" title="Permanent link to ‘Lineup Changes on Apple’s Board of Directors: Al Gore and James Bell Retire; Wanda Austin Joins’" href="https://daringfireball.net/linked/2024/01/12/apple-board-lineup">&#9733;</a>
+</dt>
+<dd>
+<p>Apple Newsroom:</p>
+
+<blockquote>
+  <p>Apple today announced Dr. Wanda Austin, former president and CEO 
+of The Aerospace Corporation, has been nominated for election to 
+Apple’s board of directors. Dr. Austin brings decades of science 
+and technology experience to her role, and she has a significant 
+track record of advancing innovation and shaping corporate 
+strategy. </p>
+
+<p>As president and CEO of The Aerospace Corporation, Dr. Austin led 
+an organization dedicated to supporting the U.S. space program and 
+expanding opportunities for future exploration. She was the first 
+woman and the first African American to hold the position. [...] </p>
+
+<p>The board has a longstanding policy that directors generally may 
+not stand for reelection after reaching age 75. As a result, Al 
+Gore, who has served since 2003, and James Bell, who joined in 
+2015, will both retire from Apple’s board this year. </p>
+
+<p>“We’re deeply grateful to Al and James for their many years of 
+service to Apple — their insights, energy, and values have made 
+us a stronger company in so many ways,” said Cook. “For more than 
+20 years, Al has contributed an incredible amount to our work — from his unconditional support for protecting our users’ privacy, 
+to his incomparable knowledge of environment and climate issues.” </p>
+</blockquote>
+
+<p>I strongly suspect that even if Gore had never joined the board, Apple would be a staunchly environmentally-minded company today, but surely Gore pushed them hard in that direction. And I think he was instrumental in Apple’s hiring of Lisa Jackson.</p>
+
+</dd>
+
+
+</dl>
+
+<h2 class="dateline">Thursday, 11 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://daringfireball.net/linked/2018/03/28/tetris-mac">From the DF Archive: Are There Any Tetris Games for&#160;Mac?</a>&nbsp;<a class="permalink" title="Permanent link to ‘From the DF Archive: Are There Any Tetris Games for Mac?’" href="https://daringfireball.net/linked/2024/01/11/tetris-for-mac">&#9733;</a>
+</dt>
+<dd>
+<p>My recent spate of Tetris-related links got me thinking again about this post from 2018:</p>
+
+<blockquote>
+  <p>So as far as I can tell, not only is there no official Tetris for 
+Mac, there are no Tetris-like games either. Back in the 90s, there 
+were several really good Tetris games for the Mac. Anyone remember 
+<a href="https://harddrop.com/wiki/Wesleyan_Tetris">Wesleyan Tetris</a>? It was a goofy version in which the 
+developer, Randall Cook, would rudely critique your gameplay. </p>
+
+<p>If The Tetris Company wants to protect the name “Tetris”, fine, 
+but I think it sucks that there’s no good way to play the game on 
+a Mac today. Every computer should have a good version of Tetris. </p>
+</blockquote>
+
+<p>Not much has changed from 2018. There is an officially licensed game in the Mac App Store now: <a href="https://apps.apple.com/us/app/tetris-beat/id1536485727">Tetris Beat</a>. It’s part of Apple Arcade, so most of you can probably download it and play it. It’s not just plain Tetris — and whatever it is that it wants to be, it sucks. It doesn’t even let you customize the controls. It occupies 2.3 GB on disk after installation. For Tetris! Jiminy. <a href="https://daringfireball.net/linked/2024/01/11/wirth-plea-for-lean-software">Niklaus Wirth would be rolling over</a> in his (<a href="https://daringfireball.net/linked/2024/01/11/niklaus-wirth-rip">fresh</a>) grave if you told him a Tetris game took 2.3 GB on disk and made the fans get loud on an Apple silicon MacBook Pro when you play it.</p>
+
+<p>The best options for just playing Tetris on a Mac are web games: <a href="https://tetr.io/">Tetr.io</a> and <a href="https://jstris.jezevec10.com/">Jstris</a>. (I presume both websites are hosted in countries outside the reach of litigious The Tetris Company.) Tetr.io offers “desktop” versions, but their Mac app is an Intel-only Electron app that instantly made the fans on my MacBook Pro veritably roar. It’s far better playing online in Safari, but Tetr.io is geared toward Tetris fanatics, not casual play. Jstris is simpler, but fundamentally exists as a platform for competitive online play. (Go to Play → Practice to just play single player.)</p>
+
+<p>What a sad state of affairs. A hearty <em>fuck you</em> to The Tetris Company for ruthlessly shutting down hobbyist clones while refusing to license a decent official just-plain-Tetris Mac app.</p>
+
+<p><strong>Update:</strong> Hard to believe I didn’t come across this on my own, but it turns out The Tetris Company has <a href="https://tetris.com/play-tetris">a decent simple Tetris game on their own website</a>.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://liam-on-linux.dreamwidth.org/88032.html">Niklaus Wirth: ‘A Plea for Lean Software’</a>&nbsp;<a class="permalink" title="Permanent link to ‘Niklaus Wirth: ‘A Plea for Lean Software’’" href="https://daringfireball.net/linked/2024/01/11/wirth-plea-for-lean-software">&#9733;</a>
+</dt>
+<dd>
+<p>From an essay Niklaus Wirth published in IEEE’s “Computer” magazine in 1995 (<a href="https://github.com/sysprv/demo-corporate-documentation-public/blob/master/Niklaus%20Wirth%20-%20A%20Plea%20for%20Lean%20Software.pdf">original PDF</a>), some lessons learned in the development of Wirth’s Oberon system:</p>
+
+<blockquote>
+  <ul>
+<li><p>The belief that complex systems require armies of designers and 
+programmers is wrong. A system that is not understood in its 
+entirety, or at least to significant degree of detail by a 
+single individual, should probably not be built. </p></li>
+<li><p>Communication problems grow as the size of the design team 
+grows. Whether they are obvious or not, when communication 
+problems predominate, the team and the project are both in deep 
+trouble. </p></li>
+<li><p>Reducing complexity and size must be the goal in every step — in system specification, design, and in detailed programming. A 
+programmer’s competence should be judged by the ability to find 
+simple solutions, certainly not by productivity measured in 
+“number of lines ejected per day.” Prolific programmers 
+contribute to certain disaster. </p></li>
+<li><p>Programs should be written and polished until they acquire 
+publication quality. It is infinitely more demanding to design a 
+publishable program than one that “runs.” Programs should be 
+written for human readers as well as for computers. If this 
+notion contradicts certain vested interests in the commercial 
+world, it should at least find no resistance in academia. </p></li>
+</ul>
+</blockquote>
+
+</dd>
+
+
+<dt>
+<a href="https://www.nytimes.com/2024/01/11/business/fruit-stripe-gum-discontinued.html">Fruit Stripe Gum Discontinued</a>&nbsp;<a class="permalink" title="Permanent link to ‘Fruit Stripe Gum Discontinued’" href="https://daringfireball.net/linked/2024/01/11/fruit-stripe">&#9733;</a>
+</dt>
+<dd>
+<p>Emily Schmall, reporting for The New York Times:</p>
+
+<blockquote>
+  <p>Fruit Stripe, the striped chewing gum known for its short burst of 
+flavor, has been discontinued after more than a half-century, 
+inspiring nostalgic tributes across social media. </p>
+
+<p>“Best two seconds of flavor you’ve ever had,” <a href="https://www.reddit.com/r/nostalgia/comments/193ctx8/welp_another_childhood_candy_gone_rip_to_the/">one Reddit user 
+wrote on Wednesday</a>. “R.I.P. to a legend.” </p>
+
+<p>Rainbow-colored packs of Fruit Stripe gum first appeared in stores 
+in the United States in the late 1960s. Ferrara, a confectioner 
+based in Chicago, said this week that it had stopped making the 
+product. </p>
+</blockquote>
+
+<p>There were two kinds of Fruit Stripe: chewing gum and bubble gum. I could never decide which was better, so, of course, I always bought a pack of each. (<a href="https://en.wikipedia.org/wiki/Juicy_Fruit">Juicy Fruit</a>, of course, is the superior fruit-flavored stick-shaped chewing gum.)</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.theatlantic.com/ideas/archive/2024/01/trump-presidential-immunity-trial/677068/">‘Trump Has Taken Presidential Immunity to Its Illogical Extreme’</a>&nbsp;<a class="permalink" title="Permanent link to ‘‘Trump Has Taken Presidential Immunity to Its Illogical Extreme’’" href="https://daringfireball.net/linked/2024/01/11/trump-presidential-immunity-extreme">&#9733;</a>
+</dt>
+<dd>
+<p>David A. Graham, writing at The Atlantic:</p>
+
+<blockquote>
+  <p>In a hearing before the D.C. Circuit Court, the former president’s 
+lawyers argued that he should be immune from criminal prosecution 
+for his role in the attempt to steal the 2020 presidential 
+election. This argument has an obvious flaw: It implies that the 
+president is above the law. Such a blunt rejection of the 
+Constitution and the basic concept of American democracy is too 
+much even for Trump to assert — publicly, at least — so his 
+lawyers have proposed a theory. They say that he can’t be 
+criminally prosecuted unless he is first impeached and convicted 
+by Congress. </p>
+
+<p>This argument is no less dangerous, as a hypothetical asked in 
+court demonstrated in chilling terms. Judge Florence Pan asked 
+Trump’s attorney, D. John Sauer, if “a president who ordered SEAL 
+Team 6 to assassinate a political rival” could be criminally 
+prosecuted. Sauer tried to hem and haw his way through an answer 
+but ultimately stated that such a president couldn’t be prosecuted 
+unless he was first impeached, convicted, and removed by Congress. </p>
+
+<p>“But if he weren’t, there would be no criminal prosecution, no 
+criminal liability for that?” Pan pressed. Sauer had no choice but 
+to agree, because acknowledging any exceptions would have blown a 
+hole in his argument. </p>
+</blockquote>
+
+<p>The most forgiving take on this argument is that Trump’s legal team doesn’t mean it, and they’re merely stalling for time — throwing as much shit as possible up against the appeals court walls, hoping to delay his umpteen trials until after his possible reelection in a year. But Trump himself <a href="https://thehill.com/regulation/court-battles/4400173-trump-immunity-golden-years-retirement/">clearly means it</a>. (<a href="https://www.newyorker.com/culture/cover-story/cover-story-2024-01-15">Barry Blitt’s cover illustration</a> for The New Yorker this week is sublime.)</p>
+
+<p>The best refutation of Trump’s argument that presidents are above the law, and accountable only to Congressional impeachment, <a href="https://www.threads.net/@repraskin/post/C175OMORWpa">comes from Representative Jamie Raskin</a>, who points to the glaring game theory hole in this absurd argument: if it were true, the president could order the assassination of any congressperson who threatened to impeach or convict him. As Raskin concluded, “This is the GOP 2024.”</p>
+
+</dd>
+
+
+<dt>
+<a href="https://bitbang.social/@NanoRaptor/111699576526610669">NanoRaptor’s Apple Pascal Poster Recreation</a>&nbsp;<a class="permalink" title="Permanent link to ‘NanoRaptor’s Apple Pascal Poster Recreation’" href="https://daringfireball.net/linked/2024/01/11/nanoraptor-wirth-pascal-poster">&#9733;</a>
+</dt>
+<dd>
+<p>NanoRaptor:</p>
+
+<blockquote>
+  <p>For Niklaus Wirth, 1934-2024. </p>
+
+<p>Apple’s classic Pascal poster, remade as a nice clean vector 
+image. Print at any size with the PDF link. </p>
+</blockquote>
+
+<p>Just beautiful.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.theregister.com/2024/01/04/niklaus_wirth_obituary/">Niklaus Wirth, Titan of Computer Science and Creator of Pascal, Dies at&#160;89</a>&nbsp;<a class="permalink" title="Permanent link to ‘Niklaus Wirth, Titan of Computer Science and Creator of Pascal, Dies at 89’" href="https://daringfireball.net/linked/2024/01/11/niklaus-wirth-rip">&#9733;</a>
+</dt>
+<dd>
+<p>Liam Proven, in a nice obituary in The Register:</p>
+
+<blockquote>
+  <p>Swiss computer scientist Professor Niklaus Wirth died on New 
+Year’s Day, roughly six weeks before what would have been his 90th 
+birthday. </p>
+
+<p><a href="https://people.inf.ethz.ch/wirth/">Wirth</a> is justly celebrated as the creator of the Pascal 
+programming language, but that was only one step in a series of 
+important languages and research projects. Both <a href="https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=21655">asteroid 
+21655</a> and a <a href="https://www.techslang.com/definition/what-is-wirths-law/">law of computer design</a> are named after 
+him. He won computer-science boffinry’s highest possible gong, the 
+Turing Award, <a href="https://amturing.acm.org/award_winners/wirth_1025774.cfm">in 1984</a>, and that page has some short 
+English-language clips from a <a href="https://www.youtube.com/watch?v=SUgrS_KbSI8">2018 interview</a>. [...]</p>
+
+<p>As described in C H Lindsey’s <a href="https://dl.acm.org/doi/pdf/10.1145/234286.1057810">History of ALGOL-68</a> [PDF], 
+when the ALGOL-W proposal was rejected, Wirth resigned from the 
+committee, contributing a strong <a href="https://archive.computerhistory.org/resources/text/algol/algol_bulletin/A29/P32.HTM">“Closing Word”</a> to the 
+November 1968 <a href="https://archive.computerhistory.org/resources/text/algol/algol_bulletin/">Algol Bulletin 29</a>, containing gems such as: </p>
+
+<blockquote>
+  <p>I pulled out my copy of the draft report on ALGOL-68 and showed it 
+to her. She fainted. </p>
+</blockquote>
+
+<p>Instead, Wirth took his proposal, changed it to be somewhat 
+less compatible with ALGOL, and released it in 1970 under the 
+name Pascal.</p>
+</blockquote>
+
+<p><a href="https://en.wikipedia.org/wiki/Wirth%27s_law">Wirth’s Law</a> encapsulates Wirth’s philosophy: “The hope is that the progress in hardware will cure all software ills. However, a critical observer may observe that software manages to outgrow hardware in size and sluggishness.” Or, as he rephrased it in his <a href="http://www.projectoberon.net/wirth/ProjectOberon/PO.System.pdf">paper describing Project Oberon</a>: “In spite of great leaps forward, hardware is becoming faster more slowly than software is becoming slower.” In many ways, this remains <em>the</em> fundamental problem of our entire industry. It’s a truism, and can only be mitigated. </p>
+
+<p>He endorsed simplicity and clarity, and his languages and system designs exemplified those ideals. Studying computer science in the early to mid-1990s, I was among the last to learn Pascal as a teaching language. After outgrowing BASIC, I had actually started learning Pascal my senior year in high school, in a class with just two other students — thanks, Mrs. Spatz — and it was that class that made me want to study computer science in college.</p>
+
+<p>And Pascal was to the original Macintosh what Objective-C was to Mac OS X — the language Apple established as the default for writing application software. Most of the apps that established the Macintosh as the platform for people with good taste in the 1980s and early 1990s were written in Pascal. <a href="http://www.think-pascal.org/">THINK Pascal</a> was an IDE years — maybe over a decade — ahead of its time. (There were <a href="https://en.wikipedia.org/wiki/Turbo_Pascal">good Pascal systems on the PC side of the fence</a> too.)</p>
+
+</dd>
+
+
+</dl>
+
+<h2 class="dateline">Wednesday, 10 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://www.404media.co/13-year-old-becomes-first-person-to-ever-beat-tetris/">13-Year-Old Prodigy Willis ‘Blue Scuti’ Gibson Is First to Beat NES Tetris</a>&nbsp;<a class="permalink" title="Permanent link to ‘13-Year-Old Prodigy Willis ‘Blue Scuti’ Gibson Is First to Beat NES Tetris’" href="https://daringfireball.net/linked/2024/01/10/blue-scuti-tetris">&#9733;</a>
+</dt>
+<dd>
+<p>Jason Koebler, writing for 404 Media:</p>
+
+<blockquote>
+  <p>A 13-year-old competitive Tetris player has <a href="https://www.youtube.com/watch?v=J9oVQ43j22g&amp;ref=404media.co">become the first 
+known human</a> to beat the game on the original NES by 
+forcing it into a kill screen. In doing so, the player, Blue 
+Scuti, broke world records for overall score, level achieved, and 
+total numbers of lines in the 34-year-old game. Previously, <a href="https://www.youtube.com/watch?v=l_KY_EwZEVA&amp;ref=404media.co">only 
+an AI had broken Tetris</a>. </p>
+
+<p>The feat took Blue Scuti about 38 minutes, as shown in a video he 
+posted to his YouTube. As he nears the feat, Blue Scuti says “Oh I 
+missed it,” after misplacing a block. He recovers, then says “Oh 
+my God,” as it seems like he’ll be able to do it. “Please crash,” 
+he says as the blocks careen down the screen impossibly fast. He 
+gets another line and the game freezes: “Oh my God! Yes! I’m going 
+to pass out,” he says. “I can’t feel my hands.” </p>
+</blockquote>
+
+<p>From <a href="https://www.nytimes.com/2024/01/03/arts/tetris-beat-blue-scuti.html">Sopan Deb’s story about Gibson for The New York Times</a>:</p>
+
+<blockquote>
+  <p>Ms. Cox bought her son a version of a Nintendo console called a 
+RetroN, which used the same hardware as the original Nintendo 
+console, from a pawnshop, as well as an old cathode-ray tube 
+television to help him get started. In a given week, Willis said, 
+he plays about 20 hours of Tetris. </p>
+
+<p>“I’m actually OK with it,” Ms. Cox, a high school math teacher, 
+said. “He does other things outside of playing Tetris, so it 
+really wasn’t that terribly difficult to say OK. It was harder to 
+find an old CRT TV than it was to say, ‘Yeah, we can do this for a 
+little bit.’” </p>
+</blockquote>
+
+<p>Koebler’s story ends with a sad note: “Blue Scuti dedicated the game to his dad, Adam Gibson, who died in December.” My mom’s mother died when my mom was just 16, so I’m familiar, second-hand, with how devastating such a loss is. Young Gibson seems utterly delightful — a gracious champion — so we’d all be rooting for him anyway, but this adds a note of poignancy.</p>
+
+<p><strong>Recommended viewing:</strong> <a href="https://www.youtube.com/watch?v=GuJ5UuknsHU">This 17-minute video from aGameScout</a> is a wonderful, fun explanation of Gibson’s feat — it explains why NES Tetris was, for decades, thought to end at level 29; the new advanced controller techniques that allow elite players to blow past level 29; and suggests future accomplishments that remain unachieved.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://abagames.github.io/crisp-game-lib-11-games/?pakupaku">Paku Paku — Pac-Man in One Dimension</a>&nbsp;<a class="permalink" title="Permanent link to ‘Paku Paku — Pac-Man in One Dimension’" href="https://daringfireball.net/linked/2024/01/10/paku-paku">&#9733;</a>
+</dt>
+<dd>
+<p>More fun to play than you’d think. <a href="https://waxy.org/2024/01/paku-paku-one-dimensional-one-button-pac-man/">Via Andy Baio</a>, who’s achieved a high score of 2,689 (!). I thought I did pretty well with a <s>167</s> 288.</p>
+
+<p><strong>Update:</strong> My pal <a href="https://daringfireball.net/search/michael+simmons">Michael Simmons</a> <a href="https://daringfireball.net/misc/2024/01/paku-paku-simmons.png">scored 4,911 playing on his iPhone</a>. Bastard. And, of course, some idle hands on Hacker News <a href="https://news.ycombinator.com/item?id=38849868">wrote a bot to play</a> — just copy the JavaScript and paste it into your browser’s web inspector console. The bot just rang up a 46,372 for me. I love the web.</p>
+
+</dd>
+
+
+</dl>
+
+<h2 class="dateline">Tuesday,  9 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://www.theverge.com/2024/1/9/24032274/humane-layoffs-ai-pin">Humane Lays Off 4 Percent of Employees Before Releasing Its AI&#160;Pin</a>&nbsp;<a class="permalink" title="Permanent link to ‘Humane Lays Off 4 Percent of Employees Before Releasing Its AI Pin’" href="https://daringfireball.net/linked/2024/01/09/humane-layoffs">&#9733;</a>
+</dt>
+<dd>
+<p>Alex Heath, reporting for The Verge:</p>
+
+<blockquote>
+  <p>Humane laid off 4 percent of employees this week in a move that 
+was described as a cost cutting measure to those who were 
+impacted, according to sources familiar with the matter. Employees 
+were recently told by leadership that budgets would be lowered 
+this year, said one of the people, who requested anonymity to 
+speak without the company’s permission. </p>
+
+<p>The cuts, which numbered 10 people, come ahead of the 
+five-year-old startup shipping its first device: a $699, 
+screenless, AI-powered pin that is pitched as a smartphone 
+replacement. </p>
+
+<p>In a text message, Bongiorno told me that the cuts were “not 
+communicated as a layoff” to those who were impacted, despite 
+sources telling me that they were — both verbally and in writing. 
+“It goes without saying that, like every company, we have a 
+responsibility to remain prudent and proactive, ensuring we have 
+the right roles, right people, and the right structure at every 
+juncture,” she said. </p>
+</blockquote>
+
+<p>Layoffs are never good — and layoffs before shipping the company’s first product are a particularly bad look — but 10/250 employees really does sound more like belt-tightening. But I do not think their AI Pin preorder numbers have set the world afire, nor do I think the company’s investors are interested in funding them further. (Sam Altman, <a href="https://www.lowpass.cc/p/humane-ai-pin-cellular-mvno-sam-altman">Humane’s largest shareholder</a>, is <a href="https://daringfireball.net/linked/2023/12/26/tang-tan-lovefrom">reportedly working with Jony Ive and LoveFrom</a> on “AI hardware”. To me, that’s far more of a warning sign about Humane than their laying off 10 employees.)</p>
+
+</dd>
+
+
+<dt>
+<a href="https://world.hey.com/dhh/apple-approves-the-hey-calendar-c76ebd9c">Hey Calendar App Is Now in the App Store</a>&nbsp;<a class="permalink" title="Permanent link to ‘Hey Calendar App Is Now in the App Store’" href="https://daringfireball.net/linked/2024/01/09/hey-calendar-now-in-app-store">&#9733;</a>
+</dt>
+<dd>
+<p>David Heinemeier Hansson:</p>
+
+<blockquote>
+  <p>I’ll admit it was a bit cheeky to make our new <a href="https://www.youtube.com/watch?v=SztU4232u_o">HEY 
+Calendar</a> app “do something” by <a href="https://world.hey.com/dhh/we-ve-resubmitted-the-hey-calendar-app-to-apple-57240fbb">including Apple’s own 
+history as a preview</a> for people who don’t have an account. 
+And I didn’t give the gambit better than 30% odds of succeeding, 
+but lo and behold, it did! Apple has approved our app, and it’s 
+<a href="https://apps.apple.com/us/app/hey-calendar/id6449716061">now available in the App Store</a>! </p>
+</blockquote>
+
+<p>Sanity prevails — but at least I got <a href="https://daringfireball.net/2024/01/heyja_vu_hey_cal">a good headline out of the story</a>.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://twitter.com/SeanSafyre/status/1744138937239822685">Passenger’s iPhone Survived, Intact, 16,000-Foot Fall From Alaska Airlines Plane</a>&nbsp;<a class="permalink" title="Permanent link to ‘Passenger’s iPhone Survived, Intact, 16,000-Foot Fall From Alaska Airlines Plane’" href="https://daringfireball.net/linked/2024/01/09/iphone-alaska-airlines">&#9733;</a>
+</dt>
+<dd>
+<p>Sean Bates, on Twitter/X:</p>
+
+<blockquote>
+  <p>Found an iPhone on the side of the road... Still in airplane 
+mode with half a battery and open to a baggage claim for 
+#AlaskaAirlines ASA1282 Survived a 16,000 foot drop perfectly 
+in tact! </p>
+</blockquote>
+
+<p>Not only was the phone still in working order — it was seemingly unscathed. It has a case and a screen protector, but landing on grass was surely a huge factor. Just amazing.</p>
+
+<p>When I first saw this story, I was skeptical, wondering how Bates got past the lock screen. But the phone had no passcode, <a href="https://twitter.com/SeanSafyre/status/1744203705178845510">as Bates described in a follow-up video</a>. I find that almost as crazy as the phone surviving a 16,000-foot drop, but I’d probably be shocked to know how many people rock the no-passcode lifestyle. I just don’t get it, given how Face ID makes it feel like you don’t have a passcode.</p>
+
+<p>(<a href="https://twitter.com/rjonesy/status/1744175588405923843">Judging by this thread</a>, it’s also apparently quite common for people to turn off Auto-Lock in Settings → Display &amp; Brightness.)</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.pbs.org/newshour/nation/alaska-and-untied-airlines-report-loose-parts-in-boeing-max-9-door-panels">Alaska and United Airlines Report Loose Parts in Boeing 737 Max 9 Door Panels</a>&nbsp;<a class="permalink" title="Permanent link to ‘Alaska and United Airlines Report Loose Parts in Boeing 737 Max 9 Door Panels’" href="https://daringfireball.net/linked/2024/01/09/alaska-united-boeing-loose-parts">&#9733;</a>
+</dt>
+<dd>
+<p>PBS News Hour:</p>
+
+<blockquote>
+  <p>Federal investigators say a door panel slid up before flying off 
+an Alaska Airlines jetliner last week, and they are looking at 
+whether four bolts that were supposed to help hold the panel in 
+place might have been missing when the plane took off. The 
+comments Monday from the National Transportation Safety Board came 
+shortly after Alaska and United Airlines reported separately that 
+they found loose parts in the panels — or door plugs — of some 
+other Boeing 737 Max 9 jets. </p>
+
+<p>“Since we began preliminary inspections on Saturday, we have found 
+instances that appear to relate to installation issues in the door 
+plug — for example, bolts that needed additional tightening,” 
+Chicago-based United said. </p>
+
+<p>Alaska said that as it began examining its Max 9s, “Initial 
+reports from our technicians indicate some loose hardware was 
+visible on some aircraft.” </p>
+</blockquote>
+
+<p>This tidbit seems nutty to me:</p>
+
+<blockquote>
+  <p>The jet involved in Friday’s blowout is brand-new, having been put 
+in service in November. After a cabin-pressurization system 
+warning light came on during three flights, the airline stopped 
+flying it over the Pacific to Hawaii. Some aviation experts 
+questioned why Alaska continued using the plane on overland routes 
+until it figured out what was causing the pressurization warnings. </p>
+
+<p>Homendy said Monday, however, that NTSB has seen no evidence to 
+link the warnings with the blowout of the door plug. </p>
+</blockquote>
+
+<p>There may be no evidence yet, but what are the odds that a door plug that blew off a brand-new jet mid-flight — in a fleet of planes they’ve now discovered have loose bolts holding those doors in place — wasn’t to blame for the cabin-pressurization warnings? And, even if it’s true that the pressurization warnings were unrelated to last week’s incident, that’s even <em>worse</em> for Boeing — that would mean they have a problem with these door plugs <em>and</em> an as-yet undetermined other problem. I’m surprised that Boeing’s stock is only down ~8 percent.</p>
+
+</dd>
+
+
+</dl>
+
+<hr class="ookiaks" />
+
+
+<div class="article">
+<h1><a href="https://daringfireball.net/2024/01/heyja_vu_hey_cal" title="Permanent link to ‘Heyja Vu: App Store Rejects 37signals’s New Hey Calendar App’">Heyja Vu: App Store Rejects 37signals’s New Hey Calendar&#160;App</a></h1>
+<h6 class="dateline">Monday,  8 January 2024</h6>
+
+<p><a href="https://world.hey.com/dhh/we-ve-resubmitted-the-hey-calendar-app-to-apple-57240fbb">David Heinemeier Hansson</a>:</p>
+
+<blockquote>
+  <p>Apple waited until end of business on Friday to send us the formal 
+rejection of the HEY Calendar app. It seems they love to play 
+these little games to try to drown any controversy with the cover 
+of a weekend. But we don’t roll over that easy, so the team worked 
+through the weekend to prepare a new build to appease the App 
+Store’s bullying bureaucrats, and I think you’re going to like 
+what we came up with. </p>
+
+<p>See, Apple’s stated reason for rejecting the HEY Calendar app is 
+once again that “it doesn’t do anything when you download it”. In 
+other words, it features a login screen, and requires you to have 
+an existing account with <a href="https://www.hey.com/">our HEY email service</a> in order 
+to use it. It’s the textbook definition of a free companion app, 
+which Apple specifically <a href="https://developer.apple.com/app-store/review/guidelines/#business">exempts from having to use in-app 
+payments</a>. They even cite Email Services(!!) as an example 
+in 3.1.3(f): </p>
+
+<blockquote>
+  <p><em><strong>3.1.3(f) Free Stand-alone Apps:</strong> Free apps acting as a 
+stand-alone companion to a paid web based tool (eg. VOIP, Cloud 
+Storage, Email Services, Web Hosting) do not need to use 
+in-app purchase, provided there is no purchasing inside the app, 
+or calls to action for purchase outside of the app.</em> </p>
+</blockquote>
+</blockquote>
+
+<p>It seems bonkers to me that after <a href="https://daringfireball.net/linked/2020/06/16/hey-iap-app-store-dispute">all the bad publicity that befell Apple in June 2020</a> over Apple’s rejection of the Hey email app, they’d veto a Hey companion app — which requires the exact same type of account as Hey email — for the exact same reasons. They should have just let it through, for the risk of bad publicity alone.</p>
+
+<p>Here’s just a taste from my own coverage of the Hey email app rejection back in June 2020:</p>
+
+<ul>
+<li><a href="https://daringfireball.net/linked/2020/06/17/dithering-hey-apple">Dithering: ‘Hey Apple, Cut It Out’</a></li>
+<li><a href="https://daringfireball.net/linked/2020/06/17/embracing-apples-cut">On Avoiding or Embracing Apple’s In-App Purchase Cut</a></li>
+<li><a href="https://daringfireball.net/linked/2020/06/19/schiller-panzer-hey">Phil Schiller Talks to Matthew Panzarino on Hey’s App Store Rejection</a></li>
+<li><a href="https://daringfireball.net/linked/2020/06/19/swisher-app-store-hey">Kara Swisher: ‘Is It Finally Hammer Time for Apple and Its App Store?’</a></li>
+<li><a href="https://daringfireball.net/linked/2020/06/20/siracusa-app-store">Siracusa on the App Store: ‘Apple Needs to Decide if It Wants to Be “Right” or if It Wants to Be Happy’</a></li>
+<li><a href="https://daringfireball.net/linked/2020/06/22/apple-hey-path-forward">Apple, Hey, and the Path Forward</a></li>
+<li><a href="https://daringfireball.net/linked/2020/06/22/patel-apple-hey">Nilay Patel’s Summary of the Apple/Hey Drama</a></li>
+</ul>
+
+<p>Apple doesn’t want people writing articles like those (or this very one) this week. They want people writing articles about Vision Pro.</p>
+
+<p>More crucially, regulators and legislators around the world are looking to wield antitrust powers against Apple, and all of them are primarily looking at the App Store. The stakes for Apple are much higher today than they were in 2020. The last thing Apple wants is a news narrative along the lines of “<em>More Bullshit From Apple Trying to Squeeze Developers Into Giving Them a Cut of Revenue When the Developers Simply Want to Sell Subscriptions Directly to Customers Over the Web</em>”. But by rejecting Hey Calendar, they seem to be <em>inviting</em> such a narrative.</p>
+
+<p>I just don’t get it. Apple has nothing to gain by this — *nothing, not a cent — but a lot to lose.</p>
+
+<p><strong>Update, one day later:</strong> <a href="https://world.hey.com/dhh/apple-approves-the-hey-calendar-c76ebd9c">Apple approved the Hey Calendar app</a>.&nbsp;<a class="permalink" title="Permanent link to ‘Heyja Vu: App Store Rejects 37signals’s New Hey Calendar App’" href="https://daringfireball.net/2024/01/heyja_vu_hey_cal">&#9733;</a></p>
+
+</div> <!-- article -->
+
+<hr class="ookiaks" />
+
+
+<h2 class="dateline">Monday,  8 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://www.youtube.com/watch?v=aqTIB_q40bo">‘Get Ready’</a>&nbsp;<a class="permalink" title="Permanent link to ‘‘Get Ready’’" href="https://daringfireball.net/linked/2024/01/08/get-ready-ad">&#9733;</a>
+</dt>
+<dd>
+<p>Apple’s first commercial for Vision Pro is (a) perfect, and (b) a splendid callback to the iPhone’s <a href="https://www.fastcompany.com/4042127/heres-the-first-tv-commercial-for-the-original-iphone-hello">“Hello” ad</a>. Not a bad list of movies to watch, either.</p>
+
+<p>(I’d bet money that Joz — a Michigan nut — has it debuting during tonight’s college football championship.)</p>
+
+</dd>
+
+
+<dt>
+<a href="https://flexibits.com/df2024">Fantastical</a>&nbsp;<a class="permalink" title="Permanent link to ‘Fantastical’" href="https://daringfireball.net/linked/2024/01/08/fantastical">&#9733;</a>
+</dt>
+<dd>
+<p>My thanks to Flexibits for sponsoring the previous two weeks at Daring Fireball. Fantastical isn’t just the best calendaring app for iOS and Mac; Cardhop isn’t just the best contacts app for iOS and Mac — these are two of the best apps in the world today, period.</p>
+
+<p>And, lo, Fantastical is no longer just for Mac, iPhone, and iPad. From Apple’s Newsroom announcement about Vision Pro pre-orders and availability today:</p>
+
+<blockquote>
+  <p>An infinite canvas for productivity: With key productivity and 
+collaboration apps like Fantastical, Freeform, JigSpace, apps from 
+Microsoft 365, and Slack, Apple Vision Pro is an ideal 
+productivity tool for everyday tasks. </p>
+</blockquote>
+
+<p>I believe this means that Fantastical is the first third-party VisionOS app Apple has ever mentioned. Can’t wait to see it.</p>
+
+<p>2023 was a huge year for Flexibits, and they have <a href="https://flexibits.com/blog/2023/12/the-flexibits-2023-year-in-review/">a terrific year-in-review blog post</a> that runs down all the details. But the highlights are obvious: excellent support for widgets (on all platforms, including interactive widgets on the latest OSes) and Live Activities on iOS. They also added several improvements to their Openings feature that lets people find meeting times that work for everyone.</p>
+
+<p>Flexibits has a killer offer for DF readers: <a href="https://flexibits.com/df2024">20 percent off for up to two full years</a>, both for new <em>and</em> current Flexibits subscribers. I just used the code to renew my own annual subscription. Even if your subscription isn’t due for renewal yet, you can apply the code now. But act fast — the deal is only good through the end of day Tuesday.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.theguardian.com/technology/2024/jan/04/chief-executive-of-collapsed-crypto-fund-hyperverse-does-not-appear-to-exist">The CEO of HyperVerse, a Collapsed Crypto Ponzi Scheme, Does Not Appear to Exist</a>&nbsp;<a class="permalink" title="Permanent link to ‘The CEO of HyperVerse, a Collapsed Crypto Ponzi Scheme, Does Not Appear to Exist’" href="https://daringfireball.net/linked/2024/01/08/hyperverse">&#9733;</a>
+</dt>
+<dd>
+<p>Sarah Martin, reporting for The Guardian:</p>
+
+<blockquote>
+  <p>A man named Steven Reece Lewis was introduced as the chief 
+executive officer of HyperVerse at an online global launch event 
+in December 2021, with video messages of support from a clutch of 
+celebrities released on Twitter the following month, including 
+from the Apple co-founder Steve Wozniak and actor Chuck Norris. [...]</p>
+
+<p>Guardian Australia has confirmed that neither the University of 
+Leeds nor the University of Cambridge has any record of someone by 
+the name Steven Reece Lewis on their databases. No records exist 
+of Steven Reece Lewis on the UK companies register, Companies 
+House, or on the US Securities and Exchange Commission. Adobe, a 
+publicly listed company since 1986, has no record of any 
+acquisition of a company owned by a Steven Reece Lewis in any of 
+its public SEC filings. It is understood that Goldman Sachs could 
+find no record of Reece Lewis having worked for the company. 
+Guardian Australia was unable to find a LinkedIn profile for Reece 
+Lewis or any internet presence other than HyperVerse promotional 
+material. </p>
+</blockquote>
+
+<p>A man who doesn’t actually exist sounds like the perfect CEO for any cryptocurrency company.</p>
+
+<p>Also: Looks like <a href="https://behindmlm.com/companies/hyperfund/steve-wozniak-2nd-cameo-personality-to-promote-hyperverse/">the Woz</a> <a href="https://behindmlm.com/companies/hyperfund/hyperverse-investor-ropes-chuck-norris-into-ponzi-promo-vid/">and Norris</a> “endorsements” were scripts they were paid to read through Cameo. </p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.theverge.com/2024/1/8/24001858/apple-vision-pro-release-date-availability-price">Finally, Our First ‘Finally’ of the Year Nominee for 2024</a>&nbsp;<a class="permalink" title="Permanent link to ‘Finally, Our First ‘Finally’ of the Year Nominee for 2024’" href="https://daringfireball.net/linked/2024/01/08/finally-verge-vision-pro">&#9733;</a>
+</dt>
+<dd>
+<p>Apple, back at WWDC, <a href="https://www.apple.com/newsroom/2023/06/introducing-apple-vision-pro/">announcing Vision Pro</a> (italics added):</p>
+
+<blockquote>
+  <p>Apple Vision Pro starts at $3,499 (U.S.), and <em>will be available 
+early next year</em> on apple.com and at Apple Store locations in the 
+U.S., with more countries coming later next year. </p>
+</blockquote>
+
+<p><a href="https://www.theverge.com/2024/1/8/24001858/apple-vision-pro-release-date-availability-price">Subhead at The Verge, today</a>:</p>
+
+<blockquote>
+  <p>After previewing the VR headset in June 2023, Apple’s $3,499 
+Vision Pro is finally scheduled to go on sale </p>
+</blockquote>
+
+<p>BBC News, too: “<a href="https://www.bbc.com/news/technology-67922296">Apple Vision Pro: $3,499 Headset Finally Gets Release Date</a>”.</p>
+
+<p>The <a href="https://www.apple.com/newsroom/2024/01/apple-vision-pro-available-in-the-us-on-february-2/">announcement</a> dropped at 9:00 am ET on the first non-holiday Monday of the year.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.apple.com/newsroom/2024/01/apple-vision-pro-available-in-the-us-on-february-2/">Vision Pro Pre-Orders Start January 19 (Next Friday), Available Starting February&#160;2</a>&nbsp;<a class="permalink" title="Permanent link to ‘Vision Pro Pre-Orders Start January 19 (Next Friday), Available Starting February 2’" href="https://daringfireball.net/linked/2024/01/08/vision-pro-preorders">&#9733;</a>
+</dt>
+<dd>
+<p>Apple Newsroom:</p>
+
+<blockquote>
+  <p>Apple today announced Apple Vision Pro will be available beginning 
+Friday, February 2, at all U.S. Apple Store locations and the U.S. 
+Apple Store online. [...] An all-new App Store provides users with 
+access to more than 1 million compatible apps across iOS and 
+iPadOS, as well as new experiences that take advantage of the 
+unique capabilities of Vision Pro. Pre-orders for Apple Vision Pro 
+begin Friday, January 19, at 5 a.m. PST. </p>
+</blockquote>
+
+<p>A hearty thanks from we East Coasters.</p>
+
+<blockquote>
+  <p>Pricing and Availability: </p>
+
+<ul>
+<li>Apple Vision Pro will be available starting at $3,499 (U.S.) 
+with 256GB of storage. Pre-orders for Apple Vision Pro will 
+begin on Friday, January 19, at 5 a.m. PST, with availability 
+beginning Friday, February 2.</li>
+</ul>
+</blockquote>
+
+<p>During the Vision Pro segment of The Talk Show Live From WWDC 2023, I started describing Vision Pro as “a product coming next year, or early next year, I forget which...”, and Greg Joswiak and Mike Rockwell, in unison, <a href="https://youtu.be/DgLrBSQ6x7E?si=7Imb4wF1Uk5FgdS9&amp;t=2584">interrupted me to say “<em>Early</em> next year.”</a> I then asked for further clarification on the definition of “early”, and laughter ensued — but Apple wasn’t kidding. This is pretty much as early as early could be in 2024.</p>
+
+<blockquote>
+  <ul>
+<li>ZEISS Optical Inserts — Readers will be available for $99 
+(U.S.), and ZEISS Optical Inserts — Prescription will be 
+available for $149 (U.S.).</li>
+</ul>
+</blockquote>
+
+<p>It’s new territory for a device to cost more if you require corrective lenses, but it’s the nature of Vision Pro that it will not fit over glasses, so there’s no way around this. People accustomed to $10 readers from the drug store may be surprised at these prices, but these $100–150 seems fair for high-quality lenses. I suspect, though, that there will spring a cottage industry for lower-priced third-party lens inserts.</p>
+
+<p>I still have questions about how buyers will provide their prescriptions to Apple. In most countries, people can just buy corrective glasses and contacts lenses without a prescription, but the U.S. — ostensibly the land of freedom — requires a doctor’s prescription. (Ophthalmologists have a strong <a href="https://www.aao.org/advocacy/ophthpac/overview">lobbying group</a>.)</p>
+
+<blockquote>
+  <ul>
+<li>Apple Vision Pro comes with a Solo Knit Band and Dual Loop Band — giving users two options for the fit that works best for 
+them. Apple Vision Pro also includes a Light Seal, two Light 
+Seal Cushions, an Apple Vision Pro Cover for the front of the 
+device, Polishing Cloth, Battery, USB-C Charge Cable, and USB-C 
+Power Adapter. </li>
+</ul>
+</blockquote>
+
+<p>Also unclear at the moment: How many different Light Seals are available? What app will online buyers use to scan their faces for sizing? How much will extra Light Seals (for additional users) cost?</p>
+
+<p>And how much will the storage tiers above 256 GB cost? Here are Apple’s current price deltas from 256 GB for iPad Pro and iPhone 15 Pro:</p>
+
+<table>
+<thead>
+<tr>
+  <th></th>
+  <th align="center" width=100>iPad Pro</th>
+  <th align="center" width=100>iPhone 15 Pro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>512 GB</td>
+  <td align="center">$200</td>
+  <td align="center">$200</td>
+</tr>
+<tr>
+  <td>1 TB</td>
+  <td align="center">$600</td>
+  <td align="center">$400</td>
+</tr>
+<tr>
+  <td>2 TB</td>
+  <td align="center">$1,000</td>
+  <td align="center">—</td>
+</tr>
+</tbody>
+</table>
+
+</dd>
+
+
+</dl>
+
+<h2 class="dateline">Saturday,  6 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://www.youtube.com/watch?v=qL-ergKmXNE">President Biden in Valley Forge: ‘Democracy Is Still a Sacred Cause, and There’s No Country in the World Better Positioned to Lead the World Than America’</a>&nbsp;<a class="permalink" title="Permanent link to ‘President Biden in Valley Forge: ‘Democracy Is Still a Sacred Cause, and There’s No Country in the World Better Positioned to Lead the World Than America’’" href="https://daringfireball.net/linked/2024/01/06/biden-valley-forge">&#9733;</a>
+</dt>
+<dd>
+<p>Remarkable speech by President Biden, on the eve of the third anniversary of Trump’s Capitol insurrection:</p>
+
+<blockquote>
+  <p>Let’s be clear about the 2020 election. Trump exhausted every 
+legal avenue available to him to overturn the election. Every one, 
+but the legal path just took Trump back to the truth, that I’d won 
+the election and he was a loser. </p>
+
+<p>Well, so knowing how his mind works now, he had one, he had one 
+act left. One desperate act available to him, the violence of 
+January the sixth. </p>
+
+<p>Since that day, more than 1,200 people have been charged with 
+assault in the Capitol. Nearly 900 of them have been convicted or 
+pled guilty. Collectively to date, they have been sentenced to 
+more than 840 years in prison. </p>
+
+<p>What’s Trump done? Instead of calling them criminals, he’s called 
+these insurrectionists patriots. They’re patriots. And he promised 
+to pardon them if he returns to office. Trump said that there was 
+a lot of love on January the sixth. </p>
+
+<p>The rest of the nation, including law enforcement, saw a lot of 
+hate and violence. </p>
+</blockquote>
+
+<p><a href="https://apnews.com/article/biden-speech-valley-forge-trump-campaign-bda2293cac2b30e49157c2e6fb256d64">The AP has a transcript</a>, but I suggest watching it. Biden gets it. Democracy <em>is</em> our sacred cause. It’s that simple. Trump lost, and he tried his ham-fisted best to stay in office anyway. Quoting Biden: “We all know who Donald Trump is. The question we have to answer is: Who are we?”</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.theatlantic.com/ideas/archive/2024/01/three-years-after-january-6-capitol-insurrection-trump/677024/">Nancy Pelosi: ‘Three Years After January&#160;6’</a>&nbsp;<a class="permalink" title="Permanent link to ‘Nancy Pelosi: ‘Three Years After January 6’’" href="https://daringfireball.net/linked/2024/01/06/pelosi">&#9733;</a>
+</dt>
+<dd>
+<p>Nancy Pelosi, writing in The Atlantic:</p>
+
+<blockquote>
+  <p>The threat to our democracy is real, present, and urgent. The 
+parable of January 6 reminds us that our precious democratic 
+institutions are only as strong as the courage and commitment of 
+those entrusted with their care. We all share a responsibility to 
+preserve American democracy, which Lincoln called “the last best 
+hope of earth.” </p>
+</blockquote>
+
+</dd>
+
+
+</dl>
+
+<h2 class="dateline">Thursday,  4 January 2024</h2>
+<dl class="linkedlist">
+<dt>
+<a href="https://daringfireball.net/2009/07/mobile_phone_keyboards">From the DF Archive: Mobile Phone Keyboards, Circa 2009</a>&nbsp;<a class="permalink" title="Permanent link to ‘From the DF Archive: Mobile Phone Keyboards, Circa 2009’" href="https://daringfireball.net/linked/2024/01/04/mobile-phone-keyboards-2009">&#9733;</a>
+</dt>
+<dd>
+<p>Yours truly, back when the iPhone 3GS was new:</p>
+
+<blockquote>
+  <p>I think the question boils down to whether Apple is making a 
+mistake by not making an iPhone with a hardware keyboard. I’m 
+convinced the answer is no — that (a) there will never be an 
+iPhone with a built-in hardware keyboard; and (b) Apple will not 
+suffer for it. [...]</p>
+
+<p>Are software touchscreen keyboards good for everyone? Certainly 
+not. But this is another aspect of the Apple Way. Apple tries to 
+make things that many people love, not things that all people 
+like. The key is that they’re not afraid of the staunch criticism, 
+and often outright derision, that comes with breaking conventions. </p>
+</blockquote>
+
+<p>Holds up. In 2023 it seems wild that Apple’s all-in bet on touchscreen keyboards for iPhones was controversial at all, let alone the subject of vociferous debate for years.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.engadget.com/2013-12-06-typo-keyboard.html?guccounter=1">Ryan Seacrest Tried Making an iPhone Hardware Keyboard Case 10 Years&#160;Ago</a>&nbsp;<a class="permalink" title="Permanent link to ‘Ryan Seacrest Tried Making an iPhone Hardware Keyboard Case 10 Years Ago’" href="https://daringfireball.net/linked/2024/01/04/seacrest-typo-keyboard">&#9733;</a>
+</dt>
+<dd>
+<p>If the <a href="https://daringfireball.net/linked/2024/01/04/clicks">aforelinked</a> new Clicks keyboard case for iPhones rings a bell, here’s Jon Fingas reporting for Engadget 10 years ago:</p>
+
+<blockquote>
+  <p>The market for keyboard-equipped phones may be on the wane, but 
+don’t tell that to Ryan Seacrest — the American Idol host is 
+convinced that messaging mavens need real buttons. To that end, 
+he’s jumping into hardware and launching the Typo Keyboard for the 
+iPhone 5 and 5S. The Bluetooth case turns an Apple handset into a 
+makeshift BlackBerry Q10, complete with backlit, sculpted keys 
+that cover up the iPhone’s home button (there’s a small substitute 
+key); we hope you don’t need multitasking, folks. The Typo 
+Keyboard will make its formal debut at CES in early January, and 
+it should ship that month for $99. </p>
+</blockquote>
+
+<p>The Typo keyboard was doomed in more ways than one: it used unreliable battery-draining Bluetooth, not a wired connection; iOS didn’t have good hardware keyboard support at the time; and, as Fingas alludes in his description above, the Typo keyboard’s design covered the iPhone’s home button. That was pretty much a dealbreaker for the iPhone 5S, which introduced Touch ID.</p>
+
+<p>Even worse, the shell of the company that was once the mighty BlackBerry <a href="https://www.theverge.com/2015/6/1/8696991/blackberry-typo-keyboard-lawsuit-settlement">sued Typo for patent infringement</a>, won, and eventually <a href="https://www.nbcnews.com/tech/mobile/seacrest-out-blackberry-kills-his-typo-iphone-keyboard-n367736">drove Typo out of business</a>. (Kudos to NBC News for that “Seacrest Out” headline.)</p>
+
+</dd>
+
+
+<dt>
+<a href="https://www.clicks.tech/">Clicks: New Hardware Keyboard for iPhone</a>&nbsp;<a class="permalink" title="Permanent link to ‘Clicks: New Hardware Keyboard for iPhone’" href="https://daringfireball.net/linked/2024/01/04/clicks">&#9733;</a>
+</dt>
+<dd>
+<p>I never even owned a smartphone with a hardware keyboard, but as soon as I saw this I wanted one: Clicks is a new $139 hardware keyboard case for the iPhone 14 Pro, 15 Pro, and 15 Pro Max (that one will cost $159 — Max phones have max prices). One of the creators of the project is Michael “MrMobile” Fisher, who, of course, <a href="https://www.youtube.com/watch?v=e2n2ftM-MwI">created a YouTube video for the project</a>. (One of his co-creators is <a href="https://crackberry.com/clicks-iphone-brings-real-keyboard-back-smartphones">CrackBerry Kevin</a> — so there are some serious “hardware phone keyboard aficionado” bona fides on the team.)</p>
+
+<p>I don’t know how much I’ll wind up using it but it looks fun, useful, and clever — and I’m just a sucker for upstart indie hardware projects. Clicks is even a great name. There’s no Bluetooth involved — it connects via Lightning or USB-C, just like any hardware keyboard can via a cable. If you’ve never connected a hardware keyboard to an iPhone before, you might be surprised how many keyboard shortcuts there are (Command-Space for Spotlight, Space and Shift-Space for paging down and up in Safari, Command-H to go to the Home screen, and more.)</p>
+
+<p>You’ll never guess which color I pre-ordered.</p>
+
+</dd>
+
+
+<dt>
+<a href="https://daringfireball.net/thetalkshow/2024/12/31/ep-392">The Talk Show: ‘Halos and Harps’</a>&nbsp;<a class="permalink" title="Permanent link to ‘The Talk Show: ‘Halos and Harps’’" href="https://daringfireball.net/linked/2024/01/04/the-talk-show-392">&#9733;</a>
+</dt>
+<dd>
+<p>Apple’s 2023 year in review, with <a href="https://www.caseyliss.com/2023/8/7/callsheet">Callsheet</a> developer Casey Liss.</p>
+
+<p><audio
+    src = "https://traffic.libsyn.com/secure/daringfireball/thetalkshow-392-casey-liss.mp3"
+    controls
+    preload = "none"
+/></p>
+
+<p>Sponsored by:</p>
+
+<ul>
+<li><a href="https://memberful.com/talkshow">Memberful</a>: Monetize your passion with membership. Start your free trial today.</li>
+<li><a href="https://squarespace.com/talkshow">Squarespace</a>: Make your next move. Use code <strong>talkshow</strong> for 10% off your first order.</li>
+</ul>
+
+</dd>
+
+
+<dt>
+<a href="https://daringfireball.net/linked/2023/12/19/keith-richards-80#update">‘Like I Said Many Years Ago, I Never Had a Problem With Drugs, Only With Cops.’</a>&nbsp;<a class="permalink" title="Permanent link to ‘‘Like I Said Many Years Ago, I Never Had a Problem With Drugs, Only With Cops.’’" href="https://daringfireball.net/linked/2024/01/04/richards-update">&#9733;</a>
+</dt>
+<dd>
+<p>I stumbled across an old note where I’d stashed some favorite quotes from Keith Richards; figured I’d append a few of them to my post from a few weeks ago on his 80th birthday.</p>
+
+</dd>
+
+
+<div id="Footer">
+<form id="SiteSearch" action="https://daringfireball.net/search" method="get" style="margin-bottom: 2.5em;">
+<div>
+<input name="q" type="text" value="" style="margin-right: 8px; width: 66%;" />
+<input type="submit" value="Search" />
+</div>
+</form>
+
+<p class="smallprint">
+<a href="/preferences/" title="Customize the font size and presentation options for this web site.">Display Preferences</a>
+<br /><br />
+Copyright &copy; 2002–2024 The Daring Fireball Company LLC.
+</p>
+</div>
+
+
+</div> <!-- Main -->
+
+</div> <!-- Box -->
+<script>(function(){var js = "window['__CF$cv$params']={r:'8477b58d3d0eb736',t:'MTcwNTU5MDA0My44ODQwMDA='};_cpo=document.createElement('script');_cpo.nonce='',_cpo.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js',document.getElementsByTagName('head')[0].appendChild(_cpo);";var _0xh = document.createElement('iframe');_0xh.height = 1;_0xh.width = 1;_0xh.style.position = 'absolute';_0xh.style.top = 0;_0xh.style.left = 0;_0xh.style.border = 'none';_0xh.style.visibility = 'hidden';document.body.appendChild(_0xh);function handler() {var _0xi = _0xh.contentDocument || _0xh.contentWindow.document;if (_0xi) {var _0xj = _0xi.createElement('script');_0xj.innerHTML = js;_0xi.getElementsByTagName('head')[0].appendChild(_0xj);}}if (document.readyState !== 'loading') {handler();} else if (window.addEventListener) {document.addEventListener('DOMContentLoaded', handler);} else {var prev = document.onreadystatechange || function () {};document.onreadystatechange = function (e) {prev(e);if (document.readyState !== 'loading') {document.onreadystatechange = prev;handler();}};}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v84a3a4012de94ce1a686ba8c167c359c1696973893317" integrity="sha512-euoFGowhlaLqXsPWQ48qSkBSCFs3DPRyiwVu3FjR96cMPx+Fr+gpWRhIafcHwqwCqWS42RZhIudOvEI+Ckf6MA==" data-cf-beacon='{"rayId":"8477b58d3d0eb736","version":"2023.10.0","token":"d5bbc0b4e8ae452eba45dc9b72931665"}' crossorigin="anonymous"></script>
+</body>
+</html>
+<!-- 0.0079 seconds -->
