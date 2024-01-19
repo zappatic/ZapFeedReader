@@ -70,10 +70,9 @@ std::string ZapFR::Engine::FeedParserRSS10::iconURL() const
     if (imageNode != nullptr)
     {
         auto imageEl = dynamic_cast<Poco::XML::Element*>(imageNode);
-        // TODO: this doesn't work, needs the actual namespace instead of rdf
-        if (imageEl->hasAttributeNS("rdf", "about"))
+        if (imageEl->hasAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about"))
         {
-            return imageEl->getAttributeNS("rdf", "about");
+            return imageEl->getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
         }
     }
     return "";

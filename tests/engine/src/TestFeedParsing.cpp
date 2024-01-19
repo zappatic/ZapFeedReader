@@ -17,13 +17,17 @@
 */
 
 #include <Poco/DOM/DOMParser.h>
+#include <Poco/DigestStream.h>
 #include <Poco/JSON/Parser.h>
+#include <Poco/MD5Engine.h>
 #include <catch2/catch_test_macros.hpp>
 
 #include "DataFetcher.h"
 #include "ZapFR/feed_handling/FeedParser.h"
 #include "ZapFR/feed_handling/FeedParserATOM10.h"
 #include "ZapFR/feed_handling/FeedParserJSON11.h"
+#include "ZapFR/feed_handling/FeedParserRSS10.h"
+#include "ZapFR/feed_handling/FeedParserRSS20.h"
 
 TEST_CASE("Parse ATOM 1.0 (Daring Fireball)", "[feedparsing]")
 {
@@ -226,4 +230,153 @@ TEST_CASE("Parse JSON 1.1 (custom example 3)", "[feedparsing]")
 
     const auto& item = items.at(0);
     REQUIRE(item.author == "");
+}
+
+std::string md5Hash(const std::string& input)
+{
+    Poco::MD5Engine md5;
+    Poco::DigestOutputStream ds(md5);
+    ds << input;
+    ds.close();
+    return Poco::DigestEngine::digestToHex(md5.digest());
+}
+
+TEST_CASE("Parse RSS 1.0 (Slashdot)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedRSS10Slashdot.xml");
+
+    Poco::XML::DOMParser parser;
+    Poco::AutoPtr<Poco::XML::Document> xmlDoc = parser.parseString(input);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserRSS10>("https://example.com");
+    feed->setXMLDoc(xmlDoc);
+
+    REQUIRE(feed->guid() == "");
+    REQUIRE(feed->title() == "Slashdot");
+    REQUIRE(feed->subtitle() == "");
+    REQUIRE(feed->link() == "https://slashdot.org/");
+    REQUIRE(feed->description() == "News for nerds, stuff that matters");
+    REQUIRE(feed->iconURL() == "https://a.fsdn.com/sd/topics/topicslashdot.gif");
+    REQUIRE(feed->language() == "");
+    REQUIRE(feed->copyright() == "");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 15);
+
+    const auto& item = items.at(0);
+    REQUIRE(item.title == "An Emergency Alert Test Will Sound On All US Cellphones, TVs and Radios On Wednesday");
+    REQUIRE(item.link == "https://mobile.slashdot.org/story/23/10/03/0024216/"
+                         "an-emergency-alert-test-will-sound-on-all-us-cellphones-tvs-and-radios-on-wednesday?utm_source=rss1.0mainlinkanon&utm_medium=feed");
+    REQUIRE(item.guid == md5Hash(item.link));
+    REQUIRE(item.content.starts_with("An anonymous reader quotes"));
+    REQUIRE(item.author == "BeauHD");
+    REQUIRE(item.commentsURL == "");
+    REQUIRE(item.datePublished == "2023-10-03T13:00:00Z");
+    REQUIRE(item.thumbnail == "");
+}
+
+TEST_CASE("Parse RSS 1.0 (custom example)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedRSS10CustomExample.xml");
+
+    Poco::XML::DOMParser parser;
+    Poco::AutoPtr<Poco::XML::Document> xmlDoc = parser.parseString(input);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserRSS10>("https://example.com");
+    feed->setXMLDoc(xmlDoc);
+
+    REQUIRE(feed->iconURL() == "");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 3);
+
+    const auto& item1 = items.at(0);
+    REQUIRE(item1.content.starts_with("test content"));
+    REQUIRE(item1.title == "title-as-guid");
+    REQUIRE(item1.guid == md5Hash(item1.title));
+
+    const auto& item2 = items.at(1);
+    REQUIRE(item2.content == "content-as-guid");
+    REQUIRE(item2.guid == md5Hash(item2.content));
+
+    const auto& item3 = items.at(2);
+    REQUIRE(!item3.guid.empty());
+}
+
+TEST_CASE("Parse RSS 2.0 (Hackernews)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedRSS20Hackernews.xml");
+
+    Poco::XML::DOMParser parser;
+    Poco::AutoPtr<Poco::XML::Document> xmlDoc = parser.parseString(input);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserRSS20>("https://example.com");
+    feed->setXMLDoc(xmlDoc);
+
+    REQUIRE(feed->guid() == "");
+    REQUIRE(feed->title() == "Hacker News");
+    REQUIRE(feed->subtitle() == "");
+    REQUIRE(feed->link() == "https://news.ycombinator.com/");
+    REQUIRE(feed->description() == "Links for the intellectually curious, ranked by readers.");
+    REQUIRE(feed->iconURL() == "");
+    REQUIRE(feed->language() == "");
+    REQUIRE(feed->copyright() == "");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 30);
+
+    const auto& item = items.at(0);
+    REQUIRE(item.title == "Austria rail operator OeBB unveils new night trains");
+    REQUIRE(item.link == "https://techxplore.com/news/2023-09-austria-rail-oebb-unveils-night.html");
+    REQUIRE(item.guid == md5Hash(item.link));
+    REQUIRE(item.content == R"(<a href="https://news.ycombinator.com/item?id=37785300">Comments</a>)");
+    REQUIRE(item.author == "");
+    REQUIRE(item.commentsURL == "https://news.ycombinator.com/item?id=37785300");
+    REQUIRE(item.datePublished == "2023-10-05T22:59:44Z");
+    REQUIRE(item.thumbnail == "");
+}
+
+TEST_CASE("Parse RSS 2.0 (custom example)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedRSS20CustomExample.xml");
+
+    Poco::XML::DOMParser parser;
+    Poco::AutoPtr<Poco::XML::Document> xmlDoc = parser.parseString(input);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserRSS20>("https://example.com");
+    feed->setXMLDoc(xmlDoc);
+
+    REQUIRE(feed->iconURL() == "");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 6);
+
+    const auto& item1 = items.at(0);
+    REQUIRE(item1.content.starts_with("test content"));
+    REQUIRE(item1.title == "title-as-guid");
+    REQUIRE(item1.guid == md5Hash(item1.title));
+
+    const auto& item2 = items.at(1);
+    REQUIRE(item2.content == "content-as-guid");
+    REQUIRE(item2.guid == md5Hash(item2.content));
+
+    const auto& item3 = items.at(2);
+    REQUIRE(!item3.guid.empty());
+
+    const auto& item4 = items.at(3);
+    REQUIRE(item4.enclosures.size() == 1);
+    REQUIRE(item4.enclosures.at(0).mimeType == "image/jpeg");
+    REQUIRE(item4.enclosures.at(0).size == 100);
+    REQUIRE(item4.enclosures.at(0).url == "https://example.com/file.jpg");
+
+    const auto& item5 = items.at(4);
+    REQUIRE(item5.enclosures.size() == 1);
+    REQUIRE(item5.enclosures.at(0).mimeType == "application/x-bittorrent");
+    REQUIRE(item5.enclosures.at(0).size == 100);
+    REQUIRE(item5.enclosures.at(0).url == "magnet:link");
+
+    const auto& item6 = items.at(5);
+    REQUIRE(item6.guid == "http://example.com/guid");
+    REQUIRE(item6.categories.size() == 2);
+    REQUIRE(item6.categories.at(0) == "cat1");
 }

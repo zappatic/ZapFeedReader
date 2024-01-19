@@ -18,7 +18,7 @@ target_link_libraries(zapfeedreader-engine PRIVATE  PkgConfig::lua
                                                     Poco::DataSQLite)
 
 if(ENABLE_COVERAGE)
-    target_compile_options(zapfeedreader-engine PRIVATE -O0 --coverage)
+    target_compile_options(zapfeedreader-engine PRIVATE -O0 --coverage -fno-elide-constructors -fno-default-inline)
     target_link_libraries(zapfeedreader-engine PRIVATE gcov)
 endif()
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://purl.org/rss/1.0/"
+    xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel rdf:about="https://example.com/">
+        <title>Custom example</title>
+        <items>
+            <item>
+                <content:encoded>test content</content:encoded>
+                <title>title-as-guid</title>
+            </item>
+            <item>
+                <description>content-as-guid</description>
+            </item>
+            <item>
+                <!-- no guid source -->
+            </item>
+        </items>
+    </channel>
+</rdf:RDF>

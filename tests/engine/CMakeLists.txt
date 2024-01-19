@@ -29,7 +29,7 @@ target_link_libraries(tests-engine PRIVATE Catch2::Catch2WithMain
                                     Poco::JSON)
 
 if(ENABLE_COVERAGE)
-    target_compile_options(tests-engine PRIVATE -O0 --coverage)
+    target_compile_options(tests-engine PRIVATE -O0 --coverage -fno-elide-constructors -fno-default-inline)
     target_link_libraries(tests-engine PRIVATE gcov)
 endif()
 
