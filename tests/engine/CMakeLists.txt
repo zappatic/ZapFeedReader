@@ -24,7 +24,9 @@ target_include_directories(tests-engine SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdPa
 
 target_link_libraries(tests-engine PRIVATE Catch2::Catch2WithMain
                                     zapfeedreader-engine
-                                    Poco::Foundation)
+                                    Poco::Foundation
+                                    Poco::XML
+                                    Poco::JSON)
 
 if(ENABLE_COVERAGE)
     target_compile_options(tests-engine PRIVATE -O0 --coverage)

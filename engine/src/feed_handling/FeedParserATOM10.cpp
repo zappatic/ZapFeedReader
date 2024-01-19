@@ -73,12 +73,13 @@ std::string ZapFR::Engine::FeedParserATOM10::iconURL() const
     return "";
 }
 
+#include <Poco/DOM/NamedNodeMap.h>
 std::string ZapFR::Engine::FeedParserATOM10::language() const
 {
     auto docEl = mXMLDoc->documentElement();
-    if (docEl->hasAttributeNS("xml", "lang"))
+    if (docEl->hasAttributeNS("http://www.w3.org/XML/1998/namespace", "lang"))
     {
-        return docEl->getAttributeNS("xml", "lang");
+        return docEl->getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang");
     }
     return "";
 }
@@ -135,6 +136,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
                                 {
                                     item.enclosures.emplace_back(e);
                                 }
+                                continue;
                             }
                             else if (rel != "alternate")
                             {
@@ -142,7 +144,6 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
                             }
                         }
                         item.link = linkEl->getAttribute("href");
-                        break;
                     }
                 }
             }

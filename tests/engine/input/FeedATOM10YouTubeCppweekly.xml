@@ -1,0 +1,1575 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015"
+    xmlns:media="http://search.yahoo.com/mrss/"
+    xmlns="http://www.w3.org/2005/Atom">
+    <link rel="self" href="http://www.youtube.com/feeds/videos.xml?channel_id=UCxHAlbZQNFU2LgEtiqd2Maw"/>
+    <id>yt:channel:xHAlbZQNFU2LgEtiqd2Maw</id>
+    <yt:channelId>xHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+    <title>C++ Weekly With Jason Turner</title>
+    <link rel="alternate" href="https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw"/>
+    <author>
+        <name>C++ Weekly With Jason Turner</name>
+        <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+    </author>
+    <published>2007-09-08T22:02:33+00:00</published>
+    <entry>
+        <id>yt:video:46Czrc2Uwvc</id>
+        <yt:videoId>46Czrc2Uwvc</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>CS101++ - What Are The Parts of a Computer?</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=46Czrc2Uwvc"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2024-01-17T16:29:54+00:00</published>
+        <updated>2024-01-17T16:29:54+00:00</updated>
+        <media:group>
+            <media:title>CS101++ - What Are The Parts of a Computer?</media:title>
+            <media:content url="https://www.youtube.com/v/46Czrc2Uwvc?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i1.ytimg.com/vi/46Czrc2Uwvc/hqdefault.jpg" width="480" height="360"/>
+            <media:description>Newegg -  https://www.newegg.com/
+BuildMyPC - https://buildmypc.net/
+
+☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+https://github.com/lefticus/cpp_weekly/discussions/categories/cs101 for open ended conversions about CS101++ videos 
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="108" average="5.00" min="1" max="5"/>
+                <media:statistics views="1735"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:uE0h79vB-rw</id>
+        <yt:videoId>uE0h79vB-rw</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 411 - Intro to C++ Exceptions</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=uE0h79vB-rw"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2024-01-15T16:59:12+00:00</published>
+        <updated>2024-01-15T16:59:12+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 411 - Intro to C++ Exceptions</media:title>
+            <media:content url="https://www.youtube.com/v/uE0h79vB-rw?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i2.ytimg.com/vi/uE0h79vB-rw/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+Check out Undo's Time Travel Debugging! https://undo.io/cppweekly
+
+Episode details: https://github.com/lefticus/cpp_weekly/issues/315
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="444" average="5.00" min="1" max="5"/>
+                <media:statistics views="6414"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:gv-hR-9qYjo</id>
+        <yt:videoId>gv-hR-9qYjo</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>CS101++ - What is a Programming Language?</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=gv-hR-9qYjo"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2024-01-12T16:30:01+00:00</published>
+        <updated>2024-01-12T16:30:18+00:00</updated>
+        <media:group>
+            <media:title>CS101++ - What is a Programming Language?</media:title>
+            <media:content url="https://www.youtube.com/v/gv-hR-9qYjo?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i4.ytimg.com/vi/gv-hR-9qYjo/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+https://github.com/lefticus/cpp_weekly/discussions/categories/cs101 for open ended conversions about CS101++ videos 
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="157" average="5.00" min="1" max="5"/>
+                <media:statistics views="2830"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:2sDVVhHjUhA</id>
+        <yt:videoId>2sDVVhHjUhA</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>CS101++ - What is Computer Science?</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=2sDVVhHjUhA"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2024-01-10T16:29:50+00:00</published>
+        <updated>2024-01-10T16:29:54+00:00</updated>
+        <media:group>
+            <media:title>CS101++ - What is Computer Science?</media:title>
+            <media:content url="https://www.youtube.com/v/2sDVVhHjUhA?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i3.ytimg.com/vi/2sDVVhHjUhA/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+https://github.com/lefticus/cpp_weekly/discussions/categories/cs101 for open ended conversions about CS101++ videos 
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="281" average="5.00" min="1" max="5"/>
+                <media:statistics views="4361"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:E0QhZ6tNoRg</id>
+        <yt:videoId>E0QhZ6tNoRg</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 410 -  What Are Padding and Alignment? (And Why You Might Care)</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=E0QhZ6tNoRg"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2024-01-08T16:30:01+00:00</published>
+        <updated>2024-01-15T02:56:24+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 410 -  What Are Padding and Alignment? (And Why You Might Care)</media:title>
+            <media:content url="https://www.youtube.com/v/E0QhZ6tNoRg?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i2.ytimg.com/vi/E0QhZ6tNoRg/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+Besides yourself, who knows your project best? Your IDE! This is what makes AI Assistant in CLion, a C++ IDE by JetBrains, so context-aware and helpful.
+
+* Wondering how to adopt C++ modules into your project or link to a selected library in CMake? Send your question to the AI chat. Its answer will take into account the technology you use and your project context.
+* Need to research an error? AI Assistant in CLion can explain a runtime error, a CMake execution failure, or a selected piece of code.
+* Want to improve your code? AI Assistant will suggest a refactoring and generate documentation for you.
+
+JetBrains AI Assistant is now generally available. Use AI Assistant in CLion as an add-on with a JetBrains AI service subscription.
+
+Learn more at https://jb.gg/cpp_ai 
+
+Episode details: https://github.com/lefticus/cpp_weekly/issues/173
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="553" average="5.00" min="1" max="5"/>
+                <media:statistics views="11195"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:c447uYCePAo</id>
+        <yt:videoId>c447uYCePAo</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>CS001++ - Welcome to the CS++ Video Series</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=c447uYCePAo"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2024-01-05T16:29:59+00:00</published>
+        <updated>2024-01-11T20:12:34+00:00</updated>
+        <media:group>
+            <media:title>CS001++ - Welcome to the CS++ Video Series</media:title>
+            <media:content url="https://www.youtube.com/v/c447uYCePAo?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i4.ytimg.com/vi/c447uYCePAo/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+https://github.com/lefticus/cpp_weekly/discussions/categories/cs101 for open ended conversions about CS101++ videos 
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="1040" average="5.00" min="1" max="5"/>
+                <media:statistics views="15341"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:jWhFuK7J5HY</id>
+        <yt:videoId>jWhFuK7J5HY</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 409 - How To 2x or 3x Your Developer Salary in 2024 (Plus Some Interviewing Tips!)</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=jWhFuK7J5HY"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2024-01-01T16:29:58+00:00</published>
+        <updated>2024-01-01T16:29:59+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 409 - How To 2x or 3x Your Developer Salary in 2024 (Plus Some Interviewing Tips!)</media:title>
+            <media:content url="https://www.youtube.com/v/jWhFuK7J5HY?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i3.ytimg.com/vi/jWhFuK7J5HY/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+This episode is sponsored by think-cell. https://think-cell.com/cppweekly
+
+Episode Notes: https://github.com/lefticus/cpp_weekly/issues/194
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="479" average="5.00" min="1" max="5"/>
+                <media:statistics views="11656"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:p8Q-bapMShs</id>
+        <yt:videoId>p8Q-bapMShs</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 408 - Implementing C++23's constexpr  unique_ptr in C++20</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=p8Q-bapMShs"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2023-12-25T16:29:54+00:00</published>
+        <updated>2024-01-14T15:56:58+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 408 - Implementing C++23's constexpr  unique_ptr in C++20</media:title>
+            <media:content url="https://www.youtube.com/v/p8Q-bapMShs?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i1.ytimg.com/vi/p8Q-bapMShs/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+Besides yourself, who knows your project best? Your IDE! This is what makes AI Assistant in CLion, a C++ IDE by JetBrains, so context-aware and helpful.
+
+* Wondering how to adopt C++ modules into your project or link to a selected library in CMake? Send your question to the AI chat. Its answer will take into account the technology you use and your project context.
+* Need to research an error? AI Assistant in CLion can explain a runtime error, a CMake execution failure, or a selected piece of code.
+* Want to improve your code? AI Assistant will suggest a refactoring and generate documentation for you.
+
+JetBrains AI Assistant is now generally available. Use AI Assistant in CLion as an add-on with a JetBrains AI service subscription.
+
+Learn more at https://jb.gg/cpp_ai 
+
+Episode details: https://github.com/lefticus/cpp_weekly/issues/80
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="411" average="5.00" min="1" max="5"/>
+                <media:statistics views="8020"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:A5haG_UCbRI</id>
+        <yt:videoId>A5haG_UCbRI</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 407 - C++98 Code Restoration</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=A5haG_UCbRI"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2023-12-18T16:29:58+00:00</published>
+        <updated>2023-12-18T16:29:58+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 407 - C++98 Code Restoration</media:title>
+            <media:content url="https://www.youtube.com/v/A5haG_UCbRI?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i2.ytimg.com/vi/A5haG_UCbRI/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+Episode details: https://github.com/lefticus/cpp_weekly/issues/347
+
+00:00 Intro
+00:29 Background
+02:07 Historical Context
+03:06 Current Status
+04:26 Adding Tests / Making Code Testable
+12:53 Crash Analysis
+14:53 Best Practices in C++98
+19:39 Applying Best Practices in C++98
+37:26 Final Results!
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="350" average="5.00" min="1" max="5"/>
+                <media:statistics views="10441"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:MsujPM2wDmk</id>
+        <yt:videoId>MsujPM2wDmk</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 406 - Why Avoid Pointer Arithmetic?</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=MsujPM2wDmk"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2023-12-11T16:29:58+00:00</published>
+        <updated>2023-12-18T03:17:58+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 406 - Why Avoid Pointer Arithmetic?</media:title>
+            <media:content url="https://www.youtube.com/v/MsujPM2wDmk?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i2.ytimg.com/vi/MsujPM2wDmk/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+Calling all C++ developers: A free preview of CLion with much faster core IDE functions is out! 🎉 Introducing CLion Nova – a version of CLion with the C++ language engine from ReSharper C++ and JetBrains Rider. It brings:
+
+    Faster highlighting speeds
+    A more responsive UI
+    Significantly fewer freezes and hangs in refactorings
+
+
+Learn more and use it for free: https://jb.gg/cpp_nova 
+
+Episode Notes: https://github.com/lefticus/cpp_weekly/issues/326
+
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="605" average="5.00" min="1" max="5"/>
+                <media:statistics views="11949"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:h3F0Fw0R7ME</id>
+        <yt:videoId>h3F0Fw0R7ME</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 405 - Dogbolt: The Decompiler Explorer</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=h3F0Fw0R7ME"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2023-12-04T16:30:18+00:00</published>
+        <updated>2024-01-03T09:43:24+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 405 - Dogbolt: The Decompiler Explorer</media:title>
+            <media:content url="https://www.youtube.com/v/h3F0Fw0R7ME?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i1.ytimg.com/vi/h3F0Fw0R7ME/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+Check out Undo's Time Travel Debugging! https://undo.io/cppweekly
+
+Episode Details: https://github.com/lefticus/cpp_weekly/issues/120
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="398" average="5.00" min="1" max="5"/>
+                <media:statistics views="10485"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:6SaUwqw4ueE</id>
+        <yt:videoId>6SaUwqw4ueE</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 404 - How (and Why) To Write Code That Avoids std::move</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=6SaUwqw4ueE"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2023-11-27T16:29:49+00:00</published>
+        <updated>2023-11-27T16:29:49+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 404 - How (and Why) To Write Code That Avoids std::move</media:title>
+            <media:content url="https://www.youtube.com/v/6SaUwqw4ueE?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i3.ytimg.com/vi/6SaUwqw4ueE/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+Calling all C++ developers: A free preview of CLion with much faster core IDE functions is out! 🎉 Introducing CLion Nova – a version of CLion with the C++ language engine from ReSharper C++ and JetBrains Rider. It brings:
+
+    Faster highlighting speeds
+    A more responsive UI
+    Significantly fewer freezes and hangs in refactorings
+
+
+Learn more and use it for free: https://jb.gg/cpp_nova 
+
+Episode Notes: https://github.com/lefticus/cpp_weekly/issues/299
+Episode 125 - The Optimal Way To Return From A Function - https://youtu.be/9mWWNYRHAIQ
+
+T-SHIRTS AVAILABLE!
+
+► Are you a constexprt? https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback (Color Printing): https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++: https://amzn.to/3IUiVGt
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cppbestpractices
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cpp_starter_project
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="1084" average="5.00" min="1" max="5"/>
+                <media:statistics views="18238"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:TWoZ9SGIE9o</id>
+        <yt:videoId>TWoZ9SGIE9o</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 403 - Easier Coroutines with CppCoro</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=TWoZ9SGIE9o"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2023-11-20T16:29:51+00:00</published>
+        <updated>2024-01-05T18:09:49+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 403 - Easier Coroutines with CppCoro</media:title>
+            <media:content url="https://www.youtube.com/v/TWoZ9SGIE9o?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i1.ytimg.com/vi/TWoZ9SGIE9o/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+This episode is sponsored by think-cell. https://think-cell.com/cppweekly
+
+Episode Notes: https://github.com/lefticus/cpp_weekly/issues/78
+
+T-SHIRTS AVAILABLE!
+
+► Are you a constexprt? https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback (Color Printing): https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++: https://amzn.to/3IUiVGt
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cppbestpractices
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cpp_starter_project
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="388" average="5.00" min="1" max="5"/>
+                <media:statistics views="9064"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:7kqxYZKm64A</id>
+        <yt:videoId>7kqxYZKm64A</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 402 - Reviewing My 25 Year Old C++ Code (IT'S BAD!)</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=7kqxYZKm64A"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2023-11-13T16:29:46+00:00</published>
+        <updated>2023-12-27T04:09:35+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 402 - Reviewing My 25 Year Old C++ Code (IT'S BAD!)</media:title>
+            <media:content url="https://www.youtube.com/v/7kqxYZKm64A?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i4.ytimg.com/vi/7kqxYZKm64A/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+Create anything, find anything, fix anything, and navigate to anything with C++ and CLion.
+
+A cross-platform IDE for C and C++ with:
+- A smart C and C++ editor to navigate and maintain your code base productively.
+- Code analysis with quick-fixes to identify and fix bugs and style inconsistencies.
+- An integrated debugger – along with other essential tools from the ecosystem – available straight out of the box.
+
+Learn more: https://jb.gg/clion_ide 
+
+Use `CppWeeklyCLion` to get 25% OFF when you purchase a new CLion subscription or renew your existing one.
+
+Episode Details: https://github.com/lefticus/cpp_weekly/issues/337
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="691" average="5.00" min="1" max="5"/>
+                <media:statistics views="15553"/>
+            </media:community>
+        </media:group>
+    </entry>
+    <entry>
+        <id>yt:video:3ZeV-F1Rbaw</id>
+        <yt:videoId>3ZeV-F1Rbaw</yt:videoId>
+        <yt:channelId>UCxHAlbZQNFU2LgEtiqd2Maw</yt:channelId>
+        <title>C++ Weekly - Ep 401 - C++23's chunk view and stride view</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=3ZeV-F1Rbaw"/>
+        <author>
+            <name>C++ Weekly With Jason Turner</name>
+            <uri>https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw</uri>
+        </author>
+        <published>2023-11-06T16:33:24+00:00</published>
+        <updated>2023-12-30T22:16:32+00:00</updated>
+        <media:group>
+            <media:title>C++ Weekly - Ep 401 - C++23's chunk view and stride view</media:title>
+            <media:content url="https://www.youtube.com/v/3ZeV-F1Rbaw?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+            <media:thumbnail url="https://i4.ytimg.com/vi/3ZeV-F1Rbaw/hqdefault.jpg" width="480" height="360"/>
+            <media:description>☟☟ Awesome T-Shirts! Sponsors! Books! ☟☟
+
+Check out Undo's Time Travel Debugging! https://undo.io/cppweekly
+
+Episode Details: https://github.com/lefticus/cpp_weekly/issues/296
+
+T-SHIRTS AVAILABLE!
+
+► The best C++ T-Shirts anywhere! https://my-store-d16a2f.creator-spring.com/
+
+
+WANT MORE JASON?
+
+► My Training Classes: http://emptycrate.com/training.html
+► Follow me on twitter: https://twitter.com/lefticus
+
+
+SUPPORT THE CHANNEL
+
+► Patreon: https://www.patreon.com/lefticus 
+► Github Sponsors: https://github.com/sponsors/lefticus
+► Paypal Donation: https://www.paypal.com/donate/?hosted_button_id=PQ4A2V6ZZFQEU
+
+
+GET INVOLVED
+
+► Video Idea List: https://github.com/lefticus/cpp_weekly/issues
+
+
+JASON'S BOOKS
+
+► C++ Best Practices
+  Amazon Paperback: https://amzn.to/3wpAU3Z
+  Leanpub Ebook: https://leanpub.com/cppbestpractices
+
+
+JASON'S PUZZLE BOOKS
+
+► Object Lifetime Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g6Ervj
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book1
+  
+► Object Lifetime Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3whdUDU
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book2
+  
+► Object Lifetime Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/objectlifetimepuzzlers_book3
+
+► Copy and Reference Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3g7ZVb9
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book1
+
+► Copy and Reference Puzzlers Book 2
+  Amazon Paperback: https://amzn.to/3X1LOIx
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book2
+  
+► Copy and Reference Puzzlers Book 3
+  Leanpub Ebook: https://leanpub.com/copyandreferencepuzzlers_book3
+  
+► OpCode Puzzlers Book 1
+  Amazon Paperback: https://amzn.to/3KCNJg6
+  Leanpub Ebook: https://leanpub.com/opcodepuzzlers_book1
+
+  
+RECOMMENDED BOOKS
+
+► Bjarne Stroustrup's A Tour of C++ (now with C++20/23!): https://amzn.to/3X4Wypr
+
+
+AWESOME PROJECTS
+
+► The C++ Starter Project - Gets you started with Best Practices Quickly - https://github.com/cpp-best-practices/cpp_starter_project
+► C++ Best Practices Forkable Coding Standards - https://github.com/cpp-best-practices/cppbestpractices
+
+
+O'Reilly VIDEOS
+
+► Inheritance and Polymorphism in C++ - https://www.oreilly.com/library/view/inheritance-and-polymorphism/9781491961933/
+► Learning C++ Best Practices - https://www.oreilly.com/library/view/learning-c-best/9781491954898/</media:description>
+            <media:community>
+                <media:starRating count="246" average="5.00" min="1" max="5"/>
+                <media:statistics views="5852"/>
+            </media:community>
+        </media:group>
+    </entry>
+</feed>

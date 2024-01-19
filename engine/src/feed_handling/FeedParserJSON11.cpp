@@ -93,11 +93,11 @@ std::string ZapFR::Engine::FeedParserJSON11::iconURL() const
 std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserJSON11::items() const
 {
     std::string topLevelAuthors;
-    if (mRootObj->has("authors"))
+    if (mRootObj->has("authors") && mRootObj->isArray("authors"))
     {
         topLevelAuthors = getAuthors(mRootObj->getArray("authors"));
     }
-    if (topLevelAuthors.empty() && mRootObj->has("author"))
+    if (topLevelAuthors.empty() && mRootObj->has("author") && mRootObj->isObject("author"))
     {
         auto authorObj = mRootObj->getObject("author");
         if (authorObj->has("name"))
@@ -107,99 +107,101 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserJSON11::it
     }
 
     std::vector<Item> items;
-
-    auto itemList = mRootObj->getArray("items");
-    for (size_t i = 0; i < itemList->size(); ++i)
+    if (mRootObj->has("items") && mRootObj->isArray("items"))
     {
-        auto itemObj = itemList->getObject(static_cast<uint32_t>(i));
-        if (!itemObj->has("id"))
+        auto itemList = mRootObj->getArray("items");
+        for (size_t i = 0; i < itemList->size(); ++i)
         {
-            continue;
-        }
-
-        Item item;
-
-        item.guid = itemObj->getValue<std::string>("id");
-
-        if (itemObj->has("url"))
-        {
-            item.link = itemObj->getValue<std::string>("url");
-        }
-
-        if (itemObj->has("title"))
-        {
-            item.title = itemObj->getValue<std::string>("title");
-        }
-
-        if (itemObj->has("content_html"))
-        {
-            item.content = itemObj->getValue<std::string>("content_html");
-        }
-        else
-        {
-            auto text = itemObj->getValue<std::string>("content_text");
-
-            // the spec is very clear about only allowing html in the content_html field, yet some people put html in there
-            // seeing as this screws up the layout, force it to show the html as plain text by replacing < and >
-            Poco::replaceInPlace(text, "<", "&lt;");
-            Poco::replaceInPlace(text, ">", "&gt;");
-
-            Poco::replaceInPlace(text, "\n", "<br />");
-            item.content = fmt::format(R"(<pre style="white-space:pre-wrap;">{}</pre>)", text);
-        }
-
-        if (itemObj->has("image"))
-        {
-            item.thumbnail = itemObj->getValue<std::string>("image");
-        }
-
-        std::string providedDate;
-        if (itemObj->has("date_modified"))
-        {
-            providedDate = itemObj->getValue<std::string>("date_modified");
-        }
-        else if (itemObj->has("date_published"))
-        {
-            providedDate = itemObj->getValue<std::string>("date_published");
-        }
-        if (!providedDate.empty())
-        {
-            Poco::DateTime parsedDate;
-            int tzDiff;
-            if (Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::ISO8601_FORMAT, providedDate, parsedDate, tzDiff))
+            auto itemObj = itemList->getObject(static_cast<uint32_t>(i));
+            if (!itemObj->has("id"))
             {
-                parsedDate.makeUTC(tzDiff);
-                item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+                continue;
             }
-        }
 
-        if (itemObj->has("authors"))
-        {
-            item.author = getAuthors(itemObj->getArray("authors"));
-        }
-        else if (itemObj->has("author"))
-        {
-            auto authorObj = itemObj->getObject("author");
-            if (authorObj->has("name"))
+            Item item;
+
+            item.guid = itemObj->getValue<std::string>("id");
+
+            if (itemObj->has("url"))
             {
-                item.author = authorObj->getValue<std::string>("name");
+                item.link = itemObj->getValue<std::string>("url");
             }
-        }
-        else
-        {
-            item.author = topLevelAuthors;
-        }
 
-        if (itemObj->has("tags"))
-        {
-            auto tagArr = itemObj->getArray("tags");
-            for (size_t j = 0; j < tagArr->size(); ++j)
+            if (itemObj->has("title"))
             {
-                item.categories.emplace_back(tagArr->getElement<std::string>(static_cast<uint32_t>(j)));
+                item.title = itemObj->getValue<std::string>("title");
             }
-        }
 
-        items.emplace_back(item);
+            if (itemObj->has("content_html"))
+            {
+                item.content = itemObj->getValue<std::string>("content_html");
+            }
+            else if (itemObj->has("content_text"))
+            {
+                auto text = itemObj->getValue<std::string>("content_text");
+
+                // the spec is very clear about only allowing html in the content_html field, yet some people put html in there
+                // seeing as this screws up the layout, force it to show the html as plain text by replacing < and >
+                Poco::replaceInPlace(text, "<", "&lt;");
+                Poco::replaceInPlace(text, ">", "&gt;");
+
+                Poco::replaceInPlace(text, "\n", "<br />");
+                item.content = fmt::format(R"(<pre style="white-space:pre-wrap;">{}</pre>)", text);
+            }
+
+            if (itemObj->has("image"))
+            {
+                item.thumbnail = itemObj->getValue<std::string>("image");
+            }
+
+            std::string providedDate;
+            if (itemObj->has("date_modified"))
+            {
+                providedDate = itemObj->getValue<std::string>("date_modified");
+            }
+            else if (itemObj->has("date_published"))
+            {
+                providedDate = itemObj->getValue<std::string>("date_published");
+            }
+            if (!providedDate.empty())
+            {
+                Poco::DateTime parsedDate;
+                int tzDiff;
+                if (Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::ISO8601_FORMAT, providedDate, parsedDate, tzDiff))
+                {
+                    parsedDate.makeUTC(tzDiff);
+                    item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+                }
+            }
+
+            if (itemObj->has("authors") && itemObj->isArray("authors"))
+            {
+                item.author = getAuthors(itemObj->getArray("authors"));
+            }
+            else if (itemObj->has("author") && itemObj->isObject("author"))
+            {
+                auto authorObj = itemObj->getObject("author");
+                if (authorObj->has("name"))
+                {
+                    item.author = authorObj->getValue<std::string>("name");
+                }
+            }
+            else
+            {
+                item.author = topLevelAuthors;
+            }
+
+            if (itemObj->has("tags") && itemObj->isArray("tags"))
+            {
+                auto tagArr = itemObj->getArray("tags");
+                for (size_t j = 0; j < tagArr->size(); ++j)
+                {
+                    item.categories.emplace_back(tagArr->getElement<std::string>(static_cast<uint32_t>(j)));
+                }
+            }
+
+            items.emplace_back(item);
+        }
     }
 
     return items;

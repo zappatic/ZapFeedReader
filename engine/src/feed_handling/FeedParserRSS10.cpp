@@ -70,6 +70,7 @@ std::string ZapFR::Engine::FeedParserRSS10::iconURL() const
     if (imageNode != nullptr)
     {
         auto imageEl = dynamic_cast<Poco::XML::Element*>(imageNode);
+        // TODO: this doesn't work, needs the actual namespace instead of rdf
         if (imageEl->hasAttributeNS("rdf", "about"))
         {
             return imageEl->getAttributeNS("rdf", "about");

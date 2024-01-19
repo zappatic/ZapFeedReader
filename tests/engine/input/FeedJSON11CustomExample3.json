@@ -1,0 +1,11 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "Custom example",
+  "description": "this is the description",
+  "authors": [],
+  "items": [
+    {
+      "id": "test-id"
+    }
+  ]
+}

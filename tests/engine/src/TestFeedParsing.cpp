@@ -1,0 +1,229 @@
+/*
+    ZapFeedReader - RSS/Atom feed reader
+    Copyright (C) 2023-present  Kasper Nauwelaerts (zapfr at zappatic dot net)
+
+    ZapFeedReader is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    ZapFeedReader is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#include <Poco/DOM/DOMParser.h>
+#include <Poco/JSON/Parser.h>
+#include <catch2/catch_test_macros.hpp>
+
+#include "DataFetcher.h"
+#include "ZapFR/feed_handling/FeedParser.h"
+#include "ZapFR/feed_handling/FeedParserATOM10.h"
+#include "ZapFR/feed_handling/FeedParserJSON11.h"
+
+TEST_CASE("Parse ATOM 1.0 (Daring Fireball)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedATOM10DaringFireball.xml");
+
+    Poco::XML::DOMParser parser;
+    Poco::AutoPtr<Poco::XML::Document> xmlDoc = parser.parseString(input);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserATOM10>("https://example.com");
+    feed->setXMLDoc(xmlDoc);
+
+    REQUIRE(feed->guid() == "https://daringfireball.net/feeds/main");
+    REQUIRE(feed->title() == "Daring Fireball");
+    REQUIRE(feed->subtitle() == "By John Gruber");
+    REQUIRE(feed->link() == "https://daringfireball.net/");
+    REQUIRE(feed->description() == "");
+    REQUIRE(feed->iconURL() == "");
+    REQUIRE(feed->language() == "");
+    REQUIRE(feed->copyright() == "Copyright © 2023, John Gruber");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 48);
+
+    const auto& item = items.at(0);
+    REQUIRE(item.title == "Orion: Use an iPad as an External HDMI Display");
+    REQUIRE(item.link == "https://www.lux.camera/meet-orion/");
+    REQUIRE(item.guid == "tag:daringfireball.net,2023:/linked//6.40276");
+    REQUIRE(item.content.starts_with("\n<p>Speaking of "));
+    REQUIRE(item.author == "John Gruber");
+    REQUIRE(item.commentsURL == "");
+    REQUIRE(item.datePublished == "2023-10-05T23:57:09Z");
+    REQUIRE(item.thumbnail == "");
+}
+
+TEST_CASE("Parse ATOM 1.0 (YouTube @cppweekly)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedATOM10YouTubeCppweekly.xml");
+
+    Poco::XML::DOMParser parser;
+    Poco::AutoPtr<Poco::XML::Document> xmlDoc = parser.parseString(input);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserATOM10>("https://example.com");
+    feed->setXMLDoc(xmlDoc);
+
+    REQUIRE(feed->guid() == "yt:channel:xHAlbZQNFU2LgEtiqd2Maw");
+    REQUIRE(feed->title() == "C++ Weekly With Jason Turner");
+    REQUIRE(feed->subtitle() == "");
+    REQUIRE(feed->link() == "https://www.youtube.com/channel/UCxHAlbZQNFU2LgEtiqd2Maw");
+    REQUIRE(feed->description() == "");
+    REQUIRE(feed->iconURL() == "");
+    REQUIRE(feed->language() == "");
+    REQUIRE(feed->copyright() == "");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 15);
+
+    const auto& item = items.at(0);
+    REQUIRE(item.title == "CS101++ - What Are The Parts of a Computer?");
+    REQUIRE(item.link == "https://www.youtube.com/watch?v=46Czrc2Uwvc");
+    REQUIRE(item.guid == "yt:video:46Czrc2Uwvc");
+    REQUIRE(item.content.starts_with(R"(<a href="https://www.youtube.com/watch?v)"));
+    REQUIRE(item.author == "C++ Weekly With Jason Turner");
+    REQUIRE(item.commentsURL == "");
+    REQUIRE(item.datePublished == "2024-01-17T16:29:54Z");
+    REQUIRE(item.thumbnail == "https://i1.ytimg.com/vi/46Czrc2Uwvc/hqdefault.jpg");
+}
+
+TEST_CASE("Parse ATOM 1.0 (custom example)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedATOM10CustomExample.xml");
+
+    Poco::XML::DOMParser parser;
+    Poco::AutoPtr<Poco::XML::Document> xmlDoc = parser.parseString(input);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserATOM10>("https://example.com");
+    feed->setXMLDoc(xmlDoc);
+
+    REQUIRE(feed->language() == "en");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 1);
+
+    const auto& item = items.at(0);
+    REQUIRE(item.datePublished == "2003-12-13T18:30:02Z");
+    REQUIRE(item.categories.size() == 2);
+    REQUIRE(item.categories.at(0) == "term1");
+
+    REQUIRE(item.enclosures.size() == 3);
+    REQUIRE(item.enclosures.at(0).size == 100);
+    REQUIRE(item.enclosures.at(0).url == "file:///dummy");
+    REQUIRE(item.enclosures.at(0).mimeType == "image/jpeg");
+    REQUIRE(item.enclosures.at(1).size == 200);
+    REQUIRE(item.enclosures.at(1).url == "file:///dummy2");
+    REQUIRE(item.enclosures.at(1).mimeType == "image/png");
+    REQUIRE(item.enclosures.at(2).size == 300);
+    REQUIRE(item.enclosures.at(2).url == "file:///dummy3");
+    REQUIRE(item.enclosures.at(2).mimeType == "image/gif");
+}
+
+TEST_CASE("Parse JSON 1.1 (Daring Fireball)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedJSON11DaringFireball.json");
+
+    Poco::JSON::Parser parser;
+    auto root = parser.parse(input);
+    auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+    REQUIRE(rootObj != nullptr);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserJSON11>("https://example.com");
+    feed->setRootObj(rootObj);
+
+    REQUIRE(feed->guid() == "https://daringfireball.net/feeds/json");
+    REQUIRE(feed->title() == "Daring Fireball");
+    REQUIRE(feed->subtitle() == "");
+    REQUIRE(feed->link() == "https://daringfireball.net/");
+    REQUIRE(feed->description() == "");
+    REQUIRE(feed->iconURL() == "https://daringfireball.net/graphics/apple-touch-icon.png");
+    REQUIRE(feed->language() == "");
+    REQUIRE(feed->copyright() == "");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 48);
+
+    const auto& item = items.at(0);
+    REQUIRE(item.title == "Orion: Use an iPad as an External HDMI Display");
+    REQUIRE(item.link == "https://daringfireball.net/linked/2023/10/05/orion");
+    REQUIRE(item.guid == "https://daringfireball.net/linked/2023/10/05/orion");
+    REQUIRE(item.content.starts_with("\n<p>Speaking of "));
+    REQUIRE(item.author == "John Gruber");
+    REQUIRE(item.commentsURL == "");
+    REQUIRE(item.datePublished == "2023-10-05T23:57:09Z");
+    REQUIRE(item.thumbnail == "");
+}
+
+TEST_CASE("Parse JSON 1.1 (custom example)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedJSON11CustomExample.json");
+
+    Poco::JSON::Parser parser;
+    auto root = parser.parse(input);
+    auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+    REQUIRE(rootObj != nullptr);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserJSON11>("https://example.com");
+    feed->setRootObj(rootObj);
+
+    REQUIRE(feed->guid() == "");
+    REQUIRE(feed->link() == "");
+    REQUIRE(feed->description() == "this is the description");
+    REQUIRE(feed->iconURL() == "file://favicon.ico");
+    REQUIRE(feed->language() == "en");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 1);
+
+    const auto& item = items.at(0);
+    REQUIRE(item.author == "Overriding author");
+    REQUIRE(item.content == R"(<pre style="white-space:pre-wrap;">&lt;nohtml&gt;</pre>)");
+    REQUIRE(item.thumbnail == "file:///image.png");
+    REQUIRE(item.datePublished == "2023-10-05T23:57:08Z");
+    REQUIRE(item.categories.size() == 2);
+    REQUIRE(item.categories.at(0) == "tag1");
+}
+
+TEST_CASE("Parse JSON 1.1 (custom example 2)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedJSON11CustomExample2.json");
+
+    Poco::JSON::Parser parser;
+    auto root = parser.parse(input);
+    auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+    REQUIRE(rootObj != nullptr);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserJSON11>("https://example.com");
+    feed->setRootObj(rootObj);
+
+    REQUIRE(feed->iconURL() == "");
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 1);
+
+    const auto& item = items.at(0);
+    REQUIRE(item.author == "Overriding author");
+}
+
+TEST_CASE("Parse JSON 1.1 (custom example 3)", "[feedparsing]")
+{
+    const auto& input = ZapFR::Tests::DataFetcher::fetch(ZapFR::Tests::DataFetcher::Source::Input, "FeedJSON11CustomExample3.json");
+
+    Poco::JSON::Parser parser;
+    auto root = parser.parse(input);
+    auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
+    REQUIRE(rootObj != nullptr);
+
+    auto feed = std::make_unique<ZapFR::Engine::FeedParserJSON11>("https://example.com");
+    feed->setRootObj(rootObj);
+
+    auto items = feed->items();
+    REQUIRE(items.size() == 1);
+
+    const auto& item = items.at(0);
+    REQUIRE(item.author == "");
+}
