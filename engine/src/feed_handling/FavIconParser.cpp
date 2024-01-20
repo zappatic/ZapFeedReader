@@ -26,8 +26,9 @@
 #include "ZapFR/Helpers.h"
 #include "ZapFR/feed_handling/FavIconParser.h"
 
-ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t associatedFeedID) : mURL(url), mFavIcon("")
+void ZapFR::Engine::FavIconParser::parseURL(const std::string& url, uint64_t associatedFeedID)
 {
+    mURL = url;
     if (url.empty())
     {
         return;
@@ -36,6 +37,17 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
     Poco::Net::HTTPCredentials creds; // TODO
     auto uri = Poco::URI(url);
     const auto& [html, cgi] = Helpers::performHTTPRequest(uri, Poco::Net::HTTPRequest::HTTP_GET, creds, {}, associatedFeedID);
+    parseString(html, {});
+}
+
+void ZapFR::Engine::FavIconParser::parseString(const std::string& html, const std::optional<std::string>& originalURL)
+{
+    if (originalURL.has_value())
+    {
+        mURL = originalURL.value();
+    }
+
+    auto uri = Poco::URI(mURL);
 
     // exception for YouTube: extract the channel image from the ytInitialData variable
     if (Poco::endsWith(uri.getHost(), std::string("youtube.com")))
@@ -103,7 +115,7 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
     }
 
     mFavIcon = handler.favIconURL();
-    if (!mFavIcon.empty() || saxParsingSuccessful)
+    if (!mFavIcon.empty() || (saxParsingSuccessful && handler.linkIconTagEncountered()))
     {
         return;
     }
@@ -135,13 +147,13 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
     }
 
     mFavIcon = handler.favIconURL();
-    if (!mFavIcon.empty() || saxParsingSuccessful)
+    if (!mFavIcon.empty() || (saxParsingSuccessful && handler.linkIconTagEncountered()))
     {
         return;
     }
 
     // point to <site>/favicon.ico as a last resort
-    auto lastResortURI = Poco::URI(url);
+    auto lastResortURI = Poco::URI(mURL);
     lastResortURI.setPath("/favicon.ico");
     mFavIcon = lastResortURI.toString();
 }
@@ -170,6 +182,7 @@ void ZapFR::Engine::FavIconSaxParser::startElement(const Poco::XML::XMLString& /
             auto relValue = attrList.getValue(relIndex);
             if (relValue.find("icon") != std::string::npos)
             {
+                mLinkIconTagEncountered = true;
                 mFavIconURL = attrList.getValue(hrefIndex);
             }
         }

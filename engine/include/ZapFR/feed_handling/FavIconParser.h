@@ -19,6 +19,8 @@
 #ifndef ZAPFR_ENGINE_FAVICONPARSER_H
 #define ZAPFR_ENGINE_FAVICONPARSER_H
 
+#include <optional>
+
 #include <Poco/SAX/ContentHandler.h>
 #include <Poco/SAX/ErrorHandler.h>
 #include <Poco/SAX/SAXException.h>
@@ -30,9 +32,11 @@ namespace ZapFR
         class FavIconParser
         {
           public:
-            FavIconParser(const std::string& url, uint64_t associatedFeedID);
+            FavIconParser() = default;
             virtual ~FavIconParser() = default;
 
+            void parseURL(const std::string& url, uint64_t associatedFeedID);
+            void parseString(const std::string& html, const std::optional<std::string>& originalURL);
             std::string favIcon() const noexcept;
 
           private:
@@ -44,6 +48,7 @@ namespace ZapFR
         {
           public:
             std::string favIconURL() const noexcept { return mFavIconURL; }
+            bool linkIconTagEncountered() const noexcept { return mLinkIconTagEncountered; }
 
             void setDocumentLocator(const Poco::XML::Locator* loc) override { mLocator = loc; };
             void startDocument() override{};
@@ -61,6 +66,7 @@ namespace ZapFR
           private:
             const Poco::XML::Locator* mLocator{nullptr};
             std::string mFavIconURL{""};
+            bool mLinkIconTagEncountered{false};
         };
 
         class FavIconSaxErrorHandler : public Poco::XML::ErrorHandler

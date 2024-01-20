@@ -364,7 +364,8 @@ void ZapFR::Engine::FeedLocal::refreshIcon()
             indexPage.setPath("/");
             link = indexPage.toString();
         }
-        auto p = FavIconParser(link, mID);
+        auto p = FavIconParser();
+        p.parseURL(link, mID);
         iconURLToQuery = p.favIcon();
     }
     else
