@@ -52,19 +52,20 @@ ZapFR::Engine::FavIconParser::FavIconParser(const std::string& url, uint64_t ass
                 Poco::JSON::Parser parser;
                 auto root = parser.parse(html.substr(match.offset, match.length));
                 auto rootObj = root.extract<Poco::JSON::Object::Ptr>();
-                if (rootObj->has("metadata")) // converting to Poco::DynamicStruct has syntax advantages but performance disadvantages (needs to copy)
+                if (rootObj->has("metadata") &&
+                    rootObj->isObject("metadata")) // converting to Poco::DynamicStruct has syntax advantages but performance disadvantages (needs to copy)
                 {
                     auto metadataObj = rootObj->getObject("metadata");
-                    if (metadataObj->has("channelMetadataRenderer"))
+                    if (metadataObj->has("channelMetadataRenderer") && metadataObj->isObject("channelMetadataRenderer"))
                     {
                         auto cmdrObj = metadataObj->getObject("channelMetadataRenderer");
-                        if (cmdrObj->has("avatar"))
+                        if (cmdrObj->has("avatar") && cmdrObj->isObject("avatar"))
                         {
                             auto avatarObj = cmdrObj->getObject("avatar");
-                            if (avatarObj->has("thumbnails"))
+                            if (avatarObj->has("thumbnails") && avatarObj->isArray("thumbnails"))
                             {
                                 auto thumbnailsArr = avatarObj->getArray("thumbnails");
-                                if (thumbnailsArr->size() > 0)
+                                if (thumbnailsArr->size() > 0 && thumbnailsArr->isObject(0))
                                 {
                                     auto thumbnail = thumbnailsArr->getObject(0);
                                     if (thumbnail->has("url"))

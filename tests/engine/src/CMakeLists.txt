@@ -3,4 +3,5 @@ target_sources(tests-engine PRIVATE
     TestFeedDiscovery.cpp
     TestFeedFetcher.cpp
     TestFeedParsing.cpp
+    TestDummy.cpp
 )

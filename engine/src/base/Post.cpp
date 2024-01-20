@@ -98,18 +98,23 @@ void ZapFR::Engine::Post::fromJSON(const Poco::JSON::Object::Ptr o)
     setFlagColors(flagColors);
 
     auto enclosuresArr = o->getArray(JSON::Post::Enclosures);
-    for (size_t i = 0; i < enclosuresArr->size(); ++i)
+    if (enclosuresArr != nullptr)
     {
-        auto enclosureObj = enclosuresArr->getObject(static_cast<uint32_t>(i));
-        addEnclosure(enclosureObj->getValue<std::string>(JSON::Post::EnclosureURL), enclosureObj->getValue<std::string>(JSON::Post::EnclosureMimeType),
-                     enclosureObj->getValue<uint64_t>(JSON::Post::EnclosureSize));
+        for (size_t i = 0; i < enclosuresArr->size(); ++i)
+        {
+            auto enclosureObj = enclosuresArr->getObject(static_cast<uint32_t>(i));
+            addEnclosure(enclosureObj->getValue<std::string>(JSON::Post::EnclosureURL), enclosureObj->getValue<std::string>(JSON::Post::EnclosureMimeType),
+                         enclosureObj->getValue<uint64_t>(JSON::Post::EnclosureSize));
+        }
     }
-
     auto categoryArr = o->getArray(JSON::Post::Categories);
-    for (size_t i = 0; i < categoryArr->size(); ++i)
+    if (categoryArr != nullptr)
     {
-        auto catObj = categoryArr->getObject(static_cast<uint32_t>(i));
-        mCategories.emplace_back(catObj->getValue<uint64_t>(JSON::Post::CategoryID), catObj->getValue<std::string>(JSON::Post::CategoryTitle));
+        for (size_t i = 0; i < categoryArr->size(); ++i)
+        {
+            auto catObj = categoryArr->getObject(static_cast<uint32_t>(i));
+            mCategories.emplace_back(catObj->getValue<uint64_t>(JSON::Post::CategoryID), catObj->getValue<std::string>(JSON::Post::CategoryTitle));
+        }
     }
 }
 
