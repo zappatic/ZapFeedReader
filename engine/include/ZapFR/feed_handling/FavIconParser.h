@@ -57,11 +57,13 @@ namespace ZapFR
                               const Poco::XML::Attributes& attrList) override;
             void endElement(const Poco::XML::XMLString& /*uri*/, const Poco::XML::XMLString& /*localName*/, const Poco::XML::XMLString& /*qname*/) override {}
             void characters(const Poco::XML::XMLChar /*ch*/[], int /*start*/, int /*length*/) override {}
+            // LCOV_EXCL_START
             void ignorableWhitespace(const Poco::XML::XMLChar /*ch*/[], int /*start*/, int /*length*/) override {}
             void processingInstruction(const Poco::XML::XMLString& /*target*/, const Poco::XML::XMLString& /*data*/) override {}
             void startPrefixMapping(const Poco::XML::XMLString& /*prefix*/, const Poco::XML::XMLString& /*uri*/) override {}
             void endPrefixMapping(const Poco::XML::XMLString& /*prefix*/) override {}
             void skippedEntity(const Poco::XML::XMLString& /*name*/) override {}
+            // LCOV_EXCL_STOP
 
           private:
             const Poco::XML::Locator* mLocator{nullptr};
@@ -73,8 +75,10 @@ namespace ZapFR
         {
           public:
             void error(const Poco::XML::SAXException& /*exc*/) override {} // ignore recoverable errors
+            // LCOV_EXCL_START
             void fatalError(const Poco::XML::SAXException& exc) override { throw(exc); }
             void warning(const Poco::XML::SAXException& /*exc*/) override {} // ignore warnings
+            // LCOV_EXCL_STOP
         };
 
     } // namespace Engine

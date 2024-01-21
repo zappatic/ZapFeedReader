@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">    <!-- language specified -->
+<feed xmlns="http://www.w3.org/2005/Atom"
+    xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en">    <!-- language specified -->
     <title>Example Feed</title>
     <link href="http://example.org/"/>
     <updated>2003-12-13T18:30:02Z</updated>
@@ -27,5 +28,21 @@
 
         <category term="term1" />
         <category term="term2" />
+    </entry>
+    <entry>
+        <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6b</id>
+        <summary>
+            <!-- tags within summary -->
+            <b>content with tag</b>
+        </summary>
+    </entry>
+    <entry>
+        <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6c</id>
+        <media:group>
+            <!-- youtube media description with html description instead of text -->
+            <media:description type="html">
+                <b>bold</b>
+            </media:description>
+        </media:group>
     </entry>
 </feed>

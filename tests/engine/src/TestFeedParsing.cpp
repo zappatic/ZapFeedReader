@@ -108,9 +108,9 @@ TEST_CASE("Parse ATOM 1.0 (custom example)", "[feedparsing]")
     REQUIRE(feed->language() == "en");
 
     auto items = feed->items();
-    REQUIRE(items.size() == 1);
+    REQUIRE(items.size() == 3);
 
-    const auto& item = items.at(0);
+    auto& item = items.at(0);
     REQUIRE(item.datePublished == "2003-12-13T18:30:02Z");
     REQUIRE(item.categories.size() == 2);
     REQUIRE(item.categories.at(0) == "term1");
@@ -125,6 +125,12 @@ TEST_CASE("Parse ATOM 1.0 (custom example)", "[feedparsing]")
     REQUIRE(item.enclosures.at(2).size == 300);
     REQUIRE(item.enclosures.at(2).url == "file:///dummy3");
     REQUIRE(item.enclosures.at(2).mimeType == "image/gif");
+
+    item = items.at(1);
+    REQUIRE(Poco::trim(item.content).starts_with("<b "));
+
+    item = items.at(2);
+    REQUIRE(Poco::trim(item.content).starts_with("<p>")); // TODO: this needs looking at, the <p> is added by us, but not sure whether content should be tag-stripped or not
 }
 
 TEST_CASE("Parse JSON 1.1 (Daring Fireball)", "[feedparsing]")

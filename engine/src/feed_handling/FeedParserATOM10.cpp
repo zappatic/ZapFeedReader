@@ -235,6 +235,7 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
                         auto descriptionEl = dynamic_cast<Poco::XML::Element*>(descriptionNode);
                         if (descriptionEl->hasAttribute("type") && descriptionEl->getAttribute("type") == "html")
                         {
+                            // TODO: using descriptionNode->innerText() strips all its tags, is this correct?
                             mediaContentStream << "<p>" << descriptionNode->innerText() << "</p>";
                         }
                         else
@@ -277,9 +278,12 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserATOM10::it
             }
 
             int tzDiff;
-            auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, item.datePublished, tzDiff); // actually RFC 3339
-            parsedDate.makeUTC(tzDiff);
-            item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+            Poco::DateTime parsedDate;
+            if (Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::ISO8601_FORMAT, item.datePublished, parsedDate, tzDiff))
+            {
+                parsedDate.makeUTC(tzDiff);
+                item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+            }
 
             auto categoryNodes = entryEl->getElementsByTagName("category");
             for (size_t j = 0; j < categoryNodes->length(); ++j)

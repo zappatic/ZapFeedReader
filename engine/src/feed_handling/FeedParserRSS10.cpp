@@ -135,9 +135,12 @@ std::vector<ZapFR::Engine::FeedParser::Item> ZapFR::Engine::FeedParserRSS10::ite
         {
             item.datePublished = dateNode->innerText();
             int tzDiff;
-            auto parsedDate = Poco::DateTimeParser::parse(Poco::DateTimeFormat::ISO8601_FORMAT, item.datePublished, tzDiff);
-            parsedDate.makeUTC(tzDiff);
-            item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+            Poco::DateTime parsedDate;
+            if (Poco::DateTimeParser::tryParse(Poco::DateTimeFormat::ISO8601_FORMAT, item.datePublished, parsedDate, tzDiff))
+            {
+                parsedDate.makeUTC(tzDiff);
+                item.datePublished = Poco::DateTimeFormatter::format(parsedDate, Poco::DateTimeFormat::ISO8601_FORMAT);
+            }
         }
         items.emplace_back(item);
     }
