@@ -19,6 +19,7 @@
 #ifndef ZAPFR_SERVER_DAEMON_H
 #define ZAPFR_SERVER_DAEMON_H
 
+#include "HTTPServer.h"
 #include <Poco/Util/JSONConfiguration.h>
 #include <Poco/Util/ServerApplication.h>
 
@@ -33,23 +34,26 @@ namespace ZapFR
             std::string password;
         };
 
-        class Daemon : public Poco::Util::ServerApplication
+        class Daemon
         {
           public:
-            int main(const std::vector<std::string>& args) override;
-            void initialize(Poco::Util::Application& self) override;
-            void uninitialize() override;
+            explicit Daemon(const std::string& configurationPath);
+            virtual ~Daemon();
+            void boot();
+            void setDataDir(const std::string& dataDir);
 
             std::string configString(const std::string& key);
             bool hasAccounts() const noexcept;
             bool areCredentialsValid(const std::string& login, const std::string& password) const;
 
           private:
+            std::string mConfigurationPath{""};
+            std::string mDataDir{""};
             Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
             std::vector<Account> mAccounts{};
+            std::unique_ptr<HTTPServer> mHTTPServer{nullptr};
 
             void loadAccounts();
-            std::string dataDir();
         };
     } // namespace Server
 } // namespace ZapFR

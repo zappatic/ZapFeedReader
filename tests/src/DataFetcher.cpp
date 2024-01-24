@@ -27,7 +27,7 @@
 
 std::string ZapFR::Tests::DataFetcher::fetch(Source source, const std::string& filename)
 {
-    auto inputFilePath = fmt::format("./tests-engine-{}/{}", source == Source::Input ? "input" : "output", filename);
+    auto inputFilePath = fmt::format("./tests-{}/{}", source == Source::Input ? "input" : "output", filename);
     auto inputFile = Poco::File(inputFilePath);
     if (!inputFile.exists())
     {

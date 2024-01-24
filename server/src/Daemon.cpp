@@ -19,7 +19,6 @@
 #include <Poco/JSON/Parser.h>
 
 #include "Daemon.h"
-#include "HTTPServer.h"
 #include "ZapFR/AutoRefresh.h"
 #include "ZapFR/Database.h"
 #include "ZapFR/Log.h"
@@ -28,13 +27,24 @@
 
 namespace
 {
-    static const std::string gsConfigurationPath{"/etc/zapfeedreader/zapfeedreader.conf"};
     static std::string gsUserHomePath{""};
 } // namespace
 
-int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
+ZapFR::Server::Daemon::Daemon(const std::string& configurationPath) : mConfigurationPath(configurationPath)
 {
-    mConfiguration = Poco::AutoPtr<Poco::Util::JSONConfiguration>(new Poco::Util::JSONConfiguration(gsConfigurationPath));
+    Poco::Net::initializeSSL();
+    Poco::Net::initializeNetwork();
+}
+
+ZapFR::Server::Daemon::~Daemon()
+{
+    Poco::Net::uninitializeSSL();
+    Poco::Net::uninitializeNetwork();
+}
+
+void ZapFR::Server::Daemon::boot()
+{
+    mConfiguration = Poco::AutoPtr<Poco::Util::JSONConfiguration>(new Poco::Util::JSONConfiguration(mConfigurationPath));
 
     loadAccounts();
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
@@ -64,46 +74,8 @@ int ZapFR::Server::Daemon::main(const std::vector<std::string>& /*args*/)
     auto sslPubCert = mConfiguration->getString("zapfr.ssl_pubcert", "");
     auto sslPrivKey = mConfiguration->getString("zapfr.ssl_privkey", "");
 
-    HTTPServer server(this, bindAddress, bindPort, sslPubCert, sslPrivKey);
-    server.start();
-
-    auto user = mConfiguration->getString("zapfr.user", "");
-    auto group = mConfiguration->getString("zapfr.group", "");
-    gsUserHomePath = server.dropRootPrivilege(user, group);
-
-    ZapFR::Engine::FeedLocal::setIconDir(dataDir() + Poco::Path::separator() + "icons");
-    ZapFR::Engine::Database::getInstance()->initialize(dataDir() + Poco::Path::separator() + "zapfeedreader.db", ZapFR::Engine::ApplicationType::Server);
-
-    waitForTerminationRequest();
-
-    return Poco::Util::Application::ExitCode::EXIT_OK;
-}
-
-void ZapFR::Server::Daemon::initialize(Poco::Util::Application& /*self*/)
-{
-    Poco::Net::initializeSSL();
-    Poco::Net::initializeNetwork();
-}
-
-void ZapFR::Server::Daemon::uninitialize()
-{
-    Poco::Net::uninitializeSSL();
-    Poco::Net::uninitializeNetwork();
-}
-
-std::string ZapFR::Server::Daemon::dataDir()
-{
-    if (gsUserHomePath.empty())
-    {
-        throw std::runtime_error("No HOME folder found");
-    }
-
-    Poco::File dir(gsUserHomePath + Poco::Path::separator() + ".local/share/ZapFeedReader/server");
-    if (!dir.exists())
-    {
-        dir.createDirectories();
-    }
-    return dir.path();
+    mHTTPServer = std::make_unique<HTTPServer>(this, bindAddress, bindPort, sslPubCert, sslPrivKey);
+    mHTTPServer->start();
 }
 
 void ZapFR::Server::Daemon::loadAccounts()
@@ -134,6 +106,19 @@ void ZapFR::Server::Daemon::loadAccounts()
     {
         std::cerr << "Failed loading accounts from configuration file: unknown error\n";
     }
+}
+
+void ZapFR::Server::Daemon::setDataDir(const std::string& dataDir)
+{
+    static bool isSet{false};
+    if (isSet)
+    {
+        throw std::runtime_error("Data dir has already been set!");
+    }
+    mDataDir = dataDir;
+    isSet = true;
+    ZapFR::Engine::FeedLocal::setIconDir(mDataDir + Poco::Path::separator() + "icons");
+    ZapFR::Engine::Database::getInstance()->initialize(mDataDir + Poco::Path::separator() + "zapfeedreader.db", ZapFR::Engine::ApplicationType::Server);
 }
 
 std::string ZapFR::Server::Daemon::configString(const std::string& key)

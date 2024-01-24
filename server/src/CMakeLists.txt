@@ -6,8 +6,7 @@
 
 
 
-target_sources(zapfeedreader-server PRIVATE
-    main.cpp
+list(APPEND ZAPFR_SERVER_SOURCES
     Daemon.cpp
 	DummyFeed.cpp
     HTTPServer.cpp

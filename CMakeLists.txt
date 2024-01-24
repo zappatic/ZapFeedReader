@@ -13,7 +13,7 @@ pkg_check_modules(lua REQUIRED IMPORTED_TARGET lua)
 add_subdirectory(server)
 add_subdirectory(engine)
 add_subdirectory(client-desktop)
-add_subdirectory(tests/engine)
+add_subdirectory(tests)
 
 if(ENABLE_COVERAGE)
   find_program(LCOV lcov REQUIRED)

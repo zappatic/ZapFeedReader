@@ -18,4 +18,76 @@
 
 #include "Daemon.h"
 
-POCO_SERVER_MAIN(ZapFR::Server::Daemon)
+#include <grp.h>
+#include <iostream>
+#include <pwd.h>
+#include <string>
+
+#include <Poco/File.h>
+
+namespace ZapFR
+{
+    namespace Server
+    {
+        class ServerApp : public Poco::Util::ServerApplication
+        {
+          public:
+            int main(const std::vector<std::string>& /*args*/) override
+            {
+                auto daemon = Daemon("/etc/zapfeedreader/zapfeedreader.conf");
+                daemon.boot();
+
+                auto user = daemon.configString("zapfr.user");
+                auto group = daemon.configString("zapfr.group");
+                auto homeDir = std::string(dropRootPrivilege(user, group));
+                if (homeDir.empty())
+                {
+                    throw std::runtime_error("No HOME folder found");
+                }
+
+                Poco::File dir(homeDir + Poco::Path::separator() + ".local/share/ZapFeedReader/server");
+                if (!dir.exists())
+                {
+                    dir.createDirectories();
+                }
+                daemon.setDataDir(dir.path());
+
+                waitForTerminationRequest();
+
+                return Poco::Util::Application::ExitCode::EXIT_OK;
+            }
+
+            const char* dropRootPrivilege(const std::string& user, const std::string& group) const
+            {
+                auto groupInfo = getgrnam(group.c_str());
+                auto userInfo = getpwnam(user.c_str());
+                if (groupInfo == nullptr)
+                {
+                    std::cerr << "Unknown group name specified in zapfeedreader.conf; cannot drop root privilege\n";
+                    return "";
+                }
+                if (userInfo == nullptr)
+                {
+                    std::cerr << "Unknown user name specified in zapfeedreader.conf; cannot drop root privilege\n";
+                    return "";
+                }
+
+                if (setgid(groupInfo->gr_gid) == -1)
+                {
+                    std::cerr << "Failed setting group ID to " << groupInfo->gr_gid << "\n";
+                    return "";
+                }
+
+                if (setuid(userInfo->pw_uid) == -1)
+                {
+                    std::cerr << "Failed setting user ID to " << groupInfo->gr_gid << "\n";
+                    return "";
+                }
+
+                return getpwuid(getuid())->pw_dir;
+            }
+        };
+    } // namespace Server
+} // namespace ZapFR
+
+POCO_SERVER_MAIN(ZapFR::Server::ServerApp)

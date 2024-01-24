@@ -22,6 +22,9 @@ target_link_libraries(zapfeedreader-server PRIVATE  zapfeedreader-engine
 # If the debug configuration pass the DEBUG define to the compiler 
 target_compile_definitions(zapfeedreader-server PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 
-add_subdirectory(src)
+include(src/CMakeLists.txt)
+list(TRANSFORM ZAPFR_SERVER_SOURCES PREPEND "src/")
+target_sources(zapfeedreader-server PRIVATE ${ZAPFR_SERVER_SOURCES})
+target_sources(zapfeedreader-server PRIVATE src/main.cpp)
 
 add_custom_target(generate-server-api COMMAND ${CMAKE_SOURCE_DIR}/server/helpers/api-generator.py -c "${CMAKE_SOURCE_DIR}/server/helpers/api.conf" -r ${CMAKE_SOURCE_DIR})
