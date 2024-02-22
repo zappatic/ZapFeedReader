@@ -154,7 +154,6 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_posts_list([[maybe
                 pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostLink, post.link);
                 pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostID, post.postID);
                 pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostThumbnail, post.thumbnail);
-                pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostTimestamp, post.timestamp);
                 pObj.set(ZapFR::Engine::JSON::ThumbnailData::PostTitle, post.title);
                 tdpArr.add(pObj);
             }
