@@ -526,7 +526,7 @@ void ZapFR::Engine::FeedLocal::fetchThumbnailData()
 
     bindings.emplace_back(use(mID, "feedID"));
 
-    auto posts = PostLocal::queryMultiple(whereClause, "", "LIMIT 250", bindings);
+    auto posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT 250", bindings);
     if (posts.size() > 0)
     {
         mThumbnailData.clear();
@@ -538,14 +538,8 @@ void ZapFR::Engine::FeedLocal::fetchThumbnailData()
         td.feedLink = mLink;
         for (const auto& post : posts)
         {
-            Poco::DateTime datePublished{};
-            int32_t tzd{0};
-            Poco::DateTimeParser::tryParse(post->datePublished(), datePublished, tzd);
-            auto timestamp = datePublished.timestamp().epochTime();
-
-            td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link(), timestamp);
+            td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link());
         }
-        std::sort(td.posts.begin(), td.posts.end(), [](const ThumbnailDataPost& a, const ThumbnailDataPost& b) { return (std::difftime(a.timestamp, b.timestamp) > 0); });
         mThumbnailData.emplace_back(td);
     }
 }

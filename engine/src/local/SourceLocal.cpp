@@ -455,7 +455,8 @@ void ZapFR::Engine::SourceLocal::fetchThumbnailData()
         whereClause.emplace_back("posts.feedID=?");
         whereClause.emplace_back("posts.isRead=FALSE");
         whereClause.emplace_back("posts.thumbnail NOT NULL");
-        auto posts = PostLocal::queryMultiple(whereClause, "", "LIMIT 10", {use(feedID, "feedID")}); // TODO: this limit amount needs to be configurable
+        auto posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT 10",
+                                              {use(feedID, "feedID")}); // TODO: this limit amount needs to be configurable
 
         auto totalUnreadPostCount = PostLocal::queryCount(whereClause, {use(feedID, "feedID")});
 
@@ -476,15 +477,8 @@ void ZapFR::Engine::SourceLocal::fetchThumbnailData()
                     td.feedLink = post->feedLink();
                 }
 
-                Poco::DateTime datePublished{};
-                int32_t tzd{0};
-                Poco::DateTimeParser::tryParse(post->datePublished(), datePublished, tzd);
-                auto timestamp = datePublished.timestamp().epochTime();
-
-                td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link(), timestamp);
+                td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link());
             }
-
-            std::sort(td.posts.begin(), td.posts.end(), [](const ThumbnailDataPost& a, const ThumbnailDataPost& b) { return (std::difftime(a.timestamp, b.timestamp) > 0); });
             mThumbnailData.emplace_back(td);
         }
     }

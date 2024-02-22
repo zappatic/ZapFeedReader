@@ -414,7 +414,6 @@ void ZapFR::Engine::SourceRemote::unserializeThumbnailData(std::vector<Thumbnail
             tdp.link = tdpObj->getValue<std::string>(JSON::ThumbnailData::PostLink);
             tdp.postID = tdpObj->getValue<uint64_t>(JSON::ThumbnailData::PostID);
             tdp.thumbnail = tdpObj->getValue<std::string>(JSON::ThumbnailData::PostThumbnail);
-            tdp.timestamp = tdpObj->getValue<time_t>(JSON::ThumbnailData::PostTimestamp);
             tdp.title = tdpObj->getValue<std::string>(JSON::ThumbnailData::PostTitle);
             td.posts.emplace_back(tdp);
         }

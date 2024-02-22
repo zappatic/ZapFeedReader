@@ -40,15 +40,14 @@ namespace ZapFR
         struct ThumbnailDataPost
         {
             ThumbnailDataPost() = default;
-            ThumbnailDataPost(uint64_t tdpPostID, const std::string& tdpTitle, const std::string& tdpThumbnail, const std::string& tdpLink, time_t tdpTimestamp)
-                : postID(tdpPostID), title(tdpTitle), thumbnail(tdpThumbnail), link(tdpLink), timestamp(tdpTimestamp)
+            ThumbnailDataPost(uint64_t tdpPostID, const std::string& tdpTitle, const std::string& tdpThumbnail, const std::string& tdpLink)
+                : postID(tdpPostID), title(tdpTitle), thumbnail(tdpThumbnail), link(tdpLink)
             {
             }
             uint64_t postID{0};
             std::string title{""};
             std::string thumbnail{""};
             std::string link{""};
-            time_t timestamp{0};
         };
 
         struct ThumbnailData
@@ -90,7 +89,6 @@ namespace ZapFR
                 constexpr const char PostLink[]{"link"};
                 constexpr const char PostID[]{"postID"};
                 constexpr const char PostThumbnail[]{"thumbnail"};
-                constexpr const char PostTimestamp[]{"timestamp"};
                 constexpr const char PostTitle[]{"title"};
                 constexpr const char Posts[]{"posts"};
                 constexpr const char TotalPostCount[]{"totalPostCount"};
