@@ -65,6 +65,7 @@ ZapFR::Client::TableViewPosts::TableViewPosts(QWidget* parent) : TableViewPalett
 void ZapFR::Client::TableViewPosts::setMainWindow(MainWindow* mainWindow) noexcept
 {
     mMainWindow = mainWindow;
+    mPostWebEnginePage->setMainWindow(mMainWindow);
 
     auto ui = mMainWindow->getUI();
     ui->webViewPost->setPage(mPostWebEnginePage.get());

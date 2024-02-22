@@ -418,6 +418,7 @@ void ZapFR::Engine::SourceRemote::unserializeThumbnailData(std::vector<Thumbnail
             tdp.title = tdpObj->getValue<std::string>(JSON::ThumbnailData::PostTitle);
             td.posts.emplace_back(tdp);
         }
+        td.totalPostCount = tdObj->getValue<uint64_t>(JSON::ThumbnailData::TotalPostCount);
 
         destination.emplace_back(td);
     }

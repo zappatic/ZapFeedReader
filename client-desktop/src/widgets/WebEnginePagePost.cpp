@@ -21,7 +21,9 @@
 #include <QWebEngineSettings>
 
 #include "ZapFR/Agent.h"
+#include "widgets/MainWindow.h"
 #include "widgets/TableViewPosts.h"
+#include "widgets/TreeViewSources.h"
 #include "widgets/WebEnginePagePost.h"
 
 ZapFR::Client::WebEnginePagePost::WebEnginePagePost(QObject* parent) : QWebEnginePage(parent)
@@ -33,6 +35,11 @@ ZapFR::Client::WebEnginePagePost::WebEnginePagePost(QObject* parent) : QWebEngin
     s->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, false);
     s->setAttribute(QWebEngineSettings::AutoLoadIconsForPage, false);
     s->setAttribute(QWebEngineSettings::NavigateOnDropEnabled, false);
+}
+
+void ZapFR::Client::WebEnginePagePost::setMainWindow(ZapFR::Client::MainWindow* mainWindow) noexcept
+{
+    mMainWindow = mainWindow;
 }
 
 bool ZapFR::Client::WebEnginePagePost::acceptNavigationRequest(const QUrl& url, QWebEnginePage::NavigationType type, bool /*isMainFrame*/)
@@ -92,6 +99,13 @@ bool ZapFR::Client::WebEnginePagePost::acceptNavigationRequest(const QUrl& url, 
                                 auto tableVieWPosts = qobject_cast<TableViewPosts*>(parent());
                                 QMetaObject::invokeMethod(this, [=]() { tableVieWPosts->postsMarkedRead(affectedSourceID, feedAndPostIDs); });
                             });
+                    }
+                    else if (url.host() == "navigatetofeed")
+                    {
+                        if (mMainWindow != nullptr)
+                        {
+                            mMainWindow->treeViewSources()->selectFeed(sourceID, feedID);
+                        }
                     }
                 }
             }

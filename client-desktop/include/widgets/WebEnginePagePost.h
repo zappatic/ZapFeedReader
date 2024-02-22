@@ -25,6 +25,8 @@ namespace ZapFR
 {
     namespace Client
     {
+        class MainWindow;
+
         class WebEnginePagePost : public QWebEnginePage
         {
             Q_OBJECT
@@ -32,9 +34,18 @@ namespace ZapFR
           public:
             explicit WebEnginePagePost(QObject* parent = nullptr);
             ~WebEnginePagePost() = default;
+            WebEnginePagePost(const WebEnginePagePost& e) = delete;
+            WebEnginePagePost& operator=(const WebEnginePagePost&) = delete;
+            WebEnginePagePost(WebEnginePagePost&&) = delete;
+            WebEnginePagePost& operator=(WebEnginePagePost&&) = delete;
+
+            void setMainWindow(MainWindow* mainWindow) noexcept;
 
           protected:
             bool acceptNavigationRequest(const QUrl& url, QWebEnginePage::NavigationType type, bool isMainFrame) override;
+
+          private:
+            MainWindow* mMainWindow{nullptr};
         };
     } // namespace Client
 } // namespace ZapFR

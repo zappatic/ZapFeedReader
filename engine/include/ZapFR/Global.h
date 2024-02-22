@@ -57,6 +57,7 @@ namespace ZapFR
             std::string feedTitle{""};
             std::string feedLink{""};
             std::vector<ThumbnailDataPost> posts{};
+            uint64_t totalPostCount{0};
         };
 
         constexpr uint64_t DBVersion{7};
@@ -92,6 +93,7 @@ namespace ZapFR
                 constexpr const char PostTimestamp[]{"timestamp"};
                 constexpr const char PostTitle[]{"title"};
                 constexpr const char Posts[]{"posts"};
+                constexpr const char TotalPostCount[]{"totalPostCount"};
             }; // namespace ThumbnailData
 
             namespace Feed

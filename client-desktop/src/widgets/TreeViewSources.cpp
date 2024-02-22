@@ -622,6 +622,29 @@ void ZapFR::Client::TreeViewSources::setUnreadBadgesShown(bool b)
     }
 }
 
+void ZapFR::Client::TreeViewSources::selectFeed(uint64_t sourceID, uint64_t feedID)
+{
+    auto sourceItem = findSourceStandardItem(sourceID);
+    if (sourceItem == nullptr)
+    {
+        return;
+    }
+    std::vector<uint64_t> feedIDs{feedID};
+    auto feedItems = findFeedStandardItems(sourceItem, feedIDs);
+    if (feedItems.size() == 1)
+    {
+        auto index = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem((*feedItems.begin())));
+        // make sure the index is visible (all parents are expanded)
+        auto p = index.parent();
+        while (p != QModelIndex())
+        {
+            setExpanded(p, true);
+            p = p.parent();
+        }
+        setCurrentIndex(index);
+    }
+}
+
 void ZapFR::Client::TreeViewSources::setAllowDragAndDrop(bool b)
 {
     mProxyModelSources->setAllowDragAndDrop(b);

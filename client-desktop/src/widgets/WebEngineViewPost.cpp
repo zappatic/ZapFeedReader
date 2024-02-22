@@ -159,6 +159,7 @@ QString ZapFR::Client::WebEngineViewPost::postStyles() const
                         ".zapfr_thumbnail_cell_title { font-size: 0.9em; }\n"
                         ".zapfr_thumbnail_cell_closebtn { display:none; position:absolute; right:0px; top:0px; width:25px; height:25px; }\n"
                         ".zapfr_thumbnail_cell:hover .zapfr_thumbnail_cell_closebtn { display:block; }\n"
+                        ".zapfr_navigate_to_feed { font-size: 0.9em; text-decoration: none; border: 1px solid %4; padding: 2px 6px; border-radius: 4px; cursor: pointer; }\n"
                         "\n"
                         "@media screen and (min-width:0px) and (max-width:850px) {\n"
                         "   .zapfr_thumbnail_grid { grid-template-columns: repeat(2, 1fr); }\n"
@@ -334,6 +335,11 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForThumbnailData(uint64_t sourc
                << R"(</div>)";
         }
         ss << "</div>";
+        if (td.posts.size() < td.totalPostCount)
+        {
+            auto navigateToFeedURL = QString("zapfr://navigateToFeed?postID=0&amp;feedID=%1&amp;sourceID=%2").arg(td.feedID).arg(sourceID);
+            ss << R"(<a class="zapfr_navigate_to_feed" href=")" << navigateToFeedURL << R"(">Show )" << (td.totalPostCount - td.posts.size()) << " more</a>";
+        }
     }
     ss << R"(<script type="text/javascript">)"
        << "\n"

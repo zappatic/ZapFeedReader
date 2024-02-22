@@ -253,61 +253,55 @@ void ZapFR::Engine::FolderLocal::fetchThumbnailData()
 {
     mThumbnailData.clear();
 
-    auto joinedFeedIDs = Helpers::joinIDNumbers(feedIDsInFoldersAndSubfolders(), ",");
-    if (joinedFeedIDs.empty())
+    auto feedIDs = feedIDsInFoldersAndSubfolders();
+    if (feedIDs.empty())
     {
         return;
     }
 
-    std::vector<std::string> whereClause;
-
-    whereClause.emplace_back(Poco::format("posts.feedID IN (%s)", joinedFeedIDs));
-    whereClause.emplace_back("posts.isRead=FALSE");
-    whereClause.emplace_back("posts.thumbnail NOT NULL");
-
-    auto posts = PostLocal::queryMultiple(whereClause, "", "LIMIT 250", {});
-
-    std::unordered_map<uint64_t, std::tuple<std::string, std::string>> feedIDToTitleAndLinkMap;
-    std::unordered_map<uint64_t, std::vector<Post*>> feedIDToPosts;
-    for (const auto& post : posts)
+    for (auto feedID : feedIDs)
     {
-        auto feedID = post->feedID();
-        feedIDToTitleAndLinkMap[feedID] = std::make_tuple(post->feedTitle(), post->feedLink());
-        if (!feedIDToPosts.contains(feedID))
+        std::vector<std::string> whereClause;
+
+        whereClause.emplace_back("posts.feedID=?");
+        whereClause.emplace_back("posts.isRead=FALSE");
+        whereClause.emplace_back("posts.thumbnail NOT NULL");
+        auto posts = PostLocal::queryMultiple(whereClause, "", "LIMIT 10", {use(feedID, "feedID")}); // TODO: this limit amount needs to be configurable
+
+        auto totalUnreadPostCount = PostLocal::queryCount(whereClause, {use(feedID, "feedID")});
+
+        if (posts.size() > 0)
         {
-            feedIDToPosts[feedID] = {};
+            ThumbnailData td;
+            td.feedID = feedID;
+            td.totalPostCount = totalUnreadPostCount;
+
+            for (const auto& post : posts)
+            {
+                if (td.feedTitle.empty())
+                {
+                    td.feedTitle = post->feedTitle();
+                }
+                if (td.feedLink.empty())
+                {
+                    td.feedLink = post->feedLink();
+                }
+
+                Poco::DateTime datePublished{};
+                int32_t tzd{0};
+                Poco::DateTimeParser::tryParse(post->datePublished(), datePublished, tzd);
+                auto timestamp = datePublished.timestamp().epochTime();
+
+                td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link(), timestamp);
+            }
+
+            std::sort(td.posts.begin(), td.posts.end(), [](const ThumbnailDataPost& a, const ThumbnailDataPost& b) { return (std::difftime(a.timestamp, b.timestamp) > 0); });
+            mThumbnailData.emplace_back(td);
         }
-        feedIDToPosts.at(feedID).emplace_back(post.get());
     }
 
     // sort by title of the feed
-    std::vector<std::tuple<uint64_t, std::string>> feedIDToTitleVector;
-    for (const auto& [feedID, feedData] : feedIDToTitleAndLinkMap)
-    {
-        feedIDToTitleVector.emplace_back(feedID, std::get<0>(feedData));
-    }
-    std::sort(feedIDToTitleVector.begin(), feedIDToTitleVector.end(),
-              [](const std::tuple<uint64_t, std::string>& a, const std::tuple<uint64_t, std::string>& b) { return Poco::icompare(std::get<1>(a), std::get<1>(b)) < 0; });
-
-    for (const auto& [feedID, dummy] : feedIDToTitleVector)
-    {
-        ThumbnailData td;
-        td.feedID = feedID;
-        const auto& [feedTitle, feedLink] = feedIDToTitleAndLinkMap.at(feedID);
-        td.feedTitle = feedTitle;
-        td.feedLink = feedLink;
-        for (const auto& post : feedIDToPosts.at(feedID))
-        {
-            Poco::DateTime datePublished{};
-            int32_t tzd{0};
-            Poco::DateTimeParser::tryParse(post->datePublished(), datePublished, tzd);
-            auto timestamp = datePublished.timestamp().epochTime();
-
-            td.posts.emplace_back(post->id(), post->title(), post->thumbnail(), post->link(), timestamp);
-        }
-        std::sort(td.posts.begin(), td.posts.end(), [](const ThumbnailDataPost& a, const ThumbnailDataPost& b) { return (std::difftime(a.timestamp, b.timestamp) > 0); });
-        mThumbnailData.emplace_back(td);
-    }
+    std::sort(mThumbnailData.begin(), mThumbnailData.end(), [](const ThumbnailData& a, const ThumbnailData& b) { return Poco::icompare(a.feedTitle, b.feedTitle) < 0; });
 }
 
 std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Log>>> ZapFR::Engine::FolderLocal::getLogs(uint64_t perPage, uint64_t page)
