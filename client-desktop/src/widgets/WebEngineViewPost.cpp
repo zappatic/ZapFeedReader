@@ -149,9 +149,9 @@ QString ZapFR::Client::WebEngineViewPost::postStyles() const
                         ".zapfr_infoheader { font-size: 0.75em; display: flex; gap: 10px; margin-bottom: 5px; }\n"
                         ".zapfr_infoheader_separator { display: inline-block; margin-right: 10px; }\n"
                         ".zapfr_divider { margin-bottom: 30px; height: 1px; border: none; color: %3; background-color: %3; }\n"
-                        ".zapfr_thumbnail_feedheader { color: %3; font-size: 1.4em; font-weight: bold; text-decoration: none; display: block; margin: 25px 0 10px 0;\n"
-                        "   user-select:none; display: flex; flex-direction: row; gap: 15px; border-bottom: 1px solid %3; padding-bottom: 6px;\n"
+                        ".zapfr_thumbnail_feedheader { margin: 25px 0 10px 0; padding-bottom: 6px; user-select:none; display: flex; flex-direction: row; gap: 15px; border-bottom: 1px solid %3;\n"
                         "}\n"
+                        ".zapfr_thumbnail_feedheader_content { color: %3; font-size: 1.4em; font-weight: bold; text-decoration: none; display: inline-block; }\n"
                         ".zapfr_thumbnail_feedicon { max-width: 25px; max-height: 25px; }\n"
                         ".zapfr_thumbnail_grid { display: grid; grid-template-columns: repeat(6, 1fr); grid-column-gap: 10px; grid-row-gap: 20px; margin: 25px 0 25px 0; }\n"
                         ".zapfr_thumbnail_cell { display: flex; flex-direction: column; align-items:center; }\n"
@@ -299,13 +299,19 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForThumbnailData(uint64_t sourc
            << R"(</div>)";
         if (!td.feedLink.empty())
         {
-            ss << R"(<a class="zapfr_thumbnail_feedheader" href=")" << QString::fromUtf8(td.feedLink) << R"(">)"
-               << R"(       <img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)" << QString::fromUtf8(td.feedTitle) << R"(</a>)";
+            ss << R"(<div class="zapfr_thumbnail_feedheader">)"
+               << R"(   <a href=")" << QString::fromUtf8(td.feedLink) << R"(">)"
+               << R"(       <img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)"
+               << R"(   </a>)"
+               << R"(   <a class="zapfr_thumbnail_feedheader_content" href=")" << QString::fromUtf8(td.feedLink) << R"(">)" << QString::fromUtf8(td.feedTitle) << R"(   </a>)"
+               << R"(</div>)";
         }
         else
         {
-            ss << R"(<h1 class="zapfr_thumbnail_feedheader">)"
-               << R"(       <img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)" << QString::fromUtf8(td.feedTitle) << R"(</h1>)";
+            ss << R"(<div class="zapfr_thumbnail_feedheader">)"
+               << R"(   <img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)"
+               << R"(   <h1 class="zapfr_thumbnail_feedheader_content">)" << QString::fromUtf8(td.feedTitle) << R"(</h1>)"
+               << R"(</div>)";
         }
         ss << R"(<div class="zapfr_thumbnail_grid">)";
         for (const auto& tdp : td.posts)
