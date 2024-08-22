@@ -22,7 +22,10 @@
 #include <QKeyEvent>
 #include <QStandardItemModel>
 
+#include "ZapFR/base/Script.h"
 #include "widgets/TableViewPaletteCorrected.h"
+
+Q_DECLARE_METATYPE(ZapFR::Engine::Script::Event)
 
 namespace ZapFR
 {

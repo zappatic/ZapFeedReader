@@ -30,7 +30,7 @@ void ZapFR::Client::DialogWithSourcesAndFolders::setComboBoxSources(QComboBox* c
     mComboBoxSources = cb;
     mSourcesModel = std::make_unique<QStandardItemModel>(this);
     mComboBoxSources->setModel(mSourcesModel.get());
-    connect(mComboBoxSources, &QComboBox::currentIndexChanged, this, &DialogWithSourcesAndFolders::currentSourceChanged);
+    connect(mComboBoxSources, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DialogWithSourcesAndFolders::currentSourceChanged);
 }
 
 void ZapFR::Client::DialogWithSourcesAndFolders::setComboBoxFolders(QComboBox* cb)
@@ -65,7 +65,7 @@ void ZapFR::Client::DialogWithSourcesAndFolders::setPreselectedSourceAndFolderID
     auto sources = ZapFR::Engine::Source::getSources({});
     for (const auto& source : sources)
     {
-        auto item = new QStandardItem(QString::fromUtf8(source->title()));
+        auto item = new QStandardItem(QString::fromStdString(source->title()));
         auto sourceID = source->id();
         item->setData(QVariant::fromValue<uint64_t>(sourceID), SourceIDRole);
         if (sourceID == selectedSourceID)
@@ -102,8 +102,8 @@ void ZapFR::Client::DialogWithSourcesAndFolders::currentSourceChanged(int index)
                                                              std::function<void(ZapFR::Engine::Folder*, ssize_t)> createFolderItems;
                                                              createFolderItems = [&](ZapFR::Engine::Folder* folder, ssize_t depth)
                                                              {
-                                                                 auto folderItem =
-                                                                     new QStandardItem(QString("%1%2").arg(space.repeated(depth * 4)).arg(QString::fromUtf8(folder->title())));
+                                                                 auto folderItem = new QStandardItem(
+                                                                     QString("%1%2").arg(space.repeated(depth * 4)).arg(QString::fromStdString(folder->title())));
                                                                  folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), FolderIDRole);
                                                                  items.append(folderItem);
 

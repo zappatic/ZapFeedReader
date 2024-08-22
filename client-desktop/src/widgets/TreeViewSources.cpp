@@ -187,16 +187,16 @@ void ZapFR::Client::TreeViewSources::mouseDoubleClickEvent(QMouseEvent* event)
 
 QStandardItem* ZapFR::Client::TreeViewSources::createSourceStandardItem(ZapFR::Engine::Source* source)
 {
-    auto sourceItem = new QStandardItem(QString::fromUtf8(source->title()));
+    auto sourceItem = new QStandardItem(QString::fromStdString(source->title()));
     sourceItem->setData(QVariant::fromValue<uint64_t>(EntryType::Source), Role::Type);
     sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), Role::ID);
     sourceItem->setData(QVariant::fromValue<uint64_t>(source->id()), Role::ParentSourceID);
     sourceItem->setData(QVariant::fromValue<uint64_t>(source->sortOrder()), Role::SortOrder);
-    sourceItem->setData(QString::fromUtf8(source->type()), Role::SourceType);
+    sourceItem->setData(QString::fromStdString(source->type()), Role::SourceType);
     const auto& lastError = source->lastError();
     if (!lastError.empty())
     {
-        auto errorQString = QString::fromUtf8(lastError);
+        auto errorQString = QString::fromStdString(lastError);
         sourceItem->setData(errorQString, Role::Error);
         sourceItem->setData(errorQString, Qt::ToolTipRole);
     }
@@ -206,7 +206,7 @@ QStandardItem* ZapFR::Client::TreeViewSources::createSourceStandardItem(ZapFR::E
 QStandardItem* ZapFR::Client::TreeViewSources::createFolderStandardItem(uint64_t sourceID, ZapFR::Engine::Folder* folder,
                                                                         std::unordered_map<uint64_t, QStandardItem*>* folderIDToIDMap)
 {
-    auto folderItem = new QStandardItem(QString::fromUtf8(folder->title()));
+    auto folderItem = new QStandardItem(QString::fromStdString(folder->title()));
     folderItem->setData(QVariant::fromValue<uint64_t>(EntryType::Folder), Role::Type);
     folderItem->setData(QVariant::fromValue<uint64_t>(folder->id()), Role::ID);
     folderItem->setData(QVariant::fromValue<uint64_t>(folder->parentID()), Role::ParentFolderID);
@@ -227,7 +227,7 @@ QStandardItem* ZapFR::Client::TreeViewSources::createFolderStandardItem(uint64_t
 
 QStandardItem* ZapFR::Client::TreeViewSources::createFeedStandardItem(uint64_t sourceID, ZapFR::Engine::Feed* feed)
 {
-    auto feedItem = new QStandardItem(QString::fromUtf8(feed->title()));
+    auto feedItem = new QStandardItem(QString::fromStdString(feed->title()));
     feedItem->setData(QVariant::fromValue<uint64_t>(EntryType::Feed), Role::Type);
     feedItem->setData(QVariant::fromValue<uint64_t>(feed->id()), Role::ID);
     feedItem->setData(QVariant::fromValue<uint64_t>(sourceID), Role::ParentSourceID);
@@ -245,11 +245,11 @@ QStandardItem* ZapFR::Client::TreeViewSources::createFeedStandardItem(uint64_t s
     auto feedError = feed->lastRefreshError();
     if (feedError.has_value())
     {
-        feedItem->setData(QString::fromUtf8(feedError.value()), Role::Error);
-        feedItem->setData(QString::fromUtf8(feedError.value()), Qt::ToolTipRole);
+        feedItem->setData(QString::fromStdString(feedError.value()), Role::Error);
+        feedItem->setData(QString::fromStdString(feedError.value()), Qt::ToolTipRole);
     }
-    feedItem->setData(QString::fromUtf8(feed->url()), Role::FeedURL);
-    feedItem->setData(QString::fromUtf8(feed->link()), Role::FeedLink);
+    feedItem->setData(QString::fromStdString(feed->url()), Role::FeedURL);
+    feedItem->setData(QString::fromStdString(feed->link()), Role::FeedLink);
     feedItem->setData(QVariant::fromValue<uint64_t>(feed->sortOrder()), Role::SortOrder);
     return feedItem;
 }
@@ -405,9 +405,9 @@ void ZapFR::Client::TreeViewSources::restoreExpansionSelectionState()
     if (mReloadExpansionSelectionState != nullptr && mDisplayMode == DisplayMode::ShowAll)
     {
         auto expandedItems = mReloadExpansionSelectionState->value("expanded").toArray();
-        auto selectedSourceID = mReloadExpansionSelectionState->value("selectedSourceID").toInteger();
-        auto selectedID = mReloadExpansionSelectionState->value("selectedID").toInteger();
-        auto selectedType = mReloadExpansionSelectionState->value("selectedType").toInteger();
+        auto selectedSourceID = mReloadExpansionSelectionState->value("selectedSourceID").toInt();
+        auto selectedID = mReloadExpansionSelectionState->value("selectedID").toInt();
+        auto selectedType = mReloadExpansionSelectionState->value("selectedType").toInt();
 
         expandItems(expandedItems);
         if (selectedSourceID != 0 && selectedID != 0)
@@ -415,8 +415,8 @@ void ZapFR::Client::TreeViewSources::restoreExpansionSelectionState()
             std::function<void(QStandardItem*)> selectIndex;
             selectIndex = [&](QStandardItem* parent)
             {
-                if (parent->data(Role::Type).toUInt() == selectedType && parent->data(Role::ParentSourceID).toLongLong() == selectedSourceID &&
-                    parent->data(Role::ID).toLongLong() == selectedID)
+                if (parent->data(Role::Type).toInt() == selectedType && parent->data(Role::ParentSourceID).toInt() == selectedSourceID &&
+                    parent->data(Role::ID).toInt() == selectedID)
                 {
                     auto indexToSelect = mProxyModelSources->mapFromSource(mItemModelSources->indexFromItem(parent));
                     setCurrentIndex(indexToSelect);
@@ -711,8 +711,8 @@ void ZapFR::Client::TreeViewSources::agentErrorOccurred(uint64_t sourceID, const
         auto id = child->data(Role::ID).toULongLong();
         if (type == EntryType::Source && id == sourceID)
         {
-            child->setData(QString::fromUtf8(errorMessage), Role::Error);
-            child->setData(QString::fromUtf8(errorMessage), Qt::ToolTipRole);
+            child->setData(QString::fromStdString(errorMessage), Role::Error);
+            child->setData(QString::fromStdString(errorMessage), Qt::ToolTipRole);
             break;
         }
     }
@@ -913,7 +913,7 @@ void ZapFR::Client::TreeViewSources::remoteSourceStatusReceived(uint64_t affecte
                     // update the error
                     if (feedErrors.contains(parentFeedID))
                     {
-                        auto feedError = QString::fromUtf8(feedErrors.at(parentFeedID));
+                        auto feedError = QString::fromStdString(feedErrors.at(parentFeedID));
                         parent->setData(feedError, Role::Error);
                         parent->setData(feedError, Qt::ToolTipRole);
                     }
@@ -1162,7 +1162,7 @@ void ZapFR::Client::TreeViewSources::addFolder()
                                                                   if (parentItem != nullptr)
                                                                   {
                                                                       // create the new folder standard item and insert it
-                                                                      auto folderItem = new QStandardItem(QString::fromUtf8(newTitle));
+                                                                      auto folderItem = new QStandardItem(QString::fromStdString(newTitle));
                                                                       folderItem->setData(QVariant::fromValue<uint64_t>(EntryType::Folder), Role::Type);
                                                                       folderItem->setData(QVariant::fromValue<uint64_t>(newFolderID), Role::ID);
                                                                       folderItem->setData(QVariant::fromValue<uint64_t>(affectedParentID), Role::ParentFolderID);
@@ -1231,7 +1231,7 @@ void ZapFR::Client::TreeViewSources::editFolder()
                                                                               auto childFolderID = child->data(Role::ID).toULongLong();
                                                                               if (childFolderID == affectedFolderID)
                                                                               {
-                                                                                  child->setData(QString::fromUtf8(updatedTitle), Qt::DisplayRole);
+                                                                                  child->setData(QString::fromStdString(updatedTitle), Qt::DisplayRole);
                                                                                   return;
                                                                               }
                                                                               else
@@ -1603,7 +1603,7 @@ void ZapFR::Client::TreeViewSources::refreshSourceEntryType(const QModelIndex& i
 void ZapFR::Client::TreeViewSources::feedRefreshed(uint64_t sourceID, uint64_t feedID, uint64_t feedUnreadCount, const std::string& error, const std::string& feedTitle,
                                                    const std::string& iconHash, const std::string& iconData)
 {
-    mMainWindow->setStatusBarMessage(tr("Feed '%1' refreshed").arg(QString::fromUtf8(feedTitle)));
+    mMainWindow->setStatusBarMessage(tr("Feed '%1' refreshed").arg(QString::fromStdString(feedTitle)));
     auto sourceItem = findSourceStandardItem(sourceID);
     if (sourceItem != nullptr)
     {
@@ -1620,12 +1620,12 @@ void ZapFR::Client::TreeViewSources::feedRefreshed(uint64_t sourceID, uint64_t f
                 }
             }
 
-            feedItem->setData(QString::fromUtf8(feedTitle), Qt::DisplayRole);
+            feedItem->setData(QString::fromStdString(feedTitle), Qt::DisplayRole);
             feedItem->setData(QVariant::fromValue<uint64_t>(feedUnreadCount), Role::UnreadCount);
             if (!error.empty())
             {
-                feedItem->setData(QString::fromUtf8(error), Role::Error);
-                feedItem->setData(QString::fromUtf8(error), Qt::ToolTipRole);
+                feedItem->setData(QString::fromStdString(error), Role::Error);
+                feedItem->setData(QString::fromStdString(error), Qt::ToolTipRole);
             }
             else
             {
@@ -1888,14 +1888,14 @@ void ZapFR::Client::TreeViewSources::reloadPropertiesPane()
                     {
                         QMap<QString, QVariant> props;
                         props["sourceID"] = QVariant::fromValue<uint64_t>(source->id());
-                        props["title"] = QString::fromUtf8(source->title());
-                        props["type"] = QString::fromUtf8(source->type());
-                        props["configData"] = QString::fromUtf8(source->configData());
+                        props["title"] = QString::fromStdString(source->title());
+                        props["type"] = QString::fromStdString(source->type());
+                        props["configData"] = QString::fromStdString(source->configData());
 
                         QMap<uint64_t, QString> stats;
                         for (const auto& [s, v] : source->statistics())
                         {
-                            stats[static_cast<std::underlying_type_t<ZapFR::Engine::Folder::Statistic>>(s)] = QString::fromUtf8(v);
+                            stats[static_cast<std::underlying_type_t<ZapFR::Engine::Folder::Statistic>>(s)] = QString::fromStdString(v);
                         }
                         props["statistics"] = QVariant::fromValue<QMap<uint64_t, QString>>(stats);
 
@@ -1921,12 +1921,12 @@ void ZapFR::Client::TreeViewSources::reloadPropertiesPane()
 
                         props["sourceID"] = QVariant::fromValue<uint64_t>(sourceID);
                         props["folderID"] = QVariant::fromValue<uint64_t>(folder->id());
-                        props["title"] = QString::fromUtf8(folder->title());
+                        props["title"] = QString::fromStdString(folder->title());
 
                         QMap<uint64_t, QString> stats;
                         for (const auto& [s, v] : folder->statistics())
                         {
-                            stats[static_cast<std::underlying_type_t<ZapFR::Engine::Folder::Statistic>>(s)] = QString::fromUtf8(v);
+                            stats[static_cast<std::underlying_type_t<ZapFR::Engine::Folder::Statistic>>(s)] = QString::fromStdString(v);
                         }
                         props["statistics"] = QVariant::fromValue<QMap<uint64_t, QString>>(stats);
 
@@ -1951,13 +1951,13 @@ void ZapFR::Client::TreeViewSources::reloadPropertiesPane()
 
                                                                       props["sourceID"] = QVariant::fromValue<uint64_t>(retrievedSourceID);
                                                                       props["feedID"] = QVariant::fromValue<uint64_t>(feed->id());
-                                                                      props["title"] = QString::fromUtf8(feed->title());
-                                                                      props["subtitle"] = QString::fromUtf8(feed->subtitle());
-                                                                      props["url"] = QString::fromUtf8(feed->url());
-                                                                      props["link"] = QString::fromUtf8(feed->link());
-                                                                      props["description"] = QString::fromUtf8(feed->description());
-                                                                      props["copyright"] = QString::fromUtf8(feed->copyright());
-                                                                      props["lastRefreshed"] = QString::fromUtf8(feed->lastChecked());
+                                                                      props["title"] = QString::fromStdString(feed->title());
+                                                                      props["subtitle"] = QString::fromStdString(feed->subtitle());
+                                                                      props["url"] = QString::fromStdString(feed->url());
+                                                                      props["link"] = QString::fromStdString(feed->link());
+                                                                      props["description"] = QString::fromStdString(feed->description());
+                                                                      props["copyright"] = QString::fromStdString(feed->copyright());
+                                                                      props["lastRefreshed"] = QString::fromStdString(feed->lastChecked());
                                                                       props["refreshInterval"] = "";
                                                                       if (feed->refreshInterval().has_value())
                                                                       {
@@ -1967,13 +1967,14 @@ void ZapFR::Client::TreeViewSources::reloadPropertiesPane()
                                                                       props["lastError"] = "";
                                                                       if (feed->lastRefreshError().has_value())
                                                                       {
-                                                                          props["lastError"] = QString::fromUtf8(feed->lastRefreshError().value());
+                                                                          props["lastError"] = QString::fromStdString(feed->lastRefreshError().value());
                                                                       }
 
                                                                       QMap<uint64_t, QString> stats;
                                                                       for (const auto& [s, v] : feed->statistics())
                                                                       {
-                                                                          stats[static_cast<std::underlying_type_t<ZapFR::Engine::Feed::Statistic>>(s)] = QString::fromUtf8(v);
+                                                                          stats[static_cast<std::underlying_type_t<ZapFR::Engine::Feed::Statistic>>(s)] =
+                                                                              QString::fromStdString(v);
                                                                       }
                                                                       props["statistics"] = QVariant::fromValue<QMap<uint64_t, QString>>(stats);
 

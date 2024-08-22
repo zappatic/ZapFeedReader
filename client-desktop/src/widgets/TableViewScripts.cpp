@@ -20,7 +20,6 @@
 
 #include "./ui_MainWindow.h"
 #include "ZapFR/Agent.h"
-#include "ZapFR/base/Script.h"
 #include "delegates/ItemDelegateScript.h"
 #include "dialogs/DialogEditScript.h"
 #include "widgets/MainWindow.h"
@@ -71,8 +70,8 @@ void ZapFR::Client::TableViewScripts::reload(bool forceReload)
         item->setData(QVariant::fromValue<uint64_t>(script->id()), Role::ID);
         item->setData(QVariant::fromValue<uint64_t>(sourceID), Role::SourceID);
         item->setData(script->isEnabled(), Role::IsEnabled);
-        item->setData(QString::fromUtf8(script->title()), Role::Title);
-        item->setData(QString::fromUtf8(script->script()), Role::Script);
+        item->setData(QString::fromStdString(script->title()), Role::Title);
+        item->setData(QString::fromStdString(script->script()), Role::Script);
 
         QVariantList events;
         for (const auto& event : script->runOnEvents())
@@ -110,7 +109,7 @@ void ZapFR::Client::TableViewScripts::reload(bool forceReload)
             }
             setItemData(typeItem, script, sourceID);
 
-            auto titleItem = new QStandardItem(QString::fromUtf8(script->title()));
+            auto titleItem = new QStandardItem(QString::fromStdString(script->title()));
             setItemData(titleItem, script, sourceID);
 
             auto isEnabledItem = new QStandardItem();

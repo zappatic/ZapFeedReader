@@ -8,6 +8,7 @@ project(ZapFeedReader)
 
 find_package(PkgConfig REQUIRED)
 find_package(Poco REQUIRED Foundation Util XML Net NetSSL JSON Data DataSQLite) 
+find_package(Qt6 REQUIRED COMPONENTS Widgets Xml Network WebEngineWidgets LinguistTools)
 pkg_check_modules(lua REQUIRED IMPORTED_TARGET lua)
 
 add_subdirectory(server)

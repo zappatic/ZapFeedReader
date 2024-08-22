@@ -141,7 +141,7 @@ void ZapFR::Client::DialogAddFeed::discoverFeeds()
 
 void ZapFR::Client::DialogAddFeed::addDiscoveredFeed(const ZapFR::Engine::DiscoveredFeed& discoveredFeed)
 {
-    auto discoveredURL = QString::fromUtf8(discoveredFeed.url);
+    auto discoveredURL = QString::fromStdString(discoveredFeed.url);
 
     auto checkboxItem = new QStandardItem();
     checkboxItem->setData(discoveredURL, Role::URL);
@@ -181,7 +181,7 @@ void ZapFR::Client::DialogAddFeed::addDiscoveredFeed(const ZapFR::Engine::Discov
     }
     else
     {
-        title = QString::fromUtf8(discoveredFeed.title);
+        title = QString::fromStdString(discoveredFeed.title);
     }
     auto titleItem = new QStandardItem(title);
     titleItem->setData(discoveredURL, Role::URL);

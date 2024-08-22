@@ -18,6 +18,7 @@
 
 #include <QApplication>
 #include <QPainter>
+#include <cmath>
 
 #include "Utilities.h"
 #include "delegates/ItemDelegateScript.h"

@@ -16,6 +16,7 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QAction>
 #include <QFile>
 #include <QTimer>
 

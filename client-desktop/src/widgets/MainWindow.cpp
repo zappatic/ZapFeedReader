@@ -1003,7 +1003,7 @@ void ZapFR::Client::MainWindow::connectStuff()
             });
 
     connect(mComboBoxCategories.get(), &ComboBoxWithPopupSignal::popUp, [&]() { reloadCategoriesComboBox(); });
-    connect(mComboBoxCategories.get(), &ComboBoxWithPopupSignal::currentIndexChanged,
+    connect(mComboBoxCategories.get(), QOverload<int>::of(&ComboBoxWithPopupSignal::currentIndexChanged),
             [&]()
             {
                 if (!mReloadingCategoriesComboBox)
@@ -1207,7 +1207,7 @@ void ZapFR::Client::MainWindow::populateCategories(const std::vector<std::tuple<
     mComboBoxCategories->addItem("", QVariant::fromValue<uint64_t>(0));
     for (const auto& [catID, catTitle] : categories)
     {
-        mComboBoxCategories->addItem(QString::fromUtf8(catTitle), QVariant::fromValue<uint64_t>(catID));
+        mComboBoxCategories->addItem(QString::fromStdString(catTitle), QVariant::fromValue<uint64_t>(catID));
     }
     if (mComboBoxCategories->count() == 1)
     {

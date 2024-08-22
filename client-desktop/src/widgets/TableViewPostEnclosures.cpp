@@ -102,8 +102,8 @@ void ZapFR::Client::TableViewPostEnclosures::loadEnclosures(const std::vector<Za
     QMimeDatabase mimeDB;
     for (const auto& e : enclosures)
     {
-        auto mimeType = mimeDB.mimeTypeForName(QString::fromUtf8(e.mimeType));
-        auto url = QString::fromUtf8(e.url);
+        auto mimeType = mimeDB.mimeTypeForName(QString::fromStdString(e.mimeType));
+        auto url = QString::fromStdString(e.url);
 
         auto icon = mimeType.iconName();
         if (icon.isEmpty())

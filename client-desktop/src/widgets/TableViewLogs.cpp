@@ -55,13 +55,13 @@ void ZapFR::Client::TableViewLogs::reload()
     {
         const auto setItemData = [&](QStandardItem* item, ZapFR::Engine::Log* log)
         {
-            auto message = QString::fromUtf8(log->message());
+            auto message = QString::fromStdString(log->message());
             message.replace(whitespaceRe, " ");
 
             item->setData(message, Role::Message);
             item->setData(QVariant::fromValue<uint64_t>(log->id()), Role::ID);
             item->setData(QVariant::fromValue<uint64_t>(log->level()), Role::Level);
-            item->setData(QString::fromUtf8(log->timestamp()), Role::Timestamp);
+            item->setData(QString::fromStdString(log->timestamp()), Role::Timestamp);
             if (log->feedID().has_value())
             {
                 item->setData(QVariant::fromValue<uint64_t>(log->feedID().value()), Role::FeedID);
@@ -99,7 +99,7 @@ void ZapFR::Client::TableViewLogs::reload()
                 }
             }
 
-            auto dateLog = QString::fromUtf8(log->timestamp());
+            auto dateLog = QString::fromStdString(log->timestamp());
             auto dateItem = new QStandardItem(Utilities::prettyDate(dateLog));
             setItemData(dateItem, log);
 
@@ -107,10 +107,10 @@ void ZapFR::Client::TableViewLogs::reload()
             setItemData(feedItem, log);
             if (log->feedTitle().has_value())
             {
-                feedItem->setData(QString::fromUtf8(log->feedTitle().value()), Qt::ToolTipRole);
+                feedItem->setData(QString::fromStdString(log->feedTitle().value()), Qt::ToolTipRole);
             }
 
-            auto message = QString::fromUtf8(log->message());
+            auto message = QString::fromStdString(log->message());
             message.replace(whitespaceRe, " ");
             auto titleItem = new QStandardItem(message);
             setItemData(titleItem, log);

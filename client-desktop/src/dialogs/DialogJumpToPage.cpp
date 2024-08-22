@@ -17,6 +17,7 @@
 */
 
 #include <Poco/NumberParser.h>
+#include <QAbstractButton>
 
 #include "dialogs/DialogJumpToPage.h"
 #include "ui_DialogJumpToPage.h"

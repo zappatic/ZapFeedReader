@@ -19,6 +19,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QTextStream>
 
 #include "ZapFR/OPMLParser.h"
 #include "dialogs/DialogImportOPML.h"
@@ -66,7 +67,7 @@ void ZapFR::Client::DialogImportOPML::chooseOPMLFile(bool /*checked*/)
         {
             QMessageBox mb(this);
             mb.setText(tr("Error parsing OPML file"));
-            mb.setInformativeText(QString::fromUtf8(e.displayText()));
+            mb.setInformativeText(QString::fromStdString(e.displayText()));
             mb.setIcon(QMessageBox::Icon::Critical);
             mb.exec();
         }

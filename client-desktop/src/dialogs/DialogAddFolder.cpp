@@ -16,6 +16,8 @@
     along with ZapFeedReader.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <QAbstractButton>
+
 #include "dialogs/DialogAddFolder.h"
 #include "ui_DialogAddFolder.h"
 

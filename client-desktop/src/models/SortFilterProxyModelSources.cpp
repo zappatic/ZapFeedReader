@@ -272,10 +272,10 @@ Poco::JSON::Object ZapFR::Client::SortFilterProxyModelSources::serializeItem(con
 
 QStandardItem* ZapFR::Client::SortFilterProxyModelSources::unserializeItem(const Poco::JSON::Object::Ptr o) const
 {
-    auto item = new QStandardItem(QString::fromUtf8(o->getValue<std::string>("DisplayRole")));
+    auto item = new QStandardItem(QString::fromStdString(o->getValue<std::string>("DisplayRole")));
     if (o->has("ToolTipRole"))
     {
-        item->setData(QString::fromUtf8(o->getValue<std::string>("ToolTipRole")), Qt::ToolTipRole);
+        item->setData(QString::fromStdString(o->getValue<std::string>("ToolTipRole")), Qt::ToolTipRole);
     }
 
     item->setData(QVariant::fromValue<uint64_t>(o->getValue<uint64_t>("Type")), TreeViewSources::Role::Type);
@@ -286,10 +286,10 @@ QStandardItem* ZapFR::Client::SortFilterProxyModelSources::unserializeItem(const
     item->setData(QVariant::fromValue<uint64_t>(o->getValue<uint64_t>("ParentFolderID")), TreeViewSources::Role::ParentFolderID);
     if (o->has("Error"))
     {
-        item->setData(QString::fromUtf8(o->getValue<std::string>("Error")), TreeViewSources::Role::Error);
+        item->setData(QString::fromStdString(o->getValue<std::string>("Error")), TreeViewSources::Role::Error);
     }
-    item->setData(QString::fromUtf8(o->getValue<std::string>("FeedURL")), TreeViewSources::Role::FeedURL);
-    item->setData(QString::fromUtf8(o->getValue<std::string>("FeedLink")), TreeViewSources::Role::FeedLink);
+    item->setData(QString::fromStdString(o->getValue<std::string>("FeedURL")), TreeViewSources::Role::FeedURL);
+    item->setData(QString::fromStdString(o->getValue<std::string>("FeedLink")), TreeViewSources::Role::FeedLink);
     item->setData(QVariant::fromValue<uint64_t>(o->getValue<uint64_t>("SortOrder")), TreeViewSources::Role::SortOrder);
 
     auto children = o->getArray("children");

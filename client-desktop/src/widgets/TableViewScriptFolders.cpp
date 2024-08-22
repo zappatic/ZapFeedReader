@@ -91,7 +91,7 @@ void ZapFR::Client::TableViewScriptFolders::reload(bool forceReload)
         QList<QList<QStandardItem*>> rows;
         for (const auto& scriptFolder : scriptFolders)
         {
-            auto titleItem = new QStandardItem(QString::fromUtf8(scriptFolder->title()));
+            auto titleItem = new QStandardItem(QString::fromStdString(scriptFolder->title()));
             titleItem->setData(QVariant::fromValue<uint64_t>(scriptFolder->id()), Role::ID);
             titleItem->setData(QVariant::fromValue<uint64_t>(sourceID), Role::SourceID);
             titleItem->setData(QVariant::fromValue<bool>(scriptFolder->showTotal()), Role::ShowTotal);
@@ -289,8 +289,7 @@ ZapFR::Client::DialogEditScriptFolder* ZapFR::Client::TableViewScriptFolders::ed
                         {
                             case DialogEditScriptFolder::DisplayMode::Add:
                             {
-                                ZapFR::Engine::Agent::getInstance()->queueAddScriptFolder(sourceID, title, showTotal, showUnread,
-                                                                                          [&](uint64_t /*addedSourceID*/)
+                                ZapFR::Engine::Agent::getInstance()->queueAddScriptFolder(sourceID, title, showTotal, showUnread, [&](uint64_t /*addedSourceID*/)
                                                                                           { QMetaObject::invokeMethod(this, [=, this]() { reload(true); }); });
                                 break;
                             }

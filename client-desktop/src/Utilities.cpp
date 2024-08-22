@@ -18,6 +18,7 @@
 
 #include <QDateTime>
 #include <QFile>
+#include <QLocale>
 
 #include "Utilities.h"
 

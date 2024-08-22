@@ -88,7 +88,7 @@ void ZapFR::Client::TableViewPosts::reload()
         item->setData(QVariant::fromValue<uint64_t>(sourceID), Role::SourceID);
         item->setData(QVariant::fromValue<uint64_t>(post->feedID()), Role::FeedID);
         item->setData(QVariant::fromValue<bool>(post->isRead()), Role::IsRead);
-        item->setData(QString::fromUtf8(post->link()), Role::Link);
+        item->setData(QString::fromStdString(post->link()), Role::Link);
     };
 
     // lambda for the callback, retrieving the posts
@@ -112,12 +112,12 @@ void ZapFR::Client::TableViewPosts::reload()
 
             auto feedItem = new QStandardItem("");
             setItemData(feedItem, post, sourceID);
-            feedItem->setData(QString::fromUtf8(post->feedTitle()), Qt::ToolTipRole);
+            feedItem->setData(QString::fromStdString(post->feedTitle()), Qt::ToolTipRole);
 
-            auto titleItem = new QStandardItem(QString::fromUtf8(post->title()));
+            auto titleItem = new QStandardItem(QString::fromStdString(post->title()));
             setItemData(titleItem, post, sourceID);
 
-            auto datePublished = QString::fromUtf8(post->datePublished());
+            auto datePublished = QString::fromStdString(post->datePublished());
             auto dateItem = new QStandardItem(Utilities::prettyDate(datePublished));
             dateItem->setData(datePublished, Role::ISODate);
             setItemData(dateItem, post, sourceID);
@@ -857,8 +857,7 @@ void ZapFR::Client::TableViewPosts::markPostSelectionAsRead()
     {
         auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsRead(
-            sourceID, feedAndPostIDs,
-            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
+            sourceID, feedAndPostIDs, [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
             { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedRead(affectedSourceID, affectedFeedAndPostIDs); }); });
     }
 }
@@ -870,8 +869,7 @@ void ZapFR::Client::TableViewPosts::markPostSelectionAsUnread()
     {
         auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueMarkPostsUnread(
-            sourceID, feedAndPostIDs,
-            [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
+            sourceID, feedAndPostIDs, [&](uint64_t affectedSourceID, const std::vector<std::tuple<uint64_t, uint64_t>>& affectedFeedAndPostIDs)
             { QMetaObject::invokeMethod(this, [=, this]() { postsMarkedUnread(affectedSourceID, affectedFeedAndPostIDs); }); });
     }
 }
@@ -928,8 +926,7 @@ void ZapFR::Client::TableViewPosts::assignPostSelectionToScriptFolder()
     {
         auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueAssignPostsToScriptFolder(
-            sourceID, scriptFolderID, feedAndPostIDs,
-            [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
+            sourceID, scriptFolderID, feedAndPostIDs, [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
             { QMetaObject::invokeMethod(this, [=, this]() { postsAssignedToScriptFolder(affectedSourceID, affectedScriptFolderID); }); });
     }
 }
@@ -943,8 +940,7 @@ void ZapFR::Client::TableViewPosts::removePostSelectionFromScriptFolder()
     {
         auto sourceID = mMainWindow->treeViewSources()->currentIndex().data(TreeViewSources::Role::ParentSourceID).toULongLong();
         ZapFR::Engine::Agent::getInstance()->queueRemovePostsFromScriptFolder(
-            sourceID, scriptFolderID, feedAndPostIDs,
-            [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
+            sourceID, scriptFolderID, feedAndPostIDs, [&](uint64_t affectedSourceID, uint64_t affectedScriptFolderID)
             { QMetaObject::invokeMethod(this, [=, this]() { postsRemovedFromScriptFolder(affectedSourceID, affectedScriptFolderID); }); });
     }
 }

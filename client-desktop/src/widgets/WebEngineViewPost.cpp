@@ -233,14 +233,14 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForPost(ZapFR::Engine::Post* po
     uri.setPath("");
 
     std::unordered_map<std::string, QString> replacers;
-    replacers["BASE"] = QString::fromUtf8(uri.toString());
+    replacers["BASE"] = QString::fromStdString(uri.toString());
     replacers["STYLES"] = postStyles();
-    replacers["POST.TITLE"] = QString::fromUtf8(post->title());
-    replacers["POST.LINK"] = QString::fromUtf8(post->link());
-    replacers["POST.AUTHOR"] = QString::fromUtf8(post->author());
-    replacers["POST.CONTENT"] = QString::fromUtf8(post->content());
-    replacers["POST.DATE_PUBLISHED"] = Utilities::prettyDate(QString::fromUtf8(post->datePublished()));
-    replacers["POST.COMMENTS_URL"] = QString::fromUtf8(post->commentsURL());
+    replacers["POST.TITLE"] = QString::fromStdString(post->title());
+    replacers["POST.LINK"] = QString::fromStdString(post->link());
+    replacers["POST.AUTHOR"] = QString::fromStdString(post->author());
+    replacers["POST.CONTENT"] = QString::fromStdString(post->content());
+    replacers["POST.DATE_PUBLISHED"] = Utilities::prettyDate(QString::fromStdString(post->datePublished()));
+    replacers["POST.COMMENTS_URL"] = QString::fromStdString(post->commentsURL());
     replacers["I18N.PUBLISHED"] = tr("Published");
     replacers["I18N.AUTHOR"] = tr("Author");
     replacers["I18N.VIEWCOMMENTS"] = tr("View comments");
@@ -251,20 +251,20 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForPost(ZapFR::Engine::Post* po
     {
         cats.emplace_back(cat.title);
     }
-    replacers["POST.CATEGORIES"] = QString::fromUtf8(ZapFR::Engine::Helpers::joinString(cats, ", "));
+    replacers["POST.CATEGORIES"] = QString::fromStdString(ZapFR::Engine::Helpers::joinString(cats, ", "));
 
     auto postHTML = postHTMLTemplate();
     for (const auto& [key, value] : replacers)
     {
         // handle {if}{else}{/if}
-        auto pattern = QString::fromUtf8(fmt::format(R"(\[if {}\](.*?)\[else\](.*?)\[/if\])", key));
+        auto pattern = QString::fromStdString(fmt::format(R"(\[if {}\](.*?)\[else\](.*?)\[/if\])", key));
         postHTML.replace(QRegularExpression(pattern), value.isEmpty() ? R"(\2)" : R"(\1)");
 
         // handle [if][/if]
-        pattern = QString::fromUtf8(fmt::format(R"(\[if {}\](.*?)\[/if\])", key));
+        pattern = QString::fromStdString(fmt::format(R"(\[if {}\](.*?)\[/if\])", key));
         postHTML.replace(QRegularExpression(pattern), value.isEmpty() ? "" : R"(\1)");
 
-        postHTML.replace(QString::fromUtf8(fmt::format("[{}]", key)), value);
+        postHTML.replace(QString::fromStdString(fmt::format("[{}]", key)), value);
     }
     return postHTML;
 }
@@ -300,17 +300,18 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForThumbnailData(uint64_t sourc
         if (!td.feedLink.empty())
         {
             ss << R"(<div class="zapfr_thumbnail_feedheader">)"
-               << R"(   <a href=")" << QString::fromUtf8(td.feedLink) << R"(">)"
+               << R"(   <a href=")" << QString::fromStdString(td.feedLink) << R"(">)"
                << R"(       <img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)"
                << R"(   </a>)"
-               << R"(   <a class="zapfr_thumbnail_feedheader_content" href=")" << QString::fromUtf8(td.feedLink) << R"(">)" << QString::fromUtf8(td.feedTitle) << R"(   </a>)"
+               << R"(   <a class="zapfr_thumbnail_feedheader_content" href=")" << QString::fromStdString(td.feedLink) << R"(">)" << QString::fromStdString(td.feedTitle)
+               << R"(   </a>)"
                << R"(</div>)";
         }
         else
         {
             ss << R"(<div class="zapfr_thumbnail_feedheader">)"
                << R"(   <img class="zapfr_thumbnail_feedicon" src=")" << icon << R"(" />)"
-               << R"(   <h1 class="zapfr_thumbnail_feedheader_content">)" << QString::fromUtf8(td.feedTitle) << R"(</h1>)"
+               << R"(   <h1 class="zapfr_thumbnail_feedheader_content">)" << QString::fromStdString(td.feedTitle) << R"(</h1>)"
                << R"(</div>)";
         }
         ss << R"(<div class="zapfr_thumbnail_grid">)";
@@ -331,12 +332,12 @@ QString ZapFR::Client::WebEngineViewPost::getHTMLForThumbnailData(uint64_t sourc
                << R"(               </a>)"
                << R"(           </div>)"
                << R"(           <a href=")" << openURL << R"(">)"
-               << R"(               <img class="zapfr_thumbnail_cell_img" src=")" << QString::fromUtf8(tdp.thumbnail) << R"(" alt="" />)"
+               << R"(               <img class="zapfr_thumbnail_cell_img" src=")" << QString::fromStdString(tdp.thumbnail) << R"(" alt="" />)"
                << R"(           </a>)"
                << R"(       </div>)"
                << R"(   </div>)"
                << R"(   <div style="text-align:center;">)"
-               << R"(       <a class="zapfr_thumbnail_cell_title" href=")" << openURL << R"(">)" << QString::fromUtf8(tdp.title) << R"(       </a>)"
+               << R"(       <a class="zapfr_thumbnail_cell_title" href=")" << openURL << R"(">)" << QString::fromStdString(tdp.title) << R"(       </a>)"
                << R"(     </div>)"
                << R"(</div>)";
         }

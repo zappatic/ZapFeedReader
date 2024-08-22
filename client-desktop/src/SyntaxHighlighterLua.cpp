@@ -39,11 +39,11 @@ ZapFR::Client::SyntaxHighlighterLua::SyntaxHighlighterLua(QTextDocument* parent)
     mRules.emplace_back("CurrentPost", mFormatTypes);
     for (const auto& t : ZapFR::Engine::gsLuaPostSyntaxHighlighting)
     {
-        mRules.emplace_back(QString("CurrentPost%1").arg(QString::fromUtf8(t)), mFormatTypes);
+        mRules.emplace_back(QString("CurrentPost%1").arg(QString::fromStdString(t)), mFormatTypes);
     }
     for (const auto& t : ZapFR::Engine::gsLuaPostEnclosuresSyntaxHighlighting)
     {
-        mRules.emplace_back(QString::fromUtf8(t), mFormatTypes);
+        mRules.emplace_back(QString::fromStdString(t), mFormatTypes);
     }
     mRules.emplace_back(R"(\b[0-9.]+\b)", mFormatNumber);
     mRules.emplace_back(R"(\-\-.*?$)", mFormatComments);

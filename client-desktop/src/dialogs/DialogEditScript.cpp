@@ -337,7 +337,7 @@ void ZapFR::Client::DialogEditScript::initializeTestEnvironment()
     mDummyPost->setContent("The purpose of this post is <b>for testing</b> your scripts!");
     mDummyPost->setAuthor("Test Author");
     mDummyPost->setCommentsURL("https://zapfeedreader.zappatic.net#comments");
-    mDummyPost->setLogCallback([&](const std::string& message) { QMetaObject::invokeMethod(this, [=, this]() { appendToLog(QString::fromUtf8(message)); }); });
+    mDummyPost->setLogCallback([&](const std::string& message) { QMetaObject::invokeMethod(this, [=, this]() { appendToLog(QString::fromStdString(message)); }); });
 
     mDummySource->setAssociatedDummyFeed(mDummyFeed.get());
     mDummySource->setAssociatedDummyPost(mDummyPost.get());
@@ -350,12 +350,12 @@ void ZapFR::Client::DialogEditScript::updateTestUI()
 {
     if (mDummyPost != nullptr)
     {
-        ui->lineEditTestPostTitle->setText(QString::fromUtf8(mDummyPost->title()));
-        ui->lineEditTestPostLink->setText(QString::fromUtf8(mDummyPost->link()));
-        ui->plainTextEditTestPostContent->setPlainText(QString::fromUtf8(mDummyPost->content()));
-        ui->lineEditTestPostAuthor->setText(QString::fromUtf8(mDummyPost->author()));
-        ui->lineEditTestPostCommentsURL->setText(QString::fromUtf8(mDummyPost->commentsURL()));
-        ui->lineEditTestPostThumbnail->setText(QString::fromUtf8(mDummyPost->thumbnail()));
+        ui->lineEditTestPostTitle->setText(QString::fromStdString(mDummyPost->title()));
+        ui->lineEditTestPostLink->setText(QString::fromStdString(mDummyPost->link()));
+        ui->plainTextEditTestPostContent->setPlainText(QString::fromStdString(mDummyPost->content()));
+        ui->lineEditTestPostAuthor->setText(QString::fromStdString(mDummyPost->author()));
+        ui->lineEditTestPostCommentsURL->setText(QString::fromStdString(mDummyPost->commentsURL()));
+        ui->lineEditTestPostThumbnail->setText(QString::fromStdString(mDummyPost->thumbnail()));
         ui->checkBoxIsRead->setChecked(mDummyPost->isRead());
 
         const auto& flagColors = mDummyPost->flagColors();
@@ -369,7 +369,7 @@ void ZapFR::Client::DialogEditScript::updateTestUI()
         mTestEnclosuresModel->clear();
         for (const auto& enclosure : mDummyPost->enclosures())
         {
-            auto url = QString::fromUtf8(enclosure.url);
+            auto url = QString::fromStdString(enclosure.url);
             auto urlItem = new QStandardItem(url);
             urlItem->setData(url, Qt::ToolTipRole);
 
@@ -377,7 +377,7 @@ void ZapFR::Client::DialogEditScript::updateTestUI()
             auto sizeItem = new QStandardItem(size);
             sizeItem->setData(size, Qt::ToolTipRole);
 
-            auto mimeType = QString::fromUtf8(enclosure.mimeType);
+            auto mimeType = QString::fromStdString(enclosure.mimeType);
             auto mimeTypeItem = new QStandardItem(mimeType);
             mimeTypeItem->setData(mimeType, Qt::ToolTipRole);
 
@@ -438,9 +438,8 @@ void ZapFR::Client::DialogEditScript::runTestScript()
     auto script = ui->textEditScript->toPlainText().toStdString();
     try
     {
-        ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, mDummySource.get(), mDummyFeed.get(), mDummyPost.get(),
-                                                               [&](const std::string& message)
-                                                               { QMetaObject::invokeMethod(this, [=, this]() { appendToLog(QString::fromUtf8(message)); }); });
+        ZapFR::Engine::ScriptLua::getInstance()->runPostScript(script, mDummySource.get(), mDummyFeed.get(), mDummyPost.get(), [&](const std::string& message)
+                                                               { QMetaObject::invokeMethod(this, [=, this]() { appendToLog(QString::fromStdString(message)); }); });
     }
     catch (const std::exception& e)
     {
@@ -509,7 +508,8 @@ void ZapFR::Client::DialogEditScript::editEnclosure()
     if (index.isValid())
     {
         const auto& enclosure = mDummyPost->enclosures().at(static_cast<size_t>(index.row()));
-        mDialogEditEnclosure->reset(DialogTestScriptEditEnclosure::DisplayMode::Edit, QString::fromUtf8(enclosure.url), QString::fromUtf8(enclosure.mimeType), enclosure.size);
+        mDialogEditEnclosure->reset(DialogTestScriptEditEnclosure::DisplayMode::Edit, QString::fromStdString(enclosure.url), QString::fromStdString(enclosure.mimeType),
+                                    enclosure.size);
         mDialogEditEnclosure->open();
     }
 }
