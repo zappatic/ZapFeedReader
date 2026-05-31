@@ -240,9 +240,11 @@ void ZapFR::Client::MainWindow::saveSettings() const
     root.insert(Setting::FeedsLogLevel, ZapFR::Engine::Log::logLevel());
 
     auto sf = QFile(settingsFile());
-    sf.open(QIODeviceBase::WriteOnly);
-    sf.write(QJsonDocument(root).toJson());
-    sf.close();
+    if (sf.open(QIODeviceBase::WriteOnly))
+    {
+        sf.write(QJsonDocument(root).toJson());
+        sf.close();
+    }
 }
 
 void ZapFR::Client::MainWindow::restoreSettings()
@@ -252,9 +254,12 @@ void ZapFR::Client::MainWindow::restoreSettings()
         auto sf = QFile(settingsFile());
         if (sf.exists())
         {
-            sf.open(QIODeviceBase::ReadOnly);
-            auto json = QJsonDocument::fromJson(sf.readAll());
-            sf.close();
+            QJsonDocument json;
+            if (sf.open(QIODeviceBase::ReadOnly))
+            {
+                json = QJsonDocument::fromJson(sf.readAll());
+                sf.close();
+            }
             if (json.isObject())
             {
                 auto root = json.object();
@@ -546,9 +551,12 @@ void ZapFR::Client::MainWindow::configureIcons()
     const auto configureIcon = [&](const QString& svgResource)
     {
         auto svgFile = QFile(svgResource);
-        svgFile.open(QIODeviceBase::ReadOnly);
-        auto svgContents = QString(svgFile.readAll());
-        svgFile.close();
+        QString svgContents;
+        if (svgFile.open(QIODeviceBase::ReadOnly))
+        {
+            svgContents = QString(svgFile.readAll());
+            svgFile.close();
+        }
 
         QIcon icon;
 
@@ -624,10 +632,12 @@ void ZapFR::Client::MainWindow::applyColorScheme()
         auto override = QFile(QDir::cleanPath(configDir() + QDir::separator() + "theme.json"));
         if (override.exists())
         {
-            override.open(QIODeviceBase::ReadOnly);
-            themeValues = QString::fromUtf8(override.readAll()).toStdString();
-            override.close();
-            overrideBuggedValues = false;
+            if (override.open(QIODeviceBase::ReadOnly))
+            {
+                themeValues = QString::fromUtf8(override.readAll()).toStdString();
+                override.close();
+                overrideBuggedValues = false;
+            }
         }
 
         auto palette = std::make_unique<QPalette>();

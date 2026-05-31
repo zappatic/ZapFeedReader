@@ -50,9 +50,11 @@ void ZapFR::Client::LineEditSearch::setSearchIconColor(const QString& color)
     if (svgContents.isEmpty())
     {
         auto svgFile = QFile(":/search.svg");
-        svgFile.open(QIODeviceBase::ReadOnly);
-        svgContents = QString(svgFile.readAll());
-        svgFile.close();
+        if (svgFile.open(QIODeviceBase::ReadOnly))
+        {
+            svgContents = QString(svgFile.readAll());
+            svgFile.close();
+        }
     }
 
     QImage img;

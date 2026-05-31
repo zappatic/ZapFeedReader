@@ -135,9 +135,12 @@ QString ZapFR::Client::WebEngineViewPost::postStyles() const
         auto override = QFile(QDir::cleanPath(mMainWindow->configDir() + QDir::separator() + overrideFilename));
         if (override.exists())
         {
-            override.open(QIODeviceBase::ReadOnly);
-            auto styles = QString::fromUtf8(override.readAll());
-            override.close();
+            QString styles;
+            if (override.open(QIODeviceBase::ReadOnly))
+            {
+                styles = QString::fromUtf8(override.readAll());
+                override.close();
+            }
             return styles;
         }
 
@@ -191,9 +194,8 @@ QString ZapFR::Client::WebEngineViewPost::postHTMLTemplate() const
     if (!cache.has_value())
     {
         auto override = QFile(QDir::cleanPath(mMainWindow->configDir() + QDir::separator() + "post.html"));
-        if (override.exists())
+        if (override.exists() && override.open(QIODeviceBase::ReadOnly))
         {
-            override.open(QIODeviceBase::ReadOnly);
             cache = QString::fromUtf8(override.readAll());
             override.close();
         }

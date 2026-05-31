@@ -92,9 +92,12 @@ const QPixmap& ZapFR::Client::Utilities::flag(ZapFR::Engine::FlagColor color, Fl
     QColor c(red, green, blue);
 
     auto svgFile = QFile(flagStyle == FlagStyle::Filled ? ":/flagFilled.svg" : ":/flagUnfilled.svg");
-    svgFile.open(QIODeviceBase::ReadOnly);
-    auto svgContents = QString(svgFile.readAll());
-    svgFile.close();
+    QString svgContents;
+    if (svgFile.open(QIODeviceBase::ReadOnly))
+    {
+        svgContents = QString(svgFile.readAll());
+        svgFile.close();
+    }
     svgContents.replace("{#color}", c.name());
 
     QImage img;

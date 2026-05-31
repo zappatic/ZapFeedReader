@@ -58,10 +58,12 @@ void ZapFR::Client::DialogImportOPML::chooseOPMLFile(bool /*checked*/)
         try
         {
             auto opmlFile = QFile(chosenPath);
-            opmlFile.open(QIODeviceBase::ReadOnly);
-            mOPML = QTextStream(&opmlFile).readAll().toStdString();
-            ZapFR::Engine::OPMLParser::parse(mOPML);
-            // TODO: check if zero feeds found!
+            if (opmlFile.open(QIODeviceBase::ReadOnly))
+            {
+                mOPML = QTextStream(&opmlFile).readAll().toStdString();
+                ZapFR::Engine::OPMLParser::parse(mOPML);
+                // TODO: check if zero feeds found!
+            }
         }
         catch (const Poco::Exception& e)
         {

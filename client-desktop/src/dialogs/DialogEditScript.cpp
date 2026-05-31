@@ -69,10 +69,10 @@ ZapFR::Client::DialogEditScript::DialogEditScript(QWidget* parent) : QDialog(par
 
     connect(ui->lineEditTitle, &QLineEdit::textChanged, this, &DialogEditScript::markDirty);
     connect(ui->textEditScript, &QTextEdit::textChanged, this, &DialogEditScript::markDirty);
-    connect(ui->checkBoxEnabled, &QCheckBox::stateChanged, this, &DialogEditScript::markDirty);
-    connect(ui->checkBoxRunOnAllFeeds, &QCheckBox::stateChanged, this, &DialogEditScript::markDirty);
-    connect(ui->checkBoxRunOnNewPost, &QCheckBox::stateChanged, this, &DialogEditScript::markDirty);
-    connect(ui->checkBoxRunOnUpdatePost, &QCheckBox::stateChanged, this, &DialogEditScript::markDirty);
+    connect(ui->checkBoxEnabled, &QCheckBox::checkStateChanged, this, &DialogEditScript::markDirty);
+    connect(ui->checkBoxRunOnAllFeeds, &QCheckBox::checkStateChanged, this, &DialogEditScript::markDirty);
+    connect(ui->checkBoxRunOnNewPost, &QCheckBox::checkStateChanged, this, &DialogEditScript::markDirty);
+    connect(ui->checkBoxRunOnUpdatePost, &QCheckBox::checkStateChanged, this, &DialogEditScript::markDirty);
 
     connect(ui->pushButtonRunScript, &QPushButton::clicked, this, &DialogEditScript::runTestScript);
     connect(ui->pushButtonResetTestValues, &QPushButton::clicked, this, &DialogEditScript::resetTestValues);
