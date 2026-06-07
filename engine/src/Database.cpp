@@ -69,7 +69,8 @@ void ZapFR::Engine::Database::upgrade()
                 []() { /* nop, there is no db version 0 */ },    []() { /* nop, version 1 should have been installed with installDBSchemaV1 */ },
                 std::bind(&Database::upgradeToDBSchemaV2, this), std::bind(&Database::upgradeToDBSchemaV3, this),
                 std::bind(&Database::upgradeToDBSchemaV4, this), std::bind(&Database::upgradeToDBSchemaV5, this),
-                std::bind(&Database::upgradeToDBSchemaV6, this), std::bind(&Database::upgradeToDBSchemaV7, this)};
+                std::bind(&Database::upgradeToDBSchemaV6, this), std::bind(&Database::upgradeToDBSchemaV7, this),
+                std::bind(&Database::upgradeToDBSchemaV8, this)};
 
             for (auto i = currentDBVersion + 1; i <= ZapFR::Engine::DBVersion; ++i)
             {
@@ -311,4 +312,10 @@ void ZapFR::Engine::Database::upgradeToDBSchemaV7()
     (*mSession) << R"(CREATE INDEX posts_IX_datepublished ON posts (datePublished))", now;
     (*mSession) << R"(CREATE INDEX post_categories_IX_postID ON post_categories (postID))", now;
     (*mSession) << "UPDATE config SET VALUE='7' WHERE key='db_schema_version'", now;
+}
+
+void ZapFR::Engine::Database::upgradeToDBSchemaV8()
+{
+    (*mSession) << R"(CREATE INDEX posts_IX_feedID_sort ON posts (feedID, isRead ASC, datePublished DESC))", now;
+    (*mSession) << "UPDATE config SET VALUE='8' WHERE key='db_schema_version'", now;
 }

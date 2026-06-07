@@ -22,6 +22,12 @@
 #include <memory>
 #include <vector>
 
+#ifdef LOGSQL
+#include "ZapFR/LoggingStatement.h"
+#else
+#include <Poco/Data/Statement.h>
+#endif
+
 namespace ZapFR
 {
     namespace Engine
@@ -59,7 +65,7 @@ namespace ZapFR
             uint64_t totalPostCount{0};
         };
 
-        constexpr uint64_t DBVersion{7};
+        constexpr uint64_t DBVersion{8};
         constexpr uint64_t APIVersion{1};
         constexpr uint64_t DefaultFeedAutoRefreshInterval{15 * 60};
         constexpr uint16_t DefaultServerPort{16016};
@@ -330,6 +336,12 @@ namespace ZapFR
             } // namespace Category
 
         }; // namespace HTTPParam
+
+#ifdef LOGSQL
+        using DBStatement = LoggingStatement;
+#else
+        using DBStatement = Poco::Data::Statement;
+#endif
 
     } // namespace Engine
 } // namespace ZapFR
