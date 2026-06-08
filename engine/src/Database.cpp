@@ -317,5 +317,7 @@ void ZapFR::Engine::Database::upgradeToDBSchemaV7()
 void ZapFR::Engine::Database::upgradeToDBSchemaV8()
 {
     (*mSession) << R"(CREATE INDEX posts_IX_feedID_sort ON posts (feedID, isRead ASC, datePublished DESC))", now;
+    (*mSession) << R"(CREATE INDEX posts_IX_feedID_id ON posts (feedID, id))", now;
+    (*mSession) << R"(DROP INDEX posts_IX_feedID)", now;
     (*mSession) << "UPDATE config SET VALUE='8' WHERE key='db_schema_version'", now;
 }
