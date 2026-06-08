@@ -37,8 +37,8 @@ namespace ZapFR
                 auto daemon = Daemon("/etc/zapfeedreader/zapfeedreader.conf");
                 daemon.boot();
 
-                auto user = daemon.configString("zapfr.user");
-                auto group = daemon.configString("zapfr.group");
+                auto user = daemon.configString(ConfigKeys::RUN_AS_USER);
+                auto group = daemon.configString(ConfigKeys::RUN_AS_GROUP);
                 auto homeDir = std::string(dropRootPrivilege(user, group));
                 if (homeDir.empty())
                 {

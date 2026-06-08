@@ -48,10 +48,10 @@ void ZapFR::Server::Daemon::boot()
 
     loadAccounts();
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
-    ar->setEnabled(mConfiguration->getBool("zapfr.autorefresh.enabled", true));
-    ar->setFeedRefreshInterval(mConfiguration->getUInt64("zapfr.autorefresh.interval", ZapFR::Engine::DefaultFeedAutoRefreshInterval));
+    ar->setEnabled(mConfiguration->getBool(ConfigKeys::AUTOREFRESH_ENABLED, true));
+    ar->setFeedRefreshInterval(mConfiguration->getUInt64(ConfigKeys::AUTOREFRESH_INTERVAL, ZapFR::Engine::DefaultFeedAutoRefreshInterval));
 
-    auto logLevel = mConfiguration->getString("loglevel", "info");
+    auto logLevel = mConfiguration->getString(ConfigKeys::LOGLEVEL, "info");
     if (logLevel == "debug")
     {
         ZapFR::Engine::Log::setLogLevel(ZapFR::Engine::LogLevel::Debug);
@@ -69,10 +69,10 @@ void ZapFR::Server::Daemon::boot()
         ZapFR::Engine::Log::setLogLevel(ZapFR::Engine::LogLevel::Error);
     }
 
-    auto bindAddress = mConfiguration->getString("zapfr.bind", "0.0.0.0");
-    auto bindPort = static_cast<uint16_t>(mConfiguration->getUInt("zapfr.port", ZapFR::Engine::DefaultServerPort));
-    auto sslPubCert = mConfiguration->getString("zapfr.ssl_pubcert", "");
-    auto sslPrivKey = mConfiguration->getString("zapfr.ssl_privkey", "");
+    auto bindAddress = mConfiguration->getString(ConfigKeys::BIND_TO, "0.0.0.0");
+    auto bindPort = static_cast<uint16_t>(mConfiguration->getUInt(ConfigKeys::PORT, ZapFR::Engine::DefaultServerPort));
+    auto sslPubCert = mConfiguration->getString(ConfigKeys::PUB_CERT, "");
+    auto sslPrivKey = mConfiguration->getString(ConfigKeys::PRIV_KEY, "");
 
     mHTTPServer = std::make_unique<HTTPServer>(this, bindAddress, bindPort, sslPubCert, sslPrivKey);
     mHTTPServer->start();
@@ -82,14 +82,14 @@ void ZapFR::Server::Daemon::loadAccounts()
 {
     try
     {
-        if (mConfiguration->has("zapfr.accounts"))
+        if (mConfiguration->has(ConfigKeys::ACCOUNTS))
         {
-            auto accounts = Poco::JSON::Parser().parse(mConfiguration->getRawString("zapfr.accounts")).extract<Poco::JSON::Array::Ptr>();
+            auto accounts = Poco::JSON::Parser().parse(mConfiguration->getRawString(ConfigKeys::ACCOUNTS)).extract<Poco::JSON::Array::Ptr>();
             for (size_t i = 0; i < accounts->size(); ++i)
             {
                 auto account = accounts->getObject(static_cast<uint32_t>(i));
-                auto login = account->getValue<std::string>("login");
-                auto password = account->getValue<std::string>("password");
+                auto login = account->getValue<std::string>(ConfigKeys::ACCOUNT_LOGIN);
+                auto password = account->getValue<std::string>(ConfigKeys::ACCOUNT_PASSWORD);
                 mAccounts.emplace_back(login, password);
             }
         }

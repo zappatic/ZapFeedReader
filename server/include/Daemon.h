@@ -34,6 +34,23 @@ namespace ZapFR
             std::string password;
         };
 
+        namespace ConfigKeys
+        {
+            inline const std::string LOGLEVEL{"loglevel"};
+            inline const std::string AUTOREFRESH_ENABLED{"zapfr.autorefresh.enabled"};
+            inline const std::string AUTOREFRESH_INTERVAL{"zapfr.autorefresh.interval"};
+            inline const std::string BIND_TO{"zapfr.bind"};
+            inline const std::string PORT{"zapfr.port"};
+            inline const std::string PUB_CERT{"zapfr.ssl_pubcert"};
+            inline const std::string PRIV_KEY{"zapfr.ssl_privkey"};
+            inline const std::string ACCOUNTS{"zapfr.accounts"};
+            inline const std::string ACCOUNT_LOGIN{"login"};
+            inline const std::string ACCOUNT_PASSWORD{"password"};
+            inline const std::string RUN_AS_USER{"zapfr.user"};
+            inline const std::string RUN_AS_GROUP{"zapfr.group"};
+            inline const std::string SERVERNAME{"zapfr.servername"};
+        } // namespace ConfigKeys
+
         class Daemon
         {
           public:

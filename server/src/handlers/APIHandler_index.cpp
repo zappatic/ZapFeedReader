@@ -37,13 +37,13 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_index([[maybe_unus
           "<html>"
           "	<head>"
           "		<title>ZapFeedReader \""
-       << apiRequest->api()->daemon()->configString("zapfr.servername")
+       << apiRequest->api()->daemon()->configString(ConfigKeys::SERVERNAME)
        << "\"</title>"
           "		<style type='text/css'>* {font-family: sans-serif;}</style>"
           "	</head>"
           "	<body>"
           "		<h1>ZapFeedReader \""
-       << apiRequest->api()->daemon()->configString("zapfr.servername")
+       << apiRequest->api()->daemon()->configString(ConfigKeys::SERVERNAME)
        << "\"</h1>"
           "	</body>"
           "</html>";
