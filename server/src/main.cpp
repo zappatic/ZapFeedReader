@@ -34,7 +34,7 @@ namespace ZapFR
           public:
             int main(const std::vector<std::string>& /*args*/) override
             {
-                auto daemon = Daemon("/etc/zapfeedreader/zapfeedreader.conf");
+                auto daemon = Daemon();
                 daemon.boot();
 
                 auto user = daemon.configString(ConfigKeys::RUN_AS_USER);

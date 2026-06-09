@@ -20,6 +20,8 @@
 #include "APIHandlers.h"
 #include "APIRequest.h"
 #include "Daemon.h"
+#include <inja/inja.hpp>
+#include <nlohmann/json.hpp>
 
 // ::API
 //
@@ -32,21 +34,32 @@
 
 Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_index([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
+    auto daemon = apiRequest->api()->daemon();
+    auto serveWebInterface = daemon->configBool(ConfigKeys::SERVER_WEB_INTERFACE);
     std::stringstream ss;
-    ss << "<!DOCTYPE html>"
-          "<html>"
-          "	<head>"
-          "		<title>ZapFeedReader \""
-       << apiRequest->api()->daemon()->configString(ConfigKeys::SERVERNAME)
-       << "\"</title>"
-          "		<style type='text/css'>* {font-family: sans-serif;}</style>"
-          "	</head>"
-          "	<body>"
-          "		<h1>ZapFeedReader \""
-       << apiRequest->api()->daemon()->configString(ConfigKeys::SERVERNAME)
-       << "\"</h1>"
-          "	</body>"
-          "</html>";
+    if (!serveWebInterface)
+    {
+        ss << "<!DOCTYPE html>"
+              "<html>"
+              "	<head>"
+              "		<title>ZapFeedReader \""
+           << apiRequest->api()->daemon()->configString(ConfigKeys::SERVERNAME)
+           << "\"</title>"
+              "		<style type='text/css'>* {font-family: sans-serif;}</style>"
+              "	</head>"
+              "	<body>"
+              "		<h1>ZapFeedReader \""
+           << apiRequest->api()->daemon()->configString(ConfigKeys::SERVERNAME)
+           << "\"</h1>"
+              "	</body>"
+              "</html>";
+    }
+    else
+    {
+        auto& env = daemon->injaEnv();
+        nlohmann::json data;
+        ss << env.render_file("index.tpl", data);
+    }
     response.send() << ss.str();
 
     return Poco::Net::HTTPResponse::HTTP_OK;

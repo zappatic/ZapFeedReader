@@ -81,6 +81,8 @@ namespace ZapFR
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_setpostsreadstatus(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_statistics(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 		Poco::Net::HTTPResponse::HTTPStatus APIHandler_source_usedflagcolors(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_webinterface_css(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
+		Poco::Net::HTTPResponse::HTTPStatus APIHandler_webinterface_js(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response);
 
     } // namespace Server
 } // namespace ZapFR

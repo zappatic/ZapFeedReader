@@ -30,7 +30,7 @@ namespace
     static std::string gsUserHomePath{""};
 } // namespace
 
-ZapFR::Server::Daemon::Daemon(const std::string& configurationPath) : mConfigurationPath(configurationPath)
+ZapFR::Server::Daemon::Daemon()
 {
     Poco::Net::initializeSSL();
     Poco::Net::initializeNetwork();
@@ -42,9 +42,15 @@ ZapFR::Server::Daemon::~Daemon()
     Poco::Net::uninitializeNetwork();
 }
 
+Poco::Path ZapFR::Server::Daemon::configRoot() const
+{
+    return Poco::Path("/etc/zapfeedreader/");
+}
+
 void ZapFR::Server::Daemon::boot()
 {
-    mConfiguration = Poco::AutoPtr<Poco::Util::JSONConfiguration>(new Poco::Util::JSONConfiguration(mConfigurationPath));
+    auto configFile = configRoot().setFileName("zapfeedreader.conf");
+    mConfiguration = Poco::AutoPtr<Poco::Util::JSONConfiguration>(new Poco::Util::JSONConfiguration(configFile.toString()));
 
     loadAccounts();
     auto ar = ZapFR::Engine::AutoRefresh::getInstance();
@@ -126,6 +132,11 @@ std::string ZapFR::Server::Daemon::configString(const std::string& key)
     return mConfiguration->getString(key, "");
 }
 
+bool ZapFR::Server::Daemon::configBool(const std::string& key)
+{
+    return mConfiguration->getBool(key, false);
+}
+
 bool ZapFR::Server::Daemon::hasAccounts() const noexcept
 {
     return !mAccounts.empty();
@@ -141,4 +152,27 @@ bool ZapFR::Server::Daemon::areCredentialsValid(const std::string& login, const 
         }
     }
     return false;
+}
+
+inja::Environment& ZapFR::Server::Daemon::injaEnv() const
+{
+    static std::unique_ptr<inja::Environment> env{nullptr};
+    static bool envInitialized{false};
+    if (!envInitialized)
+    {
+        auto tplDirectory = webinterfaceRoot();
+        env = std::make_unique<inja::Environment>(tplDirectory.toString());
+        envInitialized = true;
+    }
+    return *env;
+}
+
+Poco::Path ZapFR::Server::Daemon::webinterfaceRoot() const
+{
+#ifdef DEBUG
+    const auto& app = Poco::Util::Application::instance();
+    return Poco::Path(app.commandPath()).parent().pushDirectory("webinterface");
+#else
+    return configRoot().pushDirectory("webinterface");
+#endif
 }

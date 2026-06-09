@@ -648,6 +648,26 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 				msAPIs.emplace_back(std::move(entry));
 			}
 
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(UI)", R"(Returns the /css/ folder of the webinterface)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/web\/css\/(.*?)$)", R"(/web/css/*)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(text/css)");
+				entry->setHandler(ZapFR::Server::APIHandler_webinterface_css);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(UI)", R"(Returns the /js/ folder of the webinterface)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/web\/js\/(.*?)$)", R"(/web/js/*)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(text/javascript)");
+				entry->setHandler(ZapFR::Server::APIHandler_webinterface_js);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
         msAPIsLoaded = true;
         }
 }

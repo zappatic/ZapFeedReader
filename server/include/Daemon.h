@@ -22,6 +22,7 @@
 #include "HTTPServer.h"
 #include <Poco/Util/JSONConfiguration.h>
 #include <Poco/Util/ServerApplication.h>
+#include <inja/inja.hpp>
 
 namespace ZapFR
 {
@@ -49,22 +50,26 @@ namespace ZapFR
             inline const std::string RUN_AS_USER{"zapfr.user"};
             inline const std::string RUN_AS_GROUP{"zapfr.group"};
             inline const std::string SERVERNAME{"zapfr.servername"};
+            inline const std::string SERVER_WEB_INTERFACE{"zapfr.servewebinterface"};
         } // namespace ConfigKeys
 
         class Daemon
         {
           public:
-            explicit Daemon(const std::string& configurationPath);
+            Daemon();
             virtual ~Daemon();
             void boot();
             void setDataDir(const std::string& dataDir);
 
+            Poco::Path configRoot() const;
+            Poco::Path webinterfaceRoot() const;
             std::string configString(const std::string& key);
+            bool configBool(const std::string& key);
             bool hasAccounts() const noexcept;
             bool areCredentialsValid(const std::string& login, const std::string& password) const;
+            inja::Environment& injaEnv() const;
 
           private:
-            std::string mConfigurationPath{""};
             std::string mDataDir{""};
             Poco::AutoPtr<Poco::Util::JSONConfiguration> mConfiguration{nullptr};
             std::vector<Account> mAccounts{};

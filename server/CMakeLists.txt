@@ -7,6 +7,8 @@ target_compile_options(zapfeedreader-server PRIVATE -Wall -Wextra -pedantic -Wer
 target_include_directories(zapfeedreader-server PRIVATE include)
 target_include_directories(zapfeedreader-server PRIVATE ../engine/include)
 target_include_directories(zapfeedreader-server SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdParty/fmtlib/include)
+target_include_directories(zapfeedreader-server SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdParty/json/single_include)
+target_include_directories(zapfeedreader-server SYSTEM PRIVATE ${CMAKE_SOURCE_DIR}/3rdParty/inja/include)
 
 target_link_libraries(zapfeedreader-server PRIVATE  zapfeedreader-engine 
                                                     PkgConfig::lua
@@ -28,3 +30,6 @@ target_sources(zapfeedreader-server PRIVATE ${ZAPFR_SERVER_SOURCES})
 target_sources(zapfeedreader-server PRIVATE src/main.cpp)
 
 add_custom_target(generate-server-api COMMAND ${CMAKE_SOURCE_DIR}/server/helpers/api-generator.py -c "${CMAKE_SOURCE_DIR}/server/helpers/api.conf" -r ${CMAKE_SOURCE_DIR})
+
+add_custom_target(copy_webinterface ALL COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/server/webinterface" "${CMAKE_BINARY_DIR}/$<CONFIG>/webinterface" COMMENT "Copying webinterface templates")
+add_dependencies(zapfeedreader-server copy_webinterface)

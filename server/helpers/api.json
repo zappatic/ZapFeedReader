@@ -10,6 +10,28 @@
     "requireCredentials": false,
     "contentType": "text/html"
   },
+  "webinterface-js": {
+    "section": "UI",
+    "description": "Returns the /js/ folder of the webinterface",
+    "method": "GET",
+    "path": "^\\/web\\/js\\/(.*?)$",
+    "prettyPath": "/web/js/*",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "text/javascript"
+  },
+  "webinterface-css": {
+    "section": "UI",
+    "description": "Returns the /css/ folder of the webinterface",
+    "method": "GET",
+    "path": "^\\/web\\/css\\/(.*?)$",
+    "prettyPath": "/web/css/*",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "text/css"
+  },
   "about": {
     "section": "UI",
     "description": "Returns general info about the server",
