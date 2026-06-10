@@ -649,7 +649,7 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
-				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(UI)", R"(Returns the /css/ folder of the webinterface)");
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(UI)", R"(Returns the /web/css/ folder of the webinterface)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/web\/css\/(.*?)$)", R"(/web/css/*)");
 				entry->setRequiresCredentials(true);
@@ -659,7 +659,17 @@ std::vector<std::unique_ptr<ZapFR::Server::API>> ZapFR::Server::API::msAPIs = st
 			}
 
 		{
-				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(UI)", R"(Returns the /js/ folder of the webinterface)");
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(UI)", R"(Returns the /web/img/ folder of the webinterface)");
+				entry->setMethod("GET");
+				entry->setPath(R"(^\/web\/img\/(.*?)$)", R"(/web/img/*)");
+				entry->setRequiresCredentials(true);
+				entry->setContentType(R"(image/*)");
+				entry->setHandler(ZapFR::Server::APIHandler_webinterface_img);
+				msAPIs.emplace_back(std::move(entry));
+			}
+
+		{
+				auto entry = std::make_unique<ZapFR::Server::API>(daemon, R"(UI)", R"(Returns the /web/js/ folder of the webinterface)");
 				entry->setMethod("GET");
 				entry->setPath(R"(^\/web\/js\/(.*?)$)", R"(/web/js/*)");
 				entry->setRequiresCredentials(true);

@@ -20,6 +20,7 @@ list(APPEND ZAPFR_SERVER_SOURCES
     handlers/APIHandler_about.cpp
 	handlers/APIHandler_index.cpp
 	handlers/APIHandler_webinterface_css.cpp
+	handlers/APIHandler_webinterface_img.cpp
 	handlers/APIHandler_webinterface_js.cpp
 	handlers/categories/APIHandler_categories_list.cpp
 	handlers/dummy/APIHandler_dummyfeed_createpost.cpp

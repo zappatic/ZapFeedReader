@@ -30,7 +30,7 @@
 
 // ::API
 //
-//	Returns the /css/ folder of the webinterface
+//	Returns the /web/css/ folder of the webinterface
 //	/web/css/* (GET)
 //
 //	Content-Type: text/css

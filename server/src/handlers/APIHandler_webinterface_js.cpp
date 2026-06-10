@@ -30,14 +30,14 @@
 
 // ::API
 //
-//	Returns the /js/ folder of the webinterface
+//	Returns the /web/js/ folder of the webinterface
 //	/web/js/* (GET)
 //
 //	Content-Type: text/javascript
 //
 // API::
 
-Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_webinterface_js([[maybe_unused]] APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
+Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_webinterface_js(APIRequest* apiRequest, Poco::Net::HTTPServerResponse& response)
 {
     auto jsFileName = apiRequest->pathComponentAt(1);
     Poco::trimInPlace(jsFileName);

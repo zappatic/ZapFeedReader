@@ -12,7 +12,7 @@
   },
   "webinterface-js": {
     "section": "UI",
-    "description": "Returns the /js/ folder of the webinterface",
+    "description": "Returns the /web/js/ folder of the webinterface",
     "method": "GET",
     "path": "^\\/web\\/js\\/(.*?)$",
     "prettyPath": "/web/js/*",
@@ -23,7 +23,7 @@
   },
   "webinterface-css": {
     "section": "UI",
-    "description": "Returns the /css/ folder of the webinterface",
+    "description": "Returns the /web/css/ folder of the webinterface",
     "method": "GET",
     "path": "^\\/web\\/css\\/(.*?)$",
     "prettyPath": "/web/css/*",
@@ -31,6 +31,17 @@
     "parameters": [],
     "requireCredentials": true,
     "contentType": "text/css"
+  },
+  "webinterface-img": {
+    "section": "UI",
+    "description": "Returns the /web/img/ folder of the webinterface",
+    "method": "GET",
+    "path": "^\\/web\\/img\\/(.*?)$",
+    "prettyPath": "/web/img/*",
+    "uriParameters": [],
+    "parameters": [],
+    "requireCredentials": true,
+    "contentType": "image/*"
   },
   "about": {
     "section": "UI",
