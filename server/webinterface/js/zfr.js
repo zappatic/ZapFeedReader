@@ -4,6 +4,9 @@ class ZapFeedReader {
   postsTable = null;
   postContents = null;
   currentPostsPage = 1;
+  currentPostSelectionID = null;
+  currentSidebarSelectionID = null;
+  currentSidebarSelectionType = null;
 
   constructor() {
     this.sidebar = document.getElementById("sidebar");
@@ -53,6 +56,29 @@ class ZapFeedReader {
     });
   };
 
+  setCurrentSidebarSelection = (type, id) => {
+    this.currentSidebarSelectionID = id;
+    this.currentSidebarSelectionType = type;
+    this.sidebar.childNodes.forEach((node) => {
+      const cl = node.classList;
+      cl.remove("selected");
+      if (node.id === `src-${type}-${id}`) {
+        cl.add("selected");
+      }
+    });
+  };
+
+  setCurrentPostSelection = (id) => {
+    this.currentPostSelectionID = id;
+    this.postsTable.childNodes.forEach((post) => {
+      post.classList.remove("selected");
+    });
+    const post = document.getElementById(`post-${id}`);
+    if (post) {
+      post.classList.add("selected");
+    }
+  };
+
   getSubfolders = async (parentFolderID) => {
     const foldersResponse = await fetch(
       `/folders?parentFolderID=${parentFolderID}`,
@@ -73,6 +99,7 @@ class ZapFeedReader {
       feedDiv.classList.add("entry");
       feedDiv.style.setProperty("--depth", depth);
       feedDiv.addEventListener("click", () => {
+        this.setCurrentSidebarSelection("feed", feed.id);
         this.getPosts("feed", feed.id);
       });
 
@@ -110,6 +137,7 @@ class ZapFeedReader {
       folderDiv.innerText = folder.title;
       folderDiv.style.setProperty("--depth", depth);
       folderDiv.addEventListener("click", () => {
+        this.setCurrentSidebarSelection("folder", folder.id);
         this.getPosts("folder", folder.id);
       });
       this.sidebar.appendChild(folderDiv);
@@ -147,12 +175,14 @@ class ZapFeedReader {
     const posts = await postsResponse.json();
     posts.posts.map((post) => {
       const postEntry = document.createElement("div");
+      postEntry.id = `post-${post.id}`;
       postEntry.classList.add("entry");
       if (!post.isRead) {
         postEntry.classList.add("row-unread");
       }
       postEntry.addEventListener("click", () => {
         this.postContents.srcdoc = this.getPostHTMLTemplate(post);
+        this.setCurrentPostSelection(post.id);
       });
 
       const postUnread = document.createElement("div");
@@ -250,7 +280,9 @@ class ZapFeedReader {
     if (post.hasOwnProperty("categories") && post.categories.length > 0) {
       html += `<div class="zapfr_infoheader"><div>Categories: ${post.categories.map((cat) => cat.title).join(", ")}</div></div>`;
     }
-    html += `<hr class="zapfr_divider">${post.content}</body></html>`;
+    html += `<hr class="zapfr_divider">${post.content}`;
+    html += `<script>window.addEventListener('load', () => {document.querySelectorAll("a").forEach(a => a.rel = "noopener noreferrer");} );</script>`;
+    html += `<body></html>`;
     return html;
   };
 }

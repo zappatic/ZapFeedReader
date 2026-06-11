@@ -100,6 +100,10 @@ aside .entry {
   cursor: pointer;
 }
 
+aside .entry.selected {
+  background-color: var(--color-accent) !important;
+}
+
 aside .entry:nth-child(odd) {
   background-color: var(--color-alt-row-odd);
 }
@@ -142,6 +146,11 @@ aside .feed .badge {
   font-weight: bold;
   background-color: var(--color-badge-bg);
   color: var(--color-badge-text);
+}
+
+aside .feed.entry.selected .badge {
+  background-color: var(--color-badge-text);
+  color: var(--color-badge-bg);
 }
 
 aside .folder {
@@ -188,6 +197,10 @@ aside .folder {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+#posts-table .entry.selected {
+  background-color: var(--color-accent) !important;
 }
 
 #post-contents {

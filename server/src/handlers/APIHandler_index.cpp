@@ -56,6 +56,7 @@ Poco::Net::HTTPResponse::HTTPStatus ZapFR::Server::APIHandler_index([[maybe_unus
     }
     else
     {
+        // response.set("Cross-Origin-Opener-Policy", "unsafe-none"); // this is to avoid COOP issue with external links, no luck however
         auto& env = daemon->injaEnv();
         nlohmann::json data;
         ss << env.render_file("index.tpl", data);
