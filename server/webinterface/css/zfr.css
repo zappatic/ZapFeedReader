@@ -1,8 +1,9 @@
 :root {
+  --color-accent: #006fe2;
   --color-bg: #fff;
   --color-text: #000;
   --color-badge-text: #fff;
-  --color-badge-bg: #006fe2;
+  --color-badge-bg: var(--color-accent);
   --color-alt-row-odd: #2a2a2a; /* todo: this is for dark theme */
   --color-alt-row-even: #272727; /* todo: this is for dark theme */
 }
@@ -65,9 +66,16 @@ body {
 }
 
 #posts {
-  height: 50%;
+  height: 30%;
   flex-shrink: 0;
   overflow-y: auto;
+}
+
+#post {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .divider-h {
@@ -83,17 +91,13 @@ body {
   background: #aaa;
 }
 
-#post {
-  flex: 1;
-  overflow-y: auto;
-}
-
 .hidden {
   display: none !important;
 }
 
 aside .entry {
   padding: 5px 10px;
+  cursor: pointer;
 }
 
 aside .entry:nth-child(odd) {
@@ -124,7 +128,6 @@ aside .feed .caption {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  cursor: pointer;
 }
 
 aside .feed .badge {
@@ -143,4 +146,51 @@ aside .feed .badge {
 
 aside .folder {
   padding-left: calc(0.75rem + var(--depth) * 0.75rem);
+}
+
+#posts-table .entry {
+  cursor: pointer;
+  padding: 5px 0;
+  display: flex;
+  gap: 8px;
+}
+
+#posts-table .row-unread {
+  font-weight: bold;
+}
+
+#posts-table .entry:nth-child(odd) {
+  background-color: var(--color-alt-row-odd);
+}
+
+#posts-table .entry:nth-child(even) {
+  background-color: var(--color-alt-row-even);
+}
+
+#posts-table .unread {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  width: 45px;
+}
+
+#posts-table .title {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#posts-table .date {
+  flex-shrink: 0;
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#post-contents {
+  border: 0;
+  flex: 1;
 }
