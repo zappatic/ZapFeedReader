@@ -7,6 +7,7 @@ class ZapFeedReader {
   currentPostSelectionID = null;
   currentSidebarSelectionID = null;
   currentSidebarSelectionType = null;
+  currentSidebarScrollOffset = 0;
 
   constructor() {
     this.sidebar = document.getElementById("sidebar");
@@ -87,6 +88,13 @@ class ZapFeedReader {
   };
 
   refreshFeeds = async () => {
+    this.currentSidebarScrollOffset = this.sidebar.scrollTop;
+
+    const buffer = document.createElement("div");
+    const originalSidebar = this.sidebar;
+    this.sidebar = buffer;
+
+    //    this.sidebar.innerHTML = "";
     const feedsResponse = await fetch("/feeds?getIcons=true", {
       cache: "no-store",
     });
@@ -142,25 +150,39 @@ class ZapFeedReader {
       });
       this.sidebar.appendChild(folderDiv);
 
-      feeds
-        .filter((feed) => feed.folder === folder.id)
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((feed) => createFeedEntry(feed, depth + 1));
+      await Promise.all(
+        feeds
+          .filter((feed) => feed.folder === folder.id)
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map(async (feed) => await createFeedEntry(feed, depth + 1)),
+      );
 
       const subFolders = await this.getSubfolders(folder.id);
-      subFolders
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((subfolder) => {
-          createFolderEntry(subfolder, depth + 1);
-        });
+      await Promise.all(
+        subFolders
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map(async (subfolder) => {
+            await createFolderEntry(subfolder, depth + 1);
+          }),
+      );
     };
 
     const rootFolders = await this.getSubfolders(0);
-    rootFolders
-      .sort((a, b) => a.sortOrder - b.sortOrder)
-      .map((rootFolder) => {
-        createFolderEntry(rootFolder, 0);
-      });
+    await Promise.all(
+      rootFolders
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map(async (rootFolder) => {
+          await createFolderEntry(rootFolder, 0);
+        }),
+    );
+    originalSidebar.replaceChildren(...buffer.childNodes);
+    this.sidebar = originalSidebar;
+    this.sidebar.scrollTop = this.currentSidebarScrollOffset;
+
+    this.setCurrentSidebarSelection(
+      this.currentSidebarSelectionType,
+      this.currentSidebarSelectionID,
+    );
   };
 
   getPosts = async (parentType, parentID) => {
@@ -183,9 +205,28 @@ class ZapFeedReader {
       postEntry.addEventListener("click", () => {
         this.postContents.srcdoc = this.getPostHTMLTemplate(post);
         this.setCurrentPostSelection(post.id);
+        if (!post.isRead) {
+          fetch("/set-posts-read-status", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              markAsRead: true,
+              feedsAndPostIDs: JSON.stringify([
+                { feedID: post.feedID, postID: post.id },
+              ]),
+            }),
+          }).then((res) => {
+            if (res.ok) {
+              document.getElementById(`post-unread-${post.id}`).innerHTML = "";
+              postEntry.classList.remove("row-unread");
+              this.refreshFeeds();
+            }
+          });
+        }
       });
 
       const postUnread = document.createElement("div");
+      postUnread.id = `post-unread-${post.id}`;
       postUnread.classList.add("unread");
       if (post.isRead) {
         postUnread.innerText = " ";

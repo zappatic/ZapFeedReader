@@ -6,6 +6,7 @@
   --color-badge-bg: var(--color-accent);
   --color-alt-row-odd: #2a2a2a; /* todo: this is for dark theme */
   --color-alt-row-even: #272727; /* todo: this is for dark theme */
+  --color-divider-bg: #272727; /* todo: this is for dark theme */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -44,19 +45,6 @@ body {
   top: 0;
 }
 
-.divider-v {
-  width: 5px;
-  cursor: col-resize;
-  flex-shrink: 0;
-  background: #ddd;
-  transition: background 0.15s;
-}
-
-.divider-v:hover,
-.divider-v.active {
-  background: #aaa;
-}
-
 #maindivider {
   flex: 1;
   display: flex;
@@ -79,16 +67,19 @@ body {
 }
 
 .divider-h {
-  height: 5px;
+  height: 10px;
   cursor: row-resize;
   flex-shrink: 0;
-  background: #ddd;
+  background: var(--color-divider-bg);
   transition: background 0.15s;
 }
 
-.divider-h:hover,
-.divider-h.active {
-  background: #aaa;
+.divider-v {
+  width: 10px;
+  cursor: col-resize;
+  flex-shrink: 0;
+  background: var(--color-divider-bg);
+  transition: background 0.15s;
 }
 
 .hidden {
