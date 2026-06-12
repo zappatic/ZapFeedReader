@@ -7,14 +7,16 @@
   --color-alt-row-odd: #2a2a2a; /* todo: this is for dark theme */
   --color-alt-row-even: #272727; /* todo: this is for dark theme */
   --color-divider-bg: #272727; /* todo: this is for dark theme */
+  --color-svg-btn: #202020;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: #322e2e;
+    --color-bg: #2a2a2a;
     --color-text: #fff;
     --color-alt-row-odd: #2a2a2a;
     --color-alt-row-even: #272727;
+    --color-svg-btn: #fff;
   }
 }
 
@@ -56,7 +58,9 @@ body {
 #posts {
   height: 30%;
   flex-shrink: 0;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 #post {
@@ -148,6 +152,10 @@ aside .folder {
   padding-left: calc(0.75rem + var(--depth) * 0.75rem);
 }
 
+#posts-table {
+  overflow-y: auto;
+}
+
 #posts-table .entry {
   cursor: pointer;
   padding: 5px 0;
@@ -197,4 +205,23 @@ aside .folder {
 #post-contents {
   border: 0;
   flex: 1;
+}
+
+#posts-navigation {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  padding: 5px 20px;
+  justify-content: end;
+  border-top: 3px solid var(--color-divider-bg);
+}
+
+#posts-navigation button {
+  background-color: var(--color-bg);
+  border: 0;
+}
+
+.themedsvgbtn {
+  color: var(--color-svg-btn);
+  cursor: pointer;
 }

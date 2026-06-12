@@ -2,8 +2,12 @@ class ZapFeedReader {
   sidebar = null;
   posts = null;
   postsTable = null;
+  postsNavigation = null;
+  postsNavigationCurPage = null;
   postContents = null;
   currentPostsPage = 1;
+  currentPostsPerPage = 100;
+  currentAmountOfPosts = 0;
   currentPostSelectionID = null;
   currentSidebarSelectionID = null;
   currentSidebarSelectionType = null;
@@ -14,7 +18,10 @@ class ZapFeedReader {
     this.posts = document.getElementById("posts");
     this.postsTable = document.getElementById("posts-table");
     this.postContents = document.getElementById("post-contents");
+    this.postsNavigation = document.getElementById("posts-navigation");
+    this.postsNavigationCurPage = document.getElementById("posts-curpage");
     this.initDraggers();
+    this.initPostNavigationButtons();
     this.refreshFeeds();
   }
 
@@ -55,6 +62,56 @@ class ZapFeedReader {
       active = false;
       divider.classList.remove("active");
     });
+  };
+
+  getPostsPageCount = () => {
+    return Math.ceil(this.currentAmountOfPosts / this.currentPostsPerPage);
+  };
+
+  initPostNavigationButtons = () => {
+    document
+      .getElementById("posts-btn-firstpage")
+      .addEventListener("click", () => {
+        this.getPosts(
+          this.currentSidebarSelectionType,
+          this.currentSidebarSelectionID,
+          1,
+        );
+      });
+
+    document
+      .getElementById("posts-btn-prevpage")
+      .addEventListener("click", () => {
+        this.getPosts(
+          this.currentSidebarSelectionType,
+          this.currentSidebarSelectionID,
+          Math.max(1, this.currentPostsPage - 1),
+        );
+      });
+
+    document
+      .getElementById("posts-btn-nextpage")
+      .addEventListener("click", () => {
+        const nextPage = Math.min(
+          this.getPostsPageCount(),
+          this.currentPostsPage + 1,
+        );
+        this.getPosts(
+          this.currentSidebarSelectionType,
+          this.currentSidebarSelectionID,
+          nextPage,
+        );
+      });
+
+    document
+      .getElementById("posts-btn-lastpage")
+      .addEventListener("click", () => {
+        this.getPosts(
+          this.currentSidebarSelectionType,
+          this.currentSidebarSelectionID,
+          this.getPostsPageCount(),
+        );
+      });
   };
 
   setCurrentSidebarSelection = (type, id) => {
@@ -108,7 +165,7 @@ class ZapFeedReader {
       feedDiv.style.setProperty("--depth", depth);
       feedDiv.addEventListener("click", () => {
         this.setCurrentSidebarSelection("feed", feed.id);
-        this.getPosts("feed", feed.id);
+        this.getPosts("feed", feed.id, 1);
       });
 
       const icon = document.createElement("img");
@@ -146,7 +203,7 @@ class ZapFeedReader {
       folderDiv.style.setProperty("--depth", depth);
       folderDiv.addEventListener("click", () => {
         this.setCurrentSidebarSelection("folder", folder.id);
-        this.getPosts("folder", folder.id);
+        this.getPosts("folder", folder.id, 1);
       });
       this.sidebar.appendChild(folderDiv);
 
@@ -185,16 +242,22 @@ class ZapFeedReader {
     );
   };
 
-  getPosts = async (parentType, parentID) => {
+  getPosts = async (parentType, parentID, page) => {
     this.postsTable.innerText = "";
+    this.postContents.srcdoc = "";
+    this.currentPostsPage = page;
 
     const postsResponse = await fetch(
-      `/posts?parentType=${parentType}&parentID=${parentID}&perPage=100&page=${this.currentPostsPage}&showUnreadPostsAtTop=true`,
+      `/posts?parentType=${parentType}&parentID=${parentID}&perPage=${this.currentPostsPerPage}&page=${page}&showUnreadPostsAtTop=true`,
       {
         cache: "no-store",
       },
     );
     const posts = await postsResponse.json();
+    this.currentAmountOfPosts = posts.count;
+    this.postsNavigationCurPage.innerText = `Page ${page} / ${this.getPostsPageCount()}`;
+    this.postsNavigation.style.display = "flex";
+
     posts.posts.map((post) => {
       const postEntry = document.createElement("div");
       postEntry.id = `post-${post.id}`;
