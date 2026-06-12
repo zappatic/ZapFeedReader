@@ -34,6 +34,7 @@
     <div class="divider-h" id="divider-h"></div>
     <div id="post">
         <iframe id="post-contents" sandbox="allow-scripts allow-popups" csp="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline';"></iframe>
+        <iframe id="thumbnail-contents" sandbox="allow-scripts allow-same-origin allow-popups" csp="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline';" style="display:none"></iframe>
     </div>
 
   </div>
@@ -42,8 +43,9 @@
 
 <script>
     window.addEventListener('load', () => {
-        new ZapFeedReader();
+        window.ZFR = new ZapFeedReader();
     });
 </script>
+<a id="placeholder-anchor" target="_blank" style="display: none;"></a>
 
 {% include "_footer.tpl" %}

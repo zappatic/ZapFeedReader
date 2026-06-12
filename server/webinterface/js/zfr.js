@@ -5,6 +5,7 @@ class ZapFeedReader {
   postsNavigation = null;
   postsNavigationCurPage = null;
   postContents = null;
+  thumbnailContents = null;
   currentPostsPage = 1;
   currentPostsPerPage = 100;
   currentAmountOfPosts = 0;
@@ -12,14 +13,17 @@ class ZapFeedReader {
   currentSidebarSelectionID = null;
   currentSidebarSelectionType = null;
   currentSidebarScrollOffset = 0;
+  placeholderAnchor = null;
 
   constructor() {
     this.sidebar = document.getElementById("sidebar");
     this.posts = document.getElementById("posts");
     this.postsTable = document.getElementById("posts-table");
     this.postContents = document.getElementById("post-contents");
+    this.thumbnailContents = document.getElementById("thumbnail-contents");
     this.postsNavigation = document.getElementById("posts-navigation");
     this.postsNavigationCurPage = document.getElementById("posts-curpage");
+    this.placeholderAnchor = document.getElementById("placeholder-anchor");
     this.initDraggers();
     this.initPostNavigationButtons();
     this.refreshFeeds();
@@ -254,6 +258,13 @@ class ZapFeedReader {
       },
     );
     const posts = await postsResponse.json();
+    if (posts.thumbnailData.length > 0) {
+      this.postContents.style.display = "none";
+      this.thumbnailContents.style.display = "block";
+      this.thumbnailContents.srcdoc = this.getThumbnailDataTemplate(
+        posts.thumbnailData,
+      );
+    }
     this.currentAmountOfPosts = posts.count;
     this.postsNavigationCurPage.innerText = `Page ${page} / ${this.getPostsPageCount()}`;
     this.postsNavigation.style.display = "flex";
@@ -266,25 +277,28 @@ class ZapFeedReader {
         postEntry.classList.add("row-unread");
       }
       postEntry.addEventListener("click", () => {
+        this.postContents.style.display = "block";
+        this.thumbnailContents.style.display = "none";
         this.postContents.srcdoc = this.getPostHTMLTemplate(post);
         this.setCurrentPostSelection(post.id);
         if (!post.isRead) {
-          fetch("/set-posts-read-status", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-              markAsRead: true,
-              feedsAndPostIDs: JSON.stringify([
-                { feedID: post.feedID, postID: post.id },
-              ]),
-            }),
-          }).then((res) => {
-            if (res.ok) {
-              document.getElementById(`post-unread-${post.id}`).innerHTML = "";
-              postEntry.classList.remove("row-unread");
-              this.refreshFeeds();
-            }
-          });
+          this.markPostAsRead(post.id, post.feedID);
+          //   fetch("/set-posts-read-status", {
+          //     method: "POST",
+          //     headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          //     body: new URLSearchParams({
+          //       markAsRead: true,
+          //       feedsAndPostIDs: JSON.stringify([
+          //         { feedID: post.feedID, postID: post.id },
+          //       ]),
+          //     }),
+          //   }).then((res) => {
+          //     if (res.ok) {
+          //       document.getElementById(`post-unread-${post.id}`).innerHTML = "";
+          //       postEntry.classList.remove("row-unread");
+          //       this.refreshFeeds();
+          //     }
+          //   });
         }
       });
 
@@ -388,5 +402,112 @@ class ZapFeedReader {
     html += `<script>window.addEventListener('load', () => {document.querySelectorAll("a").forEach(a => a.rel = "noopener noreferrer");} );</script>`;
     html += `<body></html>`;
     return html;
+  };
+
+  getThumbnailDataTemplate = (thumbnailData) => {
+    let html = `<!DOCTYPE html>
+            <html>
+                <head>
+                    <base target="_blank">
+                    <style type="text/css">${this.getPostStyles()}</style>
+                </head>
+                <body>`;
+
+    thumbnailData.map((td) => {
+      html += `<div>
+                <svg width="0" height="0">
+                    <svg id="svgCloseBtn" width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="#b5251b" fill-rule="evenodd" clip-rule="evenodd" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM8.96963 8.96965C9.26252 8.67676 9.73739 8.67676 10.0303 8.96965L12 10.9393L13.9696 8.96967C14.2625 8.67678 14.7374 8.67678 15.0303 8.96967C15.3232 9.26256 15.3232 9.73744 15.0303 10.0303L13.0606 12L15.0303 13.9696C15.3232 14.2625 15.3232 14.7374 15.0303 15.0303C14.7374 15.3232 14.2625 15.3232 13.9696 15.0303L12 13.0607L10.0303 15.0303C9.73742 15.3232 9.26254 15.3232 8.96965 15.0303C8.67676 14.7374 8.67676 14.2625 8.96965 13.9697L10.9393 12L8.96963 10.0303C8.67673 9.73742 8.67673 9.26254 8.96963 8.96965Z" />
+                    </svg>
+                </svg>
+               </div>`;
+
+      if (td.hasOwnProperty("feedLink") && td.feedLink.length > 0) {
+        html += `<div class="zapfr_thumbnail_feedheader">
+                  <a class="zapfr_thumbnail_feedheader_content" href="${td.feedLink}">${td.feedTitle}</a>
+               </div>`;
+      } else {
+        html += `<div class="zapfr_thumbnail_feedheader">
+                  <h1 class="zapfr_thumbnail_feedheader_content">${td.feedTitle}</h1>
+               </div>`;
+      }
+
+      html += `<div class="zapfr_thumbnail_grid">`;
+      td.posts.map((post) => {
+        html += `<div class="zapfr_thumbnail_cell" id="p${post.postID}f${td.feedID}">
+                  <div>
+                      <div style="position:relative;">
+                          <div class="zapfr_thumbnail_cell_closebtn">
+                              <a class="thumbnail-markpostasread-link" data-postID="${post.postID}" data-feedID="${td.feedID}">
+                                  <svg width="25px" height="25px"><use xlink:href="#svgCloseBtn"/></svg>
+                              </a>
+                          </div>
+                          <a class="thumbnail-open-link" data-postID="${post.postID}" data-feedID="${td.feedID}" data-link="${post.link}">
+                              <img class="zapfr_thumbnail_cell_img" src="${post.thumbnail}" alt="" />
+                          </a>
+                      </div>
+                  </div>
+                  <div style="text-align:center;">
+                        <a class="zapfr_thumbnail_cell_title thumbnail-open-link" data-postID="${post.postID}" data-feedID="${td.feedID}" data-link="${post.link}">
+                            ${post.title}
+                        </a>
+                    </div>
+               </div>`;
+      });
+      html += `</div>`;
+
+      //   if (td.posts.length < td.totalPostCount) {
+      //     html += `<a class="zapfr_navigate_to_feed" href="navigateToFeedURL">Show ${td.totalPostCount - td.posts.length} more</a>`;
+      //   }
+    });
+
+    html += `<script>
+                window.addEventListener('load', () => {
+                    document.querySelectorAll('.thumbnail-markpostasread-link').forEach( a => {
+                        a.addEventListener('click', (e) => {
+                            const postID = parseInt(e.currentTarget.dataset.postid);
+                            const feedID = parseInt(e.currentTarget.dataset.feedid);
+                            window.parent.ZFR.markPostAsRead(postID, feedID);
+                            document.getElementById(\`p\${postID}f\${feedID}\`).remove();
+                        });
+                    });
+                    document.querySelectorAll('.thumbnail-open-link').forEach( a => {
+                        a.addEventListener('click', (e) => {
+                            const postID = parseInt(e.currentTarget.dataset.postid);
+                            const feedID = parseInt(e.currentTarget.dataset.feedid);
+                            const link = e.currentTarget.dataset.link;
+                            window.parent.ZFR.openThumbnailLink(postID, feedID, link);
+                        });
+                    });
+                });
+            </script>`;
+
+    html += `<body></html>`;
+    return html;
+  };
+
+  markPostAsRead = (postID, feedID) => {
+    fetch("/set-posts-read-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        markAsRead: true,
+        feedsAndPostIDs: JSON.stringify([{ feedID: feedID, postID: postID }]),
+      }),
+    }).then((res) => {
+      if (res.ok) {
+        document.getElementById(`post-unread-${postID}`).innerHTML = "";
+        document
+          .getElementById(`post-${postID}`)
+          .classList.remove("row-unread");
+        this.refreshFeeds();
+      }
+    });
+  };
+
+  openThumbnailLink = (postID, feedID, link) => {
+    this.markPostAsRead(postID, feedID);
+    this.placeholderAnchor.href = link;
+    this.placeholderAnchor.click();
   };
 }

@@ -207,6 +207,11 @@ aside .folder {
   flex: 1;
 }
 
+#thumbnail-contents {
+  border: 0;
+  flex: 1;
+}
+
 #posts-navigation {
   display: flex;
   flex-direction: row;
