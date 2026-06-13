@@ -249,6 +249,8 @@ class ZapFeedReader {
   getPosts = async (parentType, parentID, page) => {
     this.postsTable.innerText = "";
     this.postContents.srcdoc = "";
+    this.postContents.style.display = "block";
+    this.thumbnailContents.style.display = "none";
     this.currentPostsPage = page;
 
     const postsResponse = await fetch(
@@ -283,22 +285,6 @@ class ZapFeedReader {
         this.setCurrentPostSelection(post.id);
         if (!post.isRead) {
           this.markPostAsRead(post.id, post.feedID);
-          //   fetch("/set-posts-read-status", {
-          //     method: "POST",
-          //     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          //     body: new URLSearchParams({
-          //       markAsRead: true,
-          //       feedsAndPostIDs: JSON.stringify([
-          //         { feedID: post.feedID, postID: post.id },
-          //       ]),
-          //     }),
-          //   }).then((res) => {
-          //     if (res.ok) {
-          //       document.getElementById(`post-unread-${post.id}`).innerHTML = "";
-          //       postEntry.classList.remove("row-unread");
-          //       this.refreshFeeds();
-          //     }
-          //   });
         }
       });
 
