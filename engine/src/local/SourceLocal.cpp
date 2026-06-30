@@ -194,7 +194,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
 
     if (showOnlyUnread)
     {
-        whereClause.emplace_back("posts.isRead=FALSE");
+        whereClause.emplace_back("isRead=FALSE");
     }
     if (!searchFilter.empty())
     {
@@ -231,7 +231,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     std::string orderClause = "ORDER BY posts.datePublished DESC";
     if (showUnreadPostsAtTop)
     {
-        orderClause = "ORDER BY posts.isRead ASC, posts.datePublished DESC";
+        orderClause = "ORDER BY isRead ASC, posts.datePublished DESC";
     }
 
     auto posts = PostLocal::queryMultiple(whereClause, orderClause, "LIMIT ? OFFSET ?", bindingsPostQuery);
@@ -241,13 +241,14 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
 
 void ZapFR::Engine::SourceLocal::markAsRead(uint64_t maxPostID)
 {
+    DBStatement deleteStmt(*(Database::getInstance()->session()));
     if (maxPostID == std::numeric_limits<uint64_t>::max())
     {
-        PostLocal::updateIsRead(true, {}, {});
+        deleteStmt << "DELETE FROM post_read", now;
     }
     else
     {
-        PostLocal::updateIsRead(true, {"posts.id <= ?"}, {use(maxPostID, "maxPostID")});
+        deleteStmt << "DELETE FROM post_read WHERE postID <= ?", use(maxPostID), now;
     }
 }
 
@@ -366,7 +367,7 @@ std::unordered_map<uint64_t, uint64_t> ZapFR::Engine::SourceLocal::getUnreadCoun
     uint64_t feedID{0};
     uint64_t count{0};
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << "SELECT posts.feedID,COUNT(*) FROM posts WHERE posts.isRead=FALSE GROUP BY posts.feedID", into(feedID), into(count), range(0, 1);
+    selectStmt << "SELECT post_read.feedID,COUNT(*) FROM post_read GROUP BY post_read.feedID", into(feedID), into(count), range(0, 1);
     while (!selectStmt.done())
     {
         if (selectStmt.execute() > 0)
@@ -434,7 +435,9 @@ void ZapFR::Engine::SourceLocal::fetchThumbnailData()
     std::vector<uint64_t> feedIDs;
     uint64_t fID{0};
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << "SELECT DISTINCT(feedID) FROM posts WHERE posts.thumbnail NOT NULL AND posts.isRead=FALSE", into(fID), range(0, 1);
+    selectStmt << "SELECT DISTINCT(feedID) FROM posts WHERE posts.thumbnail NOT NULL AND EXISTS ( SELECT 1 FROM post_read WHERE post_read.postID = posts.id AND "
+                  "post_read.feedID = posts.feedID)",
+        into(fID), range(0, 1);
     while (!selectStmt.done())
     {
         if (selectStmt.execute() > 0)
@@ -453,7 +456,7 @@ void ZapFR::Engine::SourceLocal::fetchThumbnailData()
         std::vector<std::string> whereClause;
 
         whereClause.emplace_back("posts.feedID=?");
-        whereClause.emplace_back("posts.isRead=FALSE");
+        whereClause.emplace_back("isRead=FALSE");
         whereClause.emplace_back("posts.thumbnail NOT NULL");
         auto posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT 10",
                                               {use(feedID, "feedID")}); // TODO: this limit amount needs to be configurable

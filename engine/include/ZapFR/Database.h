@@ -56,6 +56,7 @@ namespace ZapFR
             void upgradeToDBSchemaV6();
             void upgradeToDBSchemaV7();
             void upgradeToDBSchemaV8();
+            void upgradeToDBSchemaV9();
         };
     } // namespace Engine
 } // namespace ZapFR

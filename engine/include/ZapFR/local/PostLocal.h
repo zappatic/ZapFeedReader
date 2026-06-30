@@ -54,8 +54,6 @@ namespace ZapFR
 
             static void queryCategories(Post* post);
 
-            static void updateIsRead(bool isRead, const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
-
             static uint64_t highestID();
 
             static std::unique_ptr<Post> create(uint64_t feedID, const std::string& feedTitle, const std::string& title, const std::string& link, const std::string& content,

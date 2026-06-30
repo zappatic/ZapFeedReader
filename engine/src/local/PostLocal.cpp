@@ -54,12 +54,14 @@ void ZapFR::Engine::PostLocal::markUnflagged(FlagColor flagColor)
 
 void ZapFR::Engine::PostLocal::markAsRead()
 {
-    updateIsRead(true, {"posts.feedID=?", "posts.id=?"}, {use(mFeedID, "feedID"), use(mID, "id")});
+    DBStatement deleteStmt(*(Database::getInstance()->session()));
+    deleteStmt << "DELETE FROM post_read WHERE postID = ? AND feedID = ?", use(mID), use(mFeedID), now;
 }
 
 void ZapFR::Engine::PostLocal::markAsUnread()
 {
-    updateIsRead(false, {"posts.feedID=?", "posts.id=?"}, {use(mFeedID, "feedID"), use(mID, "id")});
+    DBStatement insertStmt(*(Database::getInstance()->session()));
+    insertStmt << "INSERT OR IGNORE INTO post_read (postID, feedID) VALUES (?, ?)", use(mID), use(mFeedID), now;
 }
 
 void ZapFR::Engine::PostLocal::assignToScriptFolder(uint64_t scriptFolderID)
@@ -100,7 +102,7 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     std::stringstream ss;
     ss << "SELECT posts.id"
           ",posts.feedID"
-          ",posts.isRead"
+          ",CASE WHEN post_read.id IS NULL THEN 1 ELSE 0 END AS isRead"
           ",posts.title"
           ",posts.link"
           ",posts.content"
@@ -112,7 +114,8 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
           ",feeds.title"
           ",feeds.link"
           " FROM posts"
-          " LEFT JOIN feeds ON feeds.id = posts.feedID";
+          " LEFT JOIN feeds ON feeds.id = posts.feedID"
+          " LEFT JOIN post_read ON post_read.feedID = posts.feedID AND post_read.postID = posts.id";
     if (!whereClause.empty())
     {
         ss << " WHERE ";
@@ -217,7 +220,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     std::stringstream ss;
     ss << "SELECT posts.id"
           ",posts.feedID"
-          ",posts.isRead"
+          ",CASE WHEN post_read.id IS NULL THEN 1 ELSE 0 END AS isRead"
           ",posts.title"
           ",posts.link"
           ",posts.content"
@@ -229,7 +232,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
           ",feeds.title"
           ",feeds.link"
           " FROM posts"
-          " LEFT JOIN feeds ON feeds.id = posts.feedID";
+          " LEFT JOIN feeds ON feeds.id = posts.feedID"
+          " LEFT JOIN post_read ON post_read.feedID = posts.feedID AND post_read.postID = posts.id";
     if (!whereClause.empty())
     {
         ss << " WHERE ";
@@ -318,7 +322,15 @@ uint64_t ZapFR::Engine::PostLocal::queryCount(const std::vector<std::string>& wh
     DBStatement selectStmt(*(Database::getInstance()->session()));
 
     std::stringstream ss;
-    ss << "SELECT COUNT(*) FROM posts";
+    ss << "SELECT COUNT(*) FROM ("
+          "SELECT posts.*"
+          ",CASE WHEN EXISTS ("
+          "SELECT 1 FROM post_read"
+          " WHERE post_read.feedID = posts.feedID AND post_read.postID = posts.id"
+          ") THEN 0 ELSE 1 END AS isRead"
+          " FROM posts"
+          ") AS posts";
+
     if (!whereClause.empty())
     {
         ss << " WHERE ";
@@ -356,31 +368,6 @@ void ZapFR::Engine::PostLocal::queryCategories(Post* post)
             post->addCategory(cat);
         }
     }
-}
-
-void ZapFR::Engine::PostLocal::updateIsRead(bool isRead, const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
-{
-    DBStatement updateStmt(*(Database::getInstance()->session()));
-
-    std::stringstream ss;
-    ss << "UPDATE posts SET isRead=?";
-    if (!whereClause.empty())
-    {
-        ss << " WHERE ";
-        ss << Helpers::joinString(whereClause, " AND ");
-    }
-
-    auto sql = ss.str();
-
-    updateStmt << sql;
-
-    updateStmt.addBind(use(isRead, "isRead"));
-    for (const auto& binding : bindings)
-    {
-        updateStmt.addBind(binding);
-    }
-
-    updateStmt.execute();
 }
 
 void ZapFR::Engine::PostLocal::update(const std::string& title, const std::string& link, const std::string& content, const std::string& author, const std::string& commentsURL,

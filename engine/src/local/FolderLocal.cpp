@@ -126,7 +126,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
 
     if (showOnlyUnread)
     {
-        whereClause.emplace_back("posts.isRead=FALSE");
+        whereClause.emplace_back("isRead=FALSE");
     }
     if (!searchFilter.empty())
     {
@@ -163,7 +163,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     std::string orderClause = "ORDER BY posts.datePublished DESC";
     if (showUnreadPostsAtTop)
     {
-        orderClause = "ORDER BY posts.isRead ASC, posts.datePublished DESC";
+        orderClause = "ORDER BY isRead ASC, posts.datePublished DESC";
     }
 
     auto posts = PostLocal::queryMultiple(whereClause, orderClause, "LIMIT ? OFFSET ?", bindingsPostQuery);
@@ -180,13 +180,14 @@ std::vector<uint64_t> ZapFR::Engine::FolderLocal::markAsRead(uint64_t maxPostID)
         return {};
     }
 
+    DBStatement deleteStmt(*(Database::getInstance()->session()));
     if (maxPostID == std::numeric_limits<uint64_t>::max())
     {
-        PostLocal::updateIsRead(true, {Poco::format("posts.feedID IN (%s)", joinedFeedIDs)}, {});
+        deleteStmt << Poco::format("DELETE FROM post_read WHERE post_read.feedID IN (%s)", joinedFeedIDs), now;
     }
     else
     {
-        PostLocal::updateIsRead(true, {Poco::format("posts.feedID IN (%s)", joinedFeedIDs), "posts.id <= ?"}, {use(maxPostID, "maxPostID")});
+        deleteStmt << Poco::format("DELETE FROM post_read WHERE post_read.feedID IN (%s) AND post_read.postID <= ?", joinedFeedIDs), use(maxPostID), now;
     }
 
     return feedIDs;
@@ -264,7 +265,7 @@ void ZapFR::Engine::FolderLocal::fetchThumbnailData()
         std::vector<std::string> whereClause;
 
         whereClause.emplace_back("posts.feedID=?");
-        whereClause.emplace_back("posts.isRead=FALSE");
+        whereClause.emplace_back("isRead=FALSE");
         whereClause.emplace_back("posts.thumbnail NOT NULL");
         auto posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT 10",
                                               {use(feedID, "feedID")}); // TODO: this limit amount needs to be configurable

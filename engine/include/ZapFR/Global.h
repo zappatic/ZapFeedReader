@@ -65,7 +65,7 @@ namespace ZapFR
             uint64_t totalPostCount{0};
         };
 
-        constexpr uint64_t DBVersion{8};
+        constexpr uint64_t DBVersion{9};
         constexpr uint64_t APIVersion{1};
         constexpr uint64_t DefaultFeedAutoRefreshInterval{15 * 60};
         constexpr uint16_t DefaultServerPort{16016};

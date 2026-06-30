@@ -64,7 +64,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
 
     if (showOnlyUnread)
     {
-        whereClause.emplace_back("posts.isRead=FALSE");
+        whereClause.emplace_back("isRead=FALSE");
     }
     if (!searchFilter.empty())
     {
@@ -94,7 +94,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     std::string orderClause = "ORDER BY posts.datePublished DESC";
     if (showUnreadPostsAtTop)
     {
-        orderClause = "ORDER BY posts.isRead ASC, posts.datePublished DESC";
+        orderClause = "ORDER BY isRead ASC, posts.datePublished DESC";
     }
 
     auto posts = PostLocal::queryMultiple(whereClause, orderClause, "LIMIT ? OFFSET ?", bindingsPostQuery);
@@ -325,13 +325,14 @@ void ZapFR::Engine::FeedLocal::processItems(FeedParser* parsedFeed)
 
 void ZapFR::Engine::FeedLocal::markAsRead(uint64_t maxPostID)
 {
+    DBStatement deleteStmt(*(Database::getInstance()->session()));
     if (maxPostID == std::numeric_limits<uint64_t>::max())
     {
-        PostLocal::updateIsRead(true, {"posts.feedID=?"}, {use(mID, "feedID")});
+        deleteStmt << "DELETE FROM post_read WHERE post_read.feedID = ?", use(mID), now;
     }
     else
     {
-        PostLocal::updateIsRead(true, {"posts.feedID=?", "posts.id <= ?"}, {use(mID, "feedID"), use(maxPostID, "maxPostID")});
+        deleteStmt << "DELETE FROM post_read WHERE post_read.feedID = ? AND post_read.postID <= ?", use(mID), use(maxPostID), now;
     }
 }
 
@@ -521,7 +522,7 @@ void ZapFR::Engine::FeedLocal::fetchThumbnailData()
     std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
 
     whereClause.emplace_back("posts.feedID=?");
-    whereClause.emplace_back("posts.isRead=FALSE");
+    whereClause.emplace_back("isRead=FALSE");
     whereClause.emplace_back("posts.thumbnail NOT NULL");
 
     bindings.emplace_back(use(mID, "feedID"));
@@ -589,7 +590,7 @@ void ZapFR::Engine::FeedLocal::fetchUnreadCount()
 {
     uint64_t unreadCount{0};
     Poco::Data::Statement selectUnreadStmt(*(Database::getInstance()->session()));
-    selectUnreadStmt << "SELECT COUNT(*) FROM posts WHERE feedID=? AND isRead=FALSE", use(mID), into(unreadCount), now;
+    selectUnreadStmt << "SELECT COUNT(*) FROM post_read WHERE feedID=?", use(mID), into(unreadCount), now;
     setUnreadCount(unreadCount);
 }
 

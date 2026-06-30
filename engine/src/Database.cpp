@@ -70,7 +70,7 @@ void ZapFR::Engine::Database::upgrade()
                 std::bind(&Database::upgradeToDBSchemaV2, this), std::bind(&Database::upgradeToDBSchemaV3, this),
                 std::bind(&Database::upgradeToDBSchemaV4, this), std::bind(&Database::upgradeToDBSchemaV5, this),
                 std::bind(&Database::upgradeToDBSchemaV6, this), std::bind(&Database::upgradeToDBSchemaV7, this),
-                std::bind(&Database::upgradeToDBSchemaV8, this)};
+                std::bind(&Database::upgradeToDBSchemaV8, this), std::bind(&Database::upgradeToDBSchemaV9, this)};
 
             for (auto i = currentDBVersion + 1; i <= ZapFR::Engine::DBVersion; ++i)
             {
@@ -320,4 +320,16 @@ void ZapFR::Engine::Database::upgradeToDBSchemaV8()
     (*mSession) << R"(CREATE INDEX posts_IX_feedID_id ON posts (feedID, id))", now;
     (*mSession) << R"(DROP INDEX posts_IX_feedID)", now;
     (*mSession) << "UPDATE config SET VALUE='8' WHERE key='db_schema_version'", now;
+}
+
+void ZapFR::Engine::Database::upgradeToDBSchemaV9()
+{
+    (*mSession) << R"(CREATE TABLE IF NOT EXISTS post_read (id INTEGER PRIMARY KEY, postID INTEGER NOT NULL, feedID INTEGER NOT NULL))", now;
+    (*mSession) << R"(INSERT INTO post_read (postID, feedID) SELECT id,feedID FROM posts WHERE isRead=FALSE)", now;
+    (*mSession) << R"(DROP INDEX IF EXISTS posts_IX_feedID_sort)", now;
+    (*mSession) << R"(DROP INDEX IF EXISTS posts_IX_isRead)", now;
+    (*mSession) << R"(CREATE INDEX posts_IX_feedID_sort ON posts (feedID, datePublished DESC))", now;
+    (*mSession) << R"(CREATE UNIQUE INDEX IX_post_read_unique ON post_read(postID, feedID))", now;
+    (*mSession) << R"(ALTER TABLE posts DROP COLUMN isRead)", now;
+    (*mSession) << "UPDATE config SET VALUE='9' WHERE key='db_schema_version'", now;
 }

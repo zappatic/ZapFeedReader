@@ -45,7 +45,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
 
     if (showOnlyUnread)
     {
-        whereClause.emplace_back("posts.isRead=FALSE");
+        whereClause.emplace_back("isRead=FALSE");
     }
     if (!searchFilter.empty())
     {
@@ -82,7 +82,7 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
     std::string orderClause = "ORDER BY posts.datePublished DESC";
     if (showUnreadPostsAtTop)
     {
-        orderClause = "ORDER BY posts.isRead ASC, posts.datePublished DESC";
+        orderClause = "ORDER BY isRead ASC, posts.datePublished DESC";
     }
 
     auto posts = PostLocal::queryMultiple(whereClause, orderClause, "LIMIT ? OFFSET ?", bindingsPostQuery);
@@ -127,8 +127,8 @@ void ZapFR::Engine::ScriptFolderLocal::fetchThumbnailData()
     std::vector<uint64_t> feedIDs;
     uint64_t fID{0};
     Poco::Data::Statement selectStmt(*(Database::getInstance()->session()));
-    selectStmt << "SELECT DISTINCT(feedID) FROM posts WHERE posts.thumbnail NOT NULL AND posts.isRead=FALSE AND posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts "
-                  "WHERE scriptfolder_posts.scriptfolderID=?)",
+    selectStmt << "SELECT DISTINCT(feedID) FROM posts WHERE posts.thumbnail NOT NULL AND EXISTS ( SELECT 1 FROM post_read WHERE post_read.postID = posts.id AND "
+                  "post_read.feedID = posts.feedID) AND posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)",
         into(fID), use(mID), range(0, 1);
     while (!selectStmt.done())
     {
@@ -148,7 +148,7 @@ void ZapFR::Engine::ScriptFolderLocal::fetchThumbnailData()
         std::vector<std::string> whereClause;
 
         whereClause.emplace_back("posts.feedID=?");
-        whereClause.emplace_back("posts.isRead=FALSE");
+        whereClause.emplace_back("isRead=FALSE");
         whereClause.emplace_back("posts.thumbnail NOT NULL");
         whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)");
         auto posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT 10",
@@ -189,19 +189,17 @@ std::vector<uint64_t> ZapFR::Engine::ScriptFolderLocal::markAsRead(uint64_t maxP
     auto affectedFeedIDs = getFeedIDs(maxPostID);
 
     // mark the posts in the script folder as read
-    std::vector<std::string> whereClause;
-    std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
-
-    whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)");
-    bindings.emplace_back(useRef(mID, "scriptFolderID"));
-
-    if (maxPostID != std::numeric_limits<uint64_t>::max())
+    DBStatement deleteStmt(*(Database::getInstance()->session()));
+    if (maxPostID == std::numeric_limits<uint64_t>::max())
     {
-        whereClause.emplace_back("posts.id <= ?");
-        bindings.emplace_back(useRef(maxPostID, "maxPostID"));
+        deleteStmt << "DELETE FROM post_read WHERE postID IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)", use(mID), now;
     }
-
-    PostLocal::updateIsRead(true, whereClause, bindings);
+    else
+    {
+        deleteStmt
+            << "DELETE FROM post_read WHERE postID IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?) AND post_read.postID <= ?",
+            use(mID), use(maxPostID), now;
+    }
 
     return affectedFeedIDs;
 }
@@ -294,9 +292,10 @@ std::vector<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::ScriptF
 
             sfl->setTotalPostCount(PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)"},
                                                          {useRef(id, "scriptFolderID")}));
-            sfl->setTotalUnreadCount(
-                PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)", "posts.isRead=FALSE"},
-                                      {useRef(id, "scriptFolderID")}));
+            sfl->setTotalUnreadCount(PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)",
+                                                            "EXISTS ( SELECT 1 FROM post_read WHERE post_read.postID = posts.id AND "
+                                                            "post_read.feedID = posts.feedID)"},
+                                                           {useRef(id, "scriptFolderID")}));
 
             scriptFolders.emplace_back(std::move(sfl));
         }
@@ -352,9 +351,10 @@ std::optional<std::unique_ptr<ZapFR::Engine::ScriptFolder>> ZapFR::Engine::Scrip
 
         sfl->setTotalPostCount(PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)"},
                                                      {useRef(id, "scriptFolderID")}));
-        sfl->setTotalUnreadCount(
-            PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)", "posts.isRead=FALSE"},
-                                  {useRef(id, "scriptFolderID")}));
+        sfl->setTotalUnreadCount(PostLocal::queryCount({"posts.id IN (SELECT DISTINCT(postID) FROM scriptfolder_posts WHERE scriptfolder_posts.scriptfolderID=?)",
+                                                        "EXISTS ( SELECT 1 FROM post_read WHERE post_read.postID = posts.id AND "
+                                                        "post_read.feedID = posts.feedID)"},
+                                                       {useRef(id, "scriptFolderID")}));
         return sfl;
     }
     return {};
