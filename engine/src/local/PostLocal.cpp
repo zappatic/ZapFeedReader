@@ -429,6 +429,9 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
         insertStmt.execute();
         DBStatement selectInsertRowIDStmt(*(Database::getInstance()->session()));
         selectInsertRowIDStmt << "SELECT last_insert_rowid()", into(postID), now;
+
+        DBStatement insertStmt2(*(Database::getInstance()->session()));
+        insertStmt2 << "INSERT INTO post_read (postID, feedID) VALUES (?, ?)", use(postID), use(feedID), now;
     }
 
     replaceEnclosures(postID, enclosures);
