@@ -19,8 +19,11 @@
 #ifndef ZAPFR_ENGINE_HELPERS_H
 #define ZAPFR_ENGINE_HELPERS_H
 
+#include <functional>
 #include <optional>
 
+#include <Poco/Data/AbstractBinding.h>
+#include <Poco/Data/RecordSet.h>
 #include <Poco/Net/HTTPCredentials.h>
 
 namespace ZapFR
@@ -37,6 +40,22 @@ namespace ZapFR
                                                                            const std::map<std::string, std::string>& parameters, std::optional<uint64_t> associatedFeedID = {},
                                                                            std::optional<std::string> conditionalGetInfo = {});
         };
+
+        using BindingFactory = std::function<Poco::Data::AbstractBinding::Ptr()>;
+        using namespace Poco::Data::Keywords;
+
+        template <typename T>
+        BindingFactory bindUse(T& value, const std::string& name)
+        {
+            return [&value, name]() { return Poco::Data::Keywords::use(value, name); };
+        }
+
+        template <typename T>
+        BindingFactory bindUseRef(const T& value, const std::string& name)
+        {
+            return [&value, name]() { return Poco::Data::Keywords::useRef(value, name); };
+        }
+
     } // namespace Engine
 } // namespace ZapFR
 

@@ -198,6 +198,128 @@ std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::quer
     return posts;
 }
 
+std::vector<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::queryMultipleUnreadFirst(const std::vector<std::string>& whereClause,
+                                                                                                     const std::vector<BindingFactory>& bindingFactories, uint64_t perPage,
+                                                                                                     uint64_t offset, bool useDatePublishedIndex)
+{
+    std::vector<std::unique_ptr<Post>> posts;
+
+    uint64_t id{0}, feedID{0};
+    bool isRead{false};
+    std::string title{""}, link{""}, content{""}, author{""}, commentsURL{""}, guid{""}, datePublished{""}, thumbnail{""}, feedTitle{""}, feedLink{""};
+
+    DBStatement selectStmt(*(Database::getInstance()->session()));
+
+    std::string whereSql;
+    if (!whereClause.empty())
+    {
+        whereSql = " AND " + Helpers::joinString(whereClause, " AND ");
+    }
+
+    const char* branchColumnsFmt = "posts.id, posts.feedID, %d AS isRead, posts.title, posts.link, posts.content, posts.author,"
+                                   " posts.commentsURL, posts.guid, posts.datePublished, posts.thumbnail, feeds.title, feeds.link";
+    std::string indexedBy{""};
+    if (useDatePublishedIndex)
+    {
+        indexedBy = " INDEXED BY IX_posts_datePublished ";
+    }
+
+    std::stringstream ss;
+    ss << "SELECT * FROM ("
+       << " SELECT " << Poco::format(branchColumnsFmt, 0) << " FROM posts " << indexedBy << "  LEFT JOIN feeds ON feeds.id = posts.feedID"
+       << " WHERE EXISTS (SELECT 1 FROM post_read WHERE post_read.feedID = posts.feedID AND post_read.postID = posts.id)" << whereSql << " ORDER BY posts.datePublished DESC"
+       << " LIMIT -1" // <-- forces SQLite to honor this ORDER BY
+       << ")"
+       << " UNION ALL "
+       << "SELECT * FROM ("
+       << " SELECT " << Poco::format(branchColumnsFmt, 1) << " FROM posts " << indexedBy << "LEFT JOIN feeds ON feeds.id = posts.feedID"
+       << " WHERE NOT EXISTS (SELECT 1 FROM post_read WHERE post_read.feedID = posts.feedID AND post_read.postID = posts.id)" << whereSql
+       << " ORDER BY posts.datePublished DESC"
+       << " LIMIT -1"
+       << ")"
+       << " LIMIT ? OFFSET ?";
+
+    auto sql = ss.str();
+    selectStmt << sql, range(0, 1);
+
+    for (const auto& factory : bindingFactories)
+    {
+        selectStmt.addBind(factory()); // branch 1 (unread)
+    }
+    for (const auto& factory : bindingFactories)
+    {
+        selectStmt.addBind(factory()); // branch 2 (read)
+    }
+    selectStmt.addBind(use(perPage, "perPage"));
+    selectStmt.addBind(use(offset, "offset"));
+
+    selectStmt.addExtract(into(id));
+    selectStmt.addExtract(into(feedID));
+    selectStmt.addExtract(into(isRead));
+    selectStmt.addExtract(into(title));
+    selectStmt.addExtract(into(link));
+    selectStmt.addExtract(into(content));
+    selectStmt.addExtract(into(author));
+    selectStmt.addExtract(into(commentsURL));
+    selectStmt.addExtract(into(guid));
+    selectStmt.addExtract(into(datePublished));
+    selectStmt.addExtract(into(thumbnail));
+    selectStmt.addExtract(into(feedTitle));
+    selectStmt.addExtract(into(feedLink));
+
+    while (!selectStmt.done())
+    {
+        if (selectStmt.execute() > 0)
+        {
+            auto p = std::make_unique<PostLocal>(id);
+            p->setIsRead(isRead);
+            p->setFeedID(feedID);
+            p->setFeedTitle(feedTitle);
+            p->setFeedLink(feedLink);
+            p->setTitle(title);
+            p->setLink(link);
+            p->setContent(content);
+            p->setAuthor(author);
+            p->setCommentsURL(commentsURL);
+            p->setGuid(guid);
+            p->setDatePublished(datePublished);
+            p->setThumbnail(thumbnail);
+
+            // query flags
+            std::unordered_set<FlagColor> flags;
+            uint8_t flagID{0};
+            DBStatement selectFlagsStmt(*(Database::getInstance()->session()));
+            selectFlagsStmt << "SELECT DISTINCT(flagID) FROM flags WHERE postID=?", use(id), into(flagID), range(0, 1);
+            while (!selectFlagsStmt.done())
+            {
+                if (selectFlagsStmt.execute() > 0)
+                {
+                    flags.insert(Flag::flagColorForID(flagID));
+                }
+            }
+            p->setFlagColors(flags);
+
+            // query enclosures
+            Enclosure e;
+            DBStatement selectEnclosuresStmt(*(Database::getInstance()->session()));
+            selectEnclosuresStmt << "SELECT url,size,mimetype FROM post_enclosures WHERE postID=?", use(id), into(e.url), into(e.size), into(e.mimeType), range(0, 1);
+            while (!selectEnclosuresStmt.done())
+            {
+                if (selectEnclosuresStmt.execute() > 0)
+                {
+                    p->addEnclosure(e);
+                }
+            }
+
+            queryCategories(p.get());
+
+            posts.emplace_back(std::move(p));
+        }
+    }
+
+    return posts;
+}
+
 std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::querySingle(const std::vector<std::string>& whereClause,
                                                                                           const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings)
 {

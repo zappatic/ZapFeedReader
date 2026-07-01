@@ -42,9 +42,11 @@ namespace ZapFR
                 auto end = high_resolution_clock::now();
                 auto ms = duration_cast<milliseconds>(end - start).count();
 
-                std::println(std::cout, "[SQL]: {}", this->toString());
-                std::println(std::cout, " -duration: {} ms\n", ms);
-
+                if (ms > 0)
+                {
+                    std::println(std::cout, "[SQL]: {}", this->toString());
+                    std::println(std::cout, " -duration: {} ms\n", ms);
+                }
                 return result;
             }
         };

@@ -331,5 +331,6 @@ void ZapFR::Engine::Database::upgradeToDBSchemaV9()
     (*mSession) << R"(CREATE INDEX posts_IX_feedID_sort ON posts (feedID, datePublished DESC))", now;
     (*mSession) << R"(CREATE UNIQUE INDEX IX_post_read_unique ON post_read(postID, feedID))", now;
     (*mSession) << R"(ALTER TABLE posts DROP COLUMN isRead)", now;
+    (*mSession) << R"(CREATE INDEX IX_posts_datePublished ON posts(datePublished DESC))", now;
     (*mSession) << "UPDATE config SET VALUE='9' WHERE key='db_schema_version'", now;
 }

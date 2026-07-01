@@ -21,6 +21,7 @@
 
 #include <Poco/Data/AbstractBinding.h>
 
+#include "ZapFR/Helpers.h"
 #include "ZapFR/base/Post.h"
 
 namespace ZapFR
@@ -48,6 +49,9 @@ namespace ZapFR
 
             static std::vector<std::unique_ptr<Post>> queryMultiple(const std::vector<std::string>& whereClause, const std::string& orderClause,
                                                                     const std::string& limitClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
+            static std::vector<std::unique_ptr<Post>> queryMultipleUnreadFirst(const std::vector<std::string>& whereClause,
+                                                                               const std::vector<BindingFactory>& bindingFactories, uint64_t perPage, uint64_t offset,
+                                                                               bool useDatePublishedIndex);
             static std::optional<std::unique_ptr<Post>> querySingle(const std::vector<std::string>& whereClause,
                                                                     const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);
             static uint64_t queryCount(const std::vector<std::string>& whereClause, const std::vector<Poco::Data::AbstractBinding::Ptr>& bindings);

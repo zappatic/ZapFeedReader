@@ -53,52 +53,61 @@ std::tuple<uint64_t, std::vector<std::unique_ptr<ZapFR::Engine::Post>>> ZapFR::E
                                                                                                            uint64_t categoryFilterID, FlagColor flagColor)
 {
     std::vector<std::string> whereClause;
-    std::vector<Poco::Data::AbstractBinding::Ptr> bindingsPostQuery;
-    std::vector<Poco::Data::AbstractBinding::Ptr> bindingsCountQuery;
+    std::vector<BindingFactory> bindingFactories;
     std::string wildcardSearchFilter = "%" + searchFilter + "%";
     auto fc = Flag::idForFlagColor(flagColor);
 
     whereClause.emplace_back("posts.feedID = ?");
-    bindingsPostQuery.emplace_back(use(mID, "feedID"));
-    bindingsCountQuery.emplace_back(use(mID, "feedID"));
+    bindingFactories.emplace_back(bindUse(mID, "feedID"));
 
     if (showOnlyUnread)
     {
-        whereClause.emplace_back("isRead=FALSE");
+        whereClause.emplace_back("EXISTS (SELECT 1 FROM post_read WHERE post_read.feedID = posts.feedID AND post_read.postID = posts.id)");
     }
     if (!searchFilter.empty())
     {
         whereClause.emplace_back("(posts.title LIKE ? OR posts.content LIKE ?)");
-        bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
-        bindingsPostQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
-        bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
-        bindingsCountQuery.emplace_back(useRef(wildcardSearchFilter, "searchFilter"));
+        bindingFactories.emplace_back(bindUseRef(wildcardSearchFilter, "searchFilter"));
+        bindingFactories.emplace_back(bindUseRef(wildcardSearchFilter, "searchFilter"));
     }
     if (categoryFilterID != 0)
     {
         whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM post_categories WHERE categoryID=?)");
-        bindingsPostQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
-        bindingsCountQuery.emplace_back(useRef(categoryFilterID, "catFilter"));
+        bindingFactories.emplace_back(bindUseRef(categoryFilterID, "catFilter"));
     }
     if (flagColor != FlagColor::Gray)
     {
         whereClause.emplace_back("posts.id IN (SELECT DISTINCT(postID) FROM flags WHERE flagID=?)");
-        bindingsPostQuery.emplace_back(use(fc, "flagColor"));
-        bindingsCountQuery.emplace_back(use(fc, "flagColor"));
+        bindingFactories.emplace_back(bindUse(fc, "flagColor"));
     }
 
     auto offset = perPage * (page - 1);
-    bindingsPostQuery.emplace_back(use(perPage, "perPage"));
-    bindingsPostQuery.emplace_back(use(offset, "offset"));
+    auto unreadFirst = showUnreadPostsAtTop && !showOnlyUnread;
 
-    std::string orderClause = "ORDER BY posts.datePublished DESC";
-    if (showUnreadPostsAtTop)
+    std::vector<std::unique_ptr<Post>> posts;
+    if (unreadFirst)
     {
-        orderClause = "ORDER BY isRead ASC, posts.datePublished DESC";
+        posts = PostLocal::queryMultipleUnreadFirst(whereClause, bindingFactories, perPage, offset, false);
+    }
+    else
+    {
+        std::vector<Poco::Data::AbstractBinding::Ptr> bindings;
+        for (auto& f : bindingFactories)
+        {
+            bindings.emplace_back(f());
+        }
+        bindings.emplace_back(use(perPage, "perPage"));
+        bindings.emplace_back(use(offset, "offset"));
+        posts = PostLocal::queryMultiple(whereClause, "ORDER BY posts.datePublished DESC", "LIMIT ? OFFSET ?", bindings);
     }
 
-    auto posts = PostLocal::queryMultiple(whereClause, orderClause, "LIMIT ? OFFSET ?", bindingsPostQuery);
-    auto count = PostLocal::queryCount(whereClause, bindingsCountQuery);
+    std::vector<Poco::Data::AbstractBinding::Ptr> countBindings;
+    for (auto& f : bindingFactories)
+    {
+        countBindings.emplace_back(f());
+    }
+    auto count = PostLocal::queryCount(whereClause, countBindings);
+
     return std::make_tuple(count, std::move(posts));
 }
 
