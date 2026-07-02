@@ -24,9 +24,6 @@
 
 using namespace Poco::Data::Keywords;
 
-std::mutex ZapFR::Engine::PostLocal::msCreatePostMutex{};
-std::mutex ZapFR::Engine::PostLocal::msCreateCategoryMutex{};
-
 ZapFR::Engine::PostLocal::PostLocal(uint64_t id) : Post(id)
 {
 }
@@ -532,6 +529,7 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
     }
 
     DBStatement insertStmt(*(Database::getInstance()->session()));
+    uint64_t postID{0};
     insertStmt << "INSERT INTO posts ("
                   " feedID"
                   ",title"
@@ -542,19 +540,14 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
                   ",guid"
                   ",datePublished"
                   ",thumbnail"
-                  ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        use(feedID), useRef(title), useRef(link), useRef(content), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), useRef(thumbnailNullable);
+                  ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
+        use(feedID), useRef(title), useRef(link), useRef(content), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), useRef(thumbnailNullable),
+        into(postID), now;
 
-    uint64_t postID{0};
-    {
-        const std::lock_guard<std::mutex> lock(msCreatePostMutex);
-        insertStmt.execute();
-        DBStatement selectInsertRowIDStmt(*(Database::getInstance()->session()));
-        selectInsertRowIDStmt << "SELECT last_insert_rowid()", into(postID), now;
+    insertStmt.execute();
 
-        DBStatement insertStmt2(*(Database::getInstance()->session()));
-        insertStmt2 << "INSERT INTO post_read (postID, feedID) VALUES (?, ?)", use(postID), use(feedID), now;
-    }
+    DBStatement insertStmt2(*(Database::getInstance()->session()));
+    insertStmt2 << "INSERT INTO post_read (postID, feedID) VALUES (?, ?)", use(postID), use(feedID), now;
 
     replaceEnclosures(postID, enclosures);
     replaceCategories(postID, feedID, categories);
@@ -621,14 +614,10 @@ void ZapFR::Engine::PostLocal::replaceCategories(uint64_t postID, uint64_t feedI
         selectStmt << "SELECT id FROM categories WHERE feedID=? AND title=?", into(catID), use(feedID), useRef(catTitle), now;
         if (catID == 0)
         {
+            uint64_t newCatID{0};
             DBStatement insertStmt(*(Database::getInstance()->session()));
-            insertStmt << "INSERT INTO categories (title, feedID) VALUES (?, ?)", useRef(catTitle), use(feedID);
-            {
-                const std::lock_guard<std::mutex> lock(msCreateCategoryMutex);
-                insertStmt.execute();
-                DBStatement selectInsertRowIDStmt(*(Database::getInstance()->session()));
-                selectInsertRowIDStmt << "SELECT last_insert_rowid()", into(catID), now;
-            }
+            insertStmt << "INSERT INTO categories (title, feedID) VALUES (?, ?) RETURNING id", useRef(catTitle), use(feedID), into(newCatID), now;
+            catID = newCatID;
         }
 
         DBStatement insertStmt(*(Database::getInstance()->session()));

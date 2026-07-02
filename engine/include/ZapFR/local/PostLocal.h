@@ -65,9 +65,6 @@ namespace ZapFR
                                                 const std::string& thumbnail, const std::vector<Enclosure>& enclosures, const std::vector<std::string>& categories);
 
           private:
-            static std::mutex msCreatePostMutex;
-            static std::mutex msCreateCategoryMutex;
-
             static void replaceEnclosures(uint64_t postID, const std::vector<Enclosure>& enclosures);
             static void replaceCategories(uint64_t postID, uint64_t feedID, const std::vector<std::string>& categories);
         };
