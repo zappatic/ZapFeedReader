@@ -57,7 +57,7 @@ std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseStri
         auto docEl = xmlDoc->documentElement();
         if (docEl->nodeName() == "rss")
         {
-            if (docEl->hasAttribute("version") && docEl->getAttribute("version") == "2.0")
+            if (docEl->hasAttribute("version") && docEl->getAttribute("version") == "2.0") // TODO check fallthrough if version != 2.0
             {
                 auto feed = std::make_unique<FeedParserRSS20>(originalURL);
                 feed->setXMLDoc(xmlDoc);
@@ -78,7 +78,7 @@ std::unique_ptr<ZapFR::Engine::FeedParser> ZapFR::Engine::FeedFetcher::parseStri
         }
         else
         {
-            throw std::runtime_error("Unkown feed type");
+            throw std::runtime_error("Unknown feed type");
         }
     }
     else if (data.at(0) == '{')

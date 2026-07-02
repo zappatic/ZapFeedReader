@@ -383,10 +383,8 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
     selectStmt.addExtract(into(feedTitle));
     selectStmt.addExtract(into(feedLink));
 
-    selectStmt.execute();
-
-    auto rs = Poco::Data::RecordSet(selectStmt);
-    if (rs.rowCount() == 1)
+    auto rowsFetched = selectStmt.execute();
+    if (rowsFetched == 1)
     {
         auto p = std::make_unique<PostLocal>(id);
         p->setFeedID(feedID);
@@ -544,8 +542,6 @@ std::unique_ptr<ZapFR::Engine::Post> ZapFR::Engine::PostLocal::create(uint64_t f
                   ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
         use(feedID), useRef(title), useRef(link), useRef(content), useRef(author), useRef(commentsURL), useRef(guid), useRef(datePublished), useRef(thumbnailNullable),
         into(postID), now;
-
-    insertStmt.execute();
 
     DBStatement insertStmt2(*(Database::getInstance()->session()));
     insertStmt2 << "INSERT INTO post_read (postID, feedID) VALUES (?, ?)", use(postID), use(feedID), now;
