@@ -20,7 +20,9 @@
 #define ZAPFR_ENGINE_STATEMENT_H
 
 #include <Poco/Data/Statement.h>
+
 #include <chrono>
+#include <source_location>
 
 namespace ZapFR
 {
@@ -31,24 +33,40 @@ namespace ZapFR
           public:
             using Poco::Data::Statement::Statement;
 
-            std::size_t execute(bool reset = true)
+            std::size_t execute(bool reset = true, const std::source_location loc = std::source_location::current())
             {
                 using namespace std::chrono;
 
                 auto start = high_resolution_clock::now();
 
-                auto result = Poco::Data::Statement::execute(reset);
+                size_t result;
+                try
+                {
+                    result = Poco::Data::Statement::execute(reset);
+                }
+                catch (const Poco::Exception& e)
+                {
+                    throw std::runtime_error(e.displayText() + " (thrown at " + loc.file_name() + ":" + std::to_string(loc.line()) + ", in " + loc.function_name() +
+                                             ") SQL: " + this->toString());
+                }
 
                 auto end = high_resolution_clock::now();
                 auto ms = duration_cast<milliseconds>(end - start).count();
 
-                if (ms > 0)
+                if (msLogQueriesToStdout && (!msOmitZeroMsQueries || ms > 0))
                 {
-                    std::println(std::cout, "[SQL]: {}", this->toString());
-                    std::println(std::cout, " -duration: {} ms\n", ms);
+                    std::cout << "[SQL]: " << this->toString() << "\n";
+                    std::cout << " -duration: " << ms << " ms\n";
                 }
                 return result;
             }
+
+            static void setLogQueriesToStdout(bool b) { msLogQueriesToStdout = b; }
+            static void setOmitZeroMsQueries(bool b) { msOmitZeroMsQueries = b; }
+
+          private:
+            static inline bool msLogQueriesToStdout{false};
+            static inline bool msOmitZeroMsQueries{true};
         };
     } // namespace Engine
 } // namespace ZapFR

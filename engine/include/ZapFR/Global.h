@@ -22,11 +22,7 @@
 #include <memory>
 #include <vector>
 
-#ifdef LOGSQL
 #include "ZapFR/LoggingStatement.h"
-#else
-#include <Poco/Data/Statement.h>
-#endif
 
 namespace ZapFR
 {
@@ -340,7 +336,8 @@ namespace ZapFR
 #ifdef LOGSQL
         using DBStatement = LoggingStatement;
 #else
-        using DBStatement = Poco::Data::Statement;
+        using DBStatement = LoggingStatement; // Poco::Data::Statement; // use the logging statement for all builds, but turn off logging and keep advantage of source location
+                                              // during exception
 #endif
 
     } // namespace Engine

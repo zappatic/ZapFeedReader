@@ -17,6 +17,8 @@
 */
 
 #include "Daemon.h"
+#include "ZapFR/Global.h"
+#include "ZapFR/LoggingStatement.h"
 
 #include <grp.h>
 #include <iostream>
@@ -34,6 +36,13 @@ namespace ZapFR
           public:
             int main(const std::vector<std::string>& /*args*/) override
             {
+#ifdef LOGSQL
+                ZapFR::Engine::DBStatement::setLogQueriesToStdout(true);
+                ZapFR::Engine::DBStatement::setOmitZeroMsQueries(true);
+#else
+                ZapFR::Engine::DBStatement::setLogQueriesToStdout(false);
+#endif
+
                 auto daemon = Daemon();
                 daemon.boot();
 

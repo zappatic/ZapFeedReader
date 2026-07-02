@@ -358,6 +358,7 @@ std::optional<std::unique_ptr<ZapFR::Engine::Post>> ZapFR::Engine::PostLocal::qu
         ss << " WHERE ";
         ss << Helpers::joinString(whereClause, " AND ");
     }
+    ss << " LIMIT 1";
 
     auto sql = ss.str();
 
@@ -611,7 +612,9 @@ void ZapFR::Engine::PostLocal::replaceCategories(uint64_t postID, uint64_t feedI
     {
         uint64_t catID{0};
         DBStatement selectStmt(*(Database::getInstance()->session()));
-        selectStmt << "SELECT id FROM categories WHERE feedID=? AND title=?", into(catID), use(feedID), useRef(catTitle), now;
+        selectStmt << "SELECT id FROM categories WHERE feedID=? AND title=?", into(catID), use(feedID), useRef(catTitle), range(0, 1);
+        selectStmt.execute();
+
         if (catID == 0)
         {
             uint64_t newCatID{0};

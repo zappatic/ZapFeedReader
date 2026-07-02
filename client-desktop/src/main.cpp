@@ -20,12 +20,21 @@
 #include <QApplication>
 #include <QTranslator>
 
+#include "ZapFR/Global.h"
+#include "ZapFR/LoggingStatement.h"
 #include "widgets/MainWindow.h"
 
 int main(int argc, char* argv[])
 {
     Poco::Net::initializeSSL();
     Poco::Net::initializeNetwork();
+
+#ifdef LOGSQL
+    ZapFR::Engine::DBStatement::setLogQueriesToStdout(true);
+    ZapFR::Engine::DBStatement::setOmitZeroMsQueries(true);
+#else
+    ZapFR::Engine::DBStatement::setLogQueriesToStdout(false);
+#endif
 
     QApplication a(argc, argv);
 
